@@ -11,7 +11,7 @@ import { map } from 'rxjs/operators';
     styleUrls: ['./main-page.component.scss'],
 })
 export class MainPageComponent {
-    readonly title: string = 'LOG2990';
+    readonly title: string = 'Quizzard';
     message: BehaviorSubject<string> = new BehaviorSubject<string>('');
 
     constructor(private readonly communicationService: CommunicationService) {}
