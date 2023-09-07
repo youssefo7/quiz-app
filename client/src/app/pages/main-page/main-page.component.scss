@@ -11,8 +11,17 @@
 }
 
 .button {
-    margin-top: 10px;
+    padding: 18px 30px;
+    margin-top: 5px;
+    font-size: 15px; 
     text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 3px #606060;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #747474;
 }
 
 .team-name {
