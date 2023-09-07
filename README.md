@@ -24,7 +24,7 @@ Pour ajouter une dépendance comme une dépendance de développement (ex : libra
 
 Un ajout de dépendance modifiera les fichiers `package.json` et `package-lock.json`.
 
-**Important** : assurez-vous d'ajouter ces modifications dans votre Git. N'installez jamais une dépendance du projet globalement.
+***_Important_*** : assurez-vous d'ajouter ces modifications dans votre Git. N'installez jamais une dépendance du projet globalement.
 
 # Client
 
