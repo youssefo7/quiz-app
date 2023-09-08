@@ -1,0 +1,18 @@
+<table>
+  <tr>
+    <th>Nom du jeu</th>
+    <th>Date de création</th>
+    <th>Actions</th>
+  </tr>
+  <tr *ngFor="let game of games">
+    <td>{{ game.name }}</td>
+    <td>{{ game.dateCreated }}</td>
+    <td>
+      <button (click)="deleteGame(game)">Supprimer</button>
+      <button (click)="exportGame(game)">Exporter</button>
+      <button (click)="editGame(game)">Modifier</button>
+      <button (click)="toggleVisibility(game)">{{ game.visible ? 'Cacher' : 'Afficher' }}</button>
+    </td>
+  </tr>
+</table>
+
