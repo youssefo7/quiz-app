@@ -35,7 +35,6 @@ import { QuizListComponent } from './components/quiz-list/quiz-list.component';
         AdminPageComponent,
         HostGamePageComponent,
         TopBarComponent,
-        GameListComponent,
         QuizListComponent,
         AdminPopupComponent,
     ],
