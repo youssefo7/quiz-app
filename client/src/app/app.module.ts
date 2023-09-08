@@ -17,6 +17,7 @@ import { AdminPageComponent } from './pages/admin-page/admin-page.component';
 import { HostGamePageComponent } from './pages/host-game-page/host-game-page.component';
 import { AdminPopupComponent } from './components/admin-popup/admin-popup.component';
 import { QuizListComponent } from './components/quiz-list/quiz-list.component';
+import { GameListComponent } from './components/game-list/game-list.component';
 
 /**
  * Main module that is used in main.ts.
@@ -35,6 +36,7 @@ import { QuizListComponent } from './components/quiz-list/quiz-list.component';
         AdminPageComponent,
         HostGamePageComponent,
         TopBarComponent,
+        GameListComponent,
         QuizListComponent,
         AdminPopupComponent,
     ],
