@@ -1,0 +1,27 @@
+[
+  {
+    "name": "Game 1",
+    "dateCreated": "2023-09-01",
+    "visible": true
+  },
+  {
+    "name": "Game 2",
+    "dateCreated": "2023-09-02",
+    "visible": false
+  },
+  {
+    "name": "Game 3",
+    "dateCreated": "2023-09-03",
+    "visible": true
+  },
+  {
+    "name": "Game 4",
+    "dateCreated": "2023-09-04",
+    "visible": false
+  },
+  {
+    "name": "Game 5",
+    "dateCreated": "2023-09-05",
+    "visible": true
+  }
+]
