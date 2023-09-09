@@ -46,4 +46,3 @@ export class MainPageComponent {
             .subscribe(this.message);
     }
 }
-
