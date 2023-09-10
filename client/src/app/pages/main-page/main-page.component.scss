@@ -18,7 +18,7 @@
   
   @media screen and (max-width: 750px) {
     .button {
-        width: fit-content;
+        width: 30%;
     }
   }
 
@@ -30,8 +30,6 @@
     border-radius: 10px;
     box-shadow: 0 3px #606060;
     cursor: pointer;
-    // width: 15%;
-    //width: fit-content;
 }
 
 .button:hover {
