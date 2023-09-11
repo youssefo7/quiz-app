@@ -1,0 +1,36 @@
+<div class="container-list">
+    <h2>Liste des jeux disponibles</h2>
+    <table border="1">
+        <tr>
+            <th>Nom du jeu</th>
+            <th>Date de création</th>
+        </tr>
+        <tbody>
+            <ng-container *ngFor="let game of visibleGames; let i = index">
+                <tr>                    
+                    <td>{{ game.name }}</td>
+                    <td>{{ game.dateCreated }}</td>
+                    <td>
+                        <button (click)="toggleDetails(i)">...</button>
+                    </td>
+                </tr>
+                <tr *ngIf="selectedGameIndex === i">
+                    <td colspan="3">
+                        <div class="game-details">
+                            <h3>Détails du jeu
+                                <button (click)="testGame(game)">Tester le jeu</button>
+                                <button (click)="createGame(game)">Créer une partie</button>
+                            </h3>
+                            <p>Description : {{ game.description }}</p>
+                            <p>Temps alloué : {{ game.time }}</p>
+                            <h3>Liste des questions :</h3>
+                            <ul>
+                                <li *ngFor="let question of game.questions"> {{ question.text }} </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            </ng-container>
+        </tbody>
+    </table>
+</div>
