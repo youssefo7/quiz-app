@@ -6,15 +6,15 @@
             <th>Date de création</th>
         </tr>
         <tbody>
-            <ng-container *ngFor="let game of visibleGames; let i = index">
+            <ng-container *ngFor="let game of visibleGames">
                 <tr>                    
                     <td>{{ game.name }}</td>
                     <td>{{ game.dateCreated }}</td>
                     <td>
-                        <button (click)="toggleDetails(i)">...</button>
+                        <button (click)="toggleDetails(game.id)">...</button>
                     </td>
                 </tr>
-                <tr *ngIf="selectedGameIndex === i">
+                <tr *ngIf="selectedGameId === game.id">
                     <td colspan="3">
                         <div class="game-details">
                             <h3>Détails du jeu

@@ -20,17 +20,18 @@ describe('CreationGameListComponent', () => {
 
     it('should toggle game details', () => {
         component.toggleDetails(0);
-        expect(component.selectedGameIndex).toBe(0);
+        expect(component.selectedGameId).toBe(0);
 
         component.toggleDetails(1);
-        expect(component.selectedGameIndex).toBe(1);
+        expect(component.selectedGameId).toBe(1);
 
         component.toggleDetails(1);
-        expect(component.selectedGameIndex).toBe(null);
+        expect(component.selectedGameId).toBe(null);
     });
 
     it('should only show visible games', () => {
         const visibleGame = {
+            id: '1',
             name: 'visible',
             dateCreated: '11-11-11',
             visible: true,
@@ -39,6 +40,7 @@ describe('CreationGameListComponent', () => {
             questions: [],
         };
         const notVisibleGame = {
+            id: '2',
             name: 'invisible',
             dateCreated: '11-11-11',
             visible: false,
@@ -93,8 +95,7 @@ describe('CreationGameListComponent', () => {
         const noQuestions = component.getQuestionsArray(gameWithoutQuestions);
         const hasQuestions = component.getQuestionsArray(gameWithQuestions);
 
-        expect(noQuestions).toBeNull();
-        expect(noQuestions.length).toEqual(0);
+        expect(noQuestions).toEqual([]);
         expect(hasQuestions.length).toEqual(2);
         expect(hasQuestions[0].text).toBe('Question 1');
         expect(hasQuestions[1].text).toBe('Question 2');

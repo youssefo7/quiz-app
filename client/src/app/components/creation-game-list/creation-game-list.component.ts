@@ -8,6 +8,7 @@ import { Game, QuizQuestion } from '@app/interfaces/games';
 })
 export class CreationGameListComponent {
     games: {
+        id: string;
         name: string;
         dateCreated: string;
         visible: boolean;
@@ -16,6 +17,7 @@ export class CreationGameListComponent {
         questions: QuizQuestion[];
     }[] = [
         {
+            id: '1',
             name: 'jeu1',
             dateCreated: '11-11-11',
             visible: true,
@@ -24,14 +26,33 @@ export class CreationGameListComponent {
             questions: [],
         },
         {
+            id: '2',
             name: 'jeu2',
             dateCreated: '22-22-22',
             visible: true,
             description: 'description jeu2',
             time: '22:22',
-            questions: [],
+            questions: [
+                {
+                    type: 'QCM',
+                    text: 'Question 1',
+                    choices: [
+                        { text: 'Choice 1', isCorrect: false },
+                        { text: 'Choice 2', isCorrect: true },
+                    ],
+                },
+                {
+                    type: 'QCM',
+                    text: 'Question 2',
+                    choices: [
+                        { text: 'Choice 1', isCorrect: true },
+                        { text: 'Choice 2', isCorrect: false },
+                    ],
+                },
+            ],
         },
         {
+            id: '3',
             name: 'jeu3',
             dateCreated: '33-33-33',
             visible: false,
@@ -41,29 +62,25 @@ export class CreationGameListComponent {
         },
     ];
 
-    // selectedGame: Game | null = null;
     gameHiddenOrDeleted: boolean = false;
     visibleGames: Game[] = [];
-    selectedGameIndex: number | null = null;
+    selectedGameId: number | null = null;
 
     constructor() {
         this.visibleGames = this.getVisibleGames();
     }
 
-    toggleDetails(index: number): void {
-        if (this.selectedGameIndex === index) {
-            this.selectedGameIndex = null;
+    toggleDetails(gameId: number): void {
+        if (this.selectedGameId === gameId) {
+            this.selectedGameId = null;
         } else {
-            this.selectedGameIndex = index;
+            this.selectedGameId = gameId;
         }
         this.gameHiddenOrDeleted = false;
     }
 
     getQuestionsArray(game: Game): QuizQuestion[] {
-        if (game.questions && game.questions) {
-            return game.questions;
-        }
-        return [];
+        return game.questions || [];
     }
 
     getVisibleGames(): Game[] {
