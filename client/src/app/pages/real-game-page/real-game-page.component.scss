@@ -1,14 +1,17 @@
-.grid-container {
+#grid-container {
     display: grid;
     grid-template-rows: 15% 85%;
     grid-template-columns: 15% 60% 25%;
-    height: 100vh;
+    margin: auto;
+    height: 90vh;
+    width: 90vw;
 
     #exit-button-grid {
         grid-row: 1 / 2;
         grid-column: 1 / 2;
         border: 1px solid black;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
 
@@ -21,6 +24,10 @@
         .mat-icon:hover {
             color: red;
             cursor: pointer;
+        }
+
+        span {
+            font-size: 0.8vw;
         }
     }
 
@@ -39,7 +46,7 @@
         }
     }
 
-    .countdown-grid {
+    #countdown-grid {
         grid-row: 2 / 3;
         grid-column: 1 / 2;
         border: 1px solid black;
@@ -64,7 +71,6 @@
         }
 
         p {
-            font-weight: bold;
             font-size: 1vw;
             margin-right: 5px;
         }
@@ -74,11 +80,9 @@
         grid-row: 2 / 3;
         grid-column: 2 / 3;
         border: 1px solid black;
-        //justify-self: center;
-        //align-self: center;
     }
 
-    .chat-player-grid {
+    #chat-player-grid {
         grid-row: 2 / 3;
         grid-column: 3 / 4;
         border: 1px solid black;
@@ -111,7 +115,5 @@
     #chat-grid {
         grid-row: 2 / 3;
         border: 1px solid black;
-        //justify-self: center;
-        //align-self: center;
     }
 }

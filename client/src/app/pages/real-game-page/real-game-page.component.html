@@ -1,16 +1,19 @@
-<div class="grid-container">
+<div id="grid-container">
     <div id="exit-button-grid">
-        <mat-icon routerLink="home" title="Leave Game" inline="true">exit_to_app</mat-icon>
+        <mat-icon routerLink="home" title="Quitter la Partie" inline="true">exit_to_app</mat-icon>
+        <span>Quitter</span>
     </div>
     <div id="game-title-grid">
         <h2>Nom du Jeu</h2>
     </div>
-    <div class="countdown-grid">
+    <div id="countdown-grid">
         <p>Temps Restant</p>
         <p id="countdown">10</p>
     </div>
-    <div id="questions-grid">Zone de question</div>
-    <div class="chat-player-grid">
+    <div id="questions-grid">
+        <app-question-zone></app-question-zone>
+    </div>
+    <div id="chat-player-grid">
         <div id="player-grid">
             <mat-icon inline="true">person</mat-icon>
             <p>
