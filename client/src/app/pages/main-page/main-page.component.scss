@@ -22,7 +22,7 @@
     }
   }
 
-.button {
+.home-page-button {
     padding: 18px 30px;
     margin-top: 5px;
     font-size: 15px; 
@@ -42,11 +42,6 @@
     color: green;
 }
 
-.header-item {
-    justify-content: center;
-    text-align: center;
-}
-
 .footer-item {
     text-align: center;
 }
@@ -56,10 +51,4 @@
 }
 .footer-item p :nth-child(odd) {
     color: blue;
-}
-
-.server-message {
-    justify-content: center;
-    width: 20%;
-    min-width: min-content;
 }

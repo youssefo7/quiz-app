@@ -1,9 +1,8 @@
-import { HttpClientModule, HttpResponse } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { CommunicationService } from '@app/services/communication.service';
-import { of, throwError } from 'rxjs';
 import SpyObj = jasmine.SpyObj;
 
 describe('MainPageComponent', () => {
@@ -12,9 +11,9 @@ describe('MainPageComponent', () => {
     let communicationServiceSpy: SpyObj<CommunicationService>;
 
     beforeEach(async () => {
-        communicationServiceSpy = jasmine.createSpyObj('ExampleService', ['basicGet', 'basicPost']);
-        communicationServiceSpy.basicGet.and.returnValue(of({ title: '', body: '' }));
-        communicationServiceSpy.basicPost.and.returnValue(of(new HttpResponse<string>({ status: 201, statusText: 'Created' })));
+        // communicationServiceSpy = jasmine.createSpyObj('ExampleService', ['basicGet', 'basicPost']);
+        // communicationServiceSpy.basicGet.and.returnValue(of({ title: '', body: '' }));
+        // communicationServiceSpy.basicPost.and.returnValue(of(new HttpResponse<string>({ status: 201, statusText: 'Created' })));
 
         await TestBed.configureTestingModule({
             imports: [RouterTestingModule, HttpClientModule],
@@ -33,34 +32,18 @@ describe('MainPageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it("should have as title 'Quizzard'", () => {
-        expect(component.title).toEqual('Quizzard');
+    it('The redirection page for the administer les jeux button should be /admin', () => {
+        const adminButton = fixture.debugElement.nativeElement.querySelector('#admin-button');
+        expect(adminButton.getAttribute('RouterLink')).toEqual('/admin');
     });
 
-    it('should call basicGet when calling getMessagesFromServer', () => {
-        component.getMessagesFromServer();
-        expect(communicationServiceSpy.basicGet).toHaveBeenCalled();
+    it('The redirection page for the joindre un jeu button should be /game', () => {
+        const adminButton = fixture.debugElement.nativeElement.querySelector('#join-game-button');
+        expect(adminButton.getAttribute('RouterLink')).toEqual('/game');
     });
 
-    it('should call basicPost when calling sendTimeToServer', () => {
-        component.sendTimeToServer();
-        expect(communicationServiceSpy.basicPost).toHaveBeenCalled();
-    });
-
-    it('should handle basicPost that returns a valid HTTP response', () => {
-        component.sendTimeToServer();
-        component.message.subscribe((res) => {
-            expect(res).toContain('201 : Created');
-        });
-    });
-
-    it('should handle basicPost that returns an invalid HTTP response', () => {
-        communicationServiceSpy.basicPost.and.returnValue(throwError(() => new Error('test')));
-        component.sendTimeToServer();
-        component.message.subscribe({
-            next: (res) => {
-                expect(res).toContain('Le serveur ne répond pas');
-            },
-        });
+    it('The redirection page for the creer un jeu button should be /game/new', () => {
+        const newGameButton = fixture.debugElement.nativeElement.querySelector('#new-game-button');
+        expect(newGameButton.getAttribute('RouterLink')).toEqual('/game/new');
     });
 });
