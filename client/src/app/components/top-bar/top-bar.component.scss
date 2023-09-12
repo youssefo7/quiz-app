@@ -1,0 +1,20 @@
+header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #082540;
+    background-color: #bbdaf7;
+    padding: 0px 8px;
+}
+
+img {
+    padding-top: 5px;
+    width: 55px;
+    height: 100%;
+}
+
+h1 {
+    margin: unset;
+    color: #082540;
+}
