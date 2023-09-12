@@ -1,0 +1,52 @@
+.chat-container {
+    background-color: lightgray;
+    height: 100%;
+    width: 100%;
+    display: grid;
+    grid-template-rows: 90% 10%;
+
+    #message-box {
+        grid-row: 1 / 2;
+        background-color: white;
+        width: 95%;
+        height: 95%;
+        margin: auto;
+        border-radius: 15px;
+        border-style: inset;
+        border-width: thin;
+
+        p {
+            text-align: center;
+            font-size: 1.5vw;
+        }
+    }
+
+    #text-input {
+        grid-row: 2 / 3;
+        display: grid;
+        grid-template-columns: 90% 10%;
+        align-items: center;
+
+        textarea {
+            grid-column: 1 / 2;
+            width: 90%;
+            max-width: 90%;
+            resize: none;
+            border-radius: 50px;
+            justify-self: center;
+            font-size: 1vw;
+            font-family: Arial, Helvetica, sans-serif;
+            padding-left: 5%;
+        }
+
+        .mat-icon {
+            grid-column: 2 / 3;
+            font-size: 2vw;
+        }
+
+        .mat-icon:hover {
+            cursor: pointer;
+            color: blue;
+        }
+    }
+}

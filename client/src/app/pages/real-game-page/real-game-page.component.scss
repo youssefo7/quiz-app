@@ -1,110 +1,117 @@
 .grid-container {
     display: grid;
     grid-template-rows: 15% 85%;
-    grid-template-columns: 20% 60% 20%;
+    grid-template-columns: 15% 60% 25%;
     height: 100vh;
-}
 
-.exit-button-grid {
-    grid-row: 1 / 2;
-    grid-column: 1 / 2;
-    border: 1px solid black;
-    display: flex;
-    flex-flow: row wrap;
-    align-items: center;
-    justify-content: center;
+    #exit-button-grid {
+        grid-row: 1 / 2;
+        grid-column: 1 / 2;
+        border: 1px solid black;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
-    .mat-icon {
-        transform: scale(2);
+        .mat-icon {
+            font-size: 2.5vw;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .mat-icon:hover {
+            color: red;
+            cursor: pointer;
+        }
     }
 
-    .mat-icon:hover {
-        color: red;
-        cursor: pointer;
+    #game-title-grid {
+        grid-row: 1 / 2;
+        grid-column: 2 / 3;
+        border: 1px solid black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        h2 {
+            text-align: center;
+            font-size: 3vw;
+            font-family: Arial, Helvetica, sans-serif;
+        }
     }
-}
 
-.game-title-grid {
-    grid-row: 1 / 2;
-    grid-column: 2 / 3;
-    border: 1px solid black;
+    .countdown-grid {
+        grid-row: 2 / 3;
+        grid-column: 1 / 2;
+        border: 1px solid black;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
 
-    h2 {
-        text-align: center;
-        font-size: 3.5em;
-        font-family: Coperplate, Arial;
-    }
-}
-
-.countdown-grid {
-    grid-row: 2 / 3;
-    grid-column: 1 / 2;
-    border: 1px solid black;
-    display: flex;
-    flex-direction: column;
-    align-items: end;
-
-    #countdown-circle {
-        background: lightblue;
-        border-radius: 50%;
-        width: 100px;
-        height: 100px;
+        #countdown {
+            font-size: 2vw;
+            font-weight: bold;
+            text-align: center;
+            max-width: 100%;
+            max-height: 90%;
+            background-color: lightblue;
+            padding: 7%;
+            box-sizing: border-box;
+            border-style: solid;
+            border-radius: 50%;
+            border-color: black;
+            border-width: 0.15em;
+            margin: 5px;
+        }
 
         p {
-            font-size: xx-large;
             font-weight: bold;
+            font-size: 1vw;
+            margin-right: 5px;
+        }
+    }
+
+    #questions-grid {
+        grid-row: 2 / 3;
+        grid-column: 2 / 3;
+        border: 1px solid black;
+        //justify-self: center;
+        //align-self: center;
+    }
+
+    .chat-player-grid {
+        grid-row: 2 / 3;
+        grid-column: 3 / 4;
+        border: 1px solid black;
+        display: grid;
+        grid-template-rows: 15% 85%;
+    }
+
+    #player-grid {
+        grid-row: 1 / 2;
+        border: 1px solid black;
+        display: grid;
+        grid-template-columns: 30% 70%;
+        align-items: center;
+
+        .mat-icon {
+            grid-column: 1 / 2;
+            font-size: 3vw;
+            justify-self: center;
+        }
+
+        p {
+            grid-column: 2 / 3;
+            font-weight: bold;
+            font-size: 1.5vw;
+            justify-self: start;
             text-align: center;
         }
     }
 
-    p {
-        font-weight: bold;
+    #chat-grid {
+        grid-row: 2 / 3;
+        border: 1px solid black;
+        //justify-self: center;
+        //align-self: center;
     }
-}
-
-.questions-grid {
-    grid-row: 2 / 3;
-    grid-column: 2 / 3;
-    border: 1px solid black;
-    justify-self: center;
-    align-self: center;
-}
-
-.chat-player-grid {
-    grid-row: 2 / 3;
-    grid-column: 3 / 4;
-    border: 1px solid black;
-    display: grid;
-    grid-template-rows: 15% 85%;
-}
-
-.player-grid {
-    grid-row: 1 / 2;
-    border: 1px solid black;
-    display: grid;
-    grid-template-columns: 30% 70%;
-    align-items: center;
-
-    .mat-icon {
-        grid-column: 1 / 2;
-        //transform: scale(1);
-        //transform-origin: left;
-        justify-self: center;
-        max-width: 100%;
-    }
-
-    p {
-        grid-column: 2 / 3;
-        font-weight: bold;
-        font-size: large;
-        justify-self: start;
-        text-align: center;
-    }
-}
-
-.chat-grid {
-    grid-row: 2 / 3;
-    border: 1px solid black;
-    justify-self: center;
-    align-self: center;
 }

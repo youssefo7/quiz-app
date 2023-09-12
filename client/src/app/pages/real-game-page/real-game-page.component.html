@@ -1,26 +1,26 @@
 <div class="grid-container">
-    <div class="exit-button-grid">
-        <mat-icon routerLink="home" title="Leave Game">exit_to_app</mat-icon>
+    <div id="exit-button-grid">
+        <mat-icon routerLink="home" title="Leave Game" inline="true">exit_to_app</mat-icon>
     </div>
-    <div class="game-title-grid">
+    <div id="game-title-grid">
         <h2>Nom du Jeu</h2>
     </div>
     <div class="countdown-grid">
         <p>Temps Restant</p>
-        <div id="countdown-circle">
-            <p>10</p>
-        </div>
+        <p id="countdown">10</p>
     </div>
-    <div class="questions-grid">Zone de question</div>
+    <div id="questions-grid">Zone de question</div>
     <div class="chat-player-grid">
-        <div class="player-grid">
-            <mat-icon>person</mat-icon>
+        <div id="player-grid">
+            <mat-icon inline="true">person</mat-icon>
             <p>
-                Player A
+                Joueur A
                 <br />
                 XYZ points
             </p>
         </div>
-        <div class="chat-grid">Zone clavardage</div>
+        <div id="chat-grid">
+            <app-chat></app-chat>
+        </div>
     </div>
 </div>
