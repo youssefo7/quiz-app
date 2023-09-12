@@ -9,10 +9,10 @@ import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AppMaterialModule } from '@app/modules/material.module';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { AppComponent } from '@app/pages/app/app.component';
-import { CreateGamePageComponent } from '@app/pages/create-game-page/create-game-page.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
+import { HostGamePageComponent } from './pages/host-game-page/host-game-page.component';
 
 /**
  * Main module that is used in main.ts.
@@ -29,7 +29,7 @@ import { MaterialPageComponent } from '@app/pages/material-page/material-page.co
         PlayAreaComponent,
         SidebarComponent,
         AdminPageComponent,
-        CreateGamePageComponent,
+        HostGamePageComponent,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule],
     providers: [],

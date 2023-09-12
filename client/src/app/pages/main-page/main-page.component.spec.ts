@@ -32,18 +32,18 @@ describe('MainPageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('The redirection page for the administer les jeux button should be /admin', () => {
+    it('The redirection page for the Administer games button should be /admin', () => {
         const adminButton = fixture.debugElement.nativeElement.querySelector('#admin-button');
         expect(adminButton.getAttribute('RouterLink')).toEqual('/admin');
     });
 
-    it('The redirection page for the joindre un jeu button should be /game', () => {
+    it('The redirection page for the join game button should be /game', () => {
         const adminButton = fixture.debugElement.nativeElement.querySelector('#join-game-button');
         expect(adminButton.getAttribute('RouterLink')).toEqual('/game');
     });
 
-    it('The redirection page for the creer un jeu button should be /game/new', () => {
-        const newGameButton = fixture.debugElement.nativeElement.querySelector('#new-game-button');
-        expect(newGameButton.getAttribute('RouterLink')).toEqual('/game/new');
+    it('The redirection page for the host game button should be /game/new', () => {
+        const hostGameButton = fixture.debugElement.nativeElement.querySelector('#host-game-button');
+        expect(hostGameButton.getAttribute('RouterLink')).toEqual('/game/new');
     });
 });
