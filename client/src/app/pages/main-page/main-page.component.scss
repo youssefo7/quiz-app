@@ -14,18 +14,18 @@
     .home-page-button {
         width: 15%;
     }
-  }
-  
+}
+
 @media screen and (max-width: 750px) {
     .home-page-button {
         width: 30%;
     }
-  }
+}
 
 .home-page-button {
     padding: 18px 30px;
     margin-top: 5px;
-    font-size: 15px; 
+    font-size: 15px;
     text-align: center;
     border-radius: 10px;
     box-shadow: 0 3px #606060;
@@ -33,13 +33,13 @@
 }
 
 .home-page-button:hover {
-    background-color: #505050;
+    background-color: #bbdaf7;
 }
 
 .team-name {
     margin-top: 0.25em;
     margin-bottom: 0.25em;
-    color: #04243C;
+    color: #04243c;
 }
 
 .footer-item {

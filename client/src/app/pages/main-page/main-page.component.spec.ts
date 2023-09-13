@@ -15,27 +15,30 @@ describe('MainPageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('Should have an administer game button redirecting to /admin', () => {
+    it('should have a "Administer les jeux" button redirecting to /admin', () => {
         const adminButton = fixture.debugElement.nativeElement.querySelector('#admin-button');
+        expect(adminButton.innerText).toEqual('Administrer les jeux');
         expect(adminButton.getAttribute('RouterLink')).toEqual('/admin');
     });
 
-    it('Should have a join game button redirecting to /game', () => {
-        const adminButton = fixture.debugElement.nativeElement.querySelector('#join-game-button');
-        expect(adminButton.getAttribute('RouterLink')).toEqual('/game');
+    it('should have a "Joindre une partie" button redirecting to /game', () => {
+        const joinGameButton = fixture.debugElement.nativeElement.querySelector('#join-game-button');
+        expect(joinGameButton.innerText).toEqual('Joindre une partie');
+        expect(joinGameButton.getAttribute('RouterLink')).toEqual('/game');
     });
 
-    it('Should have a host game button redirecting to /game/host', () => {
+    it('should have a "Créer une partie" button redirecting to /game/host', () => {
         const hostGameButton = fixture.debugElement.nativeElement.querySelector('#host-game-button');
+        expect(hostGameButton.innerText).toEqual('Créer une partie');
         expect(hostGameButton.getAttribute('RouterLink')).toEqual('/game/host');
     });
 
-    it('Should have a section heading containing the team number', () => {
+    it('should have a section heading containing the team number', () => {
         const teamName = fixture.debugElement.nativeElement.querySelector('h4');
         expect(teamName.innerHTML).toBe('Équipe Poly 207');
     });
 
-    it('Should have teammate names in the footer of the page', () => {
+    it('should have teammate names in the page', () => {
         const teammates = fixture.debugElement.nativeElement.querySelector('#name-list');
         const nNames = 6;
         expect(teammates.childElementCount).toBe(nNames);
