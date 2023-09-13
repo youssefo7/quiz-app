@@ -1,26 +1,9 @@
-import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
-import { CommunicationService } from '@app/services/communication.service';
-import SpyObj = jasmine.SpyObj;
 
 describe('MainPageComponent', () => {
     let component: MainPageComponent;
     let fixture: ComponentFixture<MainPageComponent>;
-    let communicationServiceSpy: SpyObj<CommunicationService>;
-
-    beforeEach(async () => {
-        // communicationServiceSpy = jasmine.createSpyObj('ExampleService', ['basicGet', 'basicPost']);
-        // communicationServiceSpy.basicGet.and.returnValue(of({ title: '', body: '' }));
-        // communicationServiceSpy.basicPost.and.returnValue(of(new HttpResponse<string>({ status: 201, statusText: 'Created' })));
-
-        await TestBed.configureTestingModule({
-            imports: [RouterTestingModule, HttpClientModule],
-            declarations: [MainPageComponent],
-            providers: [{ provide: CommunicationService, useValue: communicationServiceSpy }],
-        }).compileComponents();
-    });
 
     beforeEach(() => {
         fixture = TestBed.createComponent(MainPageComponent);
@@ -32,18 +15,33 @@ describe('MainPageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('The redirection page for the Administer games button should be /admin', () => {
+    it('Should have an administer game button redirecting to /admin', () => {
         const adminButton = fixture.debugElement.nativeElement.querySelector('#admin-button');
         expect(adminButton.getAttribute('RouterLink')).toEqual('/admin');
     });
 
-    it('The redirection page for the join game button should be /game', () => {
+    it('Should have a join game button redirecting to /game', () => {
         const adminButton = fixture.debugElement.nativeElement.querySelector('#join-game-button');
         expect(adminButton.getAttribute('RouterLink')).toEqual('/game');
     });
 
-    it('The redirection page for the host game button should be /game/new', () => {
+    it('Should have a host game button redirecting to /game/new', () => {
         const hostGameButton = fixture.debugElement.nativeElement.querySelector('#host-game-button');
-        expect(hostGameButton.getAttribute('RouterLink')).toEqual('/game/new');
+        expect(hostGameButton.getAttribute('RouterLink')).toEqual('/game/host');
+    });
+
+    it('Should have a section heading containing the team number', () => {
+        const teamName = fixture.debugElement.nativeElement.querySelector('h4');
+        expect(teamName.classList).toContain('team-name');
+    });
+
+    it('Should have teammate names in the footer of the page', () => {
+        const teammates = fixture.debugElement.nativeElement.querySelector('p');
+        const firstChild = teammates.firstChild;
+        const lastChild = teammates.lastChild;
+        const nNames = 6;
+        expect(teammates.childElementCount).toBe(nNames);
+        expect(firstChild.classList).toContain('teammate-name');
+        expect(lastChild.classList).toContain('teammate-name');
     });
 });

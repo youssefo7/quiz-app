@@ -11,7 +11,7 @@ const routes: Routes = [
     { path: 'home', component: MainPageComponent },
     { path: 'game', component: GamePageComponent },
     { path: 'admin', component: AdminPageComponent },
-    { path: 'game/new', component: HostGamePageComponent },
+    { path: 'game/host', component: HostGamePageComponent },
     { path: 'material', component: MaterialPageComponent },
     { path: '**', redirectTo: '/home' },
 ];
