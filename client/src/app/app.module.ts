@@ -13,6 +13,7 @@ import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
 import { TopBarComponent } from './components/top-bar/top-bar.component';
+import { CreateGamePageComponent } from './pages/create-game-page/create-game-page.component';
 import { HostGamePageComponent } from './pages/host-game-page/host-game-page.component';
 
 /**
@@ -32,6 +33,7 @@ import { HostGamePageComponent } from './pages/host-game-page/host-game-page.com
         AdminPageComponent,
         HostGamePageComponent,
         TopBarComponent,
+        CreateGamePageComponent,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule],
     providers: [],
