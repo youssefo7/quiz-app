@@ -1,27 +1,9 @@
-import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
-import { CommunicationService } from '@app/services/communication.service';
-import { of, throwError } from 'rxjs';
-import SpyObj = jasmine.SpyObj;
 
 describe('MainPageComponent', () => {
     let component: MainPageComponent;
     let fixture: ComponentFixture<MainPageComponent>;
-    let communicationServiceSpy: SpyObj<CommunicationService>;
-
-    beforeEach(async () => {
-        communicationServiceSpy = jasmine.createSpyObj('ExampleService', ['basicGet', 'basicPost']);
-        communicationServiceSpy.basicGet.and.returnValue(of({ title: '', body: '' }));
-        communicationServiceSpy.basicPost.and.returnValue(of(new HttpResponse<string>({ status: 201, statusText: 'Created' })));
-
-        await TestBed.configureTestingModule({
-            imports: [RouterTestingModule, HttpClientModule],
-            declarations: [MainPageComponent],
-            providers: [{ provide: CommunicationService, useValue: communicationServiceSpy }],
-        }).compileComponents();
-    });
 
     beforeEach(() => {
         fixture = TestBed.createComponent(MainPageComponent);
@@ -33,34 +15,35 @@ describe('MainPageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it("should have as title 'LOG2990'", () => {
-        expect(component.title).toEqual('LOG2990');
+    it('Should have an administer game button redirecting to /admin', () => {
+        const adminButton = fixture.debugElement.nativeElement.querySelector('#admin-button');
+        expect(adminButton.getAttribute('RouterLink')).toEqual('/admin');
     });
 
-    it('should call basicGet when calling getMessagesFromServer', () => {
-        component.getMessagesFromServer();
-        expect(communicationServiceSpy.basicGet).toHaveBeenCalled();
+    it('Should have a join game button redirecting to /game', () => {
+        const adminButton = fixture.debugElement.nativeElement.querySelector('#join-game-button');
+        expect(adminButton.getAttribute('RouterLink')).toEqual('/game');
     });
 
-    it('should call basicPost when calling sendTimeToServer', () => {
-        component.sendTimeToServer();
-        expect(communicationServiceSpy.basicPost).toHaveBeenCalled();
+    it('Should have a host game button redirecting to /game/host', () => {
+        const hostGameButton = fixture.debugElement.nativeElement.querySelector('#host-game-button');
+        expect(hostGameButton.getAttribute('RouterLink')).toEqual('/game/host');
     });
 
-    it('should handle basicPost that returns a valid HTTP response', () => {
-        component.sendTimeToServer();
-        component.message.subscribe((res) => {
-            expect(res).toContain('201 : Created');
-        });
+    it('Should have a section heading containing the team number', () => {
+        const teamName = fixture.debugElement.nativeElement.querySelector('h4');
+        expect(teamName.innerHTML).toBe('Équipe Poly 207');
     });
 
-    it('should handle basicPost that returns an invalid HTTP response', () => {
-        communicationServiceSpy.basicPost.and.returnValue(throwError(() => new Error('test')));
-        component.sendTimeToServer();
-        component.message.subscribe({
-            next: (res) => {
-                expect(res).toContain('Le serveur ne répond pas');
-            },
-        });
+    it('Should have teammate names in the footer of the page', () => {
+        const teammates = fixture.debugElement.nativeElement.querySelector('#name-list');
+        const nNames = 6;
+        expect(teammates.childElementCount).toBe(nNames);
+        expect(teammates.children[0].innerHTML).toBe('Ali Abbas');
+        expect(teammates.children[1].innerHTML).toBe('Bryan Tadié');
+        expect(teammates.children[2].innerHTML).toBe('Gabrielle Côté');
+        expect(teammates.children[3].innerHTML).toBe('Massimo Donato');
+        expect(teammates.children[4].innerHTML).toBe('Rima Al-Zawahra');
+        expect(teammates.children[5].innerHTML).toBe('Yousef Ouarady');
     });
 });

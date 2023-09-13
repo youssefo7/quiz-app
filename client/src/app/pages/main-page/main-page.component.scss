@@ -10,35 +10,42 @@
     align-items: center;
 }
 
-.button {
-    margin-top: 10px;
+@media screen and (min-width: 751px) {
+    .home-page-button {
+        width: 15%;
+    }
+  }
+  
+@media screen and (max-width: 750px) {
+    .home-page-button {
+        width: 30%;
+    }
+  }
+
+.home-page-button {
+    padding: 18px 30px;
+    margin-top: 5px;
+    font-size: 15px; 
     text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 3px #606060;
+    cursor: pointer;
+}
+
+.home-page-button:hover {
+    background-color: #505050;
 }
 
 .team-name {
     margin-top: 0.25em;
     margin-bottom: 0.25em;
-    color: green;
-}
-
-.header-item {
-    justify-content: center;
-    text-align: center;
+    color: #04243C;
 }
 
 .footer-item {
     text-align: center;
 }
 
-.footer-item p :nth-child(even) {
-    color: orange;
-}
-.footer-item p :nth-child(odd) {
-    color: blue;
-}
-
-.server-message {
-    justify-content: center;
-    width: 20%;
-    min-width: min-content;
+.footer-item p {
+    color: #7c93a7;
 }

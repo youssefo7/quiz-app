@@ -1,22 +1,15 @@
 <div class="container justified">
-    <h1 class="header-item">Bienvenue au cours {{ title }}</h1>
-    <img src="https://bit.ly/3QofL1J" alt="Logo Projet" />
-    <section id="server-message" class="justified">
-        <p>Petit message du serveur : {{ message.getValue() }}</p>
-        <div class="justified">
-            <button class="button" (click)="getMessagesFromServer()">Récupérer un message du serveur</button>
-            <button class="button" (click)="sendTimeToServer()">Envoyer un message au serveur</button>
-            <button class="button" routerLink="/material">Voir la page démo Angular Material</button>
-        </div>
-    </section>
-
-    <button class="button" routerLink="/game">Jouer!</button>
-
+    <h1>
+        <img src="../../../assets/images/quizzard_logo.jpg" alt="Logo Projet" length="200px" width="200px"/> 
+    </h1>
+    <button id="join-game-button" class="home-page-button" routerLink="/game">Join game</button>
+    <button id="host-game-button" class="home-page-button" routerLink="/game/host">Host game</button>
+    <button id="admin-button" class="home-page-button" routerLink="/admin">Administer game</button>
     <footer class="footer-item">
-        <h4 class="team-name">Équipe Poly</h4>
-        <p>
-            <span>Coéquipier #1</span>, <span>Coéquipier #2</span>, <span>Coéquipier #3</span>, 
-            <span>Coéquipier #4</span>, <span>Coéquipier #5</span>, <span>Coéquipier #6</span>
+        <h4 class="team-name">Équipe Poly 207</h4>
+        <p id="name-list">
+            <span class="teammate-name">Ali Abbas</span>, <span class="teammate-name">Bryan Tadié</span>, <span class="teammate-name">Gabrielle Côté</span>, 
+            <span class="teammate-name">Massimo Donato</span>, <span class="teammate-name">Rima Al-Zawahra</span>, <span class="teammate-name">Yousef Ouarady</span>
         </p>
     </footer>
 </div>
