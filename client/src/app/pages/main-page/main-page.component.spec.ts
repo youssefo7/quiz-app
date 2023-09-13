@@ -25,23 +25,25 @@ describe('MainPageComponent', () => {
         expect(adminButton.getAttribute('RouterLink')).toEqual('/game');
     });
 
-    it('Should have a host game button redirecting to /game/new', () => {
+    it('Should have a host game button redirecting to /game/host', () => {
         const hostGameButton = fixture.debugElement.nativeElement.querySelector('#host-game-button');
         expect(hostGameButton.getAttribute('RouterLink')).toEqual('/game/host');
     });
 
     it('Should have a section heading containing the team number', () => {
         const teamName = fixture.debugElement.nativeElement.querySelector('h4');
-        expect(teamName.classList).toContain('team-name');
+        expect(teamName.innerHTML).toBe('Équipe Poly 207');
     });
 
     it('Should have teammate names in the footer of the page', () => {
-        const teammates = fixture.debugElement.nativeElement.querySelector('p');
-        const firstChild = teammates.firstChild;
-        const lastChild = teammates.lastChild;
+        const teammates = fixture.debugElement.nativeElement.querySelector('#name-list');
         const nNames = 6;
         expect(teammates.childElementCount).toBe(nNames);
-        expect(firstChild.classList).toContain('teammate-name');
-        expect(lastChild.classList).toContain('teammate-name');
+        expect(teammates.children[0].innerHTML).toBe('Ali Abbas');
+        expect(teammates.children[1].innerHTML).toBe('Bryan Tadié');
+        expect(teammates.children[2].innerHTML).toBe('Gabrielle Côté');
+        expect(teammates.children[3].innerHTML).toBe('Massimo Donato');
+        expect(teammates.children[4].innerHTML).toBe('Rima Al-Zawahra');
+        expect(teammates.children[5].innerHTML).toBe('Yousef Ouarady');
     });
 });
