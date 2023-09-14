@@ -64,6 +64,6 @@ describe('MainPageComponent', () => {
         expect(teammates.children[2].innerHTML).toBe('Gabrielle Côté');
         expect(teammates.children[3].innerHTML).toBe('Massimo Donato');
         expect(teammates.children[4].innerHTML).toBe('Rima Al-Zawahra');
-        expect(teammates.children[5].innerHTML).toBe('Yousef Ouarady');
+        expect(teammates.children[5].innerHTML).toBe('Youssef Ouarad');
     });
 });
