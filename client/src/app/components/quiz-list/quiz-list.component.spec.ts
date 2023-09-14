@@ -1,6 +1,6 @@
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { QuizListComponent } from './quiz-list.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('QuizListComponent', () => {
     let component: QuizListComponent;
