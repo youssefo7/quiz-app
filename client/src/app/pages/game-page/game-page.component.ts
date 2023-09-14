@@ -6,7 +6,7 @@ import { CommunicationService } from '@app/services/communication.service';
 @Component({
     selector: 'app-game-page',
     templateUrl: './game-page.component.html',
-    styleUrls: ['./game-page.component.scss'],
+    styleUrls: ['./game-page.component.scss', '../../../assets/shared.scss'],
 })
 export class GamePageComponent implements OnInit {
     title = 'Partie';
