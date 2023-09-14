@@ -1,0 +1,33 @@
+<form id="new-game">
+    <fieldset id="general-info" class="flex-row">
+        <legend>Informations générales : </legend>
+        <div id="name"> 
+            <label>Nom : </label><br>
+            <input id="game-name" [(ngModel)]="newGame.title" type="text" required placeholder="Nom">{{newGame.title}}
+        </div>
+        <div id="description">
+            <label>Description : </label><br>
+            <input id="game-description" [(ngModel)]="newGame.description" type="text" required placeholder="Description">
+        </div>
+        <div id="duration">
+            <label>Temps allouee par question : </label><br>
+            <input id="game-duration" [(ngModel)]="newGame.duration" type="number" required placeholder="en minute">
+        </div>
+    </fieldset>
+    <fieldset id="question-info">
+        <legend>Question Creation Menu</legend>
+    </fieldset>
+    <div id="question-input">
+        <label for="question"></label>
+        <label for="question-title">La question : </label><br>
+        <input placeholder="reponse 1"><input placeholder="points">
+        <label class="switch">
+            <input type="checkbox">
+            <span class="slider round"></span>
+          </label><br>
+        <input placeholder="reponse 2"><input placeholder="points"><br>
+        <input placeholder="reponse 2"><input placeholder="points"><br>
+        <input placeholder="reponse 2"><input placeholder="points"><br>
+    </div>
+</form>
+
