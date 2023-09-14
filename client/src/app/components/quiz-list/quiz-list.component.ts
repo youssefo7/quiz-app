@@ -3,11 +3,11 @@ import { Component } from '@angular/core';
 //  import { BehaviorSubject } from 'rxjs';
 
 @Component({
-    selector: 'app-game-list',
-    templateUrl: './game-list.component.html',
-    styleUrls: ['./game-list.component.scss'],
+    selector: 'app-quiz-list',
+    templateUrl: './quiz-list.component.html',
+    styleUrls: ['./quiz-list.component.scss'],
 })
-export class GameListComponent {
+export class QuizListComponent {
     //  gameList: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
     // These functions are yet to be implemented, the code inside is just filler to push a compilable code
     // deleteGame(game: Game): void {
