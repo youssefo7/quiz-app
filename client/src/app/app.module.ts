@@ -11,9 +11,10 @@ import { AppComponent } from '@app/pages/app/app.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
+import { CreateQuizFormComponent } from './components/create-quiz-form/create-quiz-form.component';
 import { TopBarComponent } from './components/top-bar/top-bar.component';
 import { AdminPageComponent } from './pages/admin-page/admin-page.component';
-import { CreateGamePageComponent } from './pages/create-game-page/create-game-page.component';
+import { CreateQuizPageComponent } from './pages/create-quiz-page/create-quiz-page.component';
 import { HostGamePageComponent } from './pages/host-game-page/host-game-page.component';
 
 /**
@@ -33,7 +34,8 @@ import { HostGamePageComponent } from './pages/host-game-page/host-game-page.com
         AdminPageComponent,
         HostGamePageComponent,
         TopBarComponent,
-        CreateGamePageComponent,
+        CreateQuizPageComponent,
+        CreateQuizFormComponent,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule],
     providers: [],
