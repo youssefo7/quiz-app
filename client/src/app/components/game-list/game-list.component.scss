@@ -1,0 +1,89 @@
+@import "~@fortawesome/fontawesome-free/css/all.css";
+
+
+
+
+#date-created {
+  margin-left: 95px;
+}
+#actions {
+  margin-left: 135px;
+}
+#visibility {
+  margin-left: 60px;
+}
+#name{
+  margin-left: 40px;
+}
+
+.item-header {
+  display: flex; 
+  align-items: center;
+}
+
+.title {
+  font-weight: bold;
+  font-size: 14px;
+  color: #333;
+}
+
+
+.game-list {
+  display: flex; 
+  flex-direction: column; 
+}
+
+.game-item {
+  border: 1px solid #ccc; 
+  padding: 25px; 
+  margin: 10px; 
+  display: flex; 
+  align-items: center;
+}
+
+.game-item:hover {
+  background-color: #f0f0f0;
+}
+
+.game-info {
+  flex-grow: 1;
+  margin-right: 80px;
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+}
+
+.action-icon {
+  cursor: pointer;
+  margin-right: 30px;
+  color: #007bff;
+  transition: color 0.3s ease-in-out;
+}
+
+.action-icon:hover {
+  color: #0056b3;
+}
+
+.action-icon.active {
+  color: #28a745;
+}
+
+.action-icon[title]:hover::before {
+  content: attr(title);
+  background-color: #333;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  position: absolute;
+  bottom: 100%; 
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  pointer-events: none; 
+}
+
+.action-icon[title]:hover::before {
+  opacity: 1;
+}
+
