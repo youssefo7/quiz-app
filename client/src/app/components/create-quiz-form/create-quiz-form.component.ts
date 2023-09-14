@@ -28,17 +28,4 @@ export class CreateQuizFormComponent {
         visibility: true,
         questions: [],
     };
-
-    // addQuizToServer(newGame: Quiz): void {
-    //     this.communicationService.addQuiz(newGame).subscribe({
-    //         next: () => {
-    //             this.getQuizListFromServer();
-    //             newGame.id = '';
-    //         },
-    //         error: (err: HttpErrorResponse) => {
-    //             const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
-    //             this.message.next(responseString);
-    //         },
-    //     });
-    // }
 }
