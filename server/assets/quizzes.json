@@ -57,7 +57,7 @@
     "title": "L'empire romain",
     "duration": 60,
     "lastModification": "2018-11-13T20:20:39+00:00",
-    "visibility": false,
+    "visibility": true,
     "questions": [
       {
         "type": "QCM",
