@@ -62,14 +62,14 @@ describe('QuizzesService', () => {
         jest.restoreAllMocks();
     });
 
-    it('should get a Quizzes of Quizs', async () => {
+    it('should get Quizzes', async () => {
         jest.spyOn(fs, 'readFile').mockResolvedValue(JSON.stringify(mockQuizzes));
         jest.spyOn(service, 'quizzesPath', 'get').mockReturnValue(mockFilePath);
         const quizzes = await service.getQuizzes();
         expect(quizzes).toEqual(mockQuizzes);
     });
 
-    it('should get a Quiz from Quizzes by id', async () => {
+    it('should get a Quiz by id', async () => {
         jest.spyOn(service, 'getQuizzes').mockResolvedValue(mockQuizzes);
         const quiz = await service.getQuiz('1');
         expect(quiz).toEqual(mockQuizzes[0]);
@@ -80,7 +80,7 @@ describe('QuizzesService', () => {
         await expect(service.getQuiz('3')).rejects.toEqual(new Error('Quiz 3 not found'));
     });
 
-    it('should add a Quiz to the Quizzes', async () => {
+    it('should add a Quiz', async () => {
         const newQuiz = { ...mockQuizzes[0], id: '2' };
         jest.spyOn(service, 'getQuizzes').mockResolvedValue(mockQuizzes);
         jest.spyOn(fs, 'writeFile').mockResolvedValue();
@@ -89,7 +89,7 @@ describe('QuizzesService', () => {
         expect(mockQuizzes[1]).toEqual(newQuiz);
     });
 
-    it('should update a Quiz in the Quizzes', async () => {
+    it('should update a Quiz', async () => {
         const newDuration = 120;
         const updatedQuiz = mockQuizzes[0];
         updatedQuiz.duration = newDuration;
@@ -97,7 +97,6 @@ describe('QuizzesService', () => {
         jest.spyOn(fs, 'writeFile').mockResolvedValue();
         await expect(service.updateQuiz('1', updatedQuiz)).resolves.toEqual(updatedQuiz);
         expect(mockQuizzes[0]).toEqual(updatedQuiz);
-        expect(mockQuizzes[0].duration).toBe(newDuration);
     });
 
     it('should send error if id does not exist when updating', async () => {
@@ -106,13 +105,13 @@ describe('QuizzesService', () => {
         await expect(service.updateQuiz('2', mockQuizzes[0])).rejects.toEqual(new Error('Quiz 2 not found'));
     });
 
-    it('should delete a Quiz from the Quizzes and return [] if one object left', async () => {
+    it('should delete a Quiz and return [] if one object left', async () => {
         jest.spyOn(service, 'getQuizzes').mockResolvedValue(mockQuizzes);
         jest.spyOn(fs, 'writeFile').mockResolvedValue();
         expect(await service.deleteQuiz('1')).toEqual([]);
     });
 
-    it('should delete a Quiz from the Quizzes and updated Quizzes', async () => {
+    it('should delete a Quiz', async () => {
         const newMockQuizzes = JSON.parse(JSON.stringify(defaultMockQuizzes));
         jest.spyOn(service, 'getQuizzes').mockResolvedValue(newMockQuizzes);
         jest.spyOn(fs, 'writeFile').mockResolvedValue();

@@ -21,6 +21,15 @@ export class QuizzesService {
         return quizzesPath;
     }
 
+    async getQuizIndex(id: string) {
+        const quizzes = await this.getQuizzes();
+        const quizIndex = quizzes.findIndex((quiz) => quiz.id === id);
+        if (quizIndex === INDEX_NOT_FOUND) {
+            throw new Error(`Quiz ${id} not found`);
+        }
+        return quizIndex;
+    }
+
     async getQuizzes(): Promise<Quiz[]> {
         try {
             const quizzes = await fs.readFile(this.quizzesPath, 'utf8');
@@ -33,17 +42,14 @@ export class QuizzesService {
     async getQuiz(id: string): Promise<Quiz> {
         try {
             const quizzes = await this.getQuizzes();
-            const quizIndex = quizzes.findIndex((quiz) => quiz.id === id);
-            if (quizIndex === INDEX_NOT_FOUND) {
-                throw new Error(`Quiz ${id} not found`);
-            }
+            const quizIndex = await this.getQuizIndex(id);
             return quizzes[quizIndex];
         } catch (error) {
             return Promise.reject(new Error(`${error.message}`));
         }
     }
 
-    // TODO addQuiz() should check if id already exists
+    // TODO addQuiz() should check if id already exists and validate input
     async addQuiz(quiz: Quiz): Promise<Quiz> {
         try {
             const quizzes = await this.getQuizzes();
@@ -56,13 +62,11 @@ export class QuizzesService {
         }
     }
 
+    // TODO updateQuiz() should validate input
     async updateQuiz(id: string, updatedQuiz: Quiz): Promise<Quiz> {
         try {
             const quizzes = await this.getQuizzes();
-            const quizIndex = quizzes.findIndex((quiz) => quiz.id === id);
-            if (quizIndex === INDEX_NOT_FOUND) {
-                throw new Error(`Quiz ${id} not found`);
-            }
+            const quizIndex = await this.getQuizIndex(id);
             quizzes[quizIndex] = updatedQuiz;
             await fs.writeFile(this.quizzesPath, JSON.stringify(quizzes, null, 2));
             return updatedQuiz;
@@ -74,10 +78,7 @@ export class QuizzesService {
     async deleteQuiz(id: string): Promise<Quiz[]> {
         try {
             const quizzes = await this.getQuizzes();
-            const quizIndex = quizzes.findIndex((quiz) => quiz.id === id);
-            if (quizIndex === INDEX_NOT_FOUND) {
-                throw new Error(`Quiz ${id} not found`);
-            }
+            await this.getQuizIndex(id);
             // if only one Quiz in Quizzes, empty Quizzes filter method not removing last obj in json array
             if (quizzes.length === 1) {
                 const updatedEmptyQuizzes = [];

@@ -29,7 +29,7 @@ describe('QuizzesController', () => {
         expect(controller).toBeDefined();
     });
 
-    it('getQuizzes() should return all Quizs', async () => {
+    it('getQuizzes() should return all Quizzes', async () => {
         const fakeQuizzes = [new Quiz()];
         quizzesService.getQuizzes.resolves(fakeQuizzes);
 
@@ -59,7 +59,7 @@ describe('QuizzesController', () => {
         await controller.getQuizzes(res);
     });
 
-    it('getQuizFromQuizzes() should return the Quiz', async () => {
+    it('getQuiz should return the Quiz', async () => {
         const fakeQuiz = new Quiz();
         quizzesService.getQuiz.resolves(fakeQuiz);
 
@@ -76,8 +76,8 @@ describe('QuizzesController', () => {
         await controller.getQuiz('id', res);
     });
 
-    it('getQuizFromQuizzes() should return NOT_FOUND when service fails to fetch the Quiz', async () => {
-        quizzesService.getQuizzes.rejects();
+    it('getQuiz should return NOT_FOUND when service fails to fetch the Quiz', async () => {
+        quizzesService.getQuiz.rejects();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
