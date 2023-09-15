@@ -1,36 +1,27 @@
-# compiled output
-/out
-/node_modules
+# Exclusion des dépendences du projet. Elles peuvent être regénérées
+# automatiquement.
+.nyc_output/
+node_modules/
+false/
 
-# Logs
-logs
-*.log
-npm-debug.log*
-pnpm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
+# Exclusion des fichiers Javascripts
+out/
 
-# OS
-.DS_Store
+# NPM Debug Log
+npm-debug.log
 
-# Tests
-/coverage
-/.nyc_output
+##Typescrit compilation ##
 
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
+*.js.map
+*.js
 
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+
+# Garder les fichiers necessaires pour les tests
+!systemjs.config.js
+!karma.conf.js
+!karma-test-shim.js
+!systemjs.config.extras.js
+!tsconfig.app.json
+!tsconfig.spec.json
+!tsconfig.json
 !package-lock.json
