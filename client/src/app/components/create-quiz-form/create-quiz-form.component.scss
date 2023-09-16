@@ -10,8 +10,17 @@
     flex-direction: row;
 }
 
+#game-name, #game-description, #game-duration {
+  width: 200px;
+  height: 30px;
+}
+
+#game-description {
+  display: inline-block;
+}
+
 #name, #description, #duration {
-    margin-right: 50px;
+    margin-right: 70px;
 }
 
 #question-info {

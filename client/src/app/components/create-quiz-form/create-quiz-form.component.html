@@ -7,7 +7,8 @@
         </div>
         <div id="description">
             <label>Description : </label><br>
-            <input id="game-description" [(ngModel)]="newGame.description" type="text" required placeholder="Description">
+            <input id="game-description" [(ngModel)]="newGame.description" type="text" required placeholder="Description"
+            maxlength="260">
         </div>
         <div id="duration">
             <label>Temps allouee par question : </label><br>
