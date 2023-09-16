@@ -1,6 +1,6 @@
-<div class="container">
-    <app-sidebar id="sidebar"></app-sidebar>
-    <section class="play-area-container">
-        <app-play-area class="play-area" tabindex="0"></app-play-area>
-    </section>
+<app-top-bar [title]="title"></app-top-bar>
+<div id="grid-container">
+    <div id="game-title-grid">
+        <h2 *ngIf="quiz">{{ quiz.title }}</h2>
+    </div>
 </div>

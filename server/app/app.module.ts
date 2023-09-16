@@ -8,7 +8,8 @@ import { CourseService } from '@app/services/course/course.service';
 import { DateService } from '@app/services/date/date.service';
 import { ExampleService } from '@app/services/example/example.service';
 import { QuizzesService } from '@app/services/quizzes/quizzes.service';
-import { Logger, Module } from '@nestjs/common';
+import { LoggerMiddleware } from '@app/utils/logger.middleware';
+import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 
@@ -27,4 +28,11 @@ import { MongooseModule } from '@nestjs/mongoose';
     controllers: [CourseController, DateController, ExampleController, QuizzesController],
     providers: [ChatGateway, CourseService, DateService, ExampleService, Logger, QuizzesService],
 })
-export class AppModule {}
+
+// Code provided by: Kamil Myśliwiec
+// https://github.com/vladwulf/nestjs-logger-tutorial/blob/main/src/utils/logger.middleware.ts
+export class AppModule implements NestModule {
+    configure(consumer: MiddlewareConsumer) {
+        consumer.apply(LoggerMiddleware).forRoutes('*');
+    }
+}

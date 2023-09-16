@@ -1,20 +1,22 @@
-.container {
-    height: 100%;
-    display: flex;
-}
-
-.play-area-container {
-    overflow: auto;
-    flex: 1 1 auto;
-}
-
-.play-area {
+#grid-container {
     display: grid;
-    outline: none;
-    height: 100vh;
-}
+    grid-template-rows: 15% 85%;
+    grid-template-columns: 15% 60% 25%;
+    margin: auto;
+    padding-top: 20px;
+    height: 90%;
+    width: 90%;
 
-#sidebar {
-    flex-basis: 350px;
-    min-width: 200px;
+    #game-title-grid {
+        grid-row: 1 / 2;
+        grid-column: 2 / 3;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        h2 {
+            font-size: 2rem;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+    }
 }
