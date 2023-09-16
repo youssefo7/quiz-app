@@ -28,6 +28,9 @@ import { MongooseModule } from '@nestjs/mongoose';
     controllers: [CourseController, DateController, ExampleController, QuizzesController],
     providers: [ChatGateway, CourseService, DateService, ExampleService, Logger, QuizzesService],
 })
+
+// Code provided by: Kamil Myśliwiec
+// https://github.com/vladwulf/nestjs-logger-tutorial/blob/main/src/utils/logger.middleware.ts
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
         consumer.apply(LoggerMiddleware).forRoutes('*');
