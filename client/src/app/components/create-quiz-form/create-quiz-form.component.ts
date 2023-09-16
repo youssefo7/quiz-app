@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { Quiz } from '@app/interfaces/quiz';
-import { CommunicationService } from '@app/services/communication.service';
 import { BehaviorSubject } from 'rxjs';
 
 const date = new Date();
@@ -15,8 +14,6 @@ export class CreateQuizFormComponent {
     message: BehaviorSubject<string> = new BehaviorSubject<string>('');
     quizzes: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
     selectedQuiz: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
-
-    constructor(private readonly communicationService: CommunicationService) {}
 
     newGame: Quiz = {
         $schema: '',
