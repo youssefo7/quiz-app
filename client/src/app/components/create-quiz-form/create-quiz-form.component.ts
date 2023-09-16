@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Quiz } from '@app/interfaces/quiz';
+import { CommunicationService } from '@app/services/communication.service';
 import { BehaviorSubject } from 'rxjs';
 
 const date = new Date();
@@ -12,7 +13,10 @@ const dateStr = date.toLocaleString('en-US', { timeZone: 'America/New_York' });
 })
 export class CreateQuizFormComponent {
     message: BehaviorSubject<string> = new BehaviorSubject<string>('');
-    gameList: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
+    quizzes: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
+    selectedQuiz: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
+
+    constructor(private readonly communicationService: CommunicationService) {}
 
     newGame: Quiz = {
         $schema: '',
@@ -24,4 +28,17 @@ export class CreateQuizFormComponent {
         visibility: true,
         questions: [],
     };
+
+    // addQuizToServer(newGame: Quiz): void {
+    //     this.communicationService.addQuiz(newGame).subscribe({
+    //         next: () => {
+    //             this.getQuizListFromServer();
+    //             newGame.id = '';
+    //         },
+    //         error: (err: HttpErrorResponse) => {
+    //             const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
+    //             this.message.next(responseString);
+    //         },
+    //     });
+    // }
 }
