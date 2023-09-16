@@ -1,18 +1,36 @@
-<table>
-  <tr>
-    <th>Nom du jeu</th>
-    <th>Date de création</th>
-    <th>Actions</th>
-  </tr>
-  <tr *ngFor="let game of games">
-    <td>{{ game.name }}</td>
-    <td>{{ game.dateCreated }}</td>
-    <td>
-      <button (click)="deleteGame(game)">Supprimer</button>
-      <button (click)="exportGame(game)">Exporter</button>
-      <button (click)="editGame(game)">Modifier</button>
-      <button (click)="toggleVisibility(game)">{{ game.visible ? 'Cacher' : 'Afficher' }}</button>
-    </td>
-  </tr>
-</table>
-
+<body class="background">
+  <div class="game-list">
+    <div class="item-header">
+      <div class = "title"  id="name">Name</div>
+      <div class = "title" id="date-created">Date Created</div>
+      <div class = "title" id="visibility">Visibility</div>
+      <div class = "title" id="actions">Actions</div>
+    </div>
+    <!-- <div class="game-container" *ngFor="let game of games">
+      <div class="game-item">
+        <div class="game-info">
+          <span>{{ game.name }}</span>
+        </div>
+        <div class="game-info">
+          <span>{{ game.dateCreated }}</span>
+        </div>
+        <div class="game-info">
+          <span (click)="toggleVisibility(game)" class="action-icon" [title]="game.visible ? 'Cacher ' + game.name : 'Afficher ' + game.name">
+            <i [class]="game.visible ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
+          </span>
+        </div>
+        <div class="game-actions">
+          <span (click)="deleteGame(game)" class="action-icon" [title]="'Supprimer ' + game.name">
+            <i class="fas fa-trash"></i>
+          </span>
+          <span (click)="exportGame(game)" class="action-icon" [title]="'Exporter ' + game.name">
+            <i class="fas fa-download"></i>
+          </span>
+          <span (click)="editGame(game)" class="action-icon" [title]="'Modifier ' + game.name">
+            <i class="fas fa-edit"></i>
+          </span>
+        </div>
+      </div>
+    </div> -->
+  </div>
+</body>
