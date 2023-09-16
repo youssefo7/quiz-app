@@ -4,9 +4,9 @@ export interface Quiz {
     $schema: string;
     id: string;
     title: string;
+    description: string;
     duration: number;
     lastModification: string;
-    description: string;
     visibility: boolean;
     questions: Question[];
 }
