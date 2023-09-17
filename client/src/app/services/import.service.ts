@@ -12,7 +12,8 @@ export class ImportService {
 
     selectQuiz(event: Event) {
         // Property 'files' does not exist on type 'EventTarget' so we need to cast it to HTMLInputElement
-        // Example to use in html: <input type="file" (change)="onChange($event)">
+        // Example to use in html: <input type="file" (change)="onChange($event)" accept=".json" />
+        // Don't use 'multiple' attribute, only one json file should be accepted
         // input type file is the only way to get the file from the user
         const input = event.target as HTMLInputElement;
         if (input && input.files && input.files.length > 0) {
@@ -20,6 +21,7 @@ export class ImportService {
         }
     }
 
+    // TODO : add id verification in backend to avoid changing id if one already exists
     async importQuiz() {
         const fileReader = new FileReader();
 
@@ -29,14 +31,15 @@ export class ImportService {
             fileReader.onerror = (error) => reject('Error reading file: ' + error);
         });
 
-        fileReader.readAsText(this.quizToImport as unknown as Blob, 'UTF-8');
+        // in case of type casting error use 'this.quizToImport as unknown as Blob'
+        fileReader.readAsText(this.quizToImport, 'UTF-8');
 
         try {
             const fileContent = await fileContentPromise;
             const quiz: Quiz = JSON.parse(fileContent);
 
             if (!quiz.visibility) {
-                quiz.visibility = true;
+                quiz.visibility = false;
             }
 
             if (!quiz.description) {

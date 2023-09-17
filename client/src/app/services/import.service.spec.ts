@@ -45,7 +45,7 @@ describe('ImportService', () => {
             lastModification: '',
             questions: [],
         });
-        // expect visibility to be true and description to be empty
+        // expect visibility to be false and description to be empty
         const mockQuiz = {
             $schema: '',
             id: '',
@@ -53,7 +53,7 @@ describe('ImportService', () => {
             duration: 0,
             lastModification: '',
             questions: [],
-            visibility: true,
+            visibility: false,
             description: '',
         } as Quiz;
 
