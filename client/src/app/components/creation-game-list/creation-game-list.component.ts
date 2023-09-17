@@ -1,96 +1,54 @@
-import { Component } from '@angular/core';
-import { Game, QuizQuestion } from '@app/interfaces/games';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+import { Quiz } from '@app/interfaces/quiz';
+import { CommunicationService } from '@app/services/communication.service';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
     selector: 'app-creation-game-list',
     templateUrl: './creation-game-list.component.html',
     styleUrls: ['./creation-game-list.component.scss'],
 })
-export class CreationGameListComponent {
-    games: {
-        id: string;
-        name: string;
-        dateCreated: string;
-        visible: boolean;
-        description: string;
-        time: string;
-        questions: QuizQuestion[];
-    }[] = [
-        {
-            id: '1',
-            name: 'jeu1',
-            dateCreated: '11-11-11',
-            visible: true,
-            description: 'description jeu1',
-            time: '11:11',
-            questions: [],
-        },
-        {
-            id: '2',
-            name: 'jeu2',
-            dateCreated: '22-22-22',
-            visible: true,
-            description: 'description jeu2',
-            time: '22:22',
-            questions: [
-                {
-                    type: 'QCM',
-                    text: 'Question 1',
-                    choices: [
-                        { text: 'Choice 1', isCorrect: false },
-                        { text: 'Choice 2', isCorrect: true },
-                    ],
-                },
-                {
-                    type: 'QCM',
-                    text: 'Question 2',
-                    choices: [
-                        { text: 'Choice 1', isCorrect: true },
-                        { text: 'Choice 2', isCorrect: false },
-                    ],
-                },
-            ],
-        },
-        {
-            id: '3',
-            name: 'jeu3',
-            dateCreated: '33-33-33',
-            visible: false,
-            description: 'description jeu3',
-            time: '33:33',
-            questions: [],
-        },
-    ];
+export class CreationGameListComponent implements OnInit {
+    message: BehaviorSubject<string> = new BehaviorSubject<string>('');
+    quizzes: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
+    selectedQuiz: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
+    selectedQuizId: string | null = null;
+    quizToTest: Quiz;
+    quizToPlay: Quiz;
 
-    gameHiddenOrDeleted: boolean = false;
-    visibleGames: Game[] = [];
-    selectedGameId: number | null = null;
+    constructor(private readonly communicationService: CommunicationService) {}
 
-    constructor() {
-        this.visibleGames = this.getVisibleGames();
+    ngOnInit(): void {
+        this.getVisibleQuizListFromServer();
     }
 
-    toggleDetails(gameId: number): void {
-        if (this.selectedGameId === gameId) {
-            this.selectedGameId = null;
+    getVisibleQuizListFromServer(): void {
+        this.communicationService.getQuizzes().subscribe({
+            next: (quizzes) => {
+                const visibleQuizzes = quizzes.filter((quiz) => quiz.visibility === true);
+                this.quizzes.next(visibleQuizzes);
+            },
+            error: (err: HttpErrorResponse) => {
+                const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
+                this.message.next(responseString);
+            },
+        });
+    }
+
+    toggleDetails(id: string): void {
+        if (this.selectedQuizId === id) {
+            this.selectedQuizId = null;
         } else {
-            this.selectedGameId = gameId;
+            this.selectedQuizId = id;
         }
-        this.gameHiddenOrDeleted = false;
     }
 
-    getQuestionsArray(game: Game): QuizQuestion[] {
-        return game.questions || [];
+    testQuiz(quiz: Quiz): void {
+        this.quizToTest = quiz;
     }
 
-    getVisibleGames(): Game[] {
-        return this.games.filter((game) => game.visible === true);
-    }
-
-    testGame(game: Game): void {
-        // rediriger vers tester jeu
-    }
-    createGame(game: Game): void {
-        // rediriger vers creer jeu
+    createGame(quiz: Quiz): void {
+        this.quizToPlay = quiz;
     }
 }

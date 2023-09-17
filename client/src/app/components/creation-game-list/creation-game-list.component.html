@@ -1,33 +1,30 @@
 <div class="container-list">
-    <h2>Liste des jeux disponibles</h2>
-    <table border="1">
+    <h3>Liste des jeux disponibles</h3>
+    <table >
         <tr>
             <th>Nom du jeu</th>
-            <th>Date de création</th>
         </tr>
         <tbody>
-            <ng-container *ngFor="let game of visibleGames">
-                <tr>                    
-                    <td>{{ game.name }}</td>
-                    <td>{{ game.dateCreated }}</td>
+            <ng-container *ngFor="let quiz of quizzes | async">
+                <tr class="mainDetails">       
+                    <td>{{ quiz.title }}</td>
                     <td>
-                        <button (click)="toggleDetails(game.id)">...</button>
+                        <button (click)="toggleDetails(quiz.id)" class="toggleButton" [ngClass]="{'active': selectedQuizId === quiz.id}" ></button>
                     </td>
                 </tr>
-                <tr *ngIf="selectedGameId === game.id">
-                    <td colspan="3">
-                        <div class="game-details">
-                            <h3>Détails du jeu
-                                <button (click)="testGame(game)">Tester le jeu</button>
-                                <button (click)="createGame(game)">Créer une partie</button>
-                            </h3>
-                            <p>Description : {{ game.description }}</p>
-                            <p>Temps alloué : {{ game.time }}</p>
+                <tr *ngIf="selectedQuizId === quiz.id">
+                    <td colspan="3" class="quizDetails">
+                            <div class="optionsButton">
+                                <button (click)="testQuiz(quiz)" class="testButton" >Tester le jeu</button>
+                                <button (click)="createGame(quiz)" class="createButton" routerLink="/game">Créer une partie</button>
+                            </div>
+                            <h3>Détails du jeu</h3>
+                            <p>Description : {{ quiz.description }}</p>
+                            <p>Temps alloué : {{ quiz.duration }}</p>
                             <h3>Liste des questions :</h3>
                             <ul>
-                                <li *ngFor="let question of game.questions"> {{ question.text }} </li>
+                                <li *ngFor="let question of quiz.questions"> {{ question.text }} </li>
                             </ul>
-                        </div>
                     </td>
                 </tr>
             </ng-container>
