@@ -38,9 +38,7 @@ export class ImportService {
             const fileContent = await fileContentPromise;
             const quiz: Quiz = JSON.parse(fileContent);
 
-            if (!quiz.visibility) {
-                quiz.visibility = false;
-            }
+            quiz.visibility = false;
 
             if (!quiz.description) {
                 quiz.description = '';
