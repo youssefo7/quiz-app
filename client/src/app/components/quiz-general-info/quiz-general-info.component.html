@@ -1,0 +1,13 @@
+<fieldset id="general-info"><legend>Informations générales</legend>
+    <label for="newTitle">Title:</label>
+    <input type="text" [(ngModel)]="newQuiz.title" name="newTitle" id="newTitle" placeholder="Quiz Title" required>
+
+    <label for="newDescription">Description:</label>
+    <input type="text" [(ngModel)]="newQuiz.description" name="newDescription" id="newDescription" placeholder="Quiz Description" required>
+
+    <label for="newDuration">Duration (en secondes):</label>
+    <input type="number" [(ngModel)]="newQuiz.duration" name="newDuration" id="newDuration" placeholder="Quiz Duration" required>
+
+    <label for="newLastModification">Last Modification:</label>
+    <input type="text" [(ngModel)]="newQuiz.lastModification" name="newLastModification" id="newLastModification" placeholder="Last Modification" required><br>
+</fieldset>

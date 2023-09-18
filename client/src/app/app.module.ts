@@ -12,6 +12,7 @@ import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
 import { CreateQuizFormComponent } from './components/create-quiz-form/create-quiz-form.component';
+import { QuizGeneralInfoComponent } from './components/quiz-general-info/quiz-general-info.component';
 import { TopBarComponent } from './components/top-bar/top-bar.component';
 import { AdminPageComponent } from './pages/admin-page/admin-page.component';
 import { CreateQuizPageComponent } from './pages/create-quiz-page/create-quiz-page.component';
@@ -36,6 +37,7 @@ import { HostGamePageComponent } from './pages/host-game-page/host-game-page.com
         TopBarComponent,
         CreateQuizPageComponent,
         CreateQuizFormComponent,
+        QuizGeneralInfoComponent,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule],
     providers: [],

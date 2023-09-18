@@ -24,19 +24,59 @@
 }
 
 #question-info {
-    justify-content: center;
-    border: 5px solid #04243c;
-    margin-top: 50px;
-    padding: 30px;
+  justify-content: center;
+  border: 5px solid #04243c;
+  margin-top: 50px;
+  padding: 30px;
 }
+
+#question-input {
+  // justify-content: center;
+  align-items: center;
+  width: 60%;
+  margin-top: 20px;
+  border: 5px solid #04243c;
+}
+
+#question {
+  width: 300px;
+  height: 30px;
+  margin-bottom: 60px;
+}
+
+.response-container {
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: center;
+}
+
+.response {
+  grid-template-areas: "response-input points"
+    "response-input switch";
+  margin-right: 90px;
+  margin-bottom: 30px;
+}
+
+.response-input {
+  display: grid;
+  grid-area: response-input;
+  height: 50px;
+}
+
+.points {
+  grid-area: points;
+  width: 35px;
+}
+
 
 ////////////////////CUSTOMIZE SWITCH//////////////////////////////////
 
 .switch {
+    grid-area: switch;
     position: relative;
     display: inline-block;
-    width: 60px;
-    height: 34px;
+    width: 40px;
+    height: 24px;
   }
   
   /* Hide default HTML checkbox */
@@ -62,8 +102,8 @@
   .slider:before {
     position: absolute;
     content: "";
-    height: 26px;
-    width: 26px;
+    height: 16px;
+    width: 16px;
     left: 4px;
     bottom: 4px;
     background-color: white;
@@ -80,9 +120,7 @@
   }
   
   input:checked + .slider:before {
-    -webkit-transform: translateX(26px);
-    -ms-transform: translateX(26px);
-    transform: translateX(26px);
+    transform: translateX(16px);
   }
   
   /* Rounded sliders */
