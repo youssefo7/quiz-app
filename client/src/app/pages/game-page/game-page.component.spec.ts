@@ -7,44 +7,61 @@ import { GamePageComponent } from './game-page.component';
 describe('GamePageComponent', () => {
     let component: GamePageComponent;
     let fixture: ComponentFixture<GamePageComponent>;
-    let communicationServiceSpy: jasmine.SpyObj<CommunicationService>;
+    let communicationServiceMock: jasmine.SpyObj<CommunicationService>;
+    const mockedQuiz = {
+        $schema: 'test.json',
+        id: '123',
+        title: 'Test quiz',
+        description: 'Test quiz description',
+        visibility: true,
+        duration: 60,
+        lastModification: '2018-11-13T20:20:39+00:00',
+        questions: [],
+    };
 
     beforeEach(() => {
-        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
+        communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
+        communicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
     });
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
             declarations: [GamePageComponent],
             providers: [
-                { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' } } } },
-                { provide: CommunicationService, useValue: communicationServiceSpy },
+                { provide: CommunicationService, useValue: communicationServiceMock },
+                {
+                    provide: ActivatedRoute,
+                    useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'game/123/test' }, { path: 'game/123' }] } },
+                },
             ],
         }).compileComponents();
+    }));
 
+    beforeEach(() => {
         fixture = TestBed.createComponent(GamePageComponent);
         component = fixture.componentInstance;
-    }));
+        fixture.detectChanges();
+    });
 
     it('should create', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should fetch the quiz ', () => {
-        const mockedQuiz = {
-            $schema: 'test.json',
-            id: '123',
-            title: 'Test quiz',
-            description: 'Test quiz description',
-            visibility: true,
-            duration: 60,
-            lastModification: '2018-11-13T20:20:39+00:00',
-            questions: [],
-        };
-        communicationServiceSpy.getQuiz.and.returnValue(of(mockedQuiz));
-        component.ngOnInit();
+    it('should set link to /home if route doesn\'\t contain "test"', () => {
+        component.checkGameRoute(false);
+        expect(component.title).toEqual('Partie');
+        expect(component.link).toEqual('/home');
+    });
 
-        expect(communicationServiceSpy.getQuiz).toHaveBeenCalledWith('123');
+    // TODO: Change /admin with create-game route
+    it('should link to /admin if route does contain "test"', () => {
+        component.checkGameRoute(true);
+        expect(component.title).toEqual('Partie - Test');
+        expect(component.link).toEqual('/admin');
+    });
+
+    it('should fetch the quiz ', () => {
+        expect(communicationServiceMock.getQuiz).toHaveBeenCalledWith('123');
         expect(component.quiz).toEqual(mockedQuiz);
     });
 });
