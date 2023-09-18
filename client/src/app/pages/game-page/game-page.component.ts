@@ -17,7 +17,7 @@ export class GamePageComponent implements OnInit {
         private route: ActivatedRoute,
     ) {}
 
-    ngOnInit(): void {
+    getQuiz() {
         const id: string | null = this.route.snapshot.paramMap.get('id');
 
         if (id) {
@@ -25,5 +25,9 @@ export class GamePageComponent implements OnInit {
                 this.quiz = quiz;
             });
         }
+    }
+
+    ngOnInit(): void {
+        this.getQuiz();
     }
 }
