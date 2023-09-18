@@ -10,15 +10,24 @@ import { CommunicationService } from '@app/services/communication.service';
 })
 export class GamePageComponent implements OnInit {
     title = 'Partie';
+    link = '/home';
     quiz: Quiz;
+    private readonly isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
 
     constructor(
         private communicationService: CommunicationService,
         private route: ActivatedRoute,
     ) {}
 
+    checkGameRoute(isTestGame = this.isTestGame) {
+        if (isTestGame) {
+            this.link = '/admin'; // TODO: Change with create-game route
+            this.title += ' - Test';
+        }
+    }
+
     getQuiz() {
-        const id: string | null = this.route.snapshot.paramMap.get('id');
+        const id = this.route.snapshot.paramMap.get('id');
 
         if (id) {
             this.communicationService.getQuiz(id).subscribe((quiz) => {
@@ -27,7 +36,8 @@ export class GamePageComponent implements OnInit {
         }
     }
 
-    ngOnInit(): void {
+    ngOnInit() {
+        this.checkGameRoute();
         this.getQuiz();
     }
 }
