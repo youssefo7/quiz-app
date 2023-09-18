@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
+import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { CommunicationService } from '@app/services/communication.service';
 import { of } from 'rxjs';
 import { GamePageComponent } from './game-page.component';
@@ -12,7 +13,7 @@ describe('GamePageComponent', () => {
     beforeEach(() => {
         communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
         TestBed.configureTestingModule({
-            declarations: [GamePageComponent],
+            declarations: [GamePageComponent, TopBarComponent],
             providers: [
                 {
                     provide: ActivatedRoute,

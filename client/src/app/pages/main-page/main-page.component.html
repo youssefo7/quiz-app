@@ -4,7 +4,7 @@
     </h1>
     <button id="join-game-button" class="home-page-button" routerLink="/game">Joindre une partie</button>
     <button id="host-game-button" class="home-page-button" routerLink="/game/host">Créer une partie</button>
-    <button id="admin-button" class="home-page-button" routerLink="/admin">Administrer les jeux</button>
+    <button id="admin-button" class="home-page-button" (click)="openAdminPopup()">Administrer les jeux</button>
     <footer class="footer-item">
         <h4 class="team-name">Équipe Poly 207</h4>
         <p id="name-list">

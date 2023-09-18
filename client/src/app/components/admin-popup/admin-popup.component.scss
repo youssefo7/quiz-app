@@ -1,0 +1,50 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    border: 2px solid #082540;
+    min-height: 200px;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 2%;
+    width: 100%;
+
+    :first-child:hover {
+        background-color: rgb(236, 71, 71);
+    }
+
+    :last-child:hover {
+        background-color: #bbdaf7;
+    }
+}
+
+button {
+    border-radius: 5px;
+}
+
+.password-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+
+    :first-child {
+        width: 80%;
+    }
+}
+
+.password-container + div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.error {
+    color: red;
+}
