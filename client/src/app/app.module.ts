@@ -1,6 +1,7 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatDialogModule } from '@angular/material/dialog';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
@@ -15,6 +16,7 @@ import { TopBarComponent } from './components/top-bar/top-bar.component';
 import { AdminPageComponent } from './pages/admin-page/admin-page.component';
 import { HostGamePageComponent } from './pages/host-game-page/host-game-page.component';
 import { CreateGameListComponent } from './components/create-game-list/create-game-list.component';
+import { AdminPopupComponent } from './components/admin-popup/admin-popup.component';
 
 /**
  * Main module that is used in main.ts.
@@ -34,8 +36,9 @@ import { CreateGameListComponent } from './components/create-game-list/create-ga
         HostGamePageComponent,
         TopBarComponent,
         CreateGameListComponent,
+        AdminPopupComponent,
     ],
-    imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule],
+    imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, MatDialogModule],
     providers: [],
     bootstrap: [AppComponent],
 })
