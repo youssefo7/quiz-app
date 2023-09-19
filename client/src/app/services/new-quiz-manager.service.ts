@@ -11,7 +11,7 @@ const dateStr = date.toLocaleString('en-US', { timeZone: 'America/New_York' });
     providedIn: 'root',
 })
 export class NewQuizManagerService {
-    message: BehaviorSubject<string> = new BehaviorSubject<string>('');
+    message: string = '';
     quizzes: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
     selectedQuiz: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
 
@@ -38,11 +38,9 @@ export class NewQuizManagerService {
         ],
     };
 
-    constructor(private readonly communicationService: CommunicationService) {}
-
-    // ngOnInit(): void {
-    //     this.getQuizListFromServer();
-    // }
+    constructor(private readonly communicationService: CommunicationService) {
+        this.getQuizListFromServer();
+    }
 
     getQuizListFromServer(): void {
         this.communicationService.getQuizzes().subscribe({
@@ -51,7 +49,7 @@ export class NewQuizManagerService {
             },
             error: (err: HttpErrorResponse) => {
                 const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
-                this.message.next(responseString);
+                this.message = responseString;
             },
         });
     }
@@ -65,7 +63,7 @@ export class NewQuizManagerService {
             },
             error: (err: HttpErrorResponse) => {
                 const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
-                this.message.next(responseString);
+                this.message = responseString;
             },
         });
     }
@@ -77,7 +75,7 @@ export class NewQuizManagerService {
             },
             error: (err: HttpErrorResponse) => {
                 const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
-                this.message.next(responseString);
+                this.message = responseString;
             },
         });
     }
@@ -90,7 +88,7 @@ export class NewQuizManagerService {
             },
             error: (err: HttpErrorResponse) => {
                 const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
-                this.message.next(responseString);
+                this.message = responseString;
             },
         });
     }
@@ -98,4 +96,19 @@ export class NewQuizManagerService {
     getNewQuiz(): Quiz {
         return this.newQuiz;
     }
+
+    // isValidTitle(quizTitle: string) {
+    //     const sameTitle = this.quizzes.find(quiz => quiz.title === quizTitle);
+    //     if(sameTitle) {
+    //         return false;
+    //     }
+    //     return true;
+    // }
+
+    // isValidDuration(quizDuration: number) {
+    //     if((quizDuration < 10) || (quizDuration > 60)) {
+    //         return false;
+    //     }
+    //     return true;
+    // }
 }

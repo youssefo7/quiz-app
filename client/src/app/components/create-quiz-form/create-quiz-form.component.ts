@@ -44,10 +44,10 @@ export class CreateQuizFormComponent implements OnInit {
 
     constructor(
         private readonly communicationService: CommunicationService,
-        private quizController: NewQuizManagerService,
+        private quizManagerService: NewQuizManagerService,
     ) {}
     ngOnInit(): void {
-        this.newQuiz = this.quizController.getNewQuiz();
+        this.newQuiz = this.quizManagerService.getNewQuiz();
         this.getQuizListFromServer();
     }
 
