@@ -37,6 +37,8 @@ describe('CountdownComponent', () => {
         expect(component).toBeTruthy();
     });
 
+    // TODO: Écrire les tests unitaires manquants
+
     it('isCountdownStarted should be false at the beginning', () => {
         // expect(component.isCountdownStarted).toBeFalse();
     });
