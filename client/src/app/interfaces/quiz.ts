@@ -11,7 +11,7 @@ export interface Quiz {
     questions: Question[];
 }
 
-interface Question {
+export interface Question {
     type: string;
     text: string;
     points: number;

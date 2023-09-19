@@ -6,9 +6,11 @@
     <div id="game-title-grid">
         <h2 *ngIf="quiz">{{ quiz.title }}</h2>
     </div>
-    <app-countdown id="countdown-grid"></app-countdown>
-    <div id="chat-player-flex">
-        <app-profile id="profile-container"></app-profile>
-        <app-chat id="chat-container"></app-chat>
+    <div id="chat-player-grid">
+        <app-profile></app-profile>
+        <app-chat id="chat-grid"></app-chat>
+        <div id="questions-grid">
+            <app-question-zone></app-question-zone>
+        </div>
     </div>
 </div>
