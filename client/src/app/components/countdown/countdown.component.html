@@ -1,4 +1,4 @@
 <p>Temps Restant</p>
 <div id="countdown-background">
-    <p *ngIf="isCountdownStarted" id="countdown">{{ time }}</p>
+    <p *ngIf="time >= 0" id="countdown">{{ time }}</p>
 </div>
