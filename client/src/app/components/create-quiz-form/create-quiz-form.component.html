@@ -22,6 +22,7 @@
     <h2>Add New Quiz</h2>
     <form #addQuizForm="ngForm" (ngSubmit)="addQuizToServer(newQuiz)">
         <app-quiz-general-info></app-quiz-general-info>
+        <app-quiz-question-info></app-quiz-question-info>
         <!-- <div class="questions">
             <h3>Questions</h3>
             <div *ngFor="let question of newQuiz.questions; let i = index">

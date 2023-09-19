@@ -1,0 +1,21 @@
+<form [formGroup]="questionInfoForm">
+    <fieldset>
+        <legend>Questions : </legend>
+
+        <label>Type de question : </label>
+        <select for="question-type" id="question-type">
+            <option value="QCM">QCM</option>
+            <option value="QRL">QRL</option>
+        </select>
+
+        <label for="newQuestion">Question :</label>
+        <input type="text" formControlName="text" name="newQuestion" id="newQuestion" placeholder="Question" required>
+
+        <label for="newPoints">Points :</label>
+        <input type="number" step="10" formControlName="points" name="newPoints" id="newPoints" min="10" max="100" [appRangeValidator]="{min: 10, max: 100}" placeholder="Points" 
+        (change)="questionInfoForm.controls.points.setValue(roundToNearest10())" required>
+        <span id="verify-points" *ngIf="questionInfoForm.controls.points.invalid">
+            Les points attribués pour une bonne réponse doit être entre 10 et 100
+        </span>
+    </fieldset>
+</form>

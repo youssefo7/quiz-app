@@ -19,6 +19,7 @@ import { TitleExistsDirective } from './directives/title-exists.directive';
 import { AdminPageComponent } from './pages/admin-page/admin-page.component';
 import { CreateQuizPageComponent } from './pages/create-quiz-page/create-quiz-page.component';
 import { HostGamePageComponent } from './pages/host-game-page/host-game-page.component';
+import { QuizQuestionInfoComponent } from './components/quiz-question-info/quiz-question-info.component';
 
 /**
  * Main module that is used in main.ts.
@@ -42,6 +43,7 @@ import { HostGamePageComponent } from './pages/host-game-page/host-game-page.com
         QuizGeneralInfoComponent,
         RangeValidatorDirective,
         TitleExistsDirective,
+        QuizQuestionInfoComponent,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, ReactiveFormsModule],
     providers: [],

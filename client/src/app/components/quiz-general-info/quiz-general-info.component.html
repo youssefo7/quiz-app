@@ -14,7 +14,7 @@
 
         <div id="duration-div">
             <label for="newDuration">Durée (en secondes):</label>
-            <input type="number" name="newDuration" [disabled]="disableForm" id="newDuration" placeholder="Quiz Duration" [appRangeValidator]="{ min: 10, max: 60 }" formControlName="duration" required><br>
+            <input type="number" name="newDuration" [disabled]="disableForm" id="newDuration" placeholder="Quiz Duration" min="10" max="60" [appRangeValidator]="{ min: 10, max: 60 }" formControlName="duration" required><br>
             <span id="verify-duration" *ngIf="generalInfoForm.controls.duration.invalid">
                 La durée allouée doit être entre 10 et 60 secondes
             </span>
