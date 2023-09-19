@@ -126,4 +126,21 @@ export class QuizzesController {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
         }
     }
+
+    @ApiCreatedResponse({
+        description: 'Imports a Quiz to the list',
+        type: Quiz,
+    })
+    @ApiNotFoundResponse({
+        description: 'Return BAD_REQUEST http status when request',
+    })
+    @Post('/import')
+    async importQuiz(@Body() newQuiz: Quiz, @Res() response: Response) {
+        try {
+            const quiz = await this.quizzesService.importQuiz(newQuiz);
+            response.status(HttpStatus.CREATED).json(quiz);
+        } catch (error) {
+            response.status(HttpStatus.BAD_REQUEST).send(`${error.message}`);
+        }
+    }
 }

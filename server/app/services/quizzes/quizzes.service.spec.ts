@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { promises as fs } from 'fs';
 import { QuizzesService } from './quizzes.service';
 
+// TODO tests for quiz validation and availability
 describe('QuizzesService', () => {
     let service: QuizzesService;
     let mockQuizzes: Quiz[];

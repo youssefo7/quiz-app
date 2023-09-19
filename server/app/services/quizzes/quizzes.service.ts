@@ -21,6 +21,42 @@ export class QuizzesService {
         return quizzesPath;
     }
 
+    // Time not in EST for some reason
+    getDate(): string {
+        return new Date().toISOString();
+    }
+
+    verifyQuiz(quiz: Quiz): void {
+        const errors = [];
+
+        if (!quiz.$schema || typeof quiz.$schema !== 'string') errors.push('Schéma de quiz invalide ou manquant');
+        // not checking id here because it is generated in addQuiz()
+        // unless we want to check for imports leave d commented
+        // if (!quiz.id || typeof quiz.id !== 'string') errors.push('id de quiz invalide ou manquant');
+        if (!quiz.title || typeof quiz.title !== 'string') errors.push('Titre de quiz invalide ou manquant');
+        if (!quiz.duration || typeof quiz.duration !== 'number') errors.push('La durée du quiz est invaide manquante');
+        if (!quiz.lastModification || typeof quiz.lastModification !== 'string') errors.push('Date de dernière modification invalide ou manquante');
+        if (!Array.isArray(quiz.questions)) {
+            errors.push('Les questions sont manquantes');
+        } else {
+            quiz.questions.forEach((question) => {
+                if (!question.type || typeof question.type !== 'string') errors.push('Type de question invalide ou manquant');
+                if (!question.text || typeof question.text !== 'string') errors.push('Texte de question invalide ou manquant');
+                if (typeof question.points !== 'number') errors.push('Les points de question manquants ou invalides');
+                if (!Array.isArray(question.choices)) {
+                    errors.push('Les choix sont manquants pour une question');
+                } else {
+                    question.choices.forEach((choice) => {
+                        if (!choice.text || typeof choice.text !== 'string') errors.push('Texte de choix invalide ou manquant');
+                        if (typeof choice.isCorrect !== 'boolean') errors.push('Le choix "isCorrect" est invalid manquant');
+                    });
+                }
+            });
+        }
+
+        if (errors.length) throw new Error(errors.join(' '));
+    }
+
     checkIdAvailability(quizzes: Quiz[], id: string) {
         const quizIndex = quizzes.findIndex((quiz) => quiz.id === id);
         return quizIndex === INDEX_NOT_FOUND;
@@ -28,8 +64,9 @@ export class QuizzesService {
 
     createID(quizzes: Quiz[], quiz: Quiz) {
         quiz.id = randomstring.generate(RANDOM_STRING_LENGTH);
-        if (this.checkIdAvailability(quizzes, quiz.id)) {
+        if (!this.checkIdAvailability(quizzes, quiz.id)) {
             quiz.id = randomstring.generate(RANDOM_STRING_LENGTH);
+            this.createID(quizzes, quiz);
         }
     }
 
@@ -38,7 +75,7 @@ export class QuizzesService {
             const quizzes = await this.getQuizzes();
             return !this.checkIdAvailability(quizzes, id);
         } catch (error) {
-            return Promise.reject(new Error(`Failed to check if Quiz is deleted: ${error.message}`));
+            return Promise.reject(new Error(`${error.message}`));
         }
     }
 
@@ -47,7 +84,7 @@ export class QuizzesService {
             const quiz = await this.getQuiz(id);
             return quiz.visibility;
         } catch (error) {
-            return Promise.reject(new Error(`Failed to check Quiz visibility: ${error.message}`));
+            return Promise.reject(new Error(`${error.message}`));
         }
     }
 
@@ -84,6 +121,7 @@ export class QuizzesService {
         try {
             const quizzes = await this.getQuizzes();
             this.createID(quizzes, quiz);
+            quiz.lastModification = this.getDate();
             quizzes.push(quiz);
             await fs.writeFile(this.quizzesPath, JSON.stringify(quizzes, null, 2));
             return quiz;
@@ -96,6 +134,7 @@ export class QuizzesService {
         try {
             const quizzes = await this.getQuizzes();
             const quizIndex = await this.getQuizIndex(id);
+            updatedQuiz.lastModification = this.getDate();
             quizzes[quizIndex] = updatedQuiz;
             await fs.writeFile(this.quizzesPath, JSON.stringify(quizzes, null, 2));
             return updatedQuiz;
@@ -119,6 +158,15 @@ export class QuizzesService {
             return updatedQuizzes;
         } catch (error) {
             return Promise.reject(new Error(`${error.message}`));
+        }
+    }
+
+    async importQuiz(quiz: Quiz): Promise<Quiz> {
+        try {
+            this.verifyQuiz(quiz);
+            return await this.addQuiz(quiz);
+        } catch (error) {
+            throw new Error(`${error.message}`);
         }
     }
 }
