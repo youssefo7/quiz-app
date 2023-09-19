@@ -21,6 +21,36 @@ export class QuizzesService {
         return quizzesPath;
     }
 
+    checkIdAvailability(quizzes: Quiz[], id: string) {
+        const quizIndex = quizzes.findIndex((quiz) => quiz.id === id);
+        return quizIndex === INDEX_NOT_FOUND;
+    }
+
+    createID(quizzes: Quiz[], quiz: Quiz) {
+        quiz.id = randomstring.generate(RANDOM_STRING_LENGTH);
+        if (this.checkIdAvailability(quizzes, quiz.id)) {
+            quiz.id = randomstring.generate(RANDOM_STRING_LENGTH);
+        }
+    }
+
+    async checkQuizAvailability(id: string): Promise<boolean> {
+        try {
+            const quizzes = await this.getQuizzes();
+            return !this.checkIdAvailability(quizzes, id);
+        } catch (error) {
+            return Promise.reject(new Error(`Failed to check if Quiz is deleted: ${error.message}`));
+        }
+    }
+
+    async checkVisibility(id: string) {
+        try {
+            const quiz = await this.getQuiz(id);
+            return quiz.visibility;
+        } catch (error) {
+            return Promise.reject(new Error(`Failed to check Quiz visibility: ${error.message}`));
+        }
+    }
+
     async getQuizIndex(id: string) {
         const quizzes = await this.getQuizzes();
         const quizIndex = quizzes.findIndex((quiz) => quiz.id === id);
@@ -53,7 +83,7 @@ export class QuizzesService {
     async addQuiz(quiz: Quiz): Promise<Quiz> {
         try {
             const quizzes = await this.getQuizzes();
-            quiz.id = randomstring.generate(RANDOM_STRING_LENGTH);
+            this.createID(quizzes, quiz);
             quizzes.push(quiz);
             await fs.writeFile(this.quizzesPath, JSON.stringify(quizzes, null, 2));
             return quiz;
@@ -62,7 +92,6 @@ export class QuizzesService {
         }
     }
 
-    // TODO updateQuiz() should validate input
     async updateQuiz(id: string, updatedQuiz: Quiz): Promise<Quiz> {
         try {
             const quizzes = await this.getQuizzes();

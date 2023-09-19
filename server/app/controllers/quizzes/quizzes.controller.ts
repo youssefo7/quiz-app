@@ -92,4 +92,38 @@ export class QuizzesController {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
         }
     }
+
+    @ApiOkResponse({
+        description: 'Checks if a Quiz is deleted from list',
+        type: Boolean,
+    })
+    @ApiNotFoundResponse({
+        description: 'Return NOT_FOUND http status when request fails',
+    })
+    @Get('/available/:id')
+    async checkQuizAvailability(@Param('id') id: string, @Res() response: Response) {
+        try {
+            const deleted = await this.quizzesService.checkQuizAvailability(id);
+            response.status(HttpStatus.OK).json(deleted);
+        } catch (error) {
+            response.status(HttpStatus.NOT_FOUND).send(error.message);
+        }
+    }
+
+    @ApiOkResponse({
+        description: 'Checks the visibility of a Quiz',
+        type: Boolean,
+    })
+    @ApiNotFoundResponse({
+        description: 'Return NOT_FOUND http status when request fails',
+    })
+    @Get('/visible/:id')
+    async checkVisibility(@Param('id') id: string, @Res() response: Response) {
+        try {
+            const visibility = await this.quizzesService.checkVisibility(id);
+            response.status(HttpStatus.OK).json(visibility);
+        } catch (error) {
+            response.status(HttpStatus.NOT_FOUND).send(error.message);
+        }
+    }
 }
