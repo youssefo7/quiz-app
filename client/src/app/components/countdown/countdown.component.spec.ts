@@ -36,5 +36,5 @@ describe('CountdownComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    // TODO: Écrire les tests unitaires manquants
+    // TODO: Implémenter les tests unitaires
 });

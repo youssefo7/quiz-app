@@ -6,6 +6,7 @@
     <div id="game-title-grid">
         <h2 *ngIf="quiz">{{ quiz.title }}</h2>
     </div>
+    <app-countdown id="countdown-grid"></app-countdown>
     <app-question-zone id="questions-grid" (pointsEarned)="givePoints($event)"></app-question-zone>
     <div id="chat-player-grid">
         <app-profile [points]="playerPoints"></app-profile>
