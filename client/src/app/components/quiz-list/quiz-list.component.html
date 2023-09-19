@@ -6,31 +6,31 @@
       <div class = "title" id="visibility">Visibility</div>
       <div class = "title" id="actions">Actions</div>
     </div>
-    <!-- <div class="game-container" *ngFor="let game of games">
+    <div class="game-container" *ngFor="let quiz of quizzes">
       <div class="game-item">
-        <div class="game-info">
-          <span>{{ game.name }}</span>
+        <div class="game-info element">
+          <span>{{ quiz.title }}</span>
         </div>
-        <div class="game-info">
-          <span>{{ game.dateCreated }}</span>
+        <div class="game-info element">
+          <span>{{ quiz.lastModification }}</span>
         </div>
-        <div class="game-info">
-          <span (click)="toggleVisibility(game)" class="action-icon" [title]="game.visible ? 'Cacher ' + game.name : 'Afficher ' + game.name">
-            <i [class]="game.visible ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
+        <div class="game-info element">
+          <span (click)="toggleVisibility(quiz)" class="action-icon" [title]="quiz.visibility ? 'Cacher ' + quiz.title : 'Afficher ' + quiz.title">
+            <i [class]="quiz.visibility ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
           </span>
         </div>
-        <div class="game-actions">
-          <span (click)="deleteGame(game)" class="action-icon" [title]="'Supprimer ' + game.name">
+        <div class="game-actions element">
+          <span (click)="deleteQuiz(quiz)" class="action-icon" [title]="'Supprimer ' + quiz.title">
             <i class="fas fa-trash"></i>
           </span>
-          <span (click)="exportGame(game)" class="action-icon" [title]="'Exporter ' + game.name">
+          <span (click)="exportQuiz(quiz)" class="action-icon" [title]="'Exporter ' + quiz.title">
             <i class="fas fa-download"></i>
           </span>
-          <span (click)="editGame(game)" class="action-icon" [title]="'Modifier ' + game.name">
+          <span (click)="editQuiz(quiz)" class="action-icon" [title]="'Modifier ' + quiz.title">
             <i class="fas fa-edit"></i>
           </span>
         </div>
       </div>
-    </div> -->
+    </div>
   </div>
 </body>
