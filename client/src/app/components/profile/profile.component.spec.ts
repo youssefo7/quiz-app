@@ -3,19 +3,21 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ProfileComponent } from './profile.component';
 
 describe('ProfileComponent', () => {
-  let component: ProfileComponent;
-  let fixture: ComponentFixture<ProfileComponent>;
+    let component: ProfileComponent;
+    let fixture: ComponentFixture<ProfileComponent>;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      declarations: [ProfileComponent]
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            declarations: [ProfileComponent],
+        });
+        fixture = TestBed.createComponent(ProfileComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
     });
-    fixture = TestBed.createComponent(ProfileComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
+
+    // TODO: Écrire les tests unitaires manquants
 });
