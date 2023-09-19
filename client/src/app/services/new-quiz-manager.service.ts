@@ -96,19 +96,4 @@ export class NewQuizManagerService {
     getNewQuiz(): Quiz {
         return this.newQuiz;
     }
-
-    // isValidTitle(quizTitle: string) {
-    //     const sameTitle = this.quizzes.find(quiz => quiz.title === quizTitle);
-    //     if(sameTitle) {
-    //         return false;
-    //     }
-    //     return true;
-    // }
-
-    // isValidDuration(quizDuration: number) {
-    //     if((quizDuration < 10) || (quizDuration > 60)) {
-    //         return false;
-    //     }
-    //     return true;
-    // }
 }
