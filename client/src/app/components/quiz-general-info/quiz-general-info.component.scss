@@ -4,3 +4,21 @@
     margin-top: 50px;
     padding: 30px;
 }
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+}
+
+#newDescription {
+    width: 300px;
+}
+
+#newTitle, #newDescription, #verify-duration {
+    margin-right: 50px;
+}
+
+#verify-duration {
+    font-size: 11px;
+    color: red;
+}

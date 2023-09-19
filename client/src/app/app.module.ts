@@ -17,6 +17,7 @@ import { TopBarComponent } from './components/top-bar/top-bar.component';
 import { AdminPageComponent } from './pages/admin-page/admin-page.component';
 import { CreateQuizPageComponent } from './pages/create-quiz-page/create-quiz-page.component';
 import { HostGamePageComponent } from './pages/host-game-page/host-game-page.component';
+import { RangeValidatorDirective } from './services/range-validator.directive';
 
 /**
  * Main module that is used in main.ts.
@@ -38,6 +39,7 @@ import { HostGamePageComponent } from './pages/host-game-page/host-game-page.com
         CreateQuizPageComponent,
         CreateQuizFormComponent,
         QuizGeneralInfoComponent,
+        RangeValidatorDirective,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule],
     providers: [],

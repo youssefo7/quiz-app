@@ -22,7 +22,7 @@ export class NewQuizManagerService {
         description: '',
         duration: 0,
         lastModification: dateStr,
-        visibility: true,
+        visibility: false,
         questions: [
             {
                 type: '',
@@ -57,6 +57,7 @@ export class NewQuizManagerService {
     }
 
     addQuizToServer(newQuiz: Quiz): void {
+        newQuiz.lastModification = dateStr;
         this.communicationService.addQuiz(newQuiz).subscribe({
             next: () => {
                 this.getQuizListFromServer();

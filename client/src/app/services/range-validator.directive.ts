@@ -1,8 +1,3 @@
-import { Component, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { Quiz } from '@app/interfaces/quiz';
-import { NewQuizManagerService } from '@app/services/new-quiz-manager.service';
-
 import { Directive, Input } from '@angular/core';
 import { AbstractControl, NG_VALIDATORS, ValidationErrors, Validator } from '@angular/forms';
 
@@ -29,20 +24,3 @@ export class RangeValidatorDirective implements Validator {
     return null;
   }
 }
-
-  @Component({
-    selector: 'app-quiz-general-info',
-    templateUrl: './quiz-general-info.component.html',
-    styleUrls: ['./quiz-general-info.component.scss'],
-  })
-  export class QuizGeneralInfoComponent implements OnInit {
-    myForm: FormGroup;
-    newQuiz: Quiz;
-
-    constructor(private quizController: NewQuizManagerService) {}
-
-    ngOnInit(): void {
-      this.newQuiz = this.quizController.getNewQuiz();
-      this.newQuiz.duration = 60;
-    }
-  };

@@ -1,13 +1,22 @@
-<fieldset id="general-info"><legend>Informations générales</legend>
-    <label for="newTitle">Title:</label>
-    <input type="text" [(ngModel)]="newQuiz.title" name="newTitle" id="newTitle" placeholder="Quiz Title" required>
+<form #generalInfoForm="ngForm">
+    <fieldset name="general-info" id="general-info" class="flex-row">
+        <legend>Informations générales</legend>
+        <label for="newTitle">Titre :</label>
+        <input type="text" [(ngModel)]="newQuiz.title" name="newTitle" id="newTitle" placeholder="Quiz Title" required>
+        <!-- <div *ngIf="!newQuiz.title"> Le titre est requis.</div> -->
 
-    <label for="newDescription">Description:</label>
-    <input type="text" [(ngModel)]="newQuiz.description" name="newDescription" id="newDescription" placeholder="Quiz Description" required>
+        <label for="newDescription">Description:</label>
+        <textarea type="text" [(ngModel)]="newQuiz.description" name="newDescription" id="newDescription" placeholder="Quiz Description" required></textarea>
+        <!-- <div *ngIf="!newQuiz.description">La description est requis.</div> -->
 
-    <label for="newDuration">Duration (en secondes):</label>
-    <input type="number" [(ngModel)]="newQuiz.duration" name="newDuration" id="newDuration" placeholder="Quiz Duration" required>
-
-    <label for="newLastModification">Last Modification:</label>
-    <input type="text" [(ngModel)]="newQuiz.lastModification" name="newLastModification" id="newLastModification" placeholder="Last Modification" required><br>
-</fieldset>
+        <div id="duration-div">
+            <label for="newDuration">Durée (en secondes):</label>
+            <input type="number" [(ngModel)]="newQuiz.duration" name="newDuration" id="newDuration" placeholder="Quiz Duration" 
+            [appRangeValidator]="{ min: 10, max: 60 }" required><br>
+              <div *ngIf="!newQuiz.duration">La durée est requis.</div>
+            <!-- <span id="verify-duration" *ngIf="generalInfoForm.controls.newDuration.invalid && (generalInfoForm.controls.newDuration.dirty || generalInfoForm.controls.newDuration.touched)">
+                La durée allouée doit être entre 10 et 60 secondes
+            </span> -->
+        </div>
+    </fieldset>
+</form>
