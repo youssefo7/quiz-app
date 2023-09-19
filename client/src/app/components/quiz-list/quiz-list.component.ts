@@ -10,7 +10,6 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class QuizListComponent implements OnInit {
     quizList: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
-    quizzes: Quiz[] = [];
 
     constructor(private communicationService: CommunicationService) {}
 
@@ -21,13 +20,14 @@ export class QuizListComponent implements OnInit {
     fetchQuizzes(): void {
         this.communicationService.getQuizzes().subscribe((quizzes) => {
             this.quizList.next(quizzes);
-            this.quizzes = quizzes;
         });
     }
 
     deleteQuiz(quiz: Quiz): void {
+        let updatedQuizzes: Quiz[] = [];
         this.communicationService.deleteQuiz(quiz.id).subscribe(() => {
-            this.quizzes = this.quizzes.filter((q) => q !== quiz);
+            updatedQuizzes = this.quizList.value.filter((q) => q !== quiz);
+            this.quizList.next(updatedQuizzes);
         });
     }
 

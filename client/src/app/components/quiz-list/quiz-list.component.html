@@ -6,7 +6,7 @@
       <div class = "title" id="visibility">Visibility</div>
       <div class = "title" id="actions">Actions</div>
     </div>
-    <div class="game-container" *ngFor="let quiz of quizzes">
+    <div class="game-container" *ngFor="let quiz of quizList.value">
       <div class="game-item">
         <div class="game-info element">
           <span>{{ quiz.title }}</span>
