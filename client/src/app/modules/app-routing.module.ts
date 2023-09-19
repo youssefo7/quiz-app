@@ -15,7 +15,7 @@ const routes: Routes = [
     { path: 'game/host', component: HostGamePageComponent },
     { path: 'material', component: MaterialPageComponent },
     { path: 'quiz/new', component: CreateQuizPageComponent },
-    { path: 'quiz/new', component: CreateQuizPageComponent }, // with an id instead /quiz/:id
+    { path: 'quiz/:id', component: CreateQuizPageComponent },
     { path: '**', redirectTo: '/home' },
 ];
 
