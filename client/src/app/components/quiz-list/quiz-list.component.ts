@@ -31,6 +31,7 @@ export class QuizListComponent implements OnInit {
         });
     }
 
+    //  https://stackoverflow.com/questions/57922872/angular-save-blob-in-local-text-file
     exportQuiz(quiz: Quiz): void {
         this.communicationService.exportQuiz(quiz.id).subscribe({
             next: (response) => {
