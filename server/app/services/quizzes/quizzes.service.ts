@@ -92,4 +92,14 @@ export class QuizzesService {
             return Promise.reject(new Error(`${error.message}`));
         }
     }
+
+    async exportQuiz(id: string): Promise<Quiz> {
+        try {
+            const quiz = await this.getQuiz(id);
+            delete quiz.visibility;
+            return quiz;
+        } catch (error) {
+            throw new Error(`Error exporting quiz: ${error.message}`);
+        }
+    }
 }
