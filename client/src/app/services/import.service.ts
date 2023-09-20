@@ -46,7 +46,7 @@ export class ImportService {
             // last value from is used to get promise the observable, can't use await with observable ?
             // await this.communicationService.addQuiz(quiz); not working alone
             // https://rxjs.dev/api/index/function/lastValueFrom
-            await lastValueFrom(this.communicationService.addQuiz(quiz));
+            await lastValueFrom(this.communicationService.importQuiz(quiz));
         } catch (error) {
             throw new Error('Error importing quiz: ' + error);
         }

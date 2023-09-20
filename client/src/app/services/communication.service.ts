@@ -42,12 +42,16 @@ export class CommunicationService {
         return this.http.delete<void>(`${this.baseUrl}/quizzes/${id}`).pipe(catchError(this.handleError<void>('deleteQuiz')));
     }
 
-    isQuizDeleted(id: string): Observable<boolean> {
+    checkQuizAvailability(id: string): Observable<boolean> {
         return this.http.get<boolean>(`${this.baseUrl}/quizzes/available/${id}`).pipe(catchError(this.handleError<boolean>('isQuizDeleted')));
     }
 
     checkVisibility(id: string): Observable<boolean> {
         return this.http.get<boolean>(`${this.baseUrl}/quizzes/visible/${id}`).pipe(catchError(this.handleError<boolean>('checkVisibility')));
+    }
+
+    importQuiz(quiz: Quiz): Observable<Quiz> {
+        return this.http.post<Quiz>(`${this.baseUrl}/quizzes/import`, quiz).pipe(catchError(this.handleError<Quiz>('importQuiz')));
     }
 
     private handleError<T>(request: string, result?: T): (error: Error) => Observable<T> {

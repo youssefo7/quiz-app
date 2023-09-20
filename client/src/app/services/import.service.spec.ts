@@ -10,7 +10,7 @@ describe('ImportService', () => {
     // jasmine instead of jest to avoid package.json changes
     let mockCommunicationService: jasmine.SpyObj<CommunicationService>;
     beforeEach(() => {
-        const spy = jasmine.createSpyObj('CommunicationService', ['addQuiz']);
+        const spy = jasmine.createSpyObj('CommunicationService', ['importQuiz']);
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
             providers: [ImportService, { provide: CommunicationService, useValue: spy }],
@@ -43,7 +43,19 @@ describe('ImportService', () => {
             title: '',
             duration: 0,
             lastModification: '',
-            questions: [],
+            questions: [
+                {
+                    type: '',
+                    text: '',
+                    points: 0,
+                    choices: [
+                        {
+                            text: '',
+                            isCorrect: true,
+                        },
+                    ],
+                },
+            ],
         });
         // expect visibility to be false and description to be empty
         const mockQuiz = {
@@ -52,7 +64,19 @@ describe('ImportService', () => {
             title: '',
             duration: 0,
             lastModification: '',
-            questions: [],
+            questions: [
+                {
+                    type: '',
+                    text: '',
+                    points: 0,
+                    choices: [
+                        {
+                            text: '',
+                            isCorrect: true,
+                        },
+                    ],
+                },
+            ],
             visibility: false,
             description: '',
         } as Quiz;
@@ -60,8 +84,8 @@ describe('ImportService', () => {
         const mockFile = new File([mockFileContent], 'filename.json', { type: 'application/json' });
         service.quizToImport = mockFile;
         // mocking addQuiz to return observable
-        mockCommunicationService.addQuiz.and.returnValue(of(mockQuiz));
+        mockCommunicationService.importQuiz.and.returnValue(of(mockQuiz));
         await service.importQuiz();
-        expect(mockCommunicationService.addQuiz).toHaveBeenCalledWith(mockQuiz);
+        expect(mockCommunicationService.importQuiz).toHaveBeenCalledWith(mockQuiz);
     });
 });

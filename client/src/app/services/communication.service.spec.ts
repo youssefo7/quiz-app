@@ -149,6 +149,55 @@ describe('CommunicationService', () => {
         expect(req.request.method).toBe('DELETE');
         req.flush(null);
     });
+
+    it('should check availability of a Quiz when sending GET request with /available/:id param (HTTPClient called once)', () => {
+        const mockId = 'test';
+
+        service.checkQuizAvailability(mockId).subscribe({
+            next: (response) => {
+                expect(response).toEqual(true);
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/quizzes/available/${mockId}`);
+        expect(req.request.method).toBe('GET');
+        req.flush(true);
+    });
+
+    it('should check visibility of a Quiz when sending GET request with /visible/:id param (HTTPClient called once)', () => {
+        const mockId = 'test';
+
+        service.checkVisibility(mockId).subscribe({
+            next: (response) => {
+                expect(response).toEqual(true);
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/quizzes/visible/${mockId}`);
+        expect(req.request.method).toBe('GET');
+        req.flush(true);
+    });
+
+    it('should import a Quiz when sending POST request with body and /import (HTTPClient called once)', () => {
+        const mockQuiz = quizList[0];
+
+        service.importQuiz(mockQuiz).subscribe({
+            next: (response) => {
+                expect(response).toEqual(mockQuiz);
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne((request) => {
+            return (
+                request.url === `${baseUrl}/quizzes/import` && request.method === 'POST' && JSON.stringify(request.body) === JSON.stringify(mockQuiz)
+            );
+        });
+        expect(req.request.method).toBe('POST');
+        req.flush(mockQuiz);
+    });
 });
 
 const quizList: Quiz[] = [
@@ -159,7 +208,7 @@ const quizList: Quiz[] = [
         duration: 60,
         lastModification: '2018-11-13T20:20:39+00:00',
         description: '',
-        visibility: true,
+        visibility: false,
         questions: [
             {
                 type: 'QCM',
