@@ -17,6 +17,7 @@ import { AdminPageComponent } from './pages/admin-page/admin-page.component';
 import { HostGamePageComponent } from './pages/host-game-page/host-game-page.component';
 import { CreateGameListComponent } from './components/create-game-list/create-game-list.component';
 import { AdminPopupComponent } from './components/admin-popup/admin-popup.component';
+import { CreateGameListComponent } from './components/create-game-list/create-game-list.component';
 
 /**
  * Main module that is used in main.ts.
@@ -37,6 +38,7 @@ import { AdminPopupComponent } from './components/admin-popup/admin-popup.compon
         TopBarComponent,
         CreateGameListComponent,
         AdminPopupComponent,
+        CreateGameListComponent,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, MatDialogModule],
     providers: [],
