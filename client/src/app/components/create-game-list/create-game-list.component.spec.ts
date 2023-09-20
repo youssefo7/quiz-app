@@ -96,4 +96,6 @@ describe('CreateGameListComponent', () => {
     it('should get questions', () => {
         // TODO
     });
+
+    // TODO: ajouter les tests manquant
 });

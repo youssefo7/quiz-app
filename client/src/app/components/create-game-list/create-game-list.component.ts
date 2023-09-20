@@ -56,6 +56,7 @@ export class CreateGameListComponent implements OnInit {
         }
     }
 
+    // TODO : valider la redirection vers les pages
     action(quiz: Quiz): void {
         this.getVisibleQuizListFromServer();
         this.fetchQuizzes();
@@ -76,8 +77,8 @@ export class CreateGameListComponent implements OnInit {
         }
     }
 
+    // TODO : valider le fonctionnement du popUp
     popUp(message: string): void {
-        // TODO
         this.popUpMessage = message;
     }
 
