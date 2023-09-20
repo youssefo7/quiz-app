@@ -22,6 +22,7 @@ export class ImportService {
     }
 
     // TODO : add id verification in backend to avoid changing id if one already exists
+    // TODO : reset input if importing again after successful previous import
     async importQuiz() {
         const fileReader = new FileReader();
 
@@ -49,7 +50,16 @@ export class ImportService {
             await lastValueFrom(this.communicationService.importQuiz(quiz));
         } catch (error) {
             // error when throwing non string
-            throw new Error('' + error);
+            // using message to avoid having "Error: message" and just receive "message"
+            const message = error instanceof Error ? error.message : '' + error;
+            throw new Error(message);
+        }
+    }
+
+    resetInput(event: Event) {
+        const input = event.target as HTMLInputElement;
+        if (input) {
+            input.value = '';
         }
     }
 }

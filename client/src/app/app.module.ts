@@ -16,13 +16,14 @@ import { AdminPopupComponent } from './components/admin-popup/admin-popup.compon
 import { ChatComponent } from './components/chat/chat.component';
 import { CountdownComponent } from './components/countdown/countdown.component';
 import { CreateGameListComponent } from './components/create-game-list/create-game-list.component';
+import { ImportPopupComponent } from './components/import-popup/import-popup.component';
+import { PopupMessageComponent } from './components/popup-message/popup-message.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { QuizListComponent } from './components/quiz-list/quiz-list.component';
 import { TopBarComponent } from './components/top-bar/top-bar.component';
 import { AdminPageComponent } from './pages/admin-page/admin-page.component';
 import { CreateGamePageComponent } from './pages/create-game-page/create-game-page.component';
 import { HostGamePageComponent } from './pages/host-game-page/host-game-page.component';
-import { PopupMessageComponent } from './components/popup-message/popup-message.component';
 
 /**
  * Main module that is used in main.ts.
@@ -49,6 +50,7 @@ import { PopupMessageComponent } from './components/popup-message/popup-message.
         ChatComponent,
         CountdownComponent,
         PopupMessageComponent,
+        ImportPopupComponent,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, MatDialogModule],
     providers: [],

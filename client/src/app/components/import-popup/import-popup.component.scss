@@ -1,0 +1,11 @@
+.errorMessage{
+    margin: 20px;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#cancelImportButton{
+    align-self: flex-end;
+}

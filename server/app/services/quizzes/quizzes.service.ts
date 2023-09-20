@@ -40,7 +40,7 @@ export class QuizzesService {
             errors.push('Les questions sont manquantes');
         } else {
             quiz.questions.forEach((question, index) => {
-                if (!question.type || typeof question.type !== 'string') errors.push(`Question ${index + 1} invalide ou manquant`);
+                if (!question.type || typeof question.type !== 'string') errors.push(`Type de question ${index + 1} invalide ou manquant`);
                 if (!question.text || typeof question.text !== 'string') errors.push(`Texte de la question ${index + 1} est invalide ou manquant`);
                 if (typeof question.points !== 'number') errors.push(`Les points de la question ${index + 1} sont manquants ou invalides`);
                 if (!Array.isArray(question.choices)) {
@@ -50,7 +50,7 @@ export class QuizzesService {
                         if (!choice.text || typeof choice.text !== 'string')
                             errors.push(`Texte du choix ${indexChoice + 1} de la question ${index + 1} invalide ou manquant`);
                         if (typeof choice.isCorrect !== 'boolean')
-                            errors.push(`La propriété "isCorrect" du choix ${indexChoice + 1} de la question ${index + 1} est invalid ou manquante`);
+                            errors.push(`La propriété "isCorrect" du choix ${indexChoice + 1} de la question ${index + 1} est invalide ou manquante`);
                     });
                 }
             });
