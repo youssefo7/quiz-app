@@ -32,6 +32,8 @@ export class ImportPopupComponent {
     //             data: { errorMessage },
     //         });
     //         this.importService.resetInput(event);
+    //     } finally {
+    //         this.importService.resetInput(event);
     //     }
     // }
 
