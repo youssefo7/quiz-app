@@ -1,0 +1,37 @@
+<div class="container-list">
+    <h3>Liste des jeux disponibles</h3>
+    <table >
+        <tr>
+            <th>Nom du jeu</th>
+        </tr>
+        <tbody>
+            <ng-container *ngFor="let quiz of quizzes | async">
+                <tr class="mainDetails">       
+                    <td>{{ quiz.title }}
+                        <button (click)="toggleDetails(quiz.id)" class="toggleButton" [ngClass]="{'active': selectedQuizId === quiz.id}" ></button>
+                    </td>
+                </tr>
+                <tr *ngIf="selectedQuizId === quiz.id">
+                    <td colspan="3" class="quizDetails">
+                            <div class="optionsButton">
+                                <button (click)="action(quiz)" class="testButton">Tester le jeu</button>
+                                <button (click)="action(quiz)" class="createButton">Créer une partie</button>
+                            </div>
+                            <h3>Détails du jeu</h3>
+                            <p>Description : {{ quiz.description }}</p>
+                            <p>Temps alloué : {{ quiz.duration }}</p>
+                            <h3>Liste des questions :</h3>
+                            <ul>
+                                <li *ngFor="let question of quiz.questions"> {{ question.text }} </li>
+                            </ul>
+                    </td>
+                </tr>
+                <div *ngIf="popUpMessage !== null">
+                    <div class = "popUp" > {{ popUpMessage }}
+                        <button (click) = "closePopUp"> Fermer </button>
+                    </div>
+                </div>
+            </ng-container>
+        </tbody>
+    </table>
+</div>

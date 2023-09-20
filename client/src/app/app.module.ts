@@ -14,6 +14,7 @@ import { MaterialPageComponent } from '@app/pages/material-page/material-page.co
 import { TopBarComponent } from './components/top-bar/top-bar.component';
 import { AdminPageComponent } from './pages/admin-page/admin-page.component';
 import { HostGamePageComponent } from './pages/host-game-page/host-game-page.component';
+import { CreateGameListComponent } from './components/create-game-list/create-game-list.component';
 
 /**
  * Main module that is used in main.ts.
@@ -32,6 +33,7 @@ import { HostGamePageComponent } from './pages/host-game-page/host-game-page.com
         AdminPageComponent,
         HostGamePageComponent,
         TopBarComponent,
+        CreateGameListComponent,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule],
     providers: [],
