@@ -15,12 +15,14 @@
         align-items: center;
 
         .points {
-            font-size: 2vw;
+            font-size: 1.5vw;
             font-weight: bold;
+            max-width: 90%;
         }
 
         .question {
-            font-size: 1.5vw;
+            font-size: 1.5em;
+            text-align: center;
         }
     }
 
@@ -42,11 +44,11 @@
             left: 30%;
             max-width: 60%;
             width: 60%;
-            background-color: blueviolet;
             border-radius: 5%;
-            border-style: groove;
+            border-style: ridge;
             border-width: thick;
-            border-color: blue;
+            border-color: white;
+            background-color: blueviolet;
             font-size: 2em;
             font-family: Arial, Helvetica, sans-serif;
             font-weight: bold;
@@ -73,7 +75,7 @@
             color: aliceblue;
             align-self: flex-start;
             padding: 10% 0%;
-            font-size: 1.1vw;
+            font-size: 1.2vw;
             font-weight: bold;
             position: relative;
             top: 80%;
