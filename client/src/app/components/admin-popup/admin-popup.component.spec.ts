@@ -42,10 +42,10 @@ describe('AdminPopupComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should display an error message when given password is invalid', () => {
+    it('should display an error message when given password is invalid', async () => {
         adminGuardServiceSpy.isAccessGranted.and.returnValue(false);
         const submitButton = fixture.debugElement.nativeElement.querySelector('#submit');
-        submitButton.click();
+        await submitButton.click();
 
         fixture.detectChanges();
         const errorMessage = fixture.debugElement.nativeElement.querySelector('.error');
@@ -53,55 +53,49 @@ describe('AdminPopupComponent', () => {
         expect(errorMessage).toBeTruthy();
     });
 
-    it('should close modal when the right password is given and redirect to /admin', () => {
+    it('should close modal when the right password is given and redirect to /admin', async () => {
         adminGuardServiceSpy.isAccessGranted.and.returnValue(true);
-        const closeAdminPopupSpy = spyOn(component, 'closeAdminPopup');
+        const closeAdminPopupSpy = spyOn(component, 'closeAdminPopup').and.callThrough();
         const submitButton = fixture.debugElement.nativeElement.querySelector('#submit');
-        submitButton.click();
+        await submitButton.click();
 
         expect(closeAdminPopupSpy).toHaveBeenCalled();
-        // expect(matDialogRefSpy.close).toHaveBeenCalled(); // TODO : see why this fails
+        expect(matDialogRefSpy.close).toHaveBeenCalled();
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/admin');
     });
 
-    it('should close the modal when the cancel button is clicked', () => {
+    it('should close the modal when the cancel button is clicked', async () => {
         const submitButton = fixture.debugElement.nativeElement.querySelector('#cancel');
-        const closeAdminPopupSpy = spyOn(component, 'closeAdminPopup');
-        submitButton.click();
+        const closeAdminPopupSpy = spyOn(component, 'closeAdminPopup').and.callThrough();
+        await submitButton.click();
         fixture.detectChanges();
 
         expect(closeAdminPopupSpy).toHaveBeenCalled();
-        // expect(matDialogRefSpy.close).toHaveBeenCalled(); // TODO : see why this fails
+        expect(matDialogRefSpy.close).toHaveBeenCalled();
     });
 
-    it('should make password visible when "Afficher" checkbox is checked', () => {
+    it('should make password visible when "Afficher" checkbox is checked', async () => {
         const visibilityCheckbox = fixture.debugElement.nativeElement.querySelector('#show-hide');
 
         expect(component.passwordInputType).toEqual('password');
 
-        const togglePasswordVisibilitySpy = spyOn(component, 'togglePasswordVisibility');
-        visibilityCheckbox.click();
+        const togglePasswordVisibilitySpy = spyOn(component, 'togglePasswordVisibility').and.callThrough();
+        await visibilityCheckbox.click();
         fixture.detectChanges();
 
         expect(togglePasswordVisibilitySpy).toHaveBeenCalled();
-
-        // TODO : see why this fails when it clearly works
-        // expect(component.passwordInputType).toEqual('text');
+        expect(component.passwordInputType).toEqual('text');
     });
 
-    it('should make password invisible when "Afficher" checkbox is unchecked', () => {
+    it('should make password invisible when "Afficher" checkbox is unchecked', async () => {
         const visibilityCheckbox = fixture.debugElement.nativeElement.querySelector('#show-hide');
         component.passwordInputType = 'text';
 
-        const togglePasswordVisibilitySpy = spyOn(component, 'togglePasswordVisibility');
-        visibilityCheckbox.click();
+        const togglePasswordVisibilitySpy = spyOn(component, 'togglePasswordVisibility').and.callThrough();
+        await visibilityCheckbox.click();
         fixture.detectChanges();
 
         expect(togglePasswordVisibilitySpy).toHaveBeenCalled();
-
-        // TODO : see why this fails when it clearly works
-        // quand je roule la commande pour avoir le test coverage, ça me dit même que ça
-        // n'exécute pas les lignes de la méthode togglePasswordVisibility
-        // expect(component.passwordInputType).toEqual('password');
+        expect(component.passwordInputType).toEqual('password');
     });
 });

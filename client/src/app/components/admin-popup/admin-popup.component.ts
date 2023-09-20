@@ -30,11 +30,7 @@ export class AdminPopupComponent {
     }
 
     togglePasswordVisibility() {
-        if (this.passwordInputType === 'password') {
-            this.passwordInputType = 'text';
-        } else {
-            this.passwordInputType = 'password';
-        }
+        this.passwordInputType = this.passwordInputType === 'password' ? 'text' : 'password';
     }
 
     async submitPassword($event: MouseEvent) {
