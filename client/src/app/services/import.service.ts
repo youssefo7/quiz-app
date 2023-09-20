@@ -48,7 +48,8 @@ export class ImportService {
             // https://rxjs.dev/api/index/function/lastValueFrom
             await lastValueFrom(this.communicationService.importQuiz(quiz));
         } catch (error) {
-            throw new Error('Error importing quiz: ' + error);
+            // error when throwing non string
+            throw new Error('' + error);
         }
     }
 }

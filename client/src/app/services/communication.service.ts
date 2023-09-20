@@ -1,8 +1,8 @@
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Quiz } from '@app/interfaces/quiz';
 import { Message } from '@common/message';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 
@@ -51,10 +51,22 @@ export class CommunicationService {
     }
 
     importQuiz(quiz: Quiz): Observable<Quiz> {
-        return this.http.post<Quiz>(`${this.baseUrl}/quizzes/import`, quiz).pipe(catchError(this.handleError<Quiz>('importQuiz')));
+        return this.http.post<Quiz>(`${this.baseUrl}/quizzes/import`, quiz).pipe(catchError(this.receiveError()));
     }
 
     private handleError<T>(request: string, result?: T): (error: Error) => Observable<T> {
         return () => of(result as T);
+    }
+
+    // handleError ignores error message sent in response body from server and returns an Observable
+    // receiveError uses HTTPErrorResponse to catch error message sent in response body from server
+    private receiveError() {
+        return (error: HttpErrorResponse): Observable<never> => {
+            let errorMessage = '';
+            // server message
+            errorMessage = `${error.error.message || error.error}`;
+            // throw error to catch in import service
+            return throwError(() => new Error(errorMessage));
+        };
     }
 }
