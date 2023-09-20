@@ -1,0 +1,18 @@
+<div class="container">
+    <p><strong>Veuillez entrer le mot de passe pour accéder à la page d'administration.</strong></p>
+
+    <p *ngIf="showErrorMessage" class="error">Mot de passe incorrect. Veuillez réessayer.</p>
+
+    <div class="password-container">
+        <input [type]="passwordInputType" [(ngModel)]="givenPassword" />
+        <div>
+            <label for="show-hide">Afficher</label>
+            <input type="checkbox" id="show-hide" (click)="togglePasswordVisibility()" />
+        </div>
+    </div>
+
+    <div class="button-container">
+        <button id="cancel" type="button" (click)="closeAdminPopup()">Annuler</button>
+        <button id="submit" type="submit" (click)="submitPassword($event)">Accéder</button>
+    </div>
+</div>
