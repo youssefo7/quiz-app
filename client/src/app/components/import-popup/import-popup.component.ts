@@ -22,7 +22,7 @@ export class ImportPopupComponent {
     }
 
     // function to use in page
-    // async handleFileInput(event: Event) {
+    // async handleImport(event: Event) {
     //     try {
     //         await this.importService.selectQuiz(event);
     //         await this.importService.importQuiz();
