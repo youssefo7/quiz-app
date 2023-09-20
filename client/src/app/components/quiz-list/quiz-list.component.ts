@@ -1,6 +1,6 @@
+import { CommunicationService } from '@app/services/communication.service';
 import { Component, OnInit } from '@angular/core';
 import { Quiz } from '@app/interfaces/quiz';
-import { CommunicationService } from '@app/services/communication.service';
 import { BehaviorSubject } from 'rxjs';
 
 @Component({
