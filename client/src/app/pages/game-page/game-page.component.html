@@ -3,7 +3,5 @@
     <div id="exit-button-grid">
         <mat-icon [routerLink]="link" title="Quitter la Partie" inline="true">exit_to_app</mat-icon>
     </div>
-    <div id="game-title-grid">
-        <h2 *ngIf="quiz">{{ quiz.title }}</h2>
-    </div>
+    <app-create-game-list class="create-game-list" tabindex="0"></app-create-game-list>
 </div>

@@ -56,7 +56,7 @@ export class CreateGameListComponent implements OnInit {
         }
     }
 
-    // TODO : valider la redirection vers les pages
+    // TODO : corriger la redirection vers les pages et le pop up
     action(quiz: Quiz): void {
         this.getVisibleQuizListFromServer();
         this.fetchQuizzes();
