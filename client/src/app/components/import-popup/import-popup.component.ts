@@ -14,7 +14,8 @@ export class ImportPopupComponent {
         private dialogRef: MatDialogRef<ImportPopupComponent>,
         @Inject(MAT_DIALOG_DATA) public data: DialogData,
     ) {
-        this.errorMessages = data.errorMessage.split('\n');
+        // empty array if no error message
+        this.errorMessages = data.errorMessage ? data.errorMessage.split('\n') : [];
     }
 
     closeDialog() {
