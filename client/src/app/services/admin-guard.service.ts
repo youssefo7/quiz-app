@@ -15,7 +15,7 @@ export class AdminGuardService {
 
     isAccessGranted(userPassword: string) {
         // TODO : make service to verify authentication in backend
-        this.canAccessAdmin = userPassword === 'ultimate!!!password';
+        this.canAccessAdmin = userPassword === '';
         return this.canAccessAdmin;
     }
 

@@ -4,7 +4,9 @@ header {
     justify-content: space-between;
     align-items: center;
     border-bottom: 2px solid #082540;
-    background-color: #bbdaf7;
+    background-image: linear-gradient(144deg,#0056eb, #9640ff 50%,#0056eb);
+    border: 2px;
+    box-shadow: rgba(151, 65, 252, 0.2) 0 15px 30px -5px;
     padding: 0px 8px;
 }
 
@@ -16,5 +18,5 @@ img {
 
 h1 {
     margin: unset;
-    color: #082540;
+    color: #ffffff;
 }
