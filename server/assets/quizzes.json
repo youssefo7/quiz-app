@@ -1,11 +1,12 @@
 [
     {
         "$schema": "quiz-schema.json",
-        "id": "1a2b3c",
-        "title": "Questionnaire sur le JS",
+        "id": "546",
+        "title": "L'empire romain",
         "duration": 60,
         "lastModification": "2018-11-13T20:20:39+00:00",
-        "visibility": true,
+        "visibility": false,
+        "description": "",
         "questions": [
             {
                 "type": "QCM",
@@ -25,29 +26,14 @@
                         "isCorrect": true
                     },
                     {
-                        "text": "int",
-                        "isCorrect": false
+                        "text": "int"
                     }
                 ]
             },
             {
-                "type": "QCM",
-                "text": "En quelle année Javascript a été créé ? ",
-                "points": 70,
-                "choices": [
-                    {
-                        "text": "1995",
-                        "isCorrect": true
-                    },
-                    {
-                        "text": "2001",
-                        "isCorrect": false
-                    },
-                    {
-                        "text": "1998",
-                        "isCorrect": false
-                    }
-                ]
+                "type": "QRL",
+                "text": "Donnez la différence entre 'let' et 'var' pour la déclaration d'une variable en JS ?",
+                "points": 60
             },
             {
                 "type": "QCM",
@@ -60,7 +46,60 @@
                     },
                     {
                         "text": "Oui",
+                        "isCorrect": null
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "$schema": "quiz-schema.json",
+        "id": "986",
+        "title": "Histoire et culture generale",
+        "duration": 60,
+        "lastModification": "2018-11-13T20:20:39+00:00",
+        "visibility": false,
+        "description": "",
+        "questions": [
+            {
+                "type": "QCM",
+                "text": "Parmi les mots suivants, lesquels sont des mots clés réservés en JS?",
+                "points": 40,
+                "choices": [
+                    {
+                        "text": "var",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "self",
                         "isCorrect": false
+                    },
+                    {
+                        "text": "this",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "int"
+                    }
+                ]
+            },
+            {
+                "type": "QRL",
+                "text": "Donnez la différence entre 'let' et 'var' pour la déclaration d'une variable en JS ?",
+                "points": 60
+            },
+            {
+                "type": "QCM",
+                "text": "Est-ce qu'on le code suivant lance une erreur : const a = 1/NaN; ? ",
+                "points": 20,
+                "choices": [
+                    {
+                        "text": "Non",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "Oui",
+                        "isCorrect": null
                     }
                 ]
             }
