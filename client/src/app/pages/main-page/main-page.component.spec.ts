@@ -44,10 +44,10 @@ describe('MainPageComponent', () => {
         expect(joinGameButton.getAttribute('RouterLink')).toEqual('/game');
     });
 
-    it('should have a "Créer une partie" button redirecting to /game/host', () => {
+    it('should have a "Créer une partie" button redirecting to /game/new', () => {
         const hostGameButton = fixture.debugElement.nativeElement.querySelector('#host-game-button');
         expect(hostGameButton.innerText).toEqual('Créer une partie');
-        expect(hostGameButton.getAttribute('RouterLink')).toEqual('/game/host');
+        expect(hostGameButton.getAttribute('RouterLink')).toEqual('/game/new');
     });
 
     it('should have a section heading containing the team number', () => {

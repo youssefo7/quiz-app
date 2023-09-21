@@ -1,0 +1,62 @@
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+tr {
+    text-align: left;
+    border-collapse: collapse;
+}
+
+td {
+    padding-left: 5px;
+}
+
+.quizDetails {
+    background-color: lightgray;
+    padding: 0%;
+}
+
+tr.mainDetails:nth-child(even) {
+    background-color: lightblue
+}
+
+#detailsHeader {
+    text-decoration: underline
+}
+
+th {
+    background-color: rgb(45, 187, 235);
+    color: white;
+    padding-left: 5px;
+}
+
+.toggleButton {
+    border: 2px solid rgb(45, 187, 235);
+    float: right;
+}
+
+button:hover {
+    background-color: rgb(186, 186, 186);
+}
+
+.toggleButton::after {
+    content: "+";
+}
+
+.toggleButton.active::after {
+    content: "-";
+    padding: 1px 2px;
+}
+
+.optionsButton {
+    display:flex;
+    justify-content: flex-end;
+    margin-right: 2px;
+}
+
+#testButton, #createButton {
+    border: 2px solid rgb(45, 187, 235);
+    border-radius: 6px;
+}
+
