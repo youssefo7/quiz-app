@@ -1,5 +1,6 @@
+// import { ImportService } from './../../services/import.service';
 import { CommunicationService } from '@app/services/communication.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Quiz } from '@app/interfaces/quiz';
 import { BehaviorSubject } from 'rxjs';
 
@@ -9,6 +10,7 @@ import { BehaviorSubject } from 'rxjs';
     styleUrls: ['./quiz-list.component.scss'],
 })
 export class QuizListComponent implements OnInit {
+    @ViewChild('fileInput') fileInput: ElementRef | undefined;
     quizList: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
 
     constructor(private communicationService: CommunicationService) {}
@@ -33,25 +35,23 @@ export class QuizListComponent implements OnInit {
 
     //  https://stackoverflow.com/questions/57922872/angular-save-blob-in-local-text-file
     exportQuiz(quiz: Quiz): void {
-        this.communicationService.exportQuiz(quiz.id).subscribe({
-            next: (response) => {
-                const quizName: string = response.title;
-                //  create blob file
-                const blob = new Blob([JSON.stringify(response)], { type: 'application/json' });
-                const blobUrl = window.URL.createObjectURL(blob);
-                //  create anchor element (invisible in html)
-                const anchor = document.createElement('a');
-                anchor.href = blobUrl;
-                anchor.download = quizName;
+        //  TODO: logique quiz est bon
+        const exportedQuiz = { ...quiz };
+        delete exportedQuiz.visibility;
+        //  const exportedQuizQuestions = [ ...quiz.questions ]
+        const quizName: string = quiz.title;
 
-                anchor.click();
+        //  create blob file
+        const blob = new Blob([JSON.stringify(exportedQuiz)], { type: 'application/json' });
+        const blobUrl = window.URL.createObjectURL(blob);
+        //  create anchor element (invisible in html)
+        const anchor = document.createElement('a');
+        anchor.href = blobUrl;
+        anchor.download = quizName;
 
-                window.URL.revokeObjectURL(blobUrl);
-            },
-            error: (error) => {
-                throw new Error(`Error exporting quiz: ${error.message}`);
-            },
-        });
+        anchor.click();
+
+        window.URL.revokeObjectURL(blobUrl);
     }
 
     editQuiz(quiz: Quiz): void {

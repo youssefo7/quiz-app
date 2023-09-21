@@ -42,10 +42,6 @@ export class CommunicationService {
         return this.http.delete<void>(`${this.baseUrl}/quizzes/${id}`).pipe(catchError(this.handleError<void>('deleteQuiz')));
     }
 
-    exportQuiz(id: string): Observable<Quiz> {
-        return this.http.get<Quiz>(`${this.baseUrl}/quizzes/export/${id}`).pipe(catchError(this.handleError<Quiz>('exportQuiz')));
-    }
-
     private handleError<T>(request: string, result?: T): (error: Error) => Observable<T> {
         return () => of(result as T);
     }

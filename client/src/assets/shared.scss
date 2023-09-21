@@ -1,14 +1,9 @@
 
 
-/* CSS in your styles.css or styles.scss file */
 .background {
-  /* Set your background properties */
   background-image: url('./images/bg.png');
-  background-size: cover; /* Adjust this property to control how the image is scaled */
-  background-repeat: no-repeat;
-  background-attachment: fixed; /* Fixed background scrolling */
-  /* You can also set background color if needed */
+  background-size: cover; 
+  background-repeat: repeat;
   background-color: #f0f0f0;
-  /* Adjust other styles like font, text color, etc. */
   color: #333;
 }

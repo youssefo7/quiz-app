@@ -43,16 +43,6 @@ export class QuizzesController {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
         }
     }
-    @Get('export/:id')
-    async exportQuiz(@Param('id') id: string, @Res() response: Response) {
-        try {
-            const quiz = await this.quizzesService.exportQuiz(id);
-            response.setHeader('Content-Type', 'application/json');
-            response.send(quiz);
-        } catch (error) {
-            response.status(HttpStatus.BAD_REQUEST).send(error.message);
-        }
-    }
     @ApiCreatedResponse({
         description: 'Adds Quiz to the list',
         type: Quiz,
