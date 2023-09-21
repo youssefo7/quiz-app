@@ -1,4 +1,4 @@
-import SpyObj = jasmine.SpyObj;
+// import SpyObj = jasmine.SpyObj;
 
 /* describe('CountdownComponent', () => {
     let component: CountdownComponent;
