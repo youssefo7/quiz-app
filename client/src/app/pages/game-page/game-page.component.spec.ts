@@ -3,6 +3,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { ProfileComponent } from '@app/components/profile/profile.component';
+import { QuestionZoneComponent } from '@app/components/question-zone/question-zone.component';
 import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { CommunicationService } from '@app/services/communication.service';
 import { of } from 'rxjs';
@@ -32,6 +33,8 @@ describe('GamePageComponent', () => {
         TestBed.configureTestingModule({
             declarations: [GamePageComponent, TopBarComponent, ProfileComponent, ChatComponent],
             imports: [MatIconModule],
+            declarations: [GamePageComponent, TopBarComponent, QuestionZoneComponent],
+            imports: [MatIconModule],
             providers: [
                 { provide: CommunicationService, useValue: communicationServiceMock },
                 {
@@ -58,11 +61,10 @@ describe('GamePageComponent', () => {
         expect(component.link).toEqual('/home');
     });
 
-    // TODO: Change /admin with create-game route
     it('should link to /admin if route does contain "test"', () => {
         component.checkGameRoute(true);
         expect(component.title).toEqual('Partie - Test');
-        expect(component.link).toEqual('/admin');
+        expect(component.link).toEqual('/game/new');
     });
 
     it('should fetch the quiz ', () => {

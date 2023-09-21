@@ -24,7 +24,7 @@ export class GamePageComponent implements OnInit {
 
     checkGameRoute(isTestGame = this.isTestGame) {
         if (isTestGame) {
-            this.link = '/admin'; // TODO: Change with create-game route
+            this.link = '/game/new'; // TODO: Change with create-game route
             this.title += ' - Test';
         }
     }
