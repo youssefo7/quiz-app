@@ -14,6 +14,8 @@ export class CountdownComponent implements OnInit {
     private readonly transitionTime = 3;
     private readonly isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
 
+    // Raison: J'injecte 4 services nécessaire dans mon constructeur
+    // eslint-disable-next-line max-params
     constructor(
         private readonly timeService: TimeService,
         private communicationService: CommunicationService,
@@ -38,10 +40,10 @@ export class CountdownComponent implements OnInit {
     }
 
     async gameClock() {
-        for (let i = 0; i < this.quiz.questions.length; i++) {
+        this.quiz.questions.forEach(async () => {
             await this.timeService.startTimer(this.transitionTime);
             await this.timeService.startTimer(this.quiz.duration);
-        }
+        });
     }
 
     // Est-ce que c'est mieux que j'insère la variable isTestGame dans la fonction ou non?
