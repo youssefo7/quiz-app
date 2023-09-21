@@ -12,11 +12,12 @@ import { AppComponent } from '@app/pages/app/app.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
+import { AdminPopupComponent } from './components/admin-popup/admin-popup.component';
+import { ProfileComponent } from './components/profile/profile.component';
+import { QuizListComponent } from './components/quiz-list/quiz-list.component';
 import { TopBarComponent } from './components/top-bar/top-bar.component';
 import { AdminPageComponent } from './pages/admin-page/admin-page.component';
 import { HostGamePageComponent } from './pages/host-game-page/host-game-page.component';
-import { AdminPopupComponent } from './components/admin-popup/admin-popup.component';
-import { QuizListComponent } from './components/quiz-list/quiz-list.component';
 
 /**
  * Main module that is used in main.ts.
@@ -37,6 +38,7 @@ import { QuizListComponent } from './components/quiz-list/quiz-list.component';
         TopBarComponent,
         QuizListComponent,
         AdminPopupComponent,
+        ProfileComponent,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, MatDialogModule],
     providers: [],
