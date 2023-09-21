@@ -17,7 +17,7 @@ export class TitleExistsDirective implements Validator {
 
     validate(control: AbstractControl): ValidationErrors | null {
         const titleValue = control.value;
-        const sameTitle = this.quizzes.find((quiz) => quiz.title === titleValue);
+        const sameTitle = this.quizzes.find((quiz) => quiz.title.toLowerCase() === titleValue.toLowerCase());
         if (sameTitle) {
             return { titleExists: true };
         }

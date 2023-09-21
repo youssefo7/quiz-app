@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Quiz } from '@app/interfaces/quiz';
 import { NewQuizManagerService } from '@app/services/new-quiz-manager.service';
 
@@ -16,8 +16,13 @@ export class QuizGeneralInfoComponent implements OnInit {
     buttonText = 'Save';
     buttonName = 'edit-save';
 
+    descriptionValue: string = '';
+    maxLength: number;
+    charactersCount: number;
+    counter: string;
+
     generalInfoForm = this.fb.group({
-        title: '',
+        title: ['', [Validators.required, Validators.minLength(1)]],
         description: '',
         duration: 10,
     });
@@ -30,15 +35,25 @@ export class QuizGeneralInfoComponent implements OnInit {
     ngOnInit(): void {
         this.newQuiz = this.quizManagerService.getNewQuiz();
         this.quizManagerService.getQuizListFromServer();
+        this.maxLength = 250;
+        this.charactersCount = this.descriptionValue ? this.descriptionValue.length : 0;
+        this.counter = `${this.charactersCount} / ${this.maxLength}`;
     }
+
     toggleButtonTextAndName(): void {
         this.disableForm = !this.disableForm;
         this.buttonText = this.disableForm ? 'Edit' : 'Save';
-        this.buttonName = this.disableForm ? 'save' : 'edit-save'; // Update the button name
+        this.buttonName = this.disableForm ? 'save' : 'edit-save';
     }
 
     getQuizList() {
         return this.quizManagerService.quizzes.getValue();
+    }
+
+    onCharacterChange(event: Event) {
+        const inputValue = (event.target as HTMLInputElement).value;
+        this.charactersCount = inputValue.length;
+        this.counter = `${this.charactersCount} / ${this.maxLength}`;
     }
 
     onSubmit() {
