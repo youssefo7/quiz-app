@@ -13,6 +13,7 @@ import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
 import { AdminPopupComponent } from './components/admin-popup/admin-popup.component';
+import { ChatComponent } from './components/chat/chat.component';
 import { CreateGameListComponent } from './components/create-game-list/create-game-list.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { QuizListComponent } from './components/quiz-list/quiz-list.component';
@@ -43,6 +44,7 @@ import { HostGamePageComponent } from './pages/host-game-page/host-game-page.com
         ProfileComponent,
         CreateGameListComponent,
         CreateGamePageComponent,
+        ChatComponent,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, MatDialogModule],
     providers: [],

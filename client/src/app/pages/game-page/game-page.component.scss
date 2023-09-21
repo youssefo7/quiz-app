@@ -53,5 +53,11 @@
         display: grid;
         grid-template-columns: 30% 70%;
         align-items: center;
+        display: grid;
+        grid-template-rows: 15% 85%;
+
+        #chat-grid {
+            grid-row: 2 / 3;
+        }
     }
 }
