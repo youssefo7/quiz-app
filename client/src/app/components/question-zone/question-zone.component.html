@@ -8,7 +8,7 @@
     </div>
     <div *ngIf="quiz" class="choices-zone">
         <button
-            *ngFor="let choice of question.choices; index as i"
+            *ngFor="let choice of question?.choices; index as i"
             type="button"
             (click)="toggleChoice(i)"
             [ngClass]="{ active: choicesChosen[i] }"
