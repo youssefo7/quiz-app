@@ -16,6 +16,10 @@ export class TitleExistsDirective implements Validator {
     @Input('appTitleExists') quizzes: Quiz[];
 
     validate(control: AbstractControl): ValidationErrors | null {
+        if (!this.quizzes) {
+            return null; // No validation if the quizzes array is not provided
+        }
+
         const titleValue = control.value;
         const sameTitle = this.quizzes.find((quiz) => quiz.title === titleValue);
         if (sameTitle) {

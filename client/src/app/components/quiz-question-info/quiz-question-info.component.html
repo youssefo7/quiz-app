@@ -1,21 +1,47 @@
 <form [formGroup]="questionInfoForm">
     <fieldset>
-        <legend>Questions : </legend>
+        <legend>Nouvelle question : </legend>
+        <div>
+            <label>Type de question : </label>
+            <select for="question-type" id="question-type">
+                <option formControlName="type" value="QCM">QCM</option>
+                <option formControlName="type" value="QRL">QRL</option>
+            </select>
+        </div>
 
-        <label>Type de question : </label>
-        <select for="question-type" id="question-type">
-            <option value="QCM">QCM</option>
-            <option value="QRL">QRL</option>
-        </select>
+        <div>
+            <label for="newQuestion">Question :</label>
+            <input type="text" formControlName="text" [appQuestionExists]="getNewQuiz()" name="newQuestion" id="newQuestion" placeholder="Question" required>
+            <span id="verify-question" *ngIf="questionInfoForm.controls.text.invalid && (questionInfoForm.controls.text.dirty || questionInfoForm.controls.text.touched)">
+                La question entrée est déjà présente ou doit avoir au moins un caractère
+            </span>
+        </div>
 
-        <label for="newQuestion">Question :</label>
-        <input type="text" formControlName="text" name="newQuestion" id="newQuestion" placeholder="Question" required>
-
-        <label for="newPoints">Points :</label>
-        <input type="number" step="10" formControlName="points" name="newPoints" id="newPoints" min="10" max="100" [appRangeValidator]="{min: 10, max: 100}" placeholder="Points" 
-        (change)="questionInfoForm.controls.points.setValue(roundToNearest10())" required>
-        <span id="verify-points" *ngIf="questionInfoForm.controls.points.invalid">
-            Les points attribués pour une bonne réponse doit être entre 10 et 100
-        </span>
+        <div>
+            <label for="newPoints">Points :</label>
+            <input type="number" step="10" formControlName="points" name="newPoints" id="newPoints" min="10" max="100" [appRangeValidator]="{min: 10, max: 100}" placeholder="Points" 
+            (change)="questionInfoForm.controls.points.setValue(roundToNearest10())" required>
+            <span id="verify-points" *ngIf="questionInfoForm.controls.points.invalid">
+                Les points attribués pour une bonne réponse doit être entre 10 et 100
+            </span>
+        </div>
+        <label for="newChoice">Choices :</label>
+        <div id="choice-container">
+            <div *ngFor="let choice of choices.controls; let i = index" class="response">
+                <input class="response-input" [formControlName]="'choices[' + i + '].text'" type="text"  placeholder="reponse {{ i + 1 }}" [required]="i < 2">
+                <span class="required-text" *ngIf="i < 2"><br>Choix {{ i + 1 }} (requis) </span>
+                <label class="switch">
+                    <input type="checkbox" [formControlName]="'choices[' + i + '].checked'" (click)="onSliderClick(i)">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <div *ngIf="questionInfoForm.hasError('firstTwoChoicesIncomplete')" class="error-message">
+                At least the first two choices must be completed.
+            </div>
+            <div *ngIf="questionInfoForm.hasError('noCorrectChoice')" class="error-message">
+                At least one choice must be marked as correct.
+            </div>
+        </div>
     </fieldset>
+    <button id="submit-button" (click)="toggleButtonNameAndText()" [disabled]="questionInfoForm.invalid" [name]="buttonName">{{ buttonText }}</button>
 </form>

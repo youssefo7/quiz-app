@@ -3,18 +3,22 @@
         <legend>Informations générales</legend>
         <div id="title-div">
             <label for="newTitle">Titre :</label>
-            <input type="text" name="newTitle" id="newTitle" placeholder="Quiz Title" [appTitleExists]="getQuizList()" [disabled]="disableForm" formControlName="title" required>
-            <span id="verify-duration" *ngIf="generalInfoForm.controls.title.invalid && (generalInfoForm.controls.title.dirty || generalInfoForm.controls.title.touched)">
-                Le titre entrée existe déjà
+            <input type="text" name="newTitle" id="newTitle" placeholder="Quiz Title" [appTitleExists]="getQuizList()" [disabled]="disableForm" formControlName="title" required><br>
+            <span id="verify-title" *ngIf="generalInfoForm.controls.title.invalid && (generalInfoForm.controls.title.dirty || generalInfoForm.controls.title.touched)">
+                Le titre entrée existe déjà ou doit avoir au moins un caractère
             </span>
         </div>
 
-        <label for="newDescription">Description:</label>
-        <textarea type="text" name="newDescription" id="newDescription" placeholder="Quiz Description" [disabled]="disableForm" formControlName="description"></textarea>
+        <div id="description-div">
+            <label for="newDescription">Description:
+                <textarea type="text" name="newDescription" id="newDescription" placeholder="Quiz Description" [value]="descriptionValue" [maxlength]="maxLength" (input)="onCharacterChange($event)" [disabled]="disableForm" formControlName="description"></textarea><br>
+                <span class="counter">{{ counter }}</span>
+            </label>
+        </div>
 
         <div id="duration-div">
             <label for="newDuration">Durée (en secondes):</label>
-            <input type="number" name="newDuration" [disabled]="disableForm" id="newDuration" placeholder="Quiz Duration" min="10" max="60" [appRangeValidator]="{ min: 10, max: 60 }" formControlName="duration" required><br>
+            <input type="number" name="newDuration" [disabled]="disableForm" id="newDuration" min="10" max="60" placeholder="Quiz Duration" [appRangeValidator]="{ min: 10, max: 60 }" formControlName="duration" required><br>
             <span id="verify-duration" *ngIf="generalInfoForm.controls.duration.invalid">
                 La durée allouée doit être entre 10 et 60 secondes
             </span>
@@ -22,30 +26,3 @@
     </fieldset>
     <button id="submit-button" (click)="toggleButtonTextAndName()" [disabled]="generalInfoForm.invalid" [name]="buttonName">{{ buttonText }}</button>
 </form>
-
-<!-- <form #generalInfoForm="ngForm" [ngClass]="{ 'disabled-form': disableForm }">
-    <fieldset name="general-info" id="general-info" class="flex-row">
-        <legend>Informations générales</legend>
-        <label for="newTitle">Titre :</label>
-        <input type="text" [(ngModel)]="newQuiz.title" name="newTitle" id="newTitle" [disabled]="disableForm" placeholder="Quiz Title" required>
-        <div *ngIf="!newQuiz.title"> Le titre est requis.</div>
-
-        <label for="newDescription">Description:</label>
-        <textarea type="text" [(ngModel)]="newQuiz.description" name="newDescription" id="newDescription" [disabled]="disableForm" placeholder="Quiz Description"></textarea>
-        <div *ngIf="!newQuiz.description">La description est requis.</div> 
-
-        <div id="duration-div">
-            <label for="newDuration">Durée (en secondes):</label>
-            <input type="number" [(ngModel)]="newQuiz.duration" name="newDuration" [disabled]="disableForm" id="newDuration"  placeholder="Quiz Duration" 
-            [appRangeValidator]="{ min: 10, max: 60 }" required><br>
-            <div *ngIf="!newQuiz.duration">La durée est requis.</div> 
-            <span id="verify-duration" *ngIf="generalInfoForm.controls.newDuration.invalid && (generalInfoForm.controls.newDuration.dirty || generalInfoForm.controls.newDuration.touched)">
-                La durée allouée doit être entre 10 et 60 secondes
-            </span>
-        </div>
-        <button (click)="commitChanges($event)"></button>
-        <button (click)="toggleButtonTextAndName()" [name]="buttonName">{{ buttonText }}</button>
-    </fieldset>
-</form> -->
-
-<!-- (ngSubmit)="onSubmit()" -->

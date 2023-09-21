@@ -14,11 +14,22 @@
     width: 300px;
 }
 
-#newTitle, #newDescription, #verify-duration {
+#title-div, #description-div, #verify-duration {
     margin-right: 50px;
 }
 
-#verify-duration {
+#verify-duration, #verify-title, .counter {
     font-size: 11px;
+}
+
+#verify-duration, #verify-title {
     color: red;
+}
+
+.counter {
+    color: #04243c;
+}
+
+textarea {
+    resize: none;
 }

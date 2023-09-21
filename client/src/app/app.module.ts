@@ -13,13 +13,15 @@ import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
 import { CreateQuizFormComponent } from './components/create-quiz-form/create-quiz-form.component';
 import { QuizGeneralInfoComponent } from './components/quiz-general-info/quiz-general-info.component';
+import { QuizQuestionInfoComponent } from './components/quiz-question-info/quiz-question-info.component';
 import { TopBarComponent } from './components/top-bar/top-bar.component';
 import { RangeValidatorDirective } from './directives/range-validator.directive';
 import { TitleExistsDirective } from './directives/title-exists.directive';
 import { AdminPageComponent } from './pages/admin-page/admin-page.component';
 import { CreateQuizPageComponent } from './pages/create-quiz-page/create-quiz-page.component';
 import { HostGamePageComponent } from './pages/host-game-page/host-game-page.component';
-import { QuizQuestionInfoComponent } from './components/quiz-question-info/quiz-question-info.component';
+import { QuestionExistsDirective } from './directives/question-exists.directive';
+import { ChoiceValidationDirective } from './directives/choice-validation.directive';
 
 /**
  * Main module that is used in main.ts.
@@ -42,8 +44,10 @@ import { QuizQuestionInfoComponent } from './components/quiz-question-info/quiz-
         CreateQuizFormComponent,
         QuizGeneralInfoComponent,
         RangeValidatorDirective,
-        TitleExistsDirective,
         QuizQuestionInfoComponent,
+        TitleExistsDirective,
+        QuestionExistsDirective,
+        ChoiceValidationDirective,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, ReactiveFormsModule],
     providers: [],
