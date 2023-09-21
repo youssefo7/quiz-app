@@ -12,17 +12,22 @@ export class QuestionZoneComponent implements OnInit {
     quiz: Quiz;
     question: Question;
     choicesChosen: boolean[];
-    buttonStyle = [{}];
-    points = 0;
-    bonusMessage = '';
-    pointsDisplay = { display: 'none' };
-    bonusDisplay = { display: 'none' };
-    private readonly Bonus = 1.2;
+    buttonStyle: { backgroundColor: string; borderColor: string; borderWidth: string }[];
+    points: number;
+    bonusMessage: string;
+    pointsDisplay: { display: string };
+    bonusDisplay: { display: string };
 
     constructor(
         private communicationService: CommunicationService,
         private route: ActivatedRoute,
-    ) {}
+    ) {
+        this.points = 0;
+        this.bonusMessage = '';
+        this.pointsDisplay = { display: 'none' };
+        this.bonusDisplay = { display: 'none' };
+        this.buttonStyle = [{ backgroundColor: 'blueviolet', borderColor: 'white', borderWidth: '5px' }];
+    }
 
     async getQuiz() {
         const id = this.route.snapshot.paramMap.get('id');
@@ -39,11 +44,7 @@ export class QuestionZoneComponent implements OnInit {
 
     getQuestion() {
         this.question = this.quiz.questions[0];
-        this.choicesChosen = [];
-        for (let i = 0; i < this.question.choices.length; i++) {
-            // Linting error à cause du for loop (À revoir)
-            this.choicesChosen.push(false);
-        }
+        this.choicesChosen = new Array(this.question.choices.length).fill(false);
     }
     // TODO: Connect this function with the timer so that it activates when the time is up
     goToNextQuestion() {
@@ -73,10 +74,11 @@ export class QuestionZoneComponent implements OnInit {
         this.showPoints();
     }
 
-    // TODO: Create a function that gives points to the player
+    // TODO: Make this function actually give points to the player
     givePoints() {
+        const bonus = 1.2; // Could be in a const file
         if (this.isAnswerGood()) {
-            this.points = this.question.points * this.Bonus; // BONUS when 1st to get the answer right (to put in a constant later)
+            this.points = this.question.points * bonus;
             this.bonusMessage = '(20% bonus Woohoo!)';
         }
         return this.points;
@@ -103,7 +105,6 @@ export class QuestionZoneComponent implements OnInit {
         this.setButtonStyle(index);
     }
 
-    // TODO: Change the style of the validate button when clicked or when enter is pressed (change style of buttons)
     submitAnswer() {
         document.querySelector('input[type="button"]')?.setAttribute('disabled', 'true');
         document.querySelector('input[type="button"]')?.setAttribute('style', 'background-color: grey');

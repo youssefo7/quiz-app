@@ -1,8 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatIconModule } from '@angular/material/icon';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
-import { CountdownComponent } from '@app/components/countdown/countdown.component';
 import { ProfileComponent } from '@app/components/profile/profile.component';
 import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { CommunicationService } from '@app/services/communication.service';
@@ -31,8 +30,8 @@ describe('GamePageComponent', () => {
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [GamePageComponent, TopBarComponent, ProfileComponent, ChatComponent, CountdownComponent],
-            imports: [MatIconModule, RouterModule],
+            declarations: [GamePageComponent, TopBarComponent, ProfileComponent, ChatComponent],
+            imports: [MatIconModule],
             providers: [
                 { provide: CommunicationService, useValue: communicationServiceMock },
                 {
