@@ -26,7 +26,7 @@ export class QuizzesService {
         return new Date().toISOString();
     }
 
-    async verifyQuiz(quiz: Quiz) {
+    async verifyQuiz(quiz: Quiz): Promise<void> {
         const errors = [];
 
         if (!quiz.$schema || typeof quiz.$schema !== 'string') errors.push('Schéma du quiz invalide ou manquant');
@@ -82,22 +82,22 @@ export class QuizzesService {
     }
 
     // if true id is available
-    async checkIdAvailability(id: string) {
+    async checkIdAvailability(id: string): Promise<boolean> {
         const quizzes = await this.getQuizzes();
         return quizzes.findIndex((quiz) => quiz.id === id) === Constants.INDEX_NOT_FOUND;
     }
 
-    async checkTitleExists(title: string) {
+    async checkTitleExists(title: string): Promise<boolean> {
         const quizzes = await this.getQuizzes();
         return !!quizzes.find((quiz) => quiz.title === title);
     }
 
-    async createID(quizzes: Quiz[], quiz: Quiz) {
-        quiz.id = randomstring.generate(Constants.RANDOM_STRING_LENGTH);
-        if (!(await this.checkIdAvailability(quiz.id))) {
-            quiz.id = randomstring.generate(Constants.RANDOM_STRING_LENGTH);
-            this.createID(quizzes, quiz);
-        }
+    async createID(): Promise<string> {
+        let id;
+        do {
+            id = randomstring.generate(Constants.RANDOM_STRING_LENGTH);
+        } while (!(await this.checkIdAvailability(id)));
+        return id;
     }
 
     async checkQuizAvailability(id: string): Promise<boolean> {
@@ -108,7 +108,7 @@ export class QuizzesService {
         }
     }
 
-    async checkVisibility(id: string) {
+    async checkVisibility(id: string): Promise<boolean> {
         try {
             const quiz = await this.getQuiz(id);
             return quiz.visibility;
@@ -117,7 +117,7 @@ export class QuizzesService {
         }
     }
 
-    async getQuizIndex(id: string) {
+    async getQuizIndex(id: string): Promise<number> {
         const quizzes = await this.getQuizzes();
         const quizIndex = quizzes.findIndex((quiz) => quiz.id === id);
         if (quizIndex === Constants.INDEX_NOT_FOUND) {
@@ -149,7 +149,7 @@ export class QuizzesService {
     async addQuiz(quiz: Quiz): Promise<Quiz> {
         try {
             const quizzes = await this.getQuizzes();
-            this.createID(quizzes, quiz);
+            quiz.id = await this.createID();
             quiz.lastModification = this.getDate();
             quizzes.push(quiz);
             await fs.writeFile(this.quizzesPath, JSON.stringify(quizzes, null, 2));
