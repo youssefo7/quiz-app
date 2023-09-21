@@ -1,29 +1,24 @@
 <body class="background">
-  <div class="game-list">
-    <div class="list-title">
+  <div class="quiz-list-container">
+    <div class="header">
       <h1>
         Quiz
-        <i class="fa-solid fa-plus" [title]="'Créer un quiz'"></i>
+        <i class="fa fa-plus-circle" [title]="'Créer un quiz'"></i>
       </h1>
       <i class="fa-solid fa-file-import fa-2xl" [title]="'Importer quiz (.json)'"></i>
     </div> 
-    <div class="item-header">
-      <p class="title" id="name">Nom</p>
-      <p class="title" id="date-created">Dernière modification</p>
-      <p class="title" id="visibility">Visibilité</p>
-      <p class="title" id="actions">Actions</p>
+    <div class="titles">
+      <span class="nom">Nom</span>
+      <span class="date">Dernière modification</span>
+      <span class="actions">Actions</span>
     </div>
     <div>
-      <div class="game-container" *ngFor="let quiz of quizList.value">
-        <div class="game-item">
-          <div class="game-info element">
+      <div *ngFor="let quiz of quizList.value">
+        <div class="quiz">
             <span>{{ quiz.title }}</span>
-          </div>
-          <div class="game-info element">
             <span>{{ quiz.lastModification }}</span>
-          </div>
-          <div class="game-info element">
-            <span (click)="toggleVisibility(quiz)" class="action-icon" [title]="quiz.visibility ? 'Cacher ' + quiz.title : 'Afficher ' + quiz.title">
+            <div class="quiz-actions">
+            <span (click)="toggleVisibility(quiz)" [title]="quiz.visibility ? 'Cacher ' + quiz.title : 'Afficher ' + quiz.title">
               <i [class]="quiz.visibility ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
             </span>
           </div>
@@ -31,10 +26,10 @@
             <span (click)="openPopupDelete(quiz)" class="action-icon" [title]="'Supprimer ' + quiz.title">
               <i class="fas fa-trash"></i>
             </span>
-            <span (click)="exportQuiz(quiz)" class="action-icon" [title]="'Exporter ' + quiz.title">
+            <span (click)="exportQuiz(quiz)" [title]="'Exporter ' + quiz.title">
               <i class="fas fa-download"></i>
             </span>
-            <span (click)="editQuiz(quiz)" class="action-icon" [title]="'Modifier ' + quiz.title">
+            <span (click)="editQuiz(quiz)" [title]="'Modifier ' + quiz.title">
               <i class="fas fa-edit"></i>
             </span>
           </div>
