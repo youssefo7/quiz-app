@@ -26,12 +26,13 @@ export class QuizzesService {
         return new Date().toISOString();
     }
 
-    verifyQuiz(quiz: Quiz): void {
+    async verifyQuiz(quiz: Quiz) {
         const errors = [];
 
         if (!quiz.$schema || typeof quiz.$schema !== 'string') errors.push('Schéma du quiz invalide ou manquant');
         // not checking id here because it is generated in addQuiz()
         // if (!quiz.id || typeof quiz.id !== 'string') errors.push('id de quiz invalide ou manquant');
+        if (await this.checkTitleExists(quiz.title)) errors.push('Titre du quiz déjà utilisé');
         if (!quiz.title || typeof quiz.title !== 'string') errors.push('Titre du quiz invalide ou manquant');
         if (!quiz.duration || typeof quiz.duration !== 'number') errors.push('La durée du quiz est manquante doit être un nombre');
         if (quiz.duration < Constants.MIN_DURATION || quiz.duration > Constants.MAX_DURATION)
@@ -80,14 +81,20 @@ export class QuizzesService {
         if (errors.length) throw new Error(errors.join('\n'));
     }
 
-    checkIdAvailability(quizzes: Quiz[], id: string) {
-        const quizIndex = quizzes.findIndex((quiz) => quiz.id === id);
-        return quizIndex === Constants.INDEX_NOT_FOUND;
+    // if true id is available
+    async checkIdAvailability(id: string) {
+        const quizzes = await this.getQuizzes();
+        return quizzes.findIndex((quiz) => quiz.id === id) === Constants.INDEX_NOT_FOUND;
     }
 
-    createID(quizzes: Quiz[], quiz: Quiz) {
+    async checkTitleExists(title: string) {
+        const quizzes = await this.getQuizzes();
+        return !!quizzes.find((quiz) => quiz.title === title);
+    }
+
+    async createID(quizzes: Quiz[], quiz: Quiz) {
         quiz.id = randomstring.generate(Constants.RANDOM_STRING_LENGTH);
-        if (!this.checkIdAvailability(quizzes, quiz.id)) {
+        if (!(await this.checkIdAvailability(quiz.id))) {
             quiz.id = randomstring.generate(Constants.RANDOM_STRING_LENGTH);
             this.createID(quizzes, quiz);
         }
@@ -95,8 +102,7 @@ export class QuizzesService {
 
     async checkQuizAvailability(id: string): Promise<boolean> {
         try {
-            const quizzes = await this.getQuizzes();
-            return !this.checkIdAvailability(quizzes, id);
+            return !(await this.checkIdAvailability(id));
         } catch (error) {
             return Promise.reject(new Error(`${error.message}`));
         }
@@ -186,7 +192,7 @@ export class QuizzesService {
 
     async importQuiz(quiz: Quiz): Promise<Quiz> {
         try {
-            this.verifyQuiz(quiz);
+            await this.verifyQuiz(quiz);
             return await this.addQuiz(quiz);
         } catch (error) {
             throw new Error(`${error.message}`);
