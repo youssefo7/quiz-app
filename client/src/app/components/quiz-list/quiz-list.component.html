@@ -3,17 +3,17 @@
     <div class="list-title">
       <h1>
         Quiz
+        <i class="fa-solid fa-plus" [title]="'Créer un quiz'"></i>
       </h1>
       <i class="fa-solid fa-file-import fa-2xl" [title]="'Importer quiz (.json)'"></i>
     </div> 
     <div class="item-header">
-      <div class="title" id="name">Nom</div>
-      <div class="title" id="date-created">Date de création</div>
-      <div class="title" id="visibility">Visibilité</div>
-      <div class="title" id="actions">Actions</div>
+      <p class="title" id="name">Nom</p>
+      <p class="title" id="date-created">Dernière modification</p>
+      <p class="title" id="visibility">Visibilité</p>
+      <p class="title" id="actions">Actions</p>
     </div>
     <div>
-
       <div class="game-container" *ngFor="let quiz of quizList.value">
         <div class="game-item">
           <div class="game-info element">

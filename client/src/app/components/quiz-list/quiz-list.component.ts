@@ -1,6 +1,6 @@
 // import { ImportService } from './../../services/import.service';
 import { CommunicationService } from '@app/services/communication.service';
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Quiz } from '@app/interfaces/quiz';
 import { BehaviorSubject } from 'rxjs';
 
@@ -10,7 +10,6 @@ import { BehaviorSubject } from 'rxjs';
     styleUrls: ['./quiz-list.component.scss'],
 })
 export class QuizListComponent implements OnInit {
-    @ViewChild('fileInput') fileInput: ElementRef | undefined;
     quizList: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
 
     constructor(private communicationService: CommunicationService) {}
@@ -26,10 +25,8 @@ export class QuizListComponent implements OnInit {
     }
 
     deleteQuiz(quiz: Quiz): void {
-        let updatedQuizzes: Quiz[] = [];
         this.communicationService.deleteQuiz(quiz.id).subscribe(() => {
-            updatedQuizzes = this.quizList.value.filter((q) => q !== quiz);
-            this.quizList.next(updatedQuizzes);
+            this.fetchQuizzes();
         });
     }
 

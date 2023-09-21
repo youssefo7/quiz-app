@@ -14,17 +14,21 @@
   background-color: #f0f0f0; 
 }
 
+
 .title-container h1 {
   margin: 0; 
 }
 
-.fa-file-import {
+.fa-solid {
   margin-right: 10px; 
   color: #000000;
+  font-weight: bold;
 }
 
-.fa-file-import:hover {
+.fa-solid:hover {
   color: #007bff;
+  font-weight: bold;
+
 }
 .list-title {
   display: flex;
