@@ -6,6 +6,23 @@
   justify-content: center;
   align-items: center;
 }
+
+.quiz-list-container {
+  background-color: #ffffffaa;
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 75%;
+  max-width: 1200px;
+}
+.header {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
+}
 .title-container {
   display: flex;
   align-items: center;
@@ -14,97 +31,77 @@
   background-color: #f0f0f0; 
 }
 
-
-.title-container h1 {
-  margin: 0; 
-}
-
-.fa-solid {
-  margin-right: 10px; 
-  color: #000000;
-  font-weight: bold;
-}
-
-.fa-solid:hover {
-  color: #007bff;
-  font-weight: bold;
-
-}
-.list-title {
-  display: flex;
-  justify-content: space-between; 
-  align-items: center;
-  font-weight: bold;
-  margin-bottom: 10px;
-  text-align: center;
-}
-
-.title-left {
-  flex-grow: 1; 
-}
-
-
-.title-right {
-  font-size: 24px; 
-}
-.game-list {
-  background-color: #fff;
-  border-radius: 5px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  width: 75%;
-  max-width: 1200px;
-}
-
-.item-header {
+.titles {
   display: flex;
   justify-content: space-between;
-  padding: 10px 0;
+  padding: 25px 10px;
   font-weight: bold;
   border-bottom: 1px solid #ccc;
 }
 
-.title {
-  flex: 1;
+.titles span {
+  flex:1;
   padding: 0 10px;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
-
-.game-item {
+.title-center{
+  display: flex;
+  justify-content:space-evenly;
+}
+.quiz {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 25px 0;
+  padding: 25px 10px;
   border-bottom: 1px solid #ccc;
   transition: background-color 0.3s;
 }
 
-.game-item:hover {
-  background-color: #f0f0f0;
+.quiz:hover {
+  background-color: #44ffe60e;
 }
-.game-info {
+
+.quiz span {
   flex: 1;
   padding: 0 10px;
   overflow: hidden;
   white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
-.game-actions {
+.quiz-actions {
   flex: 0 0 auto;
   display: flex;
   gap: 10px;
-  padding-right: 25px;
+  padding-right: 3%;
 }
 
-.action-icon {
-  cursor: pointer;
-  color: #000000;
-  transition: color 0.3s;
-  padding: 15px;
-}
-
-.action-icon:hover {
+.fa, .fas, .fa-solid {
+  margin-right: 10px; 
   color: #007bff;
+  font-weight: bold;
+  text-shadow: rgba(69, 68, 66, 0.387) 1px 0 5px;
 }
 
+.fa:hover, .fas:hover, .fa-solid:hover{
+  color: #060688;
+  font-weight: bold;
+}
+
+.nom {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  margin-right: 40px;
+}
+
+.date {
+  display: flex;
+  justify-content: center;
+  margin-right: 17px;
+}
