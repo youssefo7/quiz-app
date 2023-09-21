@@ -31,29 +31,48 @@ export class QuizzesService {
 
         if (!quiz.$schema || typeof quiz.$schema !== 'string') errors.push('Schéma de quiz invalide ou manquant');
         // not checking id here because it is generated in addQuiz()
-        // unless we want to check for imports leave d commented
         // if (!quiz.id || typeof quiz.id !== 'string') errors.push('id de quiz invalide ou manquant');
         if (!quiz.title || typeof quiz.title !== 'string') errors.push('Titre de quiz invalide ou manquant');
         if (!quiz.duration || typeof quiz.duration !== 'number') errors.push('La durée du quiz est manquante doit être un nombre');
         if (quiz.duration < Constants.MIN_DURATION || quiz.duration > Constants.MAX_DURATION)
             errors.push('La durée du quiz doit être entre 10 et 60 secondes');
-        if (!quiz.lastModification || typeof quiz.lastModification !== 'string') errors.push('Date de dernière modification invalide ou manquante');
+        // if (!quiz.lastModification || typeof quiz.lastModification !== 'string') errors.push('Date de dernière modification invalide');
         if (!Array.isArray(quiz.questions)) {
             errors.push('Les questions sont manquantes');
         } else {
             quiz.questions.forEach((question, index) => {
                 if (!question.type || typeof question.type !== 'string') errors.push(`Type de la question ${index + 1} invalide ou manquant`);
                 if (!question.text || typeof question.text !== 'string') errors.push(`Texte de la question ${index + 1} est invalide ou manquant`);
-                if (typeof question.points !== 'number') errors.push(`Les points de la question ${index + 1} sont manquants ou invalides`);
-                if (!Array.isArray(question.choices)) {
-                    errors.push(`Les choix de la question ${index + 1} sont manquants`);
-                } else {
+                if (
+                    typeof question.points !== 'number' ||
+                    question.points < Constants.MIN_POINTS ||
+                    question.points > Constants.MAX_DURATION ||
+                    question.points % Constants.MIN_POINTS !== 0
+                )
+                    errors.push(`Les points de la question ${index + 1} sont manquants ou invalides`);
+                if (
+                    !Array.isArray(question.choices) ||
+                    question.choices.length < Constants.MIN_CHOICES ||
+                    question.choices.length > Constants.MAX_CHOICES
+                )
+                    errors.push(`Les choix de la question ${index + 1} sont manquants ou invalides`);
+                else {
+                    let correctChoiceCount = 0;
+                    let incorrectChoiceCount = 0;
+
                     question.choices.forEach((choice, indexChoice) => {
                         if (!choice.text || typeof choice.text !== 'string')
                             errors.push(`Texte du choix ${indexChoice + 1} de la question ${index + 1} invalide ou manquant`);
                         if (typeof choice.isCorrect !== 'boolean')
                             errors.push(`La propriété "isCorrect" du choix ${indexChoice + 1} de la question ${index + 1} est invalide ou manquante`);
+                        else {
+                            if (choice.isCorrect) correctChoiceCount++;
+                            else incorrectChoiceCount++;
+                        }
                     });
+
+                    if (correctChoiceCount < 1 || incorrectChoiceCount < 1)
+                        errors.push(`La question ${index + 1} doit avoir au moins un bon choix et un mauvais choix.`);
                 }
             });
         }

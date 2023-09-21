@@ -4,4 +4,8 @@ export const Constants = {
     QUIZZES_PATH: '../../../../../assets/quizzes.json',
     MIN_DURATION: 10,
     MAX_DURATION: 60,
+    MAX_POINTS: 100,
+    MIN_POINTS: 10,
+    MAX_CHOICES: 4,
+    MIN_CHOICES: 2,
   };
