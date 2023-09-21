@@ -6,11 +6,9 @@
     <div id="game-title-grid">
         <h2 *ngIf="quiz">{{ quiz.title }}</h2>
     </div>
+    <app-countdown id="countdown-grid"></app-countdown>
     <div id="chat-player-grid">
         <app-profile></app-profile>
         <app-chat id="chat-grid"></app-chat>
-        <div id="countdown-grid">
-            <app-countdown></app-countdown>
-        </div>
     </div>
 </div>
