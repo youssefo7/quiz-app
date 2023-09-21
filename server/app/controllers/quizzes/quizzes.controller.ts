@@ -43,7 +43,6 @@ export class QuizzesController {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
         }
     }
-
     @ApiCreatedResponse({
         description: 'Adds Quiz to the list',
         type: Quiz,

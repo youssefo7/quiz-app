@@ -5,7 +5,7 @@ import { AdminPopupComponent } from '@app/components/admin-popup/admin-popup.com
 @Component({
     selector: 'app-main-page',
     templateUrl: './main-page.component.html',
-    styleUrls: ['./main-page.component.scss'],
+    styleUrls: ['./main-page.component.scss', '../../../assets/shared.scss'],
 })
 export class MainPageComponent {
     constructor(private adminPopup: MatDialog) {}
