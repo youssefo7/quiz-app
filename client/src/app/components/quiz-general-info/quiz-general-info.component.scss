@@ -11,11 +11,19 @@
 }
 
 #newDescription {
-    width: 300px;
+    width: 250px;
 }
 
-#title-div, #description-div, #verify-duration {
-    margin-right: 50px;
+#newDuration {
+    display: inline-flex;
+}
+
+.textarea-label {
+    display: inline-flex;
+}
+
+#title-div, #description-div, #duration-div {
+    padding-right: 100px;
 }
 
 #verify-duration, #verify-title, .counter {
@@ -28,6 +36,14 @@
 
 .counter {
     color: #04243c;
+}
+
+#title-counter { 
+    margin-left: 168px;
+}
+
+#description-counter {
+    margin-left: 300px;
 }
 
 textarea {

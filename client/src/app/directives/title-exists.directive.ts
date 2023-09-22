@@ -17,7 +17,7 @@ export class TitleExistsDirective implements Validator {
 
     validate(control: AbstractControl): ValidationErrors | null {
         if (!this.quizzes) {
-            return null; // No validation if the quizzes array is not provided
+            return null;
         }
 
         const titleValue = control.value;

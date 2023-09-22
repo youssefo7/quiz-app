@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { Quiz } from '@app/interfaces/quiz';
 import { NewQuizManagerService } from '@app/services/new-quiz-manager.service';
 
@@ -13,13 +13,17 @@ export class QuizGeneralInfoComponent implements OnInit {
     newQuiz: Quiz;
 
     disableForm = false;
-    buttonText = 'Save';
+    buttonText = 'Sauvegarder';
     buttonName = 'edit-save';
 
+    titleValue: string = '';
     descriptionValue: string = '';
-    maxLength: number;
-    charactersCount: number;
-    counter: string;
+    maxLengthTitle: number;
+    maxLengthDescription: number;
+    charCountTitle: number;
+    charCountDescription: number;
+    counterTitle: string;
+    counterDescription: string;
 
     generalInfoForm = this.fb.group({
         title: ['', [Validators.required, Validators.minLength(1)]],
@@ -35,30 +39,53 @@ export class QuizGeneralInfoComponent implements OnInit {
     ngOnInit(): void {
         this.newQuiz = this.quizManagerService.getNewQuiz();
         this.quizManagerService.getQuizListFromServer();
-        this.maxLength = 250;
-        this.charactersCount = this.descriptionValue ? this.descriptionValue.length : 0;
-        this.counter = `${this.charactersCount} / ${this.maxLength}`;
+        this.initCounters();
+    }
+
+    initCounters() {
+        this.maxLengthTitle = 250;
+        this.maxLengthDescription = 500;
+
+        this.charCountTitle = this.titleValue ? this.titleValue.length : 0;
+        this.counterTitle = `${this.charCountTitle} / ${this.maxLengthTitle}`;
+
+        this.charCountDescription = this.descriptionValue ? this.descriptionValue.length : 0;
+        this.counterDescription = `${this.charCountDescription} / ${this.maxLengthDescription}`;
+    }
+
+    characterCountValidator(maxLength: number): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+            const value: string = control.value || '';
+            const charCount = value.length;
+            return charCount <= maxLength ? null : { characterCountExceeded: true };
+        };
     }
 
     toggleButtonTextAndName(): void {
         this.disableForm = !this.disableForm;
-        this.buttonText = this.disableForm ? 'Edit' : 'Save';
-        this.buttonName = this.disableForm ? 'save' : 'edit-save'; // Update the button name
+        this.buttonText = this.disableForm ? 'Modifier' : 'Sauvegarder';
+        this.buttonName = this.disableForm ? 'edit-save' : 'save';
     }
 
     getQuizList() {
         return this.quizManagerService.quizzes.getValue();
     }
 
-    onSubmit() {
-        this.newQuiz.title = this.generalInfoForm.value.title as string;
-        this.newQuiz.description = this.generalInfoForm.value.description as string;
-        this.newQuiz.duration = this.generalInfoForm.value.duration as number;
+    onCharacterChangeTitle(event: Event) {
+        const inputValue = (event.target as HTMLInputElement).value;
+        this.charCountTitle = inputValue.length;
+        this.counterTitle = `${this.charCountTitle} / ${this.maxLengthTitle}`;
     }
 
-    onCharacterChange(event: Event) {
-        const inputValue = (event.target as HTMLInputElement).value; // Get the value from the input element
-        this.charactersCount = inputValue.length;
-        this.counter = `${this.charactersCount} / ${this.maxLength}`;
+    onCharacterChangeDescription(event: Event) {
+        const inputValue = (event.target as HTMLInputElement).value;
+        this.charCountDescription = inputValue.length;
+        this.counterDescription = `${this.charCountDescription} / ${this.maxLengthDescription}`;
+    }
+
+    onSubmit() {
+        this.newQuiz.title = this.generalInfoForm.value.title as string;
+        this.newQuiz.description = this.generalInfoForm.value.description as unknown as string;
+        this.newQuiz.duration = this.generalInfoForm.value.duration as number;
     }
 }

@@ -1,4 +1,4 @@
-<form [formGroup]="questionInfoForm">
+<form [formGroup]="questionInfoForm" [ngClass]="{ 'disabled-form': disableForm}" [appQuestionFormValidator]="questionInfoForm" (ngSubmit)="onSubmit()">
     <fieldset>
         <legend>Nouvelle question : </legend>
         <div>
@@ -11,37 +11,87 @@
 
         <div>
             <label for="newQuestion">Question :</label>
-            <input type="text" formControlName="text" [appQuestionExists]="getNewQuiz()" name="newQuestion" id="newQuestion" placeholder="Question" required>
-            <span id="verify-question" *ngIf="questionInfoForm.controls.text.invalid && (questionInfoForm.controls.text.dirty || questionInfoForm.controls.text.touched)">
+            <input type="text" formControlName="text" [appQuestionExists]="getNewQuiz()" name="newQuestion" 
+            id="newQuestion" placeholder="Question" required>
+            <span id="verify-question" *ngIf="questionInfoForm.controls.text.invalid && 
+            (questionInfoForm.controls.text.dirty || questionInfoForm.controls.text.touched)">
                 La question entrée est déjà présente ou doit avoir au moins un caractère
             </span>
         </div>
 
+        <label for="newChoice">Choices :</label>
         <div>
             <label for="newPoints">Points :</label>
-            <input type="number" step="10" formControlName="points" name="newPoints" id="newPoints" min="10" max="100" [appRangeValidator]="{min: 10, max: 100}" placeholder="Points" 
+            <input type="number" step="10" formControlName="points" name="newPoints" id="newPoints" min="10" max="100" 
+            [appRangeValidator]="{min: 10, max: 100}" placeholder="Points" 
             (change)="questionInfoForm.controls.points.setValue(roundToNearest10())" required>
             <span id="verify-points" *ngIf="questionInfoForm.controls.points.invalid">
                 Les points attribués pour une bonne réponse doit être entre 10 et 100
             </span>
         </div>
         <label for="newChoice">Choices :</label>
-        <div id="choice-container">
-            <div *ngFor="let choice of choices.controls; let i = index" class="response">
-                <input class="response-input" [formControlName]="'choices[' + i + '].text'" type="text"  placeholder="reponse {{ i + 1 }}" [required]="i < 2">
-                <span class="required-text" *ngIf="i < 2"><br>Choix {{ i + 1 }} (requis) </span>
-                <label class="switch">
-                    <input type="checkbox" [formControlName]="'choices[' + i + '].checked'" (click)="onSliderClick(i)">
+        <div formArrayName="choices">
+            <div *ngFor="let choice of choices.controls; let i = index" class="choice-group">
+                <div [formGroupName]="i">
+                    <input type="text" formControlName="text" placeholder="Choice {{ i + 1 }}" class="form-control">
+                    <label class="switch">
+                    <input type="checkbox" formControlName="isCorrect">
                     <span class="slider round"></span>
-                </label>
+                    </label>
+                    <button type="button" (click)="moveChoiceUp(i)" class="btn btn-secondary" [disabled]="i === 0">Move Up</button>
+                    <button type="button" (click)="moveChoiceDown(i)" class="btn btn-secondary" [disabled]="i === choices.length - 1">Move Down</button>
+                    <button type="button" (click)="removeChoice(i)" class="btn btn-danger">Remove</button>
+                </div>
             </div>
-            <div *ngIf="questionInfoForm.hasError('firstTwoChoicesIncomplete')" class="error-message">
-                At least the first two choices must be completed.
-            </div>
-            <div *ngIf="questionInfoForm.hasError('noCorrectChoice')" class="error-message">
-                At least one choice must be marked as correct.
-            </div>
+            <span id="verify-choices" *ngIf="formSubmitted && questionInfoForm.controls.choices.invalid && 
+            (questionInfoForm.controls.choices.dirty || questionInfoForm.controls.choices.touched)">
+            Il doit avoir au moins 2 choix et il doit y avoir au moins une bonne réponse et une mauvaise réponse
+            </span>
         </div>
+        <button type="button" (click)="addChoice()" class="btn btn-primary" [disabled]="choices.length >= maxChoices">Add Choice</button>
     </fieldset>
     <button id="submit-button" (click)="toggleButtonNameAndText()" [disabled]="questionInfoForm.invalid" [name]="buttonName">{{ buttonText }}</button>
 </form>
+<!-- <div id="choice-container" appChoiceValidator>
+    <div *ngFor="let choice of choices.controls; let i = index" class="response">
+        <textarea class="response-input" [formControlName]="choices.at(i).value.text" type="text" (change)="onChoiceTextInput($event, i)" placeholder="reponse {{ i + 1 }}" [required]="i < 2"></textarea>
+        <span class="required-text" *ngIf="i < 2"><br>Choix {{ i + 1 }} (requis) </span>
+        <label class="switch">
+            <input type="checkbox" [formControlName]="choices.at(i).value.checked" (click)="onSliderClick(i)">
+            <span class="slider round"></span>
+        </label>
+        <span *ngIf="questionInfoForm.get('choices')?.hasError('insufficientChoices')">
+            Please fill in at least the first 2 choices.
+        </span> 
+        <span *ngIf="questionInfoForm.get('choices')?.hasError('insufficientAnswers')">
+            Please select at least one correct and one incorrect answer.
+        </span>
+    </div>
+</div> -->
+
+
+        <!-- <form [formGroup]="choiceInfoForm">
+            <div id="choice-container" formArrayName="choices" appChoiceValidator>
+                <div *ngFor="let choice of choices.controls; let i = index" class="response">
+                    <span class="required-text"><br>Choix {{ i + 1 }} (requis) </span>
+                    <input class="response-input" [formControlName]="'choices[' + i + '].text'" type="text" placeholder="reponse {{ i + 1 }}" [required]="true">
+                    <label class="switch">
+                        <input type="checkbox" [formControlName]="'choices.' + i + '.checked'" (click)="onSliderClick(i)">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <span *ngIf="choiceInfoForm.get('choices')?.hasError('insufficientChoices')">
+                    Please fill in at least the first 2 choices.
+                </span> 
+                <span *ngIf="choiceInfoForm.get('choices')?.hasError('insufficientAnswers')">
+                    Please select at least one correct and one incorrect answer.
+                </span>
+            </div>
+        </form> -->
+        
+          <!-- <span *ngIf="questionInfoForm.get('choices')?.hasError('insufficientChoices')">
+            Please fill in at least the first 2 choices.
+        </span> 
+        <span *ngIf="questionInfoForm.get('choices')?.hasError('insufficientAnswers')">
+            Please select at least one correct and one incorrect answer.
+        </span> -->

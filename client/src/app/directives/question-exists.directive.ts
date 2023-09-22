@@ -13,11 +13,11 @@ import { Quiz } from '@app/interfaces/quiz';
     ],
 })
 export class QuestionExistsDirective {
-    @Input('appQuestionExists') quiz: Quiz; // Input property for the quiz containing the questions array
+    @Input('appQuestionExists') quiz: Quiz;
 
     validate(control: AbstractControl): ValidationErrors | null {
         if (!this.quiz || !this.quiz.questions) {
-            return null; // No validation if there are no questions or quiz
+            return null;
         }
 
         const questionText = control.value;

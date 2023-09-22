@@ -14,6 +14,7 @@ export class NewQuizManagerService {
     message: string = '';
     quizzes: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
     selectedQuiz: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
+    choiceIndex: number;
 
     private newQuiz: Quiz = {
         $schema: '',
