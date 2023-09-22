@@ -1,31 +1,31 @@
-import { Component, ElementRef, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
     selector: 'app-chat',
     templateUrl: './chat.component.html',
     styleUrls: ['./chat.component.scss'],
 })
-export class ChatComponent implements OnInit {
-    constructor(private elementRef: ElementRef) {}
+export class ChatComponent {
+    charactersCounterDisplay: string;
+    currentCharactersLength: number;
+    maxCharactersLength: number;
 
-    // Code tiré de stackOverflow: https://stackoverflow.com/questions/7745741/auto-expanding-textarea
-    expandTextArea() {
-        const textarea = this.elementRef.nativeElement.querySelector('#message');
-        const heightLimit = 150;
-
-        if (textarea) {
-            textarea.oninput = () => {
-                if (textarea) {
-                    textarea.style.height = '';
-                    textarea.style.height = Math.min(textarea.scrollHeight, heightLimit) + 'px';
-                }
-            };
-        }
+    constructor() {
+        this.maxCharactersLength = 200;
+        this.currentCharactersLength = 0;
+        this.charactersCounterDisplay = `${this.currentCharactersLength} / ${this.maxCharactersLength}`;
     }
 
-    // TODO: Crée un indicateur du nombre de caractère inséré et restant
+    expandTextArea(event: Event) {
+        const textarea = event.target as HTMLTextAreaElement;
+        const heightLimit = 150;
+        textarea.style.height = '';
+        textarea.style.height = Math.min(textarea.scrollHeight, heightLimit) + 'px';
+    }
 
-    ngOnInit() {
-        this.expandTextArea();
+    detectCharacterLengthOnInput(event: Event) {
+        const inputValue = (event.target as HTMLInputElement).value;
+        this.currentCharactersLength = inputValue.length;
+        this.charactersCounterDisplay = `${this.currentCharactersLength} / ${this.maxCharactersLength}`;
     }
 }

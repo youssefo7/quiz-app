@@ -9,7 +9,6 @@ p {
     border-color: black;
     border-width: 3px;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
     width: 80px;
@@ -18,8 +17,7 @@ p {
     #countdown {
         font-size: 2rem;
         font-weight: bold;
-        text-align: center;
-        max-width: 100%;
+        max-width: 900%;
         max-height: 90%;
     }
 }
