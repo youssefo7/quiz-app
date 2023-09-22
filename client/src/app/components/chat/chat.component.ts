@@ -23,7 +23,7 @@ export class ChatComponent implements OnInit {
         }
     }
 
-    // TODO: Crée un indicateur du nombre de caractère restant et inséré
+    // TODO: Crée un indicateur du nombre de caractère inséré et restant
 
     ngOnInit() {
         this.expandTextArea();

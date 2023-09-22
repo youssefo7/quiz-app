@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { CommunicationService } from '@app/services/communication.service';
 import { TimeService } from '@app/services/time.service';
@@ -11,7 +11,6 @@ describe('CountdownComponent', () => {
     let timeServiceSpy: SpyObj<TimeService>;
     let communicationServiceSpy: jasmine.SpyObj<CommunicationService>;
 
-    // Copied from example of play-area.component.spec.ts
     beforeEach(async () => {
         timeServiceSpy = jasmine.createSpyObj('TimeService', ['startTimer', 'stopTimer']);
         await TestBed.configureTestingModule({
@@ -38,21 +37,4 @@ describe('CountdownComponent', () => {
     });
 
     // TODO: Écrire les tests unitaires manquants
-
-    it('isCountdownStarted should be false at the beginning', () => {
-        // expect(component.isCountdownStarted).toBeFalse();
-    });
-
-    it('isCountdownStarted should be true once the quiz has loaded', () => {
-        // expect(component.isCountdownStarted).toBeTrue();
-    });
-
-    it('get time should return the time from the timeService', () => {
-        // expect(component.time).toBe(timeServiceSpy.time);
-    });
-
-    it('Timer should start few seconds after the page has been loaded', fakeAsync(() => {
-        // expect(timeServiceSpy.startTimer).toHaveBeenCalled();
-        // expect(timeServiceSpy.startTimer).toHaveBeenCalledWith(component['countdown']);
-    }));
 });

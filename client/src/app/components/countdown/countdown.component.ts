@@ -70,12 +70,11 @@ export class CountdownComponent implements OnInit {
         }, exitTransitionTime);
     }
 
-    // Est-ce que c'est mieux que j'insère la variable isTestGame dans la fonction ou non?
     async loadTimer() {
         await this.getQuiz();
         await this.gameClock();
-        const isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
 
+        const isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
         if (isTestGame) {
             this.leaveGame();
         }
