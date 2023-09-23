@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
@@ -17,16 +17,36 @@ export class QuestionZoneComponent implements OnInit {
     bonusMessage: string;
     pointsDisplay: { display: string };
     bonusDisplay: { display: string };
+    keyPressed: string;
 
     constructor(
         private communicationService: CommunicationService,
         private route: ActivatedRoute,
+        private elementRef: ElementRef,
     ) {
         this.points = 0;
         this.bonusMessage = '';
         this.pointsDisplay = { display: 'none' };
         this.bonusDisplay = { display: 'none' };
         this.buttonStyle = [{ backgroundColor: '', borderColor: '', borderWidth: '' }];
+    }
+
+    @HostListener('document:keydown', ['$event'])
+    preventDefaultEnter(event: KeyboardEvent) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+        }
+    }
+
+    @HostListener('document:keyup', ['$event'])
+    buttonDetect(event: KeyboardEvent) {
+        this.keyPressed = event.key;
+        if (this.keyPressed === 'Enter') {
+            this.submitAnswer();
+        } else {
+            const keyNumber = parseInt(this.keyPressed, 10) - 1;
+            this.toggleChoice(keyNumber);
+        }
     }
 
     async getQuiz() {
@@ -46,19 +66,20 @@ export class QuestionZoneComponent implements OnInit {
         this.buttonStyle[index] = {
             backgroundColor: this.choicesChosen[index] ? 'rgb(0, 51, 204)' : 'blueviolet',
             borderColor: this.choicesChosen[index] ? 'black' : 'white',
-            borderWidth: this.choicesChosen[index] ? '7px' : '5px',
+            borderWidth: this.choicesChosen[index] ? '10px' : 'thick',
         };
         if (isSubmit) {
             this.buttonStyle[index] = {
                 backgroundColor: this.question.choices[index].isCorrect ? 'rgb(97, 207, 72)' : 'red',
                 borderColor: this.choicesChosen[index] ? 'black' : 'white',
-                borderWidth: this.choicesChosen[index] ? '6px' : '5px',
+                borderWidth: this.choicesChosen[index] ? '10px' : 'thick',
             };
-            document.querySelectorAll('button').forEach((button) => button.setAttribute('disabled', 'true'));
+            this.elementRef.nativeElement.querySelectorAll('button').forEach((button: HTMLButtonElement) => button.setAttribute('disabled', 'true'));
         }
     }
 
     toggleChoice(index: number) {
+        if (isNaN(index) || index < 0 || index >= this.choicesChosen.length) return;
         this.choicesChosen[index] = !this.choicesChosen[index];
         this.setButtonStyle(index);
     }
@@ -89,9 +110,8 @@ export class QuestionZoneComponent implements OnInit {
     }
 
     submitAnswer() {
-        document.querySelector('input[type="button"]')?.setAttribute('disabled', 'true');
-        document.querySelector('input[type="button"]')?.setAttribute('style', 'background-color: grey');
-        // 2 functions below will be called when the timer is up (not when the submit button is clicked)
+        this.elementRef.nativeElement.querySelector('input[type="button"]')?.setAttribute('disabled', 'true');
+        this.elementRef.nativeElement.querySelector('input[type="button"]')?.setAttribute('style', 'background-color: grey');
         this.displayCorrectAnswer();
         this.givePoints();
     }

@@ -1,10 +1,8 @@
 <div id="question-zone-container">
     <div *ngIf="quiz" class="question-points-zone">
-        <p class="points" [ngStyle]="pointsDisplay">{{ points }} Points! {{ bonusMessage }}</p>
-        <p class="question" *ngIf="question">
-            {{ question.text }} <br />
-            ({{ question.points }} Points)
-        </p>
+        <p class="points-message" [ngStyle]="pointsDisplay">{{ points }} Points! {{ bonusMessage }}</p>
+        <p class="question" *ngIf="question">{{ question.text }}</p>
+        <p class="question" *ngIf="question">({{ question.points }} Points)</p>
     </div>
     <div *ngIf="quiz" class="choices-zone">
         <button
