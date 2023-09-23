@@ -6,9 +6,9 @@
     <div id="game-title-grid">
         <h2 *ngIf="quiz">{{ quiz.title }}</h2>
     </div>
+    <app-question-zone id="questions-grid"></app-question-zone>
     <div id="chat-player-grid">
         <app-profile></app-profile>
         <app-chat id="chat-grid"></app-chat>
-        <app-question-zone id="questions-grid"></app-question-zone>
     </div>
 </div>
