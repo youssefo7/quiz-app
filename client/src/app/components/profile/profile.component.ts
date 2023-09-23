@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -7,8 +7,8 @@ import { ActivatedRoute } from '@angular/router';
     styleUrls: ['./profile.component.scss'],
 })
 export class ProfileComponent implements OnInit {
+    @Input() points: number;
     name: string;
-    points: number;
 
     constructor(private route: ActivatedRoute) {
         this.points = 0;

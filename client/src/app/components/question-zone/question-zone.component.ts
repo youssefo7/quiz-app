@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
@@ -9,11 +9,12 @@ import { CommunicationService } from '@app/services/communication.service';
     styleUrls: ['./question-zone.component.scss'],
 })
 export class QuestionZoneComponent implements OnInit {
+    @Output() pointsEarned: EventEmitter<number>;
+    points: number;
     quiz: Quiz;
     question: Question;
     choicesChosen: boolean[];
     buttonStyle: { backgroundColor: string }[];
-    points: number;
     bonusMessage: string;
     pointsDisplay: { display: string };
     bonusDisplay: { display: string };
@@ -24,6 +25,7 @@ export class QuestionZoneComponent implements OnInit {
         private route: ActivatedRoute,
         private elementRef: ElementRef,
     ) {
+        this.pointsEarned = new EventEmitter<number>();
         this.points = 0;
         this.bonusMessage = '';
         this.pointsDisplay = { display: 'none' };
@@ -110,14 +112,12 @@ export class QuestionZoneComponent implements OnInit {
         this.showPoints();
     }
 
-    // TODO: Make this function actually give points to the player
     givePoints() {
+        if (!this.isAnswerGood()) return;
         const bonus = 1.2;
-        if (this.isAnswerGood()) {
-            this.points = this.question.points * bonus;
-            this.bonusMessage = '(20% bonus Woohoo!)';
-        }
-        return this.points;
+        this.points = this.question.points * bonus;
+        this.bonusMessage = '(20% bonus Woohoo!)';
+        this.pointsEarned.emit(this.points);
     }
 
     setButtonStyleOnSubmit(index: number) {
