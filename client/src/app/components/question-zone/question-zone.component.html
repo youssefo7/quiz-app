@@ -11,7 +11,6 @@
             (click)="toggleChoice(i)"
             [ngClass]="{ active: choicesChosen[i] }"
             [ngStyle]="buttonStyle[i]"
-            autofocus
         >
             {{ i + 1 }}. {{ choice.text }}
         </button>
