@@ -1,11 +1,12 @@
 [
     {
         "$schema": "quiz-schema.json",
-        "id": "1a2b3c",
-        "title": "Questionnaire sur le JS",
-        "duration": 60,
+        "id": "546",
+        "title": "Connaissez-vous bien le JavaScript ?",
+        "duration": 10,
         "lastModification": "2018-11-13T20:20:39+00:00",
-        "visibility": true,
+        "visibility": false,
+        "description": "",
         "questions": [
             {
                 "type": "QCM",
@@ -32,8 +33,8 @@
             },
             {
                 "type": "QCM",
-                "text": "En quelle année Javascript a été créé ? ",
-                "points": 70,
+                "text": "En quelle année Javascript fut créé? ",
+                "points": 60,
                 "choices": [
                     {
                         "text": "1995",
@@ -60,6 +61,86 @@
                     },
                     {
                         "text": "Oui",
+                        "isCorrect": false
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "$schema": "quiz-schema.json",
+        "id": "986",
+        "title": "Histoire et culture generale",
+        "duration": 15,
+        "lastModification": "2018-11-13T20:20:39+00:00",
+        "visibility": false,
+        "description": "",
+        "questions": [
+            {
+                "type": "QCM",
+                "text": "Quel événement a marqué le début de la Première Guerre mondiale en 1914 ?",
+                "points": 40,
+                "choices": [
+                    {
+                        "text": "L'assassinat de l'archiduc François-Ferdinand d'Autriche",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "Le krach boursier de 1929",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "La révolution russe",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "La guerre de Sécession",
+                        "isCorrect": false
+                    }
+                ]
+            },
+            {
+                "type": "QCM",
+                "text": "Quel événement a marqué la fin de la Guerre Froide en 1989 ?",
+                "points": 30,
+                "choices": [
+                    {
+                        "text": "La chute du mur de Berlin",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "La création de l'OTAN",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Le lancement de Spoutnik",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "La guerre de Corée",
+                        "isCorrect": false
+                    }
+                ]
+            },
+            {
+                "type": "QCM",
+                "text": "Quelles sont les capitales suivantes ?",
+                "points": 40,
+                "choices": [
+                    {
+                        "text": "Paris",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "Londres",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "Berlin",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "Barcelone",
                         "isCorrect": false
                     }
                 ]

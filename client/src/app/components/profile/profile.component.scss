@@ -1,21 +1,17 @@
-#player-grid {
-    grid-row: 1 / 2;
-    border: 1px solid black;
-    display: grid;
-    grid-template-columns: 30% 70%;
+#player-flex {
+    display: flex;
+    flex-direction: row;
     align-items: center;
+    justify-content: space-between;
 
     .mat-icon {
-        grid-column: 1 / 2;
         font-size: 4em;
-        justify-self: center;
     }
 
     p {
         grid-column: 2 / 3;
         font-weight: bold;
         font-size: 1.5em;
-        justify-self: start;
-        text-align: center;
+        flex-basis: 80%;
     }
 }
