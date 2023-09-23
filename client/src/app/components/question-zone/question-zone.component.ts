@@ -12,7 +12,7 @@ export class QuestionZoneComponent implements OnInit {
     quiz: Quiz;
     question: Question;
     choicesChosen: boolean[];
-    buttonStyle: { backgroundColor: string; borderColor: string }[];
+    buttonStyle: { backgroundColor: string }[];
     points: number;
     bonusMessage: string;
     pointsDisplay: { display: string };
@@ -28,7 +28,7 @@ export class QuestionZoneComponent implements OnInit {
         this.bonusMessage = '';
         this.pointsDisplay = { display: 'none' };
         this.bonusDisplay = { display: 'none' };
-        this.buttonStyle = [{ backgroundColor: '', borderColor: '' }];
+        this.buttonStyle = [{ backgroundColor: '' }];
     }
 
     @HostListener('keypress', ['$event'])
@@ -66,30 +66,16 @@ export class QuestionZoneComponent implements OnInit {
         }
     }
 
-    setButtonStyle(index: number, isSubmit = false) {
-        this.buttonStyle[index] = {
-            backgroundColor: this.choicesChosen[index] ? 'rgb(0, 51, 204)' : 'blueviolet',
-            borderColor: this.choicesChosen[index] ? 'black' : 'white',
-        };
-        if (isSubmit) {
-            this.buttonStyle[index] = {
-                backgroundColor: this.question.choices[index].isCorrect ? 'rgb(97, 207, 72)' : 'red',
-                borderColor: this.choicesChosen[index] ? 'black' : 'white',
-            };
-            this.elementRef.nativeElement.querySelectorAll('button').forEach((button: HTMLButtonElement) => button.setAttribute('disabled', 'true'));
-        }
-    }
-
     toggleChoice(index: number) {
         if (isNaN(index) || index < 0 || index >= this.choicesChosen.length) return;
         this.choicesChosen[index] = !this.choicesChosen[index];
-        this.setButtonStyle(index);
     }
 
     getQuestion() {
         this.question = this.quiz.questions[0];
         this.choicesChosen = new Array(this.question.choices.length).fill(false);
     }
+
     // TODO: Connect this function with the timer so that it activates when the time is up
     goToNextQuestion() {
         this.quiz.questions.shift();
@@ -119,7 +105,7 @@ export class QuestionZoneComponent implements OnInit {
 
     displayCorrectAnswer() {
         this.question.choices.forEach((choice, index) => {
-            this.setButtonStyle(index, true);
+            this.setButtonStyleOnSubmit(index);
         });
         this.showPoints();
     }
@@ -132,6 +118,13 @@ export class QuestionZoneComponent implements OnInit {
             this.bonusMessage = '(20% bonus Woohoo!)';
         }
         return this.points;
+    }
+
+    setButtonStyleOnSubmit(index: number) {
+        this.buttonStyle[index] = {
+            backgroundColor: this.question.choices[index].isCorrect ? 'rgb(97, 207, 72)' : 'red',
+        };
+        this.elementRef.nativeElement.querySelectorAll('button').forEach((button: HTMLButtonElement) => button.setAttribute('disabled', 'true'));
     }
 
     ngOnInit() {

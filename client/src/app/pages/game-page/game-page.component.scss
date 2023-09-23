@@ -3,7 +3,6 @@
     grid-template-rows: 15% 85%;
     grid-template-columns: 15% 60% 25%;
     margin: auto;
-    padding-top: 20px;
     height: 90%;
     width: 90%;
 
@@ -57,9 +56,8 @@
             grid-row: 1 / 2;
             display: grid;
             grid-template-columns: 30% 70%;
-            align-items: center;
-            display: grid;
             grid-template-rows: 15% 85%;
+            align-items: center;
 
             #chat-grid {
                 grid-row: 2 / 3;
