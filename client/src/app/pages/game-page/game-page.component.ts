@@ -9,15 +9,18 @@ import { CommunicationService } from '@app/services/communication.service';
     styleUrls: ['./game-page.component.scss', '../../../assets/shared.scss'],
 })
 export class GamePageComponent implements OnInit {
-    title = 'Partie';
-    link = '/home';
+    title: string;
+    link: string;
     quiz: Quiz;
     private readonly isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
 
     constructor(
         private communicationService: CommunicationService,
         private route: ActivatedRoute,
-    ) {}
+    ) {
+        this.title = 'Partie';
+        this.link = '/home';
+    }
 
     checkGameRoute(isTestGame = this.isTestGame) {
         if (isTestGame) {
