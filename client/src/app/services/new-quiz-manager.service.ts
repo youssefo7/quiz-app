@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Quiz } from '@app/interfaces/quiz';
+import { Question, Quiz } from '@app/interfaces/quiz';
 import { BehaviorSubject } from 'rxjs';
 import { CommunicationService } from './communication.service';
 
@@ -15,6 +15,7 @@ export class NewQuizManagerService {
     quizzes: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
     selectedQuiz: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
     choiceIndex: number;
+    // questionIndex: number = 0;
 
     private newQuiz: Quiz = {
         $schema: '',
@@ -100,5 +101,13 @@ export class NewQuizManagerService {
 
     getNewQuizQuestions() {
         return this.newQuiz.questions;
+    }
+
+    addNewQuestion(newQuestion: Question) {
+        if (this.newQuiz.questions.length === 0 || (this.newQuiz.questions.length === 1 && this.newQuiz.questions[0].text === '')) {
+            this.newQuiz.questions[0] = newQuestion;
+        } else {
+            this.newQuiz.questions.push(newQuestion);
+        }
     }
 }

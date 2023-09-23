@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { Component, Input, OnInit } from '@angular/core';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { Choice, Question, Quiz } from '@app/interfaces/quiz';
 import { NewQuizManagerService } from '@app/services/new-quiz-manager.service';
+import { QuestionConfirmationComponent } from '../question-confirmation/question-confirmation.component';
 
 @Component({
     selector: 'app-quiz-question-info',
@@ -9,13 +11,11 @@ import { NewQuizManagerService } from '@app/services/new-quiz-manager.service';
     styleUrls: ['./quiz-question-info.component.scss'],
 })
 export class QuizQuestionInfoComponent implements OnInit {
-    // myForm: FormGroup;
+    @Input() questionIndex: number;
     newQuiz: Quiz;
-    questions: Question[];
-    questionIndex: number;
     questionInfoForm: FormGroup;
     maxChoices: number;
-    formSubmitted = false;
+    defaultPoints: number;
 
     disableForm = false;
     buttonText = 'Sauvegarder';
@@ -24,6 +24,7 @@ export class QuizQuestionInfoComponent implements OnInit {
     constructor(
         private quizManagerService: NewQuizManagerService,
         private fb: FormBuilder,
+        public confirmationDialogReference: MatDialog,
     ) {}
 
     get choices() {
@@ -32,13 +33,12 @@ export class QuizQuestionInfoComponent implements OnInit {
 
     ngOnInit(): void {
         this.newQuiz = this.quizManagerService.getNewQuiz();
-        this.questions = this.quizManagerService.getNewQuizQuestions();
-        this.questionIndex = 0;
         this.maxChoices = 4;
+        this.defaultPoints = 10;
         this.questionInfoForm = this.fb.group({
-            type: '',
-            text: '',
-            points: 10,
+            type: ['', Validators.required],
+            text: ['', Validators.required],
+            points: [this.defaultPoints, Validators.required],
             choices: this.fb.array([], [this.questionChoicesValidator()]),
         });
 
@@ -54,12 +54,6 @@ export class QuizQuestionInfoComponent implements OnInit {
 
     getNewQuiz() {
         return this.newQuiz;
-    }
-
-    toggleButtonNameAndText() {
-        this.disableForm = !this.disableForm;
-        this.buttonText = this.disableForm ? 'Modifier' : 'Sauvegarder';
-        this.buttonName = this.disableForm ? 'save' : 'edit-save';
     }
 
     addChoice() {
@@ -91,7 +85,25 @@ export class QuizQuestionInfoComponent implements OnInit {
         }
     }
 
-    onSubmit() {
+    toggleButtonNameAndText() {
+        this.disableForm = !this.disableForm;
+        this.buttonText = this.disableForm ? 'Modifier' : 'Sauvegarder';
+        this.buttonName = this.disableForm ? 'save' : 'edit-save';
+    }
+
+    openQuestionConfirmation(): void {
+        const questionDialogReference = this.confirmationDialogReference.open(QuestionConfirmationComponent);
+
+        questionDialogReference.afterClosed().subscribe((result) => {
+            if (result === true) {
+                this.addNewQuestion();
+                this.resetForm();
+            }
+        });
+    }
+
+    addNewQuestion() {
+        const questionType = this.questionInfoForm.get('type')?.value;
         const questionText = this.questionInfoForm.get('text')?.value;
         const questionPoints = this.questionInfoForm.get('points')?.value;
         const choicesArray: Choice[] = this.choices.controls.map((control) => {
@@ -101,10 +113,29 @@ export class QuizQuestionInfoComponent implements OnInit {
             return { text, isCorrect };
         });
 
-        this.newQuiz.questions[this.questionIndex].text = questionText;
-        this.newQuiz.questions[this.questionIndex].points = questionPoints;
-        this.newQuiz.questions[this.questionIndex].choices = choicesArray;
-        this.formSubmitted = true;
+        const newQuestion: Question = {
+            type: questionType,
+            text: questionText,
+            points: questionPoints,
+            choices: choicesArray,
+        };
+        this.quizManagerService.addNewQuestion(newQuestion);
+    }
+
+    resetForm() {
+        this.questionInfoForm.reset();
+
+        this.questionInfoForm.controls.points.setValue(this.defaultPoints);
+        const choices = this.questionInfoForm.get('choices') as FormArray;
+
+        while (choices.length > 2) {
+            choices.removeAt(choices.length - 1);
+        }
+
+        choices.controls.forEach((choiceControl) => {
+            const choiceGroup = choiceControl as FormGroup;
+            choiceGroup.get('isCorrect')?.setValue(false);
+        });
     }
 
     questionChoicesValidator(): ValidatorFn {
@@ -113,9 +144,8 @@ export class QuizQuestionInfoComponent implements OnInit {
             const validChoices = choices.controls.filter((choice) => {
                 const text = choice.get('text')?.value || '';
                 const isCorrect = choice.get('isCorrect')?.value || false;
-                return text.trim() !== '' || isCorrect;
+                return text.trim().length > 0 || isCorrect;
             });
-
             if (validChoices.length < 2) {
                 return { missingChoices: true };
             }

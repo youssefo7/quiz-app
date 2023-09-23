@@ -1,5 +1,6 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { QuizQuestionInfoComponent } from './quiz-question-info.component';
 
 describe('QuizQuestionInfoComponent', () => {
@@ -9,7 +10,11 @@ describe('QuizQuestionInfoComponent', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [QuizQuestionInfoComponent],
-            imports: [HttpClientTestingModule],
+            imports: [HttpClientTestingModule, MatDialogModule],
+            providers: [
+                { provide: MatDialogRef, useValue: {} },
+                { provide: MAT_DIALOG_DATA, useValue: {} },
+            ],
         });
         fixture = TestBed.createComponent(QuizQuestionInfoComponent);
         component = fixture.componentInstance;

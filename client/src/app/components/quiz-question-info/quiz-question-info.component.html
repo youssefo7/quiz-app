@@ -1,11 +1,11 @@
-<form [formGroup]="questionInfoForm" [ngClass]="{ 'disabled-form': disableForm}" [appQuestionFormValidator]="questionInfoForm" (ngSubmit)="onSubmit()">
-    <fieldset>
+<form [formGroup]="questionInfoForm" [ngClass]="{ 'disabled-form': disableForm}" [appQuestionFormValidator]="questionInfoForm">
+    <fieldset [disabled]="disableForm">
         <legend>Nouvelle question : </legend>
-        <div>
+        <div id="type-div">
             <label>Type de question : </label>
-            <select for="question-type" id="question-type">
-                <option formControlName="type" value="QCM">QCM</option>
-                <option formControlName="type" value="QRL">QRL</option>
+            <select for="question-type" id="question-type" formControlName="type" required>
+                <option value="QCM">QCM</option>
+                <option value="QRL">QRL</option>
             </select>
         </div>
 
@@ -19,79 +19,100 @@
             </span>
         </div>
 
-        <label for="newChoice">Choices :</label>
         <div>
             <label for="newPoints">Points :</label>
-            <input type="number" step="10" formControlName="points" name="newPoints" id="newPoints" min="10" max="100" 
+            <input type="number" [value]="defaultPoints" step="10" formControlName="points" name="newPoints" id="newPoints" min="10" max="100" 
             [appRangeValidator]="{min: 10, max: 100}" placeholder="Points" 
             (change)="questionInfoForm.controls.points.setValue(roundToNearest10())" required>
             <span id="verify-points" *ngIf="questionInfoForm.controls.points.invalid">
                 Les points attribués pour une bonne réponse doit être entre 10 et 100
             </span>
         </div>
+
         <label for="newChoice">Choices :</label>
         <div formArrayName="choices">
-            <div *ngFor="let choice of choices.controls; let i = index" class="choice-group">
-                <div [formGroupName]="i">
-                    <input type="text" formControlName="text" placeholder="Choice {{ i + 1 }}" class="form-control">
+            <div *ngFor="let choice of choices.controls; let i = index" class="choice-container">
+                <div [formGroupName]="i"> {{i + 1}}.
+                    <input type="text" formControlName="text" minLength="1" placeholder="Choice {{ i + 1 }}" class="form-control" [required]="i < 2">
                     <label class="switch">
-                    <input type="checkbox" formControlName="isCorrect">
-                    <span class="slider round"></span>
+                      <input type="checkbox" formControlName="isCorrect">
+                      <span class="slider round"></span>
                     </label>
                     <button type="button" (click)="moveChoiceUp(i)" class="btn btn-secondary" [disabled]="i === 0">Move Up</button>
-                    <button type="button" (click)="moveChoiceDown(i)" class="btn btn-secondary" [disabled]="i === choices.length - 1">Move Down</button>
+                    <button type="button" (click)="moveChoiceDown(i)" class="btn btn-secondary" [disabled]="i === choices.length - 1">
+                        Move Down</button>
                     <button type="button" (click)="removeChoice(i)" class="btn btn-danger">Remove</button>
                 </div>
             </div>
-            <span id="verify-choices" *ngIf="formSubmitted && questionInfoForm.controls.choices.invalid && 
+            <span id="verify-choices" *ngIf="questionInfoForm.controls.choices.invalid && 
             (questionInfoForm.controls.choices.dirty || questionInfoForm.controls.choices.touched)">
-            Il doit avoir au moins 2 choix et il doit y avoir au moins une bonne réponse et une mauvaise réponse
+                Il doit avoir au moins 2 choix et il doit y avoir au moins une bonne réponse et une mauvaise réponse
             </span>
         </div>
         <button type="button" (click)="addChoice()" class="btn btn-primary" [disabled]="choices.length >= maxChoices">Add Choice</button>
     </fieldset>
-    <button id="submit-button" (click)="toggleButtonNameAndText()" [disabled]="questionInfoForm.invalid" [name]="buttonName">{{ buttonText }}</button>
+    <button id="questionValidation" (click)="openQuestionConfirmation()" [disabled]="questionInfoForm.invalid" [name]="buttonName">{{ buttonText }}</button>
 </form>
-<!-- <div id="choice-container" appChoiceValidator>
-    <div *ngFor="let choice of choices.controls; let i = index" class="response">
-        <textarea class="response-input" [formControlName]="choices.at(i).value.text" type="text" (change)="onChoiceTextInput($event, i)" placeholder="reponse {{ i + 1 }}" [required]="i < 2"></textarea>
-        <span class="required-text" *ngIf="i < 2"><br>Choix {{ i + 1 }} (requis) </span>
-        <label class="switch">
-            <input type="checkbox" [formControlName]="choices.at(i).value.checked" (click)="onSliderClick(i)">
-            <span class="slider round"></span>
-        </label>
-        <span *ngIf="questionInfoForm.get('choices')?.hasError('insufficientChoices')">
-            Please fill in at least the first 2 choices.
-        </span> 
-        <span *ngIf="questionInfoForm.get('choices')?.hasError('insufficientAnswers')">
-            Please select at least one correct and one incorrect answer.
-        </span>
-    </div>
-</div> -->
 
-
-        <!-- <form [formGroup]="choiceInfoForm">
-            <div id="choice-container" formArrayName="choices" appChoiceValidator>
-                <div *ngFor="let choice of choices.controls; let i = index" class="response">
-                    <span class="required-text"><br>Choix {{ i + 1 }} (requis) </span>
-                    <input class="response-input" [formControlName]="'choices[' + i + '].text'" type="text" placeholder="reponse {{ i + 1 }}" [required]="true">
-                    <label class="switch">
-                        <input type="checkbox" [formControlName]="'choices.' + i + '.checked'" (click)="onSliderClick(i)">
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-                <span *ngIf="choiceInfoForm.get('choices')?.hasError('insufficientChoices')">
-                    Please fill in at least the first 2 choices.
-                </span> 
-                <span *ngIf="choiceInfoForm.get('choices')?.hasError('insufficientAnswers')">
-                    Please select at least one correct and one incorrect answer.
-                </span>
-            </div>
-        </form> -->
-        
-          <!-- <span *ngIf="questionInfoForm.get('choices')?.hasError('insufficientChoices')">
-            Please fill in at least the first 2 choices.
-        </span> 
-        <span *ngIf="questionInfoForm.get('choices')?.hasError('insufficientAnswers')">
-            Please select at least one correct and one incorrect answer.
-        </span> -->
+<!-- <form [formGroup]="questionInfoForm" [ngClass]="{ 'disabled-form': disableForm}" [appQuestionFormValidator]="questionInfoForm" (ngSubmit)="onSubmit()">
+    <fieldset [disabled]="disableForm">
+      <legend>Nouvelle question :</legend>
+      <div id="type-div">
+        <mat-form-field>
+          <mat-label>Type de question :</mat-label>
+          <mat-select formControlName="type" id="question-type">
+            <mat-option value="QCM">QCM</mat-option>
+            <mat-option value="QRL">QRL</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <span id="verify-type" *ngIf="questionInfoForm.controls.text.invalid && 
+            (questionInfoForm.controls.text.dirty || questionInfoForm.controls.text.touched)">
+               Le type de la question n'a pas été sélectionné
+            </span>
+      </div>
+  
+      <div>
+        <mat-form-field>
+          <mat-label for="newQuestion">Question :</mat-label>
+          <input matInput type="text" formControlName="text" [appQuestionExists]="getNewQuiz()" name="newQuestion" id="newQuestion" placeholder="Question" required>
+        </mat-form-field>
+        <mat-error *ngIf="questionInfoForm.controls.text.invalid && (questionInfoForm.controls.text.dirty || questionInfoForm.controls.text.touched)">
+          La question entrée est déjà présente ou doit avoir au moins un caractère
+        </mat-error>
+      </div>
+  
+      <div>
+        <mat-form-field>
+          <mat-label for="newPoints">Points :</mat-label>
+          <input matInput type="number" step="10" formControlName="points" name="newPoints" id="newPoints" min="10" max="100" [appRangeValidator]="{min: 10, max: 100}" placeholder="Points" (change)="questionInfoForm.controls.points.setValue(roundToNearest10())" required>
+        </mat-form-field>
+        <mat-error *ngIf="questionInfoForm.controls.points.invalid">
+          Les points attribués pour une bonne réponse doivent être entre 10 et 100
+        </mat-error>
+      </div>
+  
+      <mat-label for="newChoice">Choices :</mat-label>
+      <div formArrayName="choices">
+        <div *ngFor="let choice of choices.controls; let i = index" class="choice-container">
+          <div [formGroupName]="i">{{i + 1}}.
+            <mat-form-field>
+              <input matInput type="text" formControlName="text" placeholder="Choice {{ i + 1 }}" class="form-control">
+            </mat-form-field>
+            <label class="switch">
+              <input type="checkbox" formControlName="isCorrect">
+              <span class="slider round"></span>
+            </label>
+            <button mat-button type="button" (click)="moveChoiceUp(i)" [disabled]="i === 0">Move Up</button>
+            <button mat-button type="button" (click)="moveChoiceDown(i)" [disabled]="i === choices.length - 1">Move Down</button>
+            <button mat-button type="button" (click)="removeChoice(i)" class="btn btn-danger">Remove</button>
+          </div>
+        </div>
+        <mat-error *ngIf="questionInfoForm.controls.choices.invalid && (questionInfoForm.controls.choices.dirty || questionInfoForm.controls.choices.touched)">
+          Il doit avoir au moins 2 choix et il doit y avoir au moins une bonne réponse et une mauvaise réponse
+        </mat-error>
+      </div>
+      <button mat-raised-button type="button" (click)="addChoice()" [disabled]="choices.length >= maxChoices">Add Choice</button>
+    </fieldset>
+    <button id="submit-button" mat-raised-button (click)="openConfirmationDialog()" [name]="buttonName">{{ buttonText }}</button>
+  </form> -->
+  

@@ -18,37 +18,18 @@ export class CreateQuizFormComponent implements OnInit {
     quizzes: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
     selectedQuiz: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
 
-    // newQuiz: Quiz = {
-    //     $schema: '',
-    //     id: '',
-    //     title: '',
-    //     description: '',
-    //     duration: 0,
-    //     lastModification: dateStr,
-    //     visibility: true,
-    //     questions: [
-    //         {
-    //             type: '',
-    //             text: '',
-    //             points: 0,
-    //             choices: [
-    //                 {
-    //                     text: '',
-    //                     isCorrect: false,
-    //                 },
-    //             ],
-    //         },
-    //     ],
-    // };
     newQuiz: Quiz;
+    questionIndex: number;
 
     constructor(
         private readonly communicationService: CommunicationService,
         private quizManagerService: NewQuizManagerService,
     ) {}
+
     ngOnInit(): void {
         this.newQuiz = this.quizManagerService.getNewQuiz();
         this.getQuizListFromServer();
+        this.questionIndex = 0;
     }
 
     getQuizListFromServer(): void {

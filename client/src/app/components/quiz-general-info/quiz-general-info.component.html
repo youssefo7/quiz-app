@@ -8,8 +8,7 @@
                 [disabled]="disableForm" formControlName="title" required></textarea><br>
             </label><br>
             <span id="title-counter" class="counter">{{ counterTitle }}</span><br>
-            <span id="verify-title" *ngIf="generalInfoForm.controls.title.invalid && (generalInfoForm.controls.title.dirty || 
-            generalInfoForm.controls.title.touched)">
+            <span id="verify-title" *ngIf="generalInfoForm.controls.title.invalid && (generalInfoForm.controls.title.dirty || generalInfoForm.controls.title.touched)">
                 Le titre entrée existe déjà ou doit avoir au moins un caractère
             </span>
         </div>
@@ -25,14 +24,12 @@
 
         <div id="duration-div">
             <label id="duration-label" for="newDuration">Durée (en secondes) :
-                <input type="number" name="newDuration" [disabled]="disableForm" id="newDuration" min="10" max="60" 
-                placeholder="Durée question" [appRangeValidator]="{ min: 10, max: 60 }" formControlName="duration" required>
+                <input type="number" name="newDuration" [disabled]="disableForm" id="newDuration" min="10" max="60" placeholder="Durée question" [appRangeValidator]="{ min: 10, max: 60 }" formControlName="duration" required>
             </label><br>
             <span id="verify-duration" *ngIf="generalInfoForm.controls.duration.invalid">
                 La durée allouée doit être entre 10 et 60 secondes
             </span>
         </div>
     </fieldset>
-    <button id="submit-button" (click)="toggleButtonTextAndName()" [disabled]="generalInfoForm.invalid" [name]="buttonName">
-        {{ buttonText }}</button>
+    <button id="submit-button" (click)="toggleButtonTextAndName()" [disabled]="generalInfoForm.invalid" [name]="buttonName">{{ buttonText }}</button>
 </form>

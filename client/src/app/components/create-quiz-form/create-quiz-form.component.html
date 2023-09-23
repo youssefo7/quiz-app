@@ -22,8 +22,16 @@
     <h2>Add New Quiz</h2>
     <form #addQuizForm="ngForm" (ngSubmit)="addQuizToServer(newQuiz)">
         <app-quiz-general-info></app-quiz-general-info>
-        <app-quiz-question-info></app-quiz-question-info>
-        <!-- <div class="questions">
+        <div *ngFor="let question of newQuiz.questions; let i = index" class="question-container">
+            <label>{{ question.text }}</label><br>
+        </div>
+        <app-quiz-question-info [questionIndex]="questionIndex"></app-quiz-question-info>
+        <button (click)="addQuizToServer(newQuiz)">Add Quiz</button>
+    </form>
+</div>
+
+
+                    <!-- <div class="questions">
             <h3>Questions</h3>
             <div *ngFor="let question of newQuiz.questions; let i = index">
                 <h4>Question {{ i + 1 }}</h4>
@@ -52,63 +60,3 @@
                 </div>
             </div>
         </div> -->
-        <button (click)="addQuizToServer(newQuiz)">Add Quiz</button>
-    </form>
-    <!-- <div id="test">
-        <label>Over Here!!</label>
-        <button (click)="addNewInput()">+</button>
-    </div> -->
-</div>
-    
-<!--     
-    </fieldset>
-    <button type="submit">Add Quiz</button>
-</form> 
-<fieldset id="question-input">
-    <label for="question-title">Question : (requis)</label><br>
-    <input id="question">
-    <div class="response-container">
-        <div class="response">
-            <input class="response-input" [(ngModel)]="newQuiz.questions[0].text" type="text" placeholder="reponse 1">
-            <input class="points" placeholder="points">
-            <label class="switch">
-                <input type="checkbox">
-                <span class="slider round"></span>
-            </label>
-        </div>
-        <div class="response">
-            <input class="response-input" [(ngModel)]="newQuiz.questions[1].text" placeholder="reponse 2">
-            <input class="points" placeholder="points">
-            <label class="switch">
-                <input type="checkbox">
-                <span class="slider round"></span>
-            </label>
-        </div>
-        <div class="response">
-            <input class="response-input" [(ngModel)]="newGame.questions[2].text" placeholder="reponse 3">
-            <input class="points" placeholder="points">
-            <label class="switch">
-                <input type="checkbox">
-                <span class="slider round"></span>
-            </label>
-        </div>
-        <div class="response">
-            <input class="response-input" [(ngModel)]="newGame.questions[3].text" placeholder="reponse 4">
-            <input class="points" placeholder="points">
-            <label class="switch">
-                <input type="checkbox">
-                <span class="slider round"></span>
-            </label>
-        </div>
-    </div>        
-</fieldset> -->
-
-
-            <!-- <label for="newTitle">Title:</label>
-            <input type="text" [(ngModel)]="newQuiz.title" name="newTitle" id="newTitle" placeholder="Quiz Title" required>
-
-            <label for="newDescription">Description:</label>
-            <input type="text" [(ngModel)]="newQuiz.description" name="newDescription" id="newDescription" placeholder="Quiz Description" required>
-
-            <label for="newDuration">Duration (in minutes):</label>
-            <input type="number" [(ngModel)]="newQuiz.duration" name="newDuration" id="newDuration" placeholder="Quiz Duration" required> -->

@@ -86,6 +86,6 @@ export class QuizGeneralInfoComponent implements OnInit {
     onSubmit() {
         this.newQuiz.title = this.generalInfoForm.value.title as string;
         this.newQuiz.description = this.generalInfoForm.value.description as unknown as string;
-        this.newQuiz.duration = this.generalInfoForm.value.duration as number;
+        this.newQuiz.duration = this.generalInfoForm.value?.duration as number;
     }
 }

@@ -1,6 +1,7 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatDialogModule } from '@angular/material/dialog';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
@@ -12,6 +13,7 @@ import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
 import { CreateQuizFormComponent } from './components/create-quiz-form/create-quiz-form.component';
+import { QuestionConfirmationComponent } from './components/question-confirmation/question-confirmation.component';
 import { QuizGeneralInfoComponent } from './components/quiz-general-info/quiz-general-info.component';
 import { QuizQuestionInfoComponent } from './components/quiz-question-info/quiz-question-info.component';
 import { TopBarComponent } from './components/top-bar/top-bar.component';
@@ -49,8 +51,10 @@ import { HostGamePageComponent } from './pages/host-game-page/host-game-page.com
         QuestionExistsDirective,
         RangeValidatorDirective,
         QuestionFormValidatorDirective,
+        QuestionConfirmationComponent,
     ],
-    imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, ReactiveFormsModule],
+    imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, 
+        ReactiveFormsModule, MatDialogModule],
     providers: [],
     bootstrap: [AppComponent],
 })
