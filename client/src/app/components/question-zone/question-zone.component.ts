@@ -12,7 +12,7 @@ export class QuestionZoneComponent implements OnInit {
     quiz: Quiz;
     question: Question;
     choicesChosen: boolean[];
-    buttonStyle: { backgroundColor: string; borderColor: string; borderWidth: string }[];
+    buttonStyle: { backgroundColor: string; borderColor: string }[];
     points: number;
     bonusMessage: string;
     pointsDisplay: { display: string };
@@ -28,17 +28,17 @@ export class QuestionZoneComponent implements OnInit {
         this.bonusMessage = '';
         this.pointsDisplay = { display: 'none' };
         this.bonusDisplay = { display: 'none' };
-        this.buttonStyle = [{ backgroundColor: '', borderColor: '', borderWidth: '' }];
+        this.buttonStyle = [{ backgroundColor: '', borderColor: '' }];
     }
 
-    @HostListener('document:keydown', ['$event'])
+    @HostListener('keypress', ['$event'])
     preventDefaultEnter(event: KeyboardEvent) {
         if (event.key === 'Enter') {
             event.preventDefault();
         }
     }
 
-    @HostListener('document:keyup', ['$event'])
+    @HostListener('keyup', ['$event'])
     buttonDetect(event: KeyboardEvent) {
         this.keyPressed = event.key;
         if (this.keyPressed === 'Enter') {
@@ -47,6 +47,10 @@ export class QuestionZoneComponent implements OnInit {
             const keyNumber = parseInt(this.keyPressed, 10) - 1;
             this.toggleChoice(keyNumber);
         }
+    }
+
+    focusOnButton() {
+        this.elementRef.nativeElement.querySelector('input[type="button"]')?.focus();
     }
 
     async getQuiz() {
@@ -66,13 +70,11 @@ export class QuestionZoneComponent implements OnInit {
         this.buttonStyle[index] = {
             backgroundColor: this.choicesChosen[index] ? 'rgb(0, 51, 204)' : 'blueviolet',
             borderColor: this.choicesChosen[index] ? 'black' : 'white',
-            borderWidth: this.choicesChosen[index] ? '10px' : 'thick',
         };
         if (isSubmit) {
             this.buttonStyle[index] = {
                 backgroundColor: this.question.choices[index].isCorrect ? 'rgb(97, 207, 72)' : 'red',
                 borderColor: this.choicesChosen[index] ? 'black' : 'white',
-                borderWidth: this.choicesChosen[index] ? '10px' : 'thick',
             };
             this.elementRef.nativeElement.querySelectorAll('button').forEach((button: HTMLButtonElement) => button.setAttribute('disabled', 'true'));
         }

@@ -1,4 +1,4 @@
-<div id="question-zone-container">
+<div id="question-zone-container" (click)="focusOnButton()">
     <div *ngIf="quiz" class="question-points-zone">
         <p class="points-message" [ngStyle]="pointsDisplay">{{ points }} Points! {{ bonusMessage }}</p>
         <p class="question" *ngIf="question">{{ question.text }}</p>
@@ -11,6 +11,7 @@
             (click)="toggleChoice(i)"
             [ngClass]="{ active: choicesChosen[i] }"
             [ngStyle]="buttonStyle[i]"
+            autofocus
         >
             {{ i + 1 }}. {{ choice.text }}
         </button>
