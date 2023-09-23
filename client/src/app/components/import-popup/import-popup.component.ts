@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { DialogData } from '@app/interfaces/dialog-data';
+import { ErrorDialogData } from '@app/interfaces/error-dialog-data';
 
 @Component({
     selector: 'app-import-popup',
@@ -12,7 +12,7 @@ export class ImportPopupComponent {
 
     constructor(
         private dialogRef: MatDialogRef<ImportPopupComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: DialogData,
+        @Inject(MAT_DIALOG_DATA) public data: ErrorDialogData,
     ) {
         // empty array if no error message
         this.errorMessages = data.errorMessage ? data.errorMessage.split('\n') : [];
@@ -32,7 +32,6 @@ export class ImportPopupComponent {
     //         this.dialog.open(ImportPopupComponent, {
     //             data: { errorMessage },
     //         });
-    //         this.importService.resetInput(event);
     //     } finally {
     //         this.importService.resetInput(event);
     //     }

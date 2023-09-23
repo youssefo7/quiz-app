@@ -98,15 +98,15 @@ export class QuizzesController {
         type: Boolean,
     })
     @ApiNotFoundResponse({
-        description: 'Return NOT_FOUND http status when request fails',
+        description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
     })
     @Get('/available/:id')
     async checkQuizAvailability(@Param('id') id: string, @Res() response: Response) {
         try {
-            const deleted = await this.quizzesService.checkQuizAvailability(id);
-            response.status(HttpStatus.OK).json(deleted);
+            const isDeleted = await this.quizzesService.checkQuizAvailability(id);
+            response.status(HttpStatus.OK).json(isDeleted);
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.INTERNAL_SERVER_ERROR).send(error.message);
         }
     }
 
@@ -120,7 +120,7 @@ export class QuizzesController {
     @Get('/visible/:id')
     async checkVisibility(@Param('id') id: string, @Res() response: Response) {
         try {
-            const visibility = await this.quizzesService.checkVisibility(id);
+            const visibility = await this.quizzesService.checkQuizVisibility(id);
             response.status(HttpStatus.OK).json(visibility);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
@@ -132,7 +132,7 @@ export class QuizzesController {
         type: Quiz,
     })
     @ApiNotFoundResponse({
-        description: 'Return BAD_REQUEST http status when request',
+        description: 'Return UNPROCESSABLE_ENTITY http status when request',
     })
     @Post('/import')
     async importQuiz(@Body() newQuiz: Quiz, @Res() response: Response) {
@@ -140,7 +140,7 @@ export class QuizzesController {
             const quiz = await this.quizzesService.importQuiz(newQuiz);
             response.status(HttpStatus.CREATED).json(quiz);
         } catch (error) {
-            response.status(HttpStatus.BAD_REQUEST).send(`${error.message}`);
+            response.status(HttpStatus.UNPROCESSABLE_ENTITY).send(`${error.message}`);
         }
     }
 }

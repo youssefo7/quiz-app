@@ -8,4 +8,4 @@ export const Constants = {
     MIN_POINTS: 10,
     MAX_CHOICES: 4,
     MIN_CHOICES: 2,
-  };
+  } as const;

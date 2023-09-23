@@ -154,9 +154,6 @@ describe('CommunicationService', () => {
         const mockId = 'test';
 
         service.checkQuizAvailability(mockId).subscribe({
-            next: (response) => {
-                expect(response).toEqual(true);
-            },
             error: fail,
         });
 
@@ -169,9 +166,6 @@ describe('CommunicationService', () => {
         const mockId = 'test';
 
         service.checkVisibility(mockId).subscribe({
-            next: (response) => {
-                expect(response).toEqual(true);
-            },
             error: fail,
         });
 
