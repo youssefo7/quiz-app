@@ -101,7 +101,6 @@ export class QuestionZoneComponent implements OnInit {
         this.getQuestion();
     }
 
-    // TODO: Create a function that shows the points when the time is up
     showPoints() {
         this.pointsDisplay = { display: 'block' };
     }
@@ -127,7 +126,7 @@ export class QuestionZoneComponent implements OnInit {
 
     // TODO: Make this function actually give points to the player
     givePoints() {
-        const bonus = 1.2; // Could be in a const file
+        const bonus = 1.2;
         if (this.isAnswerGood()) {
             this.points = this.question.points * bonus;
             this.bonusMessage = '(20% bonus Woohoo!)';
