@@ -21,7 +21,6 @@ export class ImportService {
         }
     }
 
-    // TODO : add id verification in backend to avoid changing id if one already exists
     // TODO : reset input if importing again after successful previous import
     async importQuiz() {
         const fileReader = new FileReader();
@@ -50,10 +49,8 @@ export class ImportService {
             // https://rxjs.dev/api/index/function/lastValueFrom
             await lastValueFrom(this.communicationService.importQuiz(quiz));
         } catch (error) {
-            let message;
             if (error instanceof Error) {
-                message = error.message;
-                throw new Error(message);
+                throw new Error(error.message);
             }
         }
     }

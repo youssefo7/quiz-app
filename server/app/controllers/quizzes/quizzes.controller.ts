@@ -118,7 +118,7 @@ export class QuizzesController {
         description: 'Return NOT_FOUND http status when request fails',
     })
     @Get('/visible/:id')
-    async checkVisibility(@Param('id') id: string, @Res() response: Response) {
+    async checkQuizVisibility(@Param('id') id: string, @Res() response: Response) {
         try {
             const visibility = await this.quizzesService.checkQuizVisibility(id);
             response.status(HttpStatus.OK).json(visibility);

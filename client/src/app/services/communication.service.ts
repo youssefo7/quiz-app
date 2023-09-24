@@ -46,7 +46,7 @@ export class CommunicationService {
         return this.http.get<boolean>(`${this.baseUrl}/quizzes/available/${id}`).pipe(catchError(this.receiveError<boolean>()));
     }
 
-    checkVisibility(id: string): Observable<boolean> {
+    checkQuizVisibility(id: string): Observable<boolean> {
         return this.http.get<boolean>(`${this.baseUrl}/quizzes/visible/${id}`).pipe(catchError(this.receiveError<boolean>()));
     }
 
@@ -62,20 +62,21 @@ export class CommunicationService {
     // receiveError uses HTTPErrorResponse to catch error message sent in response body from server
     private receiveError<T>() {
         return (error: HttpErrorResponse): Observable<T> => {
-            const errorMessage = `${error.error.message || error.error}`;
+            const errorMessage = `${error.error}`;
             throw new Error(errorMessage);
         };
     }
 
-    // exemple:
+    // example of error catching:
     // getQuizFromServer(id: string): void {
     //     this.communicationService.getQuiz(id).subscribe({
     //         next: (game) => {
     //             this.selectedQuiz.next(game);
     //             this.updatedQuiz = game;
+    //             console.log(game);
     //         },
     //         error: (err: HttpErrorResponse) => {
-    //             const errorMessage = `Le serveur a retourné : ${err}`;
+    //             const errorMessage = `Le serveur a retourné : ${err.message}`;
     //             console.log(errorMessage);
     //             this.message.next(errorMessage);
     //         },

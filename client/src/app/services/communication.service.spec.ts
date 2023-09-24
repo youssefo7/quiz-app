@@ -150,7 +150,6 @@ describe('CommunicationService', () => {
         req.flush(null);
     });
 
-    // TODO : finish tests for checkQuizAvailability and checkVisibility
     it('should check availability of a Quiz when sending GET request with /available/:id param (HTTPClient called once)', () => {
         const mockId = 'test';
 
@@ -166,7 +165,7 @@ describe('CommunicationService', () => {
     it('should check visibility of a Quiz when sending GET request with /visible/:id param (HTTPClient called once)', () => {
         const mockId = 'test';
 
-        service.checkVisibility(mockId).subscribe({
+        service.checkQuizVisibility(mockId).subscribe({
             error: fail,
         });
 
@@ -192,6 +191,24 @@ describe('CommunicationService', () => {
         });
         expect(req.request.method).toBe('POST');
         req.flush(mockQuiz);
+    });
+
+    it('should receive error from server', () => {
+        const nonExistentId = 'nonExistentId';
+
+        service.getQuiz(nonExistentId).subscribe({
+            next: () => {
+                fail('Expected an error');
+            },
+            error: (error) => {
+                expect(error.message).toBe('Quiz nonExistentId not found');
+            },
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/quizzes/${nonExistentId}`);
+        expect(req.request.method).toBe('GET');
+
+        req.flush('Quiz nonExistentId not found', { status: 404, statusText: 'Not Found' });
     });
 });
 

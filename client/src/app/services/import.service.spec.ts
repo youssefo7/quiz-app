@@ -1,7 +1,7 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Quiz } from '@app/interfaces/quiz';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { CommunicationService } from './communication.service';
 import { ImportService } from './import.service';
 
@@ -9,6 +9,29 @@ describe('ImportService', () => {
     let service: ImportService;
     // jasmine instead of jest to avoid package.json changes
     let mockCommunicationService: jasmine.SpyObj<CommunicationService>;
+    const mockQuiz = {
+        $schema: '',
+        id: '',
+        title: '',
+        duration: 0,
+        lastModification: '',
+        questions: [
+            {
+                type: '',
+                text: '',
+                points: 0,
+                choices: [
+                    {
+                        text: '',
+                        isCorrect: true,
+                    },
+                ],
+            },
+        ],
+        visibility: false,
+        description: '',
+    } as Quiz;
+
     beforeEach(() => {
         const spy = jasmine.createSpyObj('CommunicationService', ['importQuiz']);
         TestBed.configureTestingModule({
@@ -58,10 +81,20 @@ describe('ImportService', () => {
             ],
         });
         // expect visibility to be false and description to be empty
-        const mockQuiz = {
+
+        const mockFile = new File([mockFileContent], 'filename.json', { type: 'application/json' });
+        service.quizToImport = mockFile;
+        // mocking addQuiz to return observable
+        mockCommunicationService.importQuiz.and.returnValue(of(mockQuiz));
+        await service.importQuiz();
+        expect(mockCommunicationService.importQuiz).toHaveBeenCalledWith(mockQuiz);
+    });
+
+    it('should catch and rethrow error from communicationService', async () => {
+        // missing title
+        const mockFileContent = JSON.stringify({
             $schema: '',
             id: '',
-            title: '',
             duration: 0,
             lastModification: '',
             questions: [
@@ -77,15 +110,30 @@ describe('ImportService', () => {
                     ],
                 },
             ],
-            visibility: false,
-            description: '',
-        } as Quiz;
+        });
 
         const mockFile = new File([mockFileContent], 'filename.json', { type: 'application/json' });
         service.quizToImport = mockFile;
-        // mocking addQuiz to return observable
-        mockCommunicationService.importQuiz.and.returnValue(of(mockQuiz));
-        await service.importQuiz();
-        expect(mockCommunicationService.importQuiz).toHaveBeenCalledWith(mockQuiz);
+
+        mockCommunicationService.importQuiz.and.returnValue(throwError(() => new Error('Titre du quiz invalide ou manquant')));
+
+        try {
+            await service.importQuiz();
+            fail('Expected an error');
+        } catch (error) {
+            if (error instanceof Error) {
+                expect(error.message).toBe('Titre du quiz invalide ou manquant');
+            }
+        }
+    });
+
+    it('should reset the input value', () => {
+        const mockInput = document.createElement('input');
+        mockInput.value = 'test';
+        const mockEvent = { target: mockInput } as unknown as Event;
+
+        service.resetInput(mockEvent);
+
+        expect(mockInput.value).toBe('');
     });
 });
