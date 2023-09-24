@@ -138,7 +138,7 @@ export class QuizzesService {
             const quizzes = await fs.readFile(this.quizzesPath, 'utf8');
             return JSON.parse(quizzes);
         } catch (error) {
-            return Promise.reject(new Error(`Failed to get Quizzes: ${error.message}`));
+            return Promise.reject(new Error(`${error.message}`));
         }
     }
 
@@ -162,7 +162,7 @@ export class QuizzesService {
             await fs.writeFile(this.quizzesPath, JSON.stringify(quizzes, null, 2));
             return quiz;
         } catch (error) {
-            return Promise.reject(new Error(`Failed to add Quiz: ${error.message}`));
+            return Promise.reject(new Error(`${error.message}`));
         }
     }
 
