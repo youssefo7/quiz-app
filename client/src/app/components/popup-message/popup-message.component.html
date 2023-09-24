@@ -1,0 +1,10 @@
+<div id="container">
+    <p>
+        <strong>{{ config.message }}</strong>
+    </p>
+
+    <div id="button-container">
+        <button id="cancel-btn" type="button" *ngIf="config.hasCancelButton" (click)="cancelFunctionWrapper()">{{ config.cancelButtonText }}</button>
+        <button id="ok-btn" type="button" *ngIf="config.hasOkButton" (click)="okFunctionWrapper()">{{ config.okButtonText }}</button>
+    </div>
+</div>
