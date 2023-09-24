@@ -1,0 +1,23 @@
+p {
+    font-size: medium;
+}
+
+#countdown-background {
+    background-color: lightblue;
+    border-style: solid;
+    border-radius: 50%;
+    border-color: black;
+    border-width: 3px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80px;
+    height: 80px;
+
+    #countdown {
+        font-size: 2rem;
+        font-weight: bold;
+        max-width: 900%;
+        max-height: 90%;
+    }
+}

@@ -3,7 +3,6 @@
     grid-template-rows: 15% 85%;
     grid-template-columns: 15% 60% 25%;
     margin: auto;
-    padding-top: 20px;
     height: 90%;
     width: 90%;
 
@@ -40,24 +39,27 @@
         }
     }
 
-    #chat-player-grid {
+    #countdown-grid {
         grid-row: 2 / 3;
-        grid-column: 3 / 4;
-        border: 1px solid black;
-        display: grid;
-        grid-template-rows: 15% 85%;
+        grid-column: 1 / 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
-    #player-grid {
-        grid-row: 1 / 2;
-        display: grid;
-        grid-template-columns: 30% 70%;
-        align-items: center;
-        display: grid;
-        grid-template-rows: 15% 85%;
+    #chat-player-flex {
+        grid-row: 2 / 3;
+        grid-column: 3 / 4;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
 
-        #chat-grid {
-            grid-row: 2 / 3;
+        #profile-container {
+            flex-basis: 10%;
+        }
+
+        #chat-container {
+            flex-basis: 90%;
         }
     }
 }
