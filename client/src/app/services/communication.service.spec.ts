@@ -150,6 +150,7 @@ describe('CommunicationService', () => {
         req.flush(null);
     });
 
+    // TODO : finish tests for checkQuizAvailability and checkVisibility
     it('should check availability of a Quiz when sending GET request with /available/:id param (HTTPClient called once)', () => {
         const mockId = 'test';
 

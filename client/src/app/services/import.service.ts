@@ -41,6 +41,7 @@ export class ImportService {
 
             quiz.visibility = false;
 
+            // TODO : add validation for description in backend
             if (!quiz.description) {
                 quiz.description = '';
             }
@@ -49,10 +50,11 @@ export class ImportService {
             // https://rxjs.dev/api/index/function/lastValueFrom
             await lastValueFrom(this.communicationService.importQuiz(quiz));
         } catch (error) {
-            // error when throwing non string
-            // using message to avoid having "Error: message" and just receive "message"
-            const message = error instanceof Error ? error.message : '' + error;
-            throw new Error(message);
+            let message;
+            if (error instanceof Error) {
+                message = error.message;
+                throw new Error(message);
+            }
         }
     }
 
