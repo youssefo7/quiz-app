@@ -16,16 +16,21 @@ export class TimeService {
         this.counter = newTime;
     }
 
-    startTimer(startValue: number) {
+    async startTimer(startValue: number) {
         if (this.interval) return;
+
         this.time = startValue;
-        this.interval = window.setInterval(() => {
-            if (this.time > 0) {
-                this.time--;
-            } else {
-                this.stopTimer();
-            }
-        }, this.tick);
+
+        return new Promise<void>((resolve) => {
+            this.interval = window.setInterval(() => {
+                if (this.time > 0) {
+                    this.time--;
+                } else {
+                    this.stopTimer();
+                    resolve();
+                }
+            }, this.tick);
+        });
     }
 
     stopTimer() {

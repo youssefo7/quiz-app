@@ -3,7 +3,14 @@
         <p>Zone pour les messages</p>
     </div>
     <div id="text-input">
-        <textarea id="message" placeholder="Écrivez votre message..." maxlength="200" (input)="(expandTextArea)"></textarea>
+        <textarea
+            id="message"
+            placeholder="Écrivez votre message..."
+            maxlength="200"
+            (input)="expandTextArea($event)"
+            (input)="detectCharacterLengthOnInput($event)"
+        ></textarea>
         <mat-icon inline="true">send</mat-icon>
     </div>
+    <span id="counter">{{ characterCounterDisplay }}</span>
 </div>
