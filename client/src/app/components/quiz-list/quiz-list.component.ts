@@ -81,5 +81,4 @@ export class QuizListComponent implements OnInit {
         const popupInstance = dialogRef.componentInstance;
         popupInstance.config = config;
     }
-
 }
