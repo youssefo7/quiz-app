@@ -55,15 +55,18 @@ export class CountdownComponent implements OnInit {
     }
 
     async gameClock() {
-        // Raison: J'utilise un for loop pour faire le timer pour chaque question (for in/of n'est pas pertinent ici)
+        // Raison: Boucle for in/of pas pertinent, car je n'ai pas besoin des éléments du tableau
         // eslint-disable-next-line @typescript-eslint/prefer-for-of
         for (let i = 0; i < this.quiz.questions.length; i++) {
-            await this.transitionClock();
             await this.questionClock();
+            await this.transitionClock();
         }
+        this.leaveGame();
     }
 
     async leaveGame() {
+        const isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
+        if (!isTestGame) return;
         const exitTransitionTime = 3000;
         setTimeout(() => {
             this.router.navigateByUrl('/game/new');
@@ -72,12 +75,7 @@ export class CountdownComponent implements OnInit {
 
     async loadTimer() {
         await this.getQuiz();
-        await this.gameClock();
-
-        const isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
-        if (isTestGame) {
-            this.leaveGame();
-        }
+        this.gameClock();
     }
 
     ngOnInit() {

@@ -6,14 +6,14 @@ import { Component } from '@angular/core';
     styleUrls: ['./chat.component.scss'],
 })
 export class ChatComponent {
-    charactersCounterDisplay: string;
-    currentCharactersLength: number;
-    maxCharactersLength: number;
+    characterCounterDisplay: string;
+    currentInputLength: number;
+    maxInputLength: number;
 
     constructor() {
-        this.maxCharactersLength = 200;
-        this.currentCharactersLength = 0;
-        this.charactersCounterDisplay = `${this.currentCharactersLength} / ${this.maxCharactersLength}`;
+        this.maxInputLength = 200;
+        this.currentInputLength = 0;
+        this.characterCounterDisplay = `${this.currentInputLength} / ${this.maxInputLength}`;
     }
 
     expandTextArea(event: Event) {
@@ -25,7 +25,7 @@ export class ChatComponent {
 
     detectCharacterLengthOnInput(event: Event) {
         const inputValue = (event.target as HTMLInputElement).value;
-        this.currentCharactersLength = inputValue.length;
-        this.charactersCounterDisplay = `${this.currentCharactersLength} / ${this.maxCharactersLength}`;
+        this.currentInputLength = inputValue.length;
+        this.characterCounterDisplay = `${this.currentInputLength} / ${this.maxInputLength}`;
     }
 }
