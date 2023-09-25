@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { QuizListComponent } from '@app/components/quiz-list/quiz-list.component';
 import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { AdminPageComponent } from './admin-page.component';
+import { MatDialogModule } from '@angular/material/dialog';
 
 describe('AdminPageComponent', () => {
     let component: AdminPageComponent;
@@ -11,7 +12,7 @@ describe('AdminPageComponent', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [AdminPageComponent, QuizListComponent, TopBarComponent],
-            imports: [HttpClientTestingModule],
+            imports: [HttpClientTestingModule, MatDialogModule],
         });
         fixture = TestBed.createComponent(AdminPageComponent);
         component = fixture.componentInstance;
