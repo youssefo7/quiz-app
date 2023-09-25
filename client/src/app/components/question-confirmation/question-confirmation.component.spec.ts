@@ -13,7 +13,10 @@ describe('QuestionConfirmationComponent', () => {
         TestBed.configureTestingModule({
             declarations: [QuestionConfirmationComponent],
             imports: [MatDialogModule],
-            providers: [{ provide: MatDialogRef, useValue: {} }, { provide: MAT_DIALOG_DATA, useValue: data }],
+            providers: [
+                { provide: MatDialogRef, useValue: {} },
+                { provide: MAT_DIALOG_DATA, useValue: data },
+            ],
         });
         fixture = TestBed.createComponent(QuestionConfirmationComponent);
         component = fixture.componentInstance;

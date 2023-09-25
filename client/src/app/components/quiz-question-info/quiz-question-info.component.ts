@@ -1,9 +1,9 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { QuestionConfirmationComponent } from '@app/components/question-confirmation/question-confirmation.component';
 import { Choice, Question, Quiz } from '@app/interfaces/quiz';
 import { NewQuizManagerService } from '@app/services/new-quiz-manager.service';
-import { QuestionConfirmationComponent } from '../question-confirmation/question-confirmation.component';
 
 @Component({
     selector: 'app-quiz-question-info',
@@ -12,11 +12,14 @@ import { QuestionConfirmationComponent } from '../question-confirmation/question
 })
 export class QuizQuestionInfoComponent implements OnInit {
     @Input() questionIndex: number;
+    @Input() question: Question;
+    @Output() questionModified = new EventEmitter<{ question: Question; index: number }>();
     newQuiz: Quiz;
     questionInfoForm: FormGroup;
     maxChoices: number;
     defaultPoints: number;
 
+    isFormVisible = false;
     disableForm = false;
     buttonText = 'Sauvegarder';
     buttonName = 'edit-save';
@@ -32,6 +35,10 @@ export class QuizQuestionInfoComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.initializeForm();
+    }
+
+    initializeForm() {
         this.newQuiz = this.quizManagerService.getNewQuiz();
         this.maxChoices = 4;
         this.defaultPoints = 10;
@@ -45,6 +52,43 @@ export class QuizQuestionInfoComponent implements OnInit {
         for (let i = 0; i < 2; i++) {
             this.addChoice();
         }
+    }
+
+    loadQuestionInformation(question: Question) {
+        this.questionInfoForm.reset();
+        const resetChoices = this.questionInfoForm.get('choices') as FormArray;
+        while (resetChoices.length > question.choices.length) {
+            resetChoices.removeAt(resetChoices.length - 1);
+        }
+        if (question) {
+            this.questionInfoForm.patchValue({
+                text: question.text,
+                type: question.type,
+                points: question.points,
+                choices: question.choices,
+            });
+        } else {
+            this.questionInfoForm.reset();
+        }
+    }
+
+    onQuestionModified(index: number) {
+        const modifiedQuestion: Question = this.getModifiedQuestion();
+        this.questionModified.emit({ question: modifiedQuestion, index });
+    }
+
+    getModifiedQuestion(): Question {
+        const modifiedQuestion: Question = {
+            text: this.questionInfoForm.get('text')?.value,
+            type: this.questionInfoForm.get('type')?.value,
+            points: this.questionInfoForm.get('points')?.value,
+            choices: this.questionInfoForm.get('choices')?.value,
+        };
+        return modifiedQuestion;
+    }
+
+    toggleForm() {
+        this.isFormVisible = !this.isFormVisible;
     }
 
     roundToNearest10() {
@@ -113,16 +157,24 @@ export class QuizQuestionInfoComponent implements OnInit {
             return { text, isCorrect };
         });
 
-        const newQuestion: Question = {
+        const modifiedQuestion: Question = {
             type: questionType,
             text: questionText,
             points: questionPoints,
             choices: choicesArray,
         };
-        this.quizManagerService.addNewQuestion(newQuestion);
+
+        // Check if questionIndex is defined (edit mode) and emit the modified question
+        if (this.questionIndex !== undefined && this.questionIndex !== null) {
+            this.questionModified.emit({ question: modifiedQuestion, index: this.questionIndex });
+        } else {
+            // Otherwise, add a new question
+            this.quizManagerService.addNewQuestion(modifiedQuestion);
+        }
     }
 
     resetForm() {
+        this.toggleForm();
         this.questionInfoForm.reset();
 
         this.questionInfoForm.controls.points.setValue(this.defaultPoints);
@@ -160,6 +212,9 @@ export class QuizQuestionInfoComponent implements OnInit {
             const differentChoices = new Set<string>();
             for (const choice of validChoices) {
                 const text = choice.get('text')?.value.trim();
+                if (text === '') {
+                    return { choiceTextEmpty: true }; // New validation error for empty text
+                }
                 if (differentChoices.has(text)) {
                     return { duplicateChoices: true };
                 }

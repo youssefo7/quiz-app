@@ -20,13 +20,31 @@
         <p>Question 1: {{ currentQuiz.questions[0].text }}</p>
     </div>
     <h2>Add New Quiz</h2>
-    <form #addQuizForm="ngForm" (ngSubmit)="addQuizToServer(newQuiz)">
-        <app-quiz-general-info></app-quiz-general-info>
-        <div *ngFor="let question of newQuiz.questions; let i = index" class="question-container">
-            <label>{{ question.text }}</label><br>
+    <form #addQuizForm="ngForm">
+        <app-quiz-general-info name="quiz-general-info" #generalInfoForm></app-quiz-general-info>
+        <label>Liste de questions : </label>
+        <div id="all-question-elements">
+            <div *ngFor="let question of newQuiz.questions; let i = index" class="question-container">
+                <div *ngIf="question.text !== ''"class="question"><label>{{ i + 1}}. </label>
+                    <label id="question-display">Question : {{ question.text }}</label><br>
+                    <label>Type : {{ question.type }}</label><br>
+                    <label>Points : {{ question.points }}</label><br>
+                    <div id="choice-container" *ngFor="let choice of question.choices; let j = index">
+                        <div id="choice"> Choix {{ j + 1 }} :
+                            <label>{{ choice.text }} : </label>
+                            <label>{{ choice.isCorrect }}</label>
+                        </div>
+                    </div>
+                    <button (click)="selectQuestion(i)">Modifier</button>
+                    <button (click)="deleteQuestion(i)">Supprimer</button>
+                </div>
+            </div>
+            <div id="new-question-form">
+                <app-quiz-question-info [questionIndex]="selectedQuestionIndex" [question]="selectedQuestion" (questionModified)="onQuestionModified($event)"></app-quiz-question-info>
+            </div>
         </div>
-        <app-quiz-question-info [questionIndex]="questionIndex"></app-quiz-question-info>
-        <button (click)="addQuizToServer(newQuiz)">Add Quiz</button>
+            <!-- Include your form component here -->
+        <button (click)="addQuizToServer(newQuiz)" [disabled]="!isQuizFormValid()">Add Quiz</button>
     </form>
 </div>
 

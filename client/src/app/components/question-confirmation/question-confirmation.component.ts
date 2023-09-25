@@ -7,7 +7,10 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
     templateUrl: './question-confirmation.component.html',
 })
 export class QuestionConfirmationComponent {
-    constructor(public confirmationDialogReference: MatDialogRef<QuestionConfirmationComponent>, @Inject(MAT_DIALOG_DATA) public data: Dialog | any) {}
+    constructor(
+        public confirmationDialogReference: MatDialogRef<QuestionConfirmationComponent>,
+        @Inject(MAT_DIALOG_DATA) public data: Dialog | unknown,
+    ) {}
 
     onConfirm(): void {
         this.confirmationDialogReference.close(true);

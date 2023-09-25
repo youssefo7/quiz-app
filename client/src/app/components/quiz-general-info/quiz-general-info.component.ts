@@ -43,8 +43,8 @@ export class QuizGeneralInfoComponent implements OnInit {
     }
 
     initCounters() {
-        this.maxLengthTitle = 250;
-        this.maxLengthDescription = 500;
+        this.maxLengthTitle = 75;
+        this.maxLengthDescription = 250;
 
         this.charCountTitle = this.titleValue ? this.titleValue.length : 0;
         this.counterTitle = `${this.charCountTitle} / ${this.maxLengthTitle}`;

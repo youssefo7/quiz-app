@@ -1,12 +1,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
-import { Quiz } from '@app/interfaces/quiz';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { QuizQuestionInfoComponent } from '@app/components/quiz-question-info/quiz-question-info.component';
+import { Question, Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
 import { NewQuizManagerService } from '@app/services/new-quiz-manager.service';
 import { BehaviorSubject } from 'rxjs';
-
-// const date = new Date();
-// const dateStr = date.toLocaleString('en-US', { timeZone: 'America/New_York' });
 
 @Component({
     selector: 'app-create-quiz-form',
@@ -14,12 +13,15 @@ import { BehaviorSubject } from 'rxjs';
     styleUrls: ['./create-quiz-form.component.scss'],
 })
 export class CreateQuizFormComponent implements OnInit {
+    @Input() questionIndex: number;
+    @ViewChild(QuizQuestionInfoComponent, { static: false }) quizQuestionInfo: QuizQuestionInfoComponent;
+    @ViewChild('generalInfoForm') generalInfoForm: FormGroup;
     message: BehaviorSubject<string> = new BehaviorSubject<string>('');
     quizzes: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
     selectedQuiz: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
-
+    selectedQuestionIndex: number;
     newQuiz: Quiz;
-    questionIndex: number;
+    selectedQuestion: Question;
 
     constructor(
         private readonly communicationService: CommunicationService,
@@ -82,41 +84,64 @@ export class CreateQuizFormComponent implements OnInit {
         });
     }
 
-    // updateIsCorrect(index: number): void {
-    //     this.newQuiz.questions[index].choices[index].isCorrect = true;
-    // }
+    selectQuestion(selectedIndex: number) {
+        this.selectedQuestion = this.newQuiz.questions[selectedIndex];
+        this.selectedQuestionIndex = selectedIndex;
+        this.quizQuestionInfo.loadQuestionInformation(this.selectedQuestion);
+    }
 
-    // addNewResponse() {
-    //     if(this.newQuiz.questions[index].choices.length < 4) {
-    //         let newDiv = document.createElement('div');
-    //         newDiv.className = "newAnswer";
-    //         let newChoiceLabel = document.createElement('label');
-    //         newChoiceLabel.innerHTML = "Choix:";
-    //         let newChoiceInput = document.createElement('input');
-    //         newChoiceInput.setAttribute('[(ngModel)]', 'this.newQuiz.questions[1].choices[1].text');
-    //         newChoiceInput.placeholder = "Choix";
-    //         let newSwitchLabel = document.createElement('label');
-    //         newSwitchLabel.className = "switch";
-    //         let newCheckBoxInput = document.createElement('input');
-    //         newCheckBoxInput.type = "checkbox";
-    //         let newSliderSpan = document.createElement('span');
-    //         newSliderSpan.className = 'slider round';
-    //         // newSliderSpan.onclick = (this.newQuiz.questions[1].choices[1].isCorrect = true);
-    //         newSwitchLabel.appendChild(newCheckBoxInput);
-    //         newSwitchLabel.appendChild(newSliderSpan);
+    loadQuestionInformation(selectedQuestion: Question) {
+        if (this.quizQuestionInfo) {
+            this.quizQuestionInfo.loadQuestionInformation(selectedQuestion);
+            this.selectedQuestionIndex = this.newQuiz.questions.findIndex((question) => question === selectedQuestion);
+        }
+    }
 
-    //         newDiv.appendChild(newChoiceLabel);
-    //         newDiv.appendChild(newChoiceInput);
-    //         newDiv.appendChild(newSwitchLabel);
+    onQuestionModified(event: { question: Question; index: number }) {
+        const modifiedQuestion = event.question;
+        const index = event.index;
+        const nonValidIndex = -1;
+        if (index !== nonValidIndex) {
+            if (index < this.newQuiz.questions.length) {
+                this.newQuiz.questions[index] = modifiedQuestion;
+            }
+        }
+    }
 
-    //         document.querySelector('#newChoice')?.appendChild(newDiv);
-    //     }
-    // }
+    isQuizFormValid(): boolean {
+        if (
+            this.newQuiz.questions.some((question) => this.isQuestionValid(question)) &&
+            this.newQuiz.title !== '' &&
+            this.newQuiz.description !== '' &&
+            this.newQuiz.duration !== 0
+        ) {
+            return true;
+        }
+        return false;
+    }
 
-    // addNewInput() {
-    //     const newInput = document.createElement('input');
-    //     newInput.setAttribute('placeholder', 'new input test');
-    //     newInput.type = 'text';
-    //     document.querySelector('#test')?.appendChild(newInput);
-    // }
+    isQuestionValid(question: Question): boolean {
+        return (
+            question.text.trim().length > 0 &&
+            question.type.trim().length > 0 &&
+            question.choices.length >= 2 &&
+            question.choices.some((choice) => choice.text.trim().length > 0) &&
+            question.choices.some((choice) => choice.isCorrect)
+        );
+    }
+
+    deleteQuestion(index: number): void {
+        if (index >= 0 && index < this.newQuiz.questions.length) {
+            this.newQuiz.questions.splice(index, 1);
+            this.selectedQuestionIndex = -1;
+            this.repositionQuestions(index);
+            this.quizQuestionInfo.resetForm();
+        }
+    }
+
+    repositionQuestions(index: number) {
+        for (let i = index; i < this.newQuiz.questions.length; i++) {
+            this.newQuiz.questions[index] = this.newQuiz.questions[index + 1];
+        }
+    }
 }

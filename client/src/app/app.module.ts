@@ -53,8 +53,16 @@ import { HostGamePageComponent } from './pages/host-game-page/host-game-page.com
         QuestionFormValidatorDirective,
         QuestionConfirmationComponent,
     ],
-    imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, 
-        ReactiveFormsModule, MatDialogModule],
+    imports: [
+        AppMaterialModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        BrowserModule,
+        FormsModule,
+        HttpClientModule,
+        ReactiveFormsModule,
+        MatDialogModule,
+    ],
     providers: [],
     bootstrap: [AppComponent],
 })

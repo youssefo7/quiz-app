@@ -3,9 +3,9 @@
         <legend>Informations générales</legend>
         <div id="title-div">
             <label class="textarea-label" for="newTitle">Titre :
-                <textarea type="text" name="newTitle" id="newTitle" placeholder="Titre quiz" [value]="titleValue" 
+                <input type="text" name="newTitle" id="newTitle" placeholder="Titre quiz" [value]="titleValue" 
                 [maxlength]="maxLengthTitle" (input)="onCharacterChangeTitle($event)" [appTitleExists]="getQuizList()" 
-                [disabled]="disableForm" formControlName="title" required></textarea><br>
+                [disabled]="disableForm" formControlName="title" required><br>
             </label><br>
             <span id="title-counter" class="counter">{{ counterTitle }}</span><br>
             <span id="verify-title" *ngIf="generalInfoForm.controls.title.invalid && (generalInfoForm.controls.title.dirty || generalInfoForm.controls.title.touched)">
@@ -15,16 +15,17 @@
 
         <div id="description-div">
             <label class="textarea-label" for="newDescription">Description :
-                <textarea type="text" name="newDescription" id="newDescription" placeholder="Description quiz" 
+                <input type="text" name="newDescription" id="newDescription" placeholder="Description quiz" 
                 [value]="descriptionValue" [maxlength]="maxLengthDescription" (input)="onCharacterChangeDescription($event)" 
-                [disabled]="disableForm" formControlName="description"></textarea>
+                [disabled]="disableForm" formControlName="description">
             </label><br>
             <span id="description-counter" class="counter">{{ counterDescription }}</span>
         </div>
 
         <div id="duration-div">
             <label id="duration-label" for="newDuration">Durée (en secondes) :
-                <input type="number" name="newDuration" [disabled]="disableForm" id="newDuration" min="10" max="60" placeholder="Durée question" [appRangeValidator]="{ min: 10, max: 60 }" formControlName="duration" required>
+                <input type="number" name="newDuration" [disabled]="disableForm" id="newDuration" min="10" max="60" 
+                placeholder="Durée question" [appRangeValidator]="{ min: 10, max: 60 }" formControlName="duration" required>
             </label><br>
             <span id="verify-duration" *ngIf="generalInfoForm.controls.duration.invalid">
                 La durée allouée doit être entre 10 et 60 secondes
