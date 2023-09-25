@@ -75,6 +75,7 @@
   display: flex;
   gap: 10px;
   padding-right: 3%;
+  margin: 0.5%;
 }
 
 .fa, .fas, .fa-solid {
@@ -87,6 +88,7 @@
 .fa:hover, .fas:hover, .fa-solid:hover{
   color: #060688;
   font-weight: bold;
+  cursor: pointer;
 }
 
 .nom {
@@ -97,11 +99,11 @@
 .actions {
   display: flex;
   justify-content: center;
-  margin-right: 3%;
+  margin-right: 4%;
 }
 
 .date {
   display: flex;
   justify-content: center;
-  margin-right: 4%;
+  margin-right: 3%;
 }
