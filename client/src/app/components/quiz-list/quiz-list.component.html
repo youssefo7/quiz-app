@@ -5,7 +5,8 @@
         Quiz
         <i class="fa-solid fa-plus" [title]="'Créer un quiz'"></i>
       </h1>
-      <i class="fa-solid fa-file-import fa-2xl" [title]="'Importer quiz (.json)'"></i>
+      <input id="fileInput" type="file" #fileInput (change)="handleImport($event)" accept=".json"/>
+      <i class="fa-solid fa-file-import fa-2xl" [title]="'Importer quiz (.json)'" (click)="fileInput.click()"></i>
     </div> 
     <div class="item-header">
       <p class="title" id="name">Nom</p>
