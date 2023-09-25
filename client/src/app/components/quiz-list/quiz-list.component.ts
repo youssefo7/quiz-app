@@ -82,18 +82,4 @@ export class QuizListComponent implements OnInit {
         popupInstance.config = config;
     }
 
-    openPopupEdit(quiz: Quiz): void {
-        const config: PopupMessageConfig = {
-            message: 'Vous serez redirigé vers la page de modification de ce quiz. Voulez-vous continuer?',
-            hasCancelButton: true,
-            okButtonText: 'Oui',
-            cancelButtonText: 'Non',
-            okButtonFunction: () => {
-                this.editQuiz(quiz);
-            },
-        };
-        const dialogRef = this.popup.open(PopupMessageComponent);
-        const popupInstance = dialogRef.componentInstance;
-        popupInstance.config = config;
-    }
 }
