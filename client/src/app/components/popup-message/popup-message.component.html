@@ -4,7 +4,9 @@
     </p>
 
     <div id="button-container">
-        <button id="cancel-btn" type="button" *ngIf="config.hasCancelButton" (click)="cancelFunctionWrapper()">{{ config.cancelButtonText }}</button>
-        <button id="ok-btn" type="button" *ngIf="config.hasOkButton" (click)="okFunctionWrapper()">{{ config.okButtonText }}</button>
+        <button id="cancel-btn" type="button" *ngIf="config.hasCancelButton" (click)="cancelFunctionWrapper()">
+            {{ config.cancelButtonText ?? 'Annuler' }}
+        </button>
+        <button id="ok-btn" type="button" (click)="okFunctionWrapper()">{{ config.okButtonText ?? 'OK' }}</button>
     </div>
 </div>

@@ -1,7 +1,7 @@
+// Has at least an Ok button
 export interface PopupMessageConfig {
     message: string;
-    hasOkButton?: boolean;
-    hasCancelButton?: boolean;
+    hasCancelButton: boolean;
     okButtonText?: string;
     cancelButtonText?: string;
     okButtonFunction?: () => void;

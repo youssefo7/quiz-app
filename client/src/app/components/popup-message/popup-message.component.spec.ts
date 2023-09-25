@@ -13,12 +13,15 @@ describe('PopupMessageComponent', () => {
 
     const basicPopupConfig: PopupMessageConfig = {
         message: 'Bonjour',
-        hasOkButton: true,
         hasCancelButton: true,
-        okButtonText: 'OK',
-        cancelButtonText: 'Annuler',
-        okButtonFunction: () => {},
-        cancelButtonFunction: () => {},
+        okButtonText: 'OK fourni',
+        cancelButtonText: 'Annuler fourni',
+        okButtonFunction: () => {
+            // empty
+        },
+        cancelButtonFunction: () => {
+            // empty
+        },
     };
 
     beforeEach(() => {
@@ -51,21 +54,35 @@ describe('PopupMessageComponent', () => {
     it("should display an ok button with appropriate text when requested in configuration's message", () => {
         const okButton: HTMLButtonElement = fixture.debugElement.nativeElement.querySelector('#ok-btn');
         expect(okButton).toBeTruthy();
-        expect(okButton.innerText).toEqual('OK');
+        expect(okButton.innerText).toEqual('OK fourni');
     });
 
     it("should display a cancel button with appropriate text when requested in configuration's message", () => {
         const cancelButton: HTMLButtonElement = fixture.debugElement.nativeElement.querySelector('#cancel-btn');
         expect(cancelButton).toBeTruthy();
-        expect(cancelButton.innerText).toEqual('Annuler');
+        expect(cancelButton.innerText).toEqual('Annuler fourni');
     });
 
-    it("should not display an ok button when not requested in configuration's message", () => {
-        component.config = { ...basicPopupConfig, hasOkButton: false };
+    it('should display default OK button text when none is given', () => {
+        const newConfig: PopupMessageConfig = { ...basicPopupConfig };
+        delete newConfig.okButtonText;
+        delete newConfig.okButtonFunction;
+        component.config = newConfig;
         fixture.detectChanges();
 
         const okButton: HTMLButtonElement = fixture.debugElement.nativeElement.querySelector('#ok-btn');
-        expect(okButton).toBeFalsy();
+        expect(okButton.innerText).toEqual('OK');
+    });
+
+    it('should display default cancel button text when none is given', () => {
+        const newConfig: PopupMessageConfig = { ...basicPopupConfig };
+        delete newConfig.cancelButtonText;
+        delete newConfig.cancelButtonFunction;
+        component.config = newConfig;
+        fixture.detectChanges();
+
+        const cancelButton: HTMLButtonElement = fixture.debugElement.nativeElement.querySelector('#cancel-btn');
+        expect(cancelButton.innerText).toEqual('Annuler');
     });
 
     it("should not display a cancel button when not requested in configuration's message", () => {
@@ -77,24 +94,44 @@ describe('PopupMessageComponent', () => {
     });
 
     it('should call given function when the ok button is clicked and close the popup', () => {
-        const okFunctionSpy = spyOn<PopupMessageConfig, any>(basicPopupConfig, 'okButtonFunction'); // error when not using any...
+        // Only way since we could't make a spy for this function without an error
+        let okFunctionCalled = false;
+        const newConfig = {
+            ...basicPopupConfig,
+            okButtonFunction: () => {
+                okFunctionCalled = true;
+            },
+        };
+        component.config = newConfig;
+        fixture.detectChanges();
+
         const okFunctionWrapperSpy = spyOn(component, 'okFunctionWrapper').and.callThrough();
         const okButton: HTMLButtonElement = fixture.debugElement.nativeElement.querySelector('#ok-btn');
         okButton.click();
 
         expect(okFunctionWrapperSpy).toHaveBeenCalled();
-        expect(okFunctionSpy).toHaveBeenCalled();
+        expect(okFunctionCalled).toBeTrue();
         expect(matDialogRefSpy.close).toHaveBeenCalled();
     });
 
     it('should call given function when the cancel button is clicked and close the popup', () => {
-        const cancelFunctionSpy = spyOn<PopupMessageConfig, any>(basicPopupConfig, 'cancelButtonFunction'); // error when not using any...
+        // Only way since we could't make a spy for this function without an error
+        let cancelFunctionCalled = false;
+        const newConfig = {
+            ...basicPopupConfig,
+            cancelButtonFunction: () => {
+                cancelFunctionCalled = true;
+            },
+        };
+        component.config = newConfig;
+        fixture.detectChanges();
+
         const cancelFunctionWrapperSpy = spyOn(component, 'cancelFunctionWrapper').and.callThrough();
         const cancelButton: HTMLButtonElement = fixture.debugElement.nativeElement.querySelector('#cancel-btn');
         cancelButton.click();
 
         expect(cancelFunctionWrapperSpy).toHaveBeenCalled();
-        expect(cancelFunctionSpy).toHaveBeenCalled();
+        expect(cancelFunctionCalled).toBeTrue();
         expect(matDialogRefSpy.close).toHaveBeenCalled();
     });
 });
