@@ -1,8 +1,11 @@
-// import { ImportService } from './../../services/import.service';
+//  import { ImportService } from '@app/services/import.service';
 import { CommunicationService } from '@app/services/communication.service';
 import { Component, OnInit } from '@angular/core';
 import { Quiz } from '@app/interfaces/quiz';
 import { BehaviorSubject } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
+import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 
 @Component({
     selector: 'app-quiz-list',
@@ -12,7 +15,10 @@ import { BehaviorSubject } from 'rxjs';
 export class QuizListComponent implements OnInit {
     quizList: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
 
-    constructor(private communicationService: CommunicationService) {}
+    constructor(
+        private communicationService: CommunicationService,
+        private popup: MatDialog,
+    ) {}
 
     ngOnInit(): void {
         this.fetchQuizzes();
@@ -59,5 +65,20 @@ export class QuizListComponent implements OnInit {
     toggleVisibility(quiz: Quiz): void {
         quiz.visibility = !quiz.visibility;
         this.communicationService.updateQuiz(quiz.id, quiz).subscribe();
+    }
+
+    openPopup(quiz: Quiz): void {
+        const config: PopupMessageConfig = {
+            message: 'Are you sure you want to delete this quiz? \n This action is not reversible.',
+            hasCancelButton: true,
+            okButtonText: 'Yes',
+            cancelButtonText: 'Cancel',
+            okButtonFunction: () => {
+                this.deleteQuiz(quiz);
+            },
+        };
+        const dialogRef = this.popup.open(PopupMessageComponent);
+        const popupInstance = dialogRef.componentInstance;
+        popupInstance.config = config;
     }
 }
