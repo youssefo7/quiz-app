@@ -59,7 +59,7 @@ describe('GamePageComponent', () => {
         expect(component.link).toEqual('/home');
     });
 
-    it('should link to /admin if route does contain "test"', () => {
+    it('should link to /game/new if route does contain "test"', () => {
         component.checkGameRoute(true);
         expect(component.title).toEqual('Partie - Test');
         expect(component.link).toEqual('/game/new');

@@ -9,11 +9,15 @@
             *ngFor="let choice of question?.choices; index as i"
             type="button"
             (click)="toggleChoice(i)"
-            [ngClass]="{ active: choicesChosen[i] }"
-            [ngStyle]="buttonStyle[i]"
+            (click)="setSubmitButtonStateOnChoices()"
+            [ngClass]="{ active: chosenChoices[i] }"
+            [ngStyle]="choiceButtonStyle[i]"
+            [disabled]="isChoiceButtonDisabled"
         >
             {{ i + 1 }}. {{ choice.text }}
         </button>
     </div>
-    <div id="submit-zone"><input (click)="submitAnswerOnClickEvent()" type="button" value="Soumettre" /></div>
+    <div id="submit-zone">
+        <input [ngStyle]="submitButtonStyle" (click)="submitAnswerOnClickEvent()" type="button" value="Soumettre" [disabled]="isSubmitDisabled" />
+    </div>
 </div>

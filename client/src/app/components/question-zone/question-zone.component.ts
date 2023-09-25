@@ -13,18 +13,18 @@ import { Subscription } from 'rxjs';
 })
 export class QuestionZoneComponent implements OnInit, OnDestroy {
     @Output() pointsEarned: EventEmitter<number>;
-    timerTime: number;
     isQuestionTransition: boolean;
     currentQuestionIndex: number;
     points: number;
     quiz: Quiz;
     question: Question;
-    choicesChosen: boolean[];
-    buttonStyle: { backgroundColor: string }[];
+    chosenChoices: boolean[];
+    choiceButtonStyle: { backgroundColor: string }[];
+    submitButtonStyle: { backgroundColor: string };
     bonusMessage: string;
     pointsDisplay: { display: string };
-    bonusDisplay: { display: string };
-    keyPressed: string;
+    isSubmitDisabled: boolean;
+    isChoiceButtonDisabled: boolean;
     private mySubscription: Subscription;
 
     // Raison: J'injecte 5 services nécessaire dans mon constructeur
@@ -38,13 +38,12 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     ) {
         this.pointsEarned = new EventEmitter<number>();
         this.isQuestionTransition = false;
-        // this.isQuestionDone = new BehaviorSubject<boolean>(false);
-        // this.currentQuestion = new BehaviorSubject<number>(0);
         this.currentQuestionIndex = 0;
         this.points = 0;
-        this.bonusMessage = '';
-        this.pointsDisplay = { display: 'none' };
-        this.buttonStyle = [{ backgroundColor: '' }];
+        this.choiceButtonStyle = [{ backgroundColor: '' }];
+        this.submitButtonStyle = { backgroundColor: '' };
+        this.isSubmitDisabled = true;
+        this.isChoiceButtonDisabled = false;
     }
 
     @HostListener('keypress', ['$event'])
@@ -56,17 +55,20 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
 
     @HostListener('keyup', ['$event'])
     buttonDetect(event: KeyboardEvent) {
-        this.keyPressed = event.key;
-        if (this.keyPressed === 'Enter') {
+        const keyPressed = event.key;
+
+        if (keyPressed === 'Enter') {
+            if (this.isSubmitDisabled) return;
             this.submitAnswerOnClickEvent();
         } else {
-            const keyNumber = parseInt(this.keyPressed, 10) - 1;
-            this.toggleChoice(keyNumber);
+            const choiceIndex = parseInt(keyPressed, 10) - 1;
+            this.toggleChoice(choiceIndex);
+            this.setSubmitButtonStateOnChoices();
         }
     }
 
     focusOnButton() {
-        this.elementRef.nativeElement.querySelector('input[type="button"]')?.focus();
+        this.elementRef.nativeElement.querySelector('button')?.focus();
     }
 
     async getQuiz() {
@@ -82,54 +84,83 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         }
     }
 
-    toggleChoice(index: number) {
-        if (isNaN(index) || index < 0 || index >= this.choicesChosen.length) return;
-        this.choicesChosen[index] = !this.choicesChosen[index];
+    subscribeToTimer() {
+        this.mySubscription = this.timeService.getTime().subscribe((time: number) => {
+            const timerTime = time;
+            if (timerTime === 0) {
+                if (!this.isQuestionTransition) {
+                    this.submitAnswerOnCountdownEvent();
+                    this.isQuestionTransition = true;
+                } else {
+                    this.isQuestionTransition = false;
+                    ++this.currentQuestionIndex;
+                    this.getQuestion(this.currentQuestionIndex);
+                }
+            }
+        });
     }
 
     getQuestion(index: number = 0) {
         if (index >= this.quiz.questions.length) return;
         this.question = this.quiz.questions[index];
-        this.choicesChosen = new Array(this.question.choices.length).fill(false);
+        this.chosenChoices = new Array(this.question.choices.length).fill(false);
         this.question.choices.forEach((choice, buttonIndex) => {
             this.setButtonsToInitState(buttonIndex);
         });
     }
 
-    async loadQuestions() {
-        await this.getQuiz();
-        this.getQuestion();
+    toggleChoice(index: number) {
+        if (isNaN(index) || index < 0 || index >= this.chosenChoices.length) return;
+        this.chosenChoices[index] = !this.chosenChoices[index];
     }
 
-    showPoints() {
-        this.pointsDisplay = { display: 'block' };
+    disableSubmitButton() {
+        this.isSubmitDisabled = true;
+        this.submitButtonStyle = { backgroundColor: 'grey' };
     }
 
-    hidePoints() {
-        this.pointsDisplay = { display: 'none' };
+    setSubmitButtonStateOnChoices() {
+        if (this.chosenChoices.some((choice) => choice === true)) {
+            this.isSubmitDisabled = false;
+            this.submitButtonStyle = { backgroundColor: 'green' };
+        } else {
+            this.isSubmitDisabled = true;
+            this.submitButtonStyle = { backgroundColor: 'grey' };
+        }
     }
 
-    isAnswerGood() {
-        const isAnswerGood = this.choicesChosen.every((answer, index) => answer === this.question.choices[index].isCorrect);
-        return isAnswerGood;
+    setButtonsToInitState(index: number) {
+        this.choiceButtonStyle[index] = { backgroundColor: '' };
+        this.isChoiceButtonDisabled = false;
+        this.submitButtonStyle = { backgroundColor: '' };
+        this.hidePoints();
+    }
+
+    setButtonsStateOnSubmit(index: number) {
+        this.choiceButtonStyle[index] = {
+            backgroundColor: this.question.choices[index].isCorrect ? 'rgb(97, 207, 72)' : 'red',
+        };
+        this.isChoiceButtonDisabled = true;
     }
 
     async submitAnswerOnClickEvent() {
         this.gameService.setButtonPressState = true;
-        this.elementRef.nativeElement.querySelector('input[type="button"]')?.setAttribute('disabled', 'true');
-        this.elementRef.nativeElement.querySelector('input[type="button"]')?.setAttribute('style', 'background-color: grey');
+        this.disableSubmitButton();
         this.displayCorrectAnswer();
         this.givePoints();
         this.isQuestionTransition = true;
     }
 
     async submitAnswerOnCountdownEvent() {
-        this.elementRef.nativeElement.querySelector('input[type="button"]')?.setAttribute('disabled', 'true');
-        this.elementRef.nativeElement.querySelector('input[type="button"]')?.setAttribute('style', 'background-color: grey');
+        this.disableSubmitButton();
         this.displayCorrectAnswer();
         this.givePoints();
     }
 
+    isAnswerGood() {
+        const isAnswerGood = this.chosenChoices.every((answer, index) => answer === this.question.choices[index].isCorrect);
+        return isAnswerGood;
+    }
     displayCorrectAnswer() {
         this.question.choices.forEach((choice, index) => {
             this.setButtonsStateOnSubmit(index);
@@ -137,6 +168,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.showPoints();
     }
 
+    // TODO: Ajouter le point bonus seulement au joueur qui à soumis la bonne réponse en 1er (Sprint 2)
     givePoints() {
         if (!this.isAnswerGood()) {
             this.points = 0;
@@ -149,37 +181,17 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.pointsEarned.emit(this.points);
     }
 
-    setButtonsToInitState(index: number) {
-        this.buttonStyle[index] = {
-            backgroundColor: '',
-        };
-        this.elementRef.nativeElement.querySelectorAll('button').forEach((button: HTMLButtonElement) => button.removeAttribute('disabled'));
-        this.elementRef.nativeElement.querySelector('input[type="button"]')?.removeAttribute('disabled');
-        this.elementRef.nativeElement.querySelector('input[type="button"]').style.removeProperty('background-color');
-        this.hidePoints();
+    showPoints() {
+        this.pointsDisplay = { display: 'block' };
     }
 
-    setButtonsStateOnSubmit(index: number) {
-        this.buttonStyle[index] = {
-            backgroundColor: this.question.choices[index].isCorrect ? 'rgb(97, 207, 72)' : 'red',
-        };
-        this.elementRef.nativeElement.querySelectorAll('button').forEach((button: HTMLButtonElement) => button.setAttribute('disabled', 'true'));
+    hidePoints() {
+        this.pointsDisplay = { display: 'none' };
     }
 
-    subscribeToTimer() {
-        this.mySubscription = this.timeService.getTime().subscribe((time: number) => {
-            this.timerTime = time;
-            if (this.timerTime === 0) {
-                if (!this.isQuestionTransition) {
-                    this.submitAnswerOnCountdownEvent();
-                    this.isQuestionTransition = true;
-                } else {
-                    this.isQuestionTransition = false;
-                    ++this.currentQuestionIndex;
-                    this.getQuestion(this.currentQuestionIndex);
-                }
-            }
-        });
+    async loadQuestions() {
+        await this.getQuiz();
+        this.getQuestion();
     }
 
     ngOnInit() {
