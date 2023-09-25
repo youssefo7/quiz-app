@@ -11,7 +11,6 @@ export class ProfileComponent implements OnInit {
     name: string;
 
     constructor(private route: ActivatedRoute) {
-        this.points = 0;
         this.name = '';
     }
 

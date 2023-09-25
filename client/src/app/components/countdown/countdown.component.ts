@@ -55,10 +55,12 @@ export class CountdownComponent implements OnInit {
     }
 
     async gameClock() {
+        const lastQuestionIndex = this.quiz.questions.length - 1;
         // Raison: Boucle for in/of pas pertinent, car je n'ai pas besoin des éléments du tableau
         // eslint-disable-next-line @typescript-eslint/prefer-for-of
-        for (let i = 0; i < this.quiz.questions.length; i++) {
+        for (let i = 0; i <= lastQuestionIndex; i++) {
             await this.questionClock();
+            if (i === lastQuestionIndex) break;
             await this.transitionClock();
         }
         this.leaveGame();
