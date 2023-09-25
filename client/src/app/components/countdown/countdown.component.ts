@@ -13,7 +13,6 @@ export class CountdownComponent implements OnInit {
     quiz: Quiz;
     message: string;
     clockStyle: { backgroundColor: string };
-    private readonly transitionTime: number;
 
     // Raison: J'injecte 4 services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
@@ -22,9 +21,7 @@ export class CountdownComponent implements OnInit {
         private communicationService: CommunicationService,
         private route: ActivatedRoute,
         private router: Router,
-    ) {
-        this.transitionTime = 3;
-    }
+    ) {}
 
     get time(): number {
         return this.timeService.time;
@@ -43,9 +40,10 @@ export class CountdownComponent implements OnInit {
     }
 
     async transitionClock() {
+        const transitionTime = 3;
         this.message = 'Préparez-vous!';
         this.clockStyle = { backgroundColor: '#E5E562' };
-        await this.timeService.startTimer(this.transitionTime);
+        await this.timeService.startTimer(transitionTime);
     }
 
     async questionClock() {
@@ -69,10 +67,11 @@ export class CountdownComponent implements OnInit {
     async leaveGame() {
         const isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
         if (!isTestGame) return;
-        const exitTransitionTime = 3000;
-        setTimeout(() => {
-            this.router.navigateByUrl('/game/new');
-        }, exitTransitionTime);
+        const exitTransitionTime = 3;
+        this.message = 'Redirection vers «Organiser Partie»';
+        this.clockStyle = { backgroundColor: 'white' };
+        await this.timeService.startTimer(exitTransitionTime);
+        this.router.navigateByUrl('/game/new');
     }
 
     async loadTimer() {
