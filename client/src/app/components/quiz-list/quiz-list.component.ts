@@ -67,14 +67,29 @@ export class QuizListComponent implements OnInit {
         this.communicationService.updateQuiz(quiz.id, quiz).subscribe();
     }
 
-    openPopup(quiz: Quiz): void {
+    openPopupDelete(quiz: Quiz): void {
         const config: PopupMessageConfig = {
-            message: 'Are you sure you want to delete this quiz? \n This action is not reversible.',
+            message: "Ëtes-vous sûr de vouloir supprimer ce quiz? Cette action n'est pas reversible.",
             hasCancelButton: true,
-            okButtonText: 'Yes',
-            cancelButtonText: 'Cancel',
+            okButtonText: 'Supprimer',
+            cancelButtonText: 'Annuler',
             okButtonFunction: () => {
                 this.deleteQuiz(quiz);
+            },
+        };
+        const dialogRef = this.popup.open(PopupMessageComponent);
+        const popupInstance = dialogRef.componentInstance;
+        popupInstance.config = config;
+    }
+
+    openPopupEdit(quiz: Quiz): void {
+        const config: PopupMessageConfig = {
+            message: 'Vous serez redirigé vers la page de modification de ce quiz. Voulez-vous continuer?',
+            hasCancelButton: true,
+            okButtonText: 'Oui',
+            cancelButtonText: 'Non',
+            okButtonFunction: () => {
+                this.editQuiz(quiz);
             },
         };
         const dialogRef = this.popup.open(PopupMessageComponent);
