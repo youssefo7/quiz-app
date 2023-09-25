@@ -22,6 +22,7 @@ import { TopBarComponent } from './components/top-bar/top-bar.component';
 import { AdminPageComponent } from './pages/admin-page/admin-page.component';
 import { CreateGamePageComponent } from './pages/create-game-page/create-game-page.component';
 import { HostGamePageComponent } from './pages/host-game-page/host-game-page.component';
+import { PopupMessageComponent } from './components/popup-message/popup-message.component';
 
 /**
  * Main module that is used in main.ts.
@@ -47,6 +48,7 @@ import { HostGamePageComponent } from './pages/host-game-page/host-game-page.com
         CreateGamePageComponent,
         ChatComponent,
         CountdownComponent,
+        PopupMessageComponent,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, MatDialogModule],
     providers: [],
