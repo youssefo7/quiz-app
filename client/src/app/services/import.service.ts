@@ -21,7 +21,7 @@ export class ImportService {
         }
     }
 
-    // TODO : add id verification in backend to avoid changing id if one already exists
+    // TODO : reset input if importing again after successful previous import
     async importQuiz() {
         const fileReader = new FileReader();
 
@@ -40,15 +40,25 @@ export class ImportService {
 
             quiz.visibility = false;
 
+            // TODO : add validation for description in backend
             if (!quiz.description) {
                 quiz.description = '';
             }
             // last value from is used to get promise the observable, can't use await with observable ?
             // await this.communicationService.addQuiz(quiz); not working alone
             // https://rxjs.dev/api/index/function/lastValueFrom
-            await lastValueFrom(this.communicationService.addQuiz(quiz));
+            await lastValueFrom(this.communicationService.importQuiz(quiz));
         } catch (error) {
-            throw new Error('Error importing quiz: ' + error);
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+        }
+    }
+
+    resetInput(event: Event) {
+        const input = event.target as HTMLInputElement;
+        if (input) {
+            input.value = '';
         }
     }
 }
