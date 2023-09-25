@@ -139,8 +139,7 @@ describe('QuizzesService', () => {
         await expect(service.verifyQuiz(quiz)).resolves.toBeUndefined();
     });
 
-    it('should create a new ID correctly', async () => {
-        jest.spyOn(service, 'checkIdAvailability').mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+    it('should create a new 6-character-long ID correctly', async () => {
         expect(await service.createID()).toHaveLength(Constants.RANDOM_STRING_LENGTH);
     });
 

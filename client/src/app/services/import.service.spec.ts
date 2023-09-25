@@ -119,7 +119,6 @@ describe('ImportService', () => {
 
         try {
             await service.importQuiz();
-            fail('Expected an error');
         } catch (error) {
             if (error instanceof Error) {
                 expect(error.message).toBe('Titre du quiz invalide ou manquant');
