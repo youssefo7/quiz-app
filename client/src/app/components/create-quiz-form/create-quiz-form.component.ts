@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { AfterViewInit, Component, Input, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { QuizGeneralInfoComponent } from '@app/components/quiz-general-info/quiz-general-info.component';
 import { QuizQuestionInfoComponent } from '@app/components/quiz-question-info/quiz-question-info.component';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
@@ -12,26 +13,45 @@ import { BehaviorSubject } from 'rxjs';
     templateUrl: './create-quiz-form.component.html',
     styleUrls: ['./create-quiz-form.component.scss'],
 })
-export class CreateQuizFormComponent implements OnInit {
+export class CreateQuizFormComponent implements OnInit, AfterViewInit {
     @Input() questionIndex: number;
     @ViewChild(QuizQuestionInfoComponent, { static: false }) quizQuestionInfo: QuizQuestionInfoComponent;
-    @ViewChild('generalInfoForm') generalInfoForm: FormGroup;
+    @ViewChild(QuizGeneralInfoComponent, { static: false }) quizGeneralInfo: QuizGeneralInfoComponent;
     message: BehaviorSubject<string> = new BehaviorSubject<string>('');
     quizzes: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
     selectedQuiz: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
-    // selectedQuestionIndex: number;
     newQuiz: Quiz;
-    // selectedQuestion: Question;
+    isQuizToModify: boolean;
+    quizId: string;
 
     constructor(
         private readonly communicationService: CommunicationService,
         private quizManagerService: NewQuizManagerService,
+        private route: ActivatedRoute,
     ) {}
 
     ngOnInit(): void {
-        this.newQuiz = this.quizManagerService.getNewQuiz();
         this.getQuizListFromServer();
         this.questionIndex = 0;
+        this.newQuiz = this.quizManagerService.getNewQuiz();
+
+        const routeParams = this.route.snapshot.paramMap;
+        this.quizId = String(routeParams.get('id'));
+        // if(this.quizId != null) {
+        //     this.quizManagerService.getQuizById(this.quizId);
+        //     this.newQuiz = this.quizManagerService.getQuizToModify();
+        // }
+    }
+
+    ngAfterViewInit(): void {
+        if (this.quizId != null) {
+            this.isQuizToModify = true;
+            // const quizToModify = this.quizManagerService.getQuizToModify();
+            // console.log(quizToModify);
+            // this.loadQuizToModify(quizToModify);
+        } else {
+            this.isQuizToModify = false;
+        }
     }
 
     getQuizListFromServer(): void {
@@ -46,18 +66,18 @@ export class CreateQuizFormComponent implements OnInit {
         });
     }
 
-    addQuizToServer(newQuiz: Quiz): void {
-        this.communicationService.addQuiz(newQuiz).subscribe({
-            next: () => {
-                this.getQuizListFromServer();
-                newQuiz.id = '';
-            },
-            error: (err: HttpErrorResponse) => {
-                const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
-                this.message.next(responseString);
-            },
-        });
-    }
+    // addQuizToServer(newQuiz: Quiz): void {
+    //     this.communicationService.addQuiz(newQuiz).subscribe({
+    //         next: () => {
+    //             this.getQuizListFromServer();
+    //             newQuiz.id = '';
+    //         },
+    //         error: (err: HttpErrorResponse) => {
+    //             const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
+    //             this.message.next(responseString);
+    //         },
+    //     });
+    // }
 
     getQuizFromServer(id: string): void {
         this.communicationService.getQuiz(id).subscribe({
@@ -83,6 +103,11 @@ export class CreateQuizFormComponent implements OnInit {
             },
         });
     }
+
+    // loadQuizToModify(quizToModify: Quiz) {
+    //     this.quizGeneralInfo.loadGeneralInformation(quizToModify);
+    //     // this.newQuiz = quizToModify;
+    // }
 
     modifyQuestion(selectedQuestion: Question, selectedIndex: number) {
         this.quizQuestionInfo.loadQuestionInformation(selectedQuestion, selectedIndex);
@@ -113,10 +138,11 @@ export class CreateQuizFormComponent implements OnInit {
     deleteQuestion(index: number): void {
         if (index >= 0 && index < this.newQuiz.questions.length) {
             this.newQuiz.questions.splice(index, 1);
-            // this.selectedQuestionIndex = -1;
-            // this.repositionQuestions(index);
             this.quizQuestionInfo.resetForm();
         }
+        // if(this.isQuizToModify && this.quizId !== null) {
+        //     this.quizManagerService.updateQuiz(this.quizId, this.newQuiz);
+        // }
     }
 
     // repositionQuestions(index: number) {
@@ -140,6 +166,17 @@ export class CreateQuizFormComponent implements OnInit {
             this.newQuiz.questions[index + 1] = this.newQuiz.questions[index];
             this.newQuiz.questions[index] = tmp;
         }
+    }
+
+    saveQuiz() {
+        // if(!this.isQuizToModify) {
+        this.quizManagerService.addNewQuiz(this.newQuiz);
+        // }
+        // else {
+        //     this.quizManagerService.updateQuiz(this.quizId, this.newQuiz);
+        //     this.isQuizToModify = false;
+        //     this.quizId = '';
+        // }
     }
 }
 

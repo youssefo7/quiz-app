@@ -21,7 +21,8 @@
     </div>
     <h2>Add New Quiz</h2>
     <form #addQuizForm="ngForm">
-        <app-quiz-general-info name="quiz-general-info" #generalInfoForm></app-quiz-general-info>
+        <app-quiz-general-info #generalInfoForm [isQuizToModify]="isQuizToModify"></app-quiz-general-info>
+        <!-- #generalInfoForm -->
         <label>Liste de questions : </label>
         <div id="all-question-elements">
             <div *ngFor="let question of newQuiz.questions; let i = index" class="question-container">
@@ -43,11 +44,11 @@
             </div>
             <div id="new-question-form">
                 <app-quiz-question-info >
-
                 </app-quiz-question-info> 
             </div>
         </div>
-        <button (click)="addQuizToServer(newQuiz)" [disabled]="!isQuizFormValid()">Add Quiz</button>
+        <button (click)="saveQuiz()">Add Quiz</button>
+        <!-- [disabled]="!isQuizFormValid()" -->
     </form>
 </div>
 

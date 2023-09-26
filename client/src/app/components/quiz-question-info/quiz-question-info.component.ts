@@ -11,9 +11,6 @@ import { NewQuizManagerService } from '@app/services/new-quiz-manager.service';
     styleUrls: ['./quiz-question-info.component.scss'],
 })
 export class QuizQuestionInfoComponent implements OnInit {
-    // @Input() modifiedQuestionIndex: number | null;
-    // @Input() modifiedQuestion: Question;
-    // @Output() questionModified = new EventEmitter<{ question: Question; index: number }>();
     modifiedQuestion: Question;
     modifiedIndex: number;
     newQuiz: Quiz;
@@ -45,7 +42,7 @@ export class QuizQuestionInfoComponent implements OnInit {
         this.newQuiz = this.quizManagerService.getNewQuiz();
         this.maxChoices = 4;
         this.defaultPoints = 10;
-        this.isModifiedQuestion = false;
+        // this.isModifiedQuestion = false;
         this.questionInfoForm = this.fb.group({
             type: ['', Validators.required],
             text: ['', Validators.required],

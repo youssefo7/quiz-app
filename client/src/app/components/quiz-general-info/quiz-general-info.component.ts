@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { Quiz } from '@app/interfaces/quiz';
 import { NewQuizManagerService } from '@app/services/new-quiz-manager.service';
@@ -9,6 +9,7 @@ import { NewQuizManagerService } from '@app/services/new-quiz-manager.service';
     styleUrls: ['./quiz-general-info.component.scss'],
 })
 export class QuizGeneralInfoComponent implements OnInit {
+    @Input() isQuizToModify: boolean;
     myForm: FormGroup;
     newQuiz: Quiz;
 
@@ -88,4 +89,11 @@ export class QuizGeneralInfoComponent implements OnInit {
         this.newQuiz.description = this.generalInfoForm.value.description as unknown as string;
         this.newQuiz.duration = this.generalInfoForm.value?.duration as number;
     }
+
+    // loadGeneralInformation(selectedQuiz: Quiz) {
+    //     const formControl = this.generalInfoForm.controls;
+    //     formControl.title.setValue(selectedQuiz.title);
+    //     formControl.description.setValue(selectedQuiz.description);
+    //     formControl.duration.setValue(selectedQuiz.duration);
+    // }
 }

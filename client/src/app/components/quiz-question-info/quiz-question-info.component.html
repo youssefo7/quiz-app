@@ -1,4 +1,5 @@
-<form [formGroup]="questionInfoForm" [ngClass]="{ 'disabled-form': disableForm}" [appQuestionFormValidator]="questionInfoForm">
+<form [formGroup]="questionInfoForm" [ngClass]="{ 'disabled-form': disableForm}">
+    <!-- [appQuestionFormValidator]="questionInfoForm" -->
   <fieldset id="create-question-container" [disabled]="disableForm">
       <legend>Nouvelle question : </legend>
       <div id="general-question-info">
@@ -39,7 +40,7 @@
               <div class="choice" [formGroupName]="i"> {{i + 1}}.
                 <button type="button" (click)="moveChoiceUp(i)" class="btn btn-secondary" [disabled]="i === 0">Move Up</button>
                 <button type="button" (click)="moveChoiceDown(i)" class="btn btn-secondary" [disabled]="i === choices.length - 1">Move Down</button>
-                  <input type="text" id="newChoice"formControlName="text" minLength="1" placeholder="Choice {{ i + 1 }}" [required]="i < 2">
+                  <input type="text" id="newChoice" formControlName="text" minLength="1" placeholder="Choice {{ i + 1 }}" [required]="i < 2">
                   <label class="switch">
                     <input type="checkbox" formControlName="isCorrect">
                     <span class="slider round"></span>

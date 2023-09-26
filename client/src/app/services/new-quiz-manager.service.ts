@@ -15,6 +15,7 @@ export class NewQuizManagerService {
     quizzes: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
     selectedQuiz: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
     choiceIndex: number;
+    private quizToModify: Quiz;
 
     private newQuiz: Quiz = {
         $schema: '',
@@ -60,7 +61,19 @@ export class NewQuizManagerService {
         this.communicationService.addQuiz(newQuiz).subscribe({
             next: () => {
                 this.getQuizListFromServer();
-                newQuiz.id = '';
+            },
+            error: (err: HttpErrorResponse) => {
+                const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
+                this.message = responseString;
+            },
+        });
+    }
+
+    updateQuizOnServer(id: string, updatedGame: Quiz): void {
+        this.communicationService.updateQuiz(id, updatedGame).subscribe({
+            next: (game) => {
+                this.selectedQuiz.next(game);
+                this.getQuizListFromServer();
             },
             error: (err: HttpErrorResponse) => {
                 const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
@@ -73,6 +86,18 @@ export class NewQuizManagerService {
         this.communicationService.getQuiz(id).subscribe({
             next: (quiz) => {
                 this.selectedQuiz.next(quiz);
+            },
+            error: (err: HttpErrorResponse) => {
+                const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
+                this.message = responseString;
+            },
+        });
+    }
+
+    getQuizById(id: string): void {
+        this.communicationService.getQuiz(id).subscribe({
+            next: (quiz) => {
+                this.quizToModify = quiz;
             },
             error: (err: HttpErrorResponse) => {
                 const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
@@ -114,5 +139,25 @@ export class NewQuizManagerService {
         if (index !== undefined && index !== null && index >= 0 && index < this.newQuiz.questions.length) {
             this.newQuiz.questions[index] = question;
         }
+    }
+
+    modifyQuiz(selectedQuiz: Quiz) {
+        this.quizToModify = selectedQuiz;
+    }
+
+    setQuizToModify(quizToModify: Quiz) {
+        this.quizToModify = quizToModify;
+    }
+
+    getQuizToModify() {
+        return this.quizToModify;
+    }
+
+    addNewQuiz(quiz: Quiz) {
+        this.addQuizToServer(quiz);
+    }
+
+    updateQuiz(id: string, quiz: Quiz) {
+        this.updateQuizOnServer(id, quiz);
     }
 }
