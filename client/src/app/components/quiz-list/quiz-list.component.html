@@ -3,9 +3,12 @@
     <div class="list-title">
       <h1>
         Quiz
-        <i class="fa-solid fa-plus" [title]="'Créer un quiz'"></i>
+        <i class="fa-solid fa-plus iconClick" [title]="'Créer un quiz'"></i>
       </h1>
-      <i class="fa-solid fa-file-import fa-2xl" [title]="'Importer quiz (.json)'"></i>
+      <label for="fileInput">
+        <i class="fa-solid fa-file-import fa-2xl iconClick" [title]="'Importer quiz (.json)'"></i>
+      </label>
+      <input id="fileInput" type="file" (change)="handleImport($event)" accept=".json"/>
     </div> 
     <div class="item-header">
       <p class="title" id="name">Nom</p>
