@@ -21,6 +21,7 @@ export class CreateQuizFormComponent implements OnInit, AfterViewInit {
     quizzes: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
     selectedQuiz: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
     newQuiz: Quiz;
+    modifyQuiz: Quiz;
     isQuizToModify: boolean;
     quizId: string;
 
@@ -31,24 +32,24 @@ export class CreateQuizFormComponent implements OnInit, AfterViewInit {
     ) {}
 
     ngOnInit(): void {
+        this.newQuiz = this.quizManagerService.getNewQuiz();
+        this.modifyQuiz = this.quizManagerService.getQuizToModify();
         this.getQuizListFromServer();
         this.questionIndex = 0;
-        this.newQuiz = this.quizManagerService.getNewQuiz();
-
         const routeParams = this.route.snapshot.paramMap;
         this.quizId = String(routeParams.get('id'));
-        // if(this.quizId != null) {
-        //     this.quizManagerService.getQuizById(this.quizId);
-        //     this.newQuiz = this.quizManagerService.getQuizToModify();
-        // }
     }
 
     ngAfterViewInit(): void {
-        if (this.quizId != null) {
-            this.isQuizToModify = true;
-            // const quizToModify = this.quizManagerService.getQuizToModify();
-            // console.log(quizToModify);
-            // this.loadQuizToModify(quizToModify);
+        this.newQuiz = this.quizManagerService.getNewQuiz();
+        if (this.quizId !== null) {
+            this.quizManagerService.isQuizBeingModified = true;
+            if(this.modifyQuiz) {
+                this.newQuiz = this.modifyQuiz;
+                this.quizGeneralInfo.loadGeneralData();
+                this.quizQuestionInfo.loadQuestionData();
+                this.isQuizToModify = true;
+            }
         } else {
             this.isQuizToModify = false;
         }
@@ -66,18 +67,18 @@ export class CreateQuizFormComponent implements OnInit, AfterViewInit {
         });
     }
 
-    // addQuizToServer(newQuiz: Quiz): void {
-    //     this.communicationService.addQuiz(newQuiz).subscribe({
-    //         next: () => {
-    //             this.getQuizListFromServer();
-    //             newQuiz.id = '';
-    //         },
-    //         error: (err: HttpErrorResponse) => {
-    //             const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
-    //             this.message.next(responseString);
-    //         },
-    //     });
-    // }
+    addQuizToServer(newQuiz: Quiz): void {
+        this.communicationService.addQuiz(newQuiz).subscribe({
+            next: () => {
+                this.getQuizListFromServer();
+                newQuiz.id = '';
+            },
+            error: (err: HttpErrorResponse) => {
+                const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
+                this.message.next(responseString);
+            },
+        });
+    }
 
     getQuizFromServer(id: string): void {
         this.communicationService.getQuiz(id).subscribe({
@@ -103,11 +104,6 @@ export class CreateQuizFormComponent implements OnInit, AfterViewInit {
             },
         });
     }
-
-    // loadQuizToModify(quizToModify: Quiz) {
-    //     this.quizGeneralInfo.loadGeneralInformation(quizToModify);
-    //     // this.newQuiz = quizToModify;
-    // }
 
     modifyQuestion(selectedQuestion: Question, selectedIndex: number) {
         this.quizQuestionInfo.loadQuestionInformation(selectedQuestion, selectedIndex);
@@ -169,23 +165,15 @@ export class CreateQuizFormComponent implements OnInit, AfterViewInit {
     }
 
     saveQuiz() {
-        // if(!this.isQuizToModify) {
-        this.quizManagerService.addNewQuiz(this.newQuiz);
-        // }
-        // else {
-        //     this.quizManagerService.updateQuiz(this.quizId, this.newQuiz);
-        //     this.isQuizToModify = false;
-        //     this.quizId = '';
-        // }
+        if(this.isQuizToModify) {
+            this.quizManagerService.updateQuiz(this.modifyQuiz.id, this.newQuiz);
+        }
+        else {
+            this.quizManagerService.addNewQuiz(this.newQuiz);
+        }
     }
 }
 
-// loadQuestionInformation(selectedQuestion: Question) {
-//     if (this.quizQuestionInfo) {
-//         this.quizQuestionInfo.loadQuestionInformation(selectedQuestion);
-//         this.selectedQuestionIndex = this.newQuiz.questions.findIndex((question) => question === selectedQuestion);
-//     }
-// }
 
 // onQuestionModified(event: { question: Question; index: number }) {
 //     console.log("onModified");

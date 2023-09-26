@@ -18,6 +18,7 @@ export class QuizQuestionInfoComponent implements OnInit {
     maxChoices: number;
     defaultPoints: number;
     isModifiedQuestion: boolean;
+    modifyQuiz: Quiz;
 
     isFormVisible = false;
     disableForm = false;
@@ -40,9 +41,10 @@ export class QuizQuestionInfoComponent implements OnInit {
 
     initializeForm() {
         this.newQuiz = this.quizManagerService.getNewQuiz();
+        this.modifyQuiz = this.quizManagerService.getQuizToModify();
         this.maxChoices = 4;
         this.defaultPoints = 10;
-        // this.isModifiedQuestion = false;
+        this.isModifiedQuestion = false;
         this.questionInfoForm = this.fb.group({
             type: ['', Validators.required],
             text: ['', Validators.required],
@@ -153,20 +155,13 @@ export class QuizQuestionInfoComponent implements OnInit {
             points: questionPoints,
             choices: choicesArray,
         };
-
+        
         if (this.isModifiedQuestion) {
             this.quizManagerService.modifyQuestion(newQuestion, this.modifiedIndex);
             this.isModifiedQuestion = false;
         } else {
             this.quizManagerService.addNewQuestion(newQuestion);
         }
-
-        // if (this.questionIndex !== undefined && this.questionIndex !== null) {
-        //     this.questionModified.emit({ question: modifiedQuestion, index: this.questionIndex });
-        // } else {
-        //     this.quizManagerService.addNewQuestion(modifiedQuestion);
-        // }
-        // this.questionIndex = null;
     }
 
     resetForm() {
@@ -220,19 +215,9 @@ export class QuizQuestionInfoComponent implements OnInit {
             return null;
         };
     }
+
+    loadQuestionData() {
+        this.resetForm();
+        this.newQuiz = this.modifyQuiz;
+    }
 }
-
-// onQuestionModified(index: number) {
-//     const modifiedQuestion: Question = this.getModifiedQuestion();
-//     this.questionModified.emit({ question: modifiedQuestion, index });
-// }
-
-// getModifiedQuestion(): Question {
-//     const modifiedQuestion: Question = {
-//         text: this.questionInfoForm.get('text')?.value,
-//         type: this.questionInfoForm.get('type')?.value,
-//         points: this.questionInfoForm.get('points')?.value,
-//         choices: this.questionInfoForm.get('choices')?.value,
-//     };
-//     return modifiedQuestion;
-// }

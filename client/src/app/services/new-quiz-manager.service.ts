@@ -15,7 +15,8 @@ export class NewQuizManagerService {
     quizzes: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
     selectedQuiz: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
     choiceIndex: number;
-    private quizToModify: Quiz;
+    quizToModify: Quiz;
+    isQuizBeingModified: boolean;
 
     private newQuiz: Quiz = {
         $schema: '',
@@ -69,10 +70,11 @@ export class NewQuizManagerService {
         });
     }
 
-    updateQuizOnServer(id: string, updatedGame: Quiz): void {
-        this.communicationService.updateQuiz(id, updatedGame).subscribe({
-            next: (game) => {
-                this.selectedQuiz.next(game);
+    updateQuizOnServer(id: string, updatedQuiz: Quiz): void {
+        this.communicationService.updateQuiz(id, updatedQuiz).subscribe({
+            next: (quiz) => {
+                quiz.lastModification = dateStr;
+                this.selectedQuiz.next(quiz);
                 this.getQuizListFromServer();
             },
             error: (err: HttpErrorResponse) => {
@@ -128,21 +130,33 @@ export class NewQuizManagerService {
     }
 
     addNewQuestion(newQuestion: Question) {
-        if (this.newQuiz.questions.length === 0 || (this.newQuiz.questions.length === 1 && this.newQuiz.questions[0].text === '')) {
-            this.newQuiz.questions[0] = newQuestion;
-        } else {
-            this.newQuiz.questions.push(newQuestion);
+        if(!this.isQuizBeingModified) {
+            if (this.newQuiz.questions.length === 0 || (this.newQuiz.questions.length === 1 && this.newQuiz.questions[0].text === '')) {
+                this.newQuiz.questions[0] = newQuestion;
+            } else {
+                this.newQuiz.questions.push(newQuestion);
+            }
+        }
+        else {
+            if (this.quizToModify.questions.length === 0 || (this.quizToModify.questions.length === 1 && this.quizToModify.questions[0].text === '')) {
+                this.quizToModify.questions[0] = newQuestion;
+            } else {
+                this.quizToModify.questions.push(newQuestion);
+            }
         }
     }
 
     modifyQuestion(question: Question, index: number) {
-        if (index !== undefined && index !== null && index >= 0 && index < this.newQuiz.questions.length) {
-            this.newQuiz.questions[index] = question;
+        if(!this.isQuizBeingModified) {
+            if (index !== undefined && index !== null && index >= 0 && index < this.newQuiz.questions.length) {
+                this.newQuiz.questions[index] = question;
+            }
         }
-    }
-
-    modifyQuiz(selectedQuiz: Quiz) {
-        this.quizToModify = selectedQuiz;
+        else {
+            if (index !== undefined && index !== null && index >= 0 && index < this.quizToModify.questions.length) {
+                this.quizToModify.questions[index] = question;
+            }
+        }
     }
 
     setQuizToModify(quizToModify: Quiz) {

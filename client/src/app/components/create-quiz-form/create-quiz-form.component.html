@@ -21,12 +21,12 @@
     </div>
     <h2>Add New Quiz</h2>
     <form #addQuizForm="ngForm">
-        <app-quiz-general-info #generalInfoForm [isQuizToModify]="isQuizToModify"></app-quiz-general-info>
+        <app-quiz-general-info #generalInfoForm></app-quiz-general-info>
         <!-- #generalInfoForm -->
         <label>Liste de questions : </label>
         <div id="all-question-elements">
             <div *ngFor="let question of newQuiz.questions; let i = index" class="question-container">
-                <div *ngIf="question.text !== ''"class="question">{{i + 1}}.
+                <div *ngIf="question.text !== ''" class="question">{{i + 1}}.
                     <label id="question-display">Question : {{ question.text }}</label><br>
                     <label>Type : {{ question.type }}</label><br>
                     <label>Points : {{ question.points }}</label><br>

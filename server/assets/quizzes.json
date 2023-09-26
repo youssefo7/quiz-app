@@ -9,28 +9,6 @@
     "questions": [
       {
         "type": "QCM",
-        "text": "Parmi les mots suivants, lesquels sont des mots clés réservés en JS?",
-        "points": 40,
-        "choices": [
-          {
-            "text": "var",
-            "isCorrect": true
-          },
-          {
-            "text": "self",
-            "isCorrect": false
-          },
-          {
-            "text": "this",
-            "isCorrect": true
-          },
-          {
-            "text": "int"
-          }
-        ]
-      },
-      {
-        "type": "QCM",
         "text": "Est-ce qu'on le code suivant lance une erreur : const a = 1/NaN; ? ",
         "points": 20,
         "choices": [
@@ -41,6 +19,43 @@
           {
             "text": "Oui",
             "isCorrect": null
+          }
+        ]
+      },
+      {
+        "type": "QCM",
+        "text": "new questio test!",
+        "points": 10,
+        "choices": [
+          {
+            "text": "1",
+            "isCorrect": true
+          },
+          {
+            "text": "2",
+            "isCorrect": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "$schema": "",
+    "id": "RzAxVX",
+    "title": "",
+    "description": "",
+    "duration": 0,
+    "lastModification": "9/26/2023, 5:06:53 PM",
+    "visibility": false,
+    "questions": [
+      {
+        "type": "",
+        "text": "",
+        "points": 0,
+        "choices": [
+          {
+            "text": "",
+            "isCorrect": false
           }
         ]
       }

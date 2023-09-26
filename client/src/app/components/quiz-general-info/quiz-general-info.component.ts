@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { Quiz } from '@app/interfaces/quiz';
 import { NewQuizManagerService } from '@app/services/new-quiz-manager.service';
@@ -9,9 +9,9 @@ import { NewQuizManagerService } from '@app/services/new-quiz-manager.service';
     styleUrls: ['./quiz-general-info.component.scss'],
 })
 export class QuizGeneralInfoComponent implements OnInit {
-    @Input() isQuizToModify: boolean;
     myForm: FormGroup;
     newQuiz: Quiz;
+    modifyQuiz: Quiz;
 
     disableForm = false;
     buttonText = 'Sauvegarder';
@@ -38,8 +38,9 @@ export class QuizGeneralInfoComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        this.newQuiz = this.quizManagerService.getNewQuiz();
         this.quizManagerService.getQuizListFromServer();
+        this.newQuiz = this.quizManagerService.getNewQuiz();
+        this.modifyQuiz = this.quizManagerService.getQuizToModify();
         this.initCounters();
     }
 
@@ -90,10 +91,11 @@ export class QuizGeneralInfoComponent implements OnInit {
         this.newQuiz.duration = this.generalInfoForm.value?.duration as number;
     }
 
-    // loadGeneralInformation(selectedQuiz: Quiz) {
-    //     const formControl = this.generalInfoForm.controls;
-    //     formControl.title.setValue(selectedQuiz.title);
-    //     formControl.description.setValue(selectedQuiz.description);
-    //     formControl.duration.setValue(selectedQuiz.duration);
-    // }
+    loadGeneralData() {
+        this.generalInfoForm.patchValue({
+            title: this.modifyQuiz.title,
+            description: this.modifyQuiz.description,
+            duration: this.modifyQuiz.duration,
+        });
+    }
 }

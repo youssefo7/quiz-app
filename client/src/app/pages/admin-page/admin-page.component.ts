@@ -67,6 +67,7 @@ export class AdminPageComponent {
             },
         });
     }
+    
     deleteQuizFromServer(id: string): void {
         this.communicationService.deleteQuiz(id).subscribe({
             next: () => {
@@ -79,7 +80,7 @@ export class AdminPageComponent {
             },
         });
     }
-    
+
     modifyQuiz(quiz: Quiz) {
         const id = quiz.id;
         this.quizManagerService.setQuizToModify(quiz);
