@@ -1,0 +1,31 @@
+#container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+
+p {
+    text-align: center;
+}
+
+#button-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 2%;
+    width: 100%;
+
+    #cancel-btn:hover {
+        background-color: red;
+    }
+
+    #ok-btn:hover {
+        background-color: #bbdaf7;
+    }
+}
+
+button {
+    border-radius: 5px;
+}

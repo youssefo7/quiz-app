@@ -98,4 +98,12 @@ describe('AdminPopupComponent', () => {
         expect(togglePasswordVisibilitySpy).toHaveBeenCalled();
         expect(component.passwordInputType).toEqual('password');
     });
+
+    it('should submit entered password when clicking on the enter key', () => {
+        const mockEnterKeyUpEvent = new KeyboardEvent('keyup', { key: 'Enter' });
+        const verifyAccessSpy = spyOn(component, 'verifyAccess');
+        component.submitPasswordOnEnter(mockEnterKeyUpEvent);
+
+        expect(verifyAccessSpy).toHaveBeenCalled();
+    });
 });
