@@ -68,8 +68,10 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             }
         } else {
             const choiceIndex = parseInt(keyPressed, 10) - 1;
-            this.toggleChoice(choiceIndex);
-            this.setSubmitButtonStateOnChoices();
+            if (!isNaN(choiceIndex) && choiceIndex >= 0 && choiceIndex < this.chosenChoices.length) {
+                this.toggleChoice(choiceIndex);
+                this.setSubmitButtonStateOnChoices();
+            }
         }
     }
 
@@ -115,19 +117,17 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     getQuestion(index: number = 0) {
-        if (index <= this.quiz.questions.length) {
+        if (index < this.quiz.questions.length) {
             this.question = this.quiz.questions[index];
             this.chosenChoices = new Array(this.question.choices.length).fill(false);
             this.question.choices.forEach((choice, buttonIndex) => {
-                this.setButtonsToInitState(buttonIndex);
+                this.setButtonToInitState(buttonIndex);
             });
         }
     }
 
     toggleChoice(index: number) {
-        if (!isNaN(index) || index >= 0 || index <= this.chosenChoices.length) {
-            this.chosenChoices[index] = !this.chosenChoices[index];
-        }
+        this.chosenChoices[index] = !this.chosenChoices[index];
     }
 
     disableSubmitButton() {
@@ -145,7 +145,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         }
     }
 
-    setButtonsToInitState(index: number) {
+    setButtonToInitState(index: number) {
         this.choiceButtonStyle[index] = { backgroundColor: '' };
         this.isChoiceButtonDisabled = false;
         this.submitButtonStyle = { backgroundColor: '' };
@@ -181,7 +181,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.showPoints();
     }
 
-    // TODO: Ajouter le point bonus seulement au joueur qui à soumis la bonne réponse en 1er (Sprint 2)
     givePoints() {
         if (!this.isAnswerGood()) {
             this.points = 0;
