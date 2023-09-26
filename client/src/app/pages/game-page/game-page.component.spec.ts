@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { CountdownComponent } from '@app/components/countdown/countdown.component';
 import { ProfileComponent } from '@app/components/profile/profile.component';
+import { QuestionZoneComponent } from '@app/components/question-zone/question-zone.component';
 import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { CommunicationService } from '@app/services/communication.service';
 import { of } from 'rxjs';
@@ -31,7 +32,7 @@ describe('GamePageComponent', () => {
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [GamePageComponent, TopBarComponent, ProfileComponent, ChatComponent, CountdownComponent],
+            declarations: [GamePageComponent, TopBarComponent, ProfileComponent, ChatComponent, QuestionZoneComponent, CountdownComponent],
             imports: [MatIconModule, RouterModule],
             providers: [
                 { provide: CommunicationService, useValue: communicationServiceMock },
@@ -59,11 +60,10 @@ describe('GamePageComponent', () => {
         expect(component.link).toEqual('/home');
     });
 
-    // TODO: Change /admin with create-game route
-    it('should link to /admin if route does contain "test"', () => {
+    it('should link to /game/new if route does contain "test"', () => {
         component.checkGameRoute(true);
         expect(component.title).toEqual('Partie - Test');
-        expect(component.link).toEqual('/admin');
+        expect(component.link).toEqual('/game/new');
     });
 
     it('should fetch the quiz ', () => {

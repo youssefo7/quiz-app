@@ -11,8 +11,11 @@ describe('CountdownComponent', () => {
     let timeServiceSpy: SpyObj<TimeService>;
     let communicationServiceSpy: jasmine.SpyObj<CommunicationService>;
 
-    beforeEach(async () => {
+    beforeEach(() => {
         timeServiceSpy = jasmine.createSpyObj('TimeService', ['startTimer', 'stopTimer']);
+    });
+
+    beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [CountdownComponent],
             providers: [
@@ -24,9 +27,6 @@ describe('CountdownComponent', () => {
     });
 
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [CountdownComponent],
-        });
         fixture = TestBed.createComponent(CountdownComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
@@ -36,5 +36,5 @@ describe('CountdownComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    // TODO: Écrire les tests unitaires manquants
+    // TODO: Implémenter les tests unitaires
 });

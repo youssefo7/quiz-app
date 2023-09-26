@@ -1,5 +1,6 @@
 p {
     font-size: medium;
+    text-align: center;
 }
 
 #countdown-background {
@@ -17,7 +18,7 @@ p {
     #countdown {
         font-size: 2rem;
         font-weight: bold;
-        max-width: 900%;
+        max-width: 100%;
         max-height: 90%;
     }
 }

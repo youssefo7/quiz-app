@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
+import { GameService } from '@app/services/game.service';
 import { TimeService } from '@app/services/time.service';
 
 @Component({
@@ -13,7 +14,6 @@ export class CountdownComponent implements OnInit {
     quiz: Quiz;
     message: string;
     clockStyle: { backgroundColor: string };
-    private readonly transitionTime: number;
 
     // Raison: J'injecte 4 services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
@@ -22,9 +22,8 @@ export class CountdownComponent implements OnInit {
         private communicationService: CommunicationService,
         private route: ActivatedRoute,
         private router: Router,
-    ) {
-        this.transitionTime = 3;
-    }
+        private gameService: GameService,
+    ) {}
 
     get time(): number {
         return this.timeService.time;
@@ -43,9 +42,10 @@ export class CountdownComponent implements OnInit {
     }
 
     async transitionClock() {
+        const transitionTime = 3;
         this.message = 'Préparez-vous!';
         this.clockStyle = { backgroundColor: '#E5E562' };
-        await this.timeService.startTimer(this.transitionTime);
+        await this.timeService.startTimer(transitionTime);
     }
 
     async questionClock() {
@@ -54,30 +54,37 @@ export class CountdownComponent implements OnInit {
         await this.timeService.startTimer(this.quiz.duration);
     }
 
+    async leaveGameClock() {
+        const exitTransitionTime = 3;
+        this.message = 'Redirection vers «Créer une Partie»';
+        this.clockStyle = { backgroundColor: 'white' };
+        await this.timeService.startTimer(exitTransitionTime);
+    }
+
     async gameClock() {
-        // Raison: J'utilise un for loop pour faire le timer pour chaque question (for in/of n'est pas pertinent ici)
+        const lastQuestionIndex = this.quiz.questions.length - 1;
+        // Raison: Boucle for in/of pas pertinent, car je n'ai pas besoin des éléments du tableau
         // eslint-disable-next-line @typescript-eslint/prefer-for-of
-        for (let i = 0; i < this.quiz.questions.length; i++) {
-            await this.transitionClock();
+        for (let i = 0; i <= lastQuestionIndex; i++) {
             await this.questionClock();
+            if (i === lastQuestionIndex) break;
+            await this.transitionClock();
         }
+        this.leaveGame();
     }
 
     async leaveGame() {
-        const exitTransitionTime = 3000;
-        setTimeout(() => {
+        const isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
+        if (isTestGame) {
+            this.gameService.setGameEndState = true;
+            await this.leaveGameClock();
             this.router.navigateByUrl('/game/new');
-        }, exitTransitionTime);
+        }
     }
 
     async loadTimer() {
         await this.getQuiz();
-        await this.gameClock();
-
-        const isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
-        if (isTestGame) {
-            this.leaveGame();
-        }
+        this.gameClock();
     }
 
     ngOnInit() {
