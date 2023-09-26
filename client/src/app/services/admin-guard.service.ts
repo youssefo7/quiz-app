@@ -1,4 +1,7 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
     providedIn: 'root',
@@ -8,15 +11,26 @@ export class AdminGuardService {
     // for example, if they provided the password once, do we always allow access?
 
     private canAccessAdmin: boolean;
+    private readonly baseUrl: string = environment.serverUrl;
 
-    constructor() {
+    constructor(private readonly http: HttpClient) {
         this.canAccessAdmin = false;
     }
 
-    isAccessGranted(userPassword: string) {
+    async isAccessGranted(userPassword: string) {
         // TODO : make service to verify authentication in backend
-        this.canAccessAdmin = userPassword === 'ultimate!!!password';
-        return this.canAccessAdmin;
+        try {
+            await this.submitPassword(userPassword);
+            this.canAccessAdmin = true;
+            return this.canAccessAdmin;
+        } catch (error) {
+            this.canAccessAdmin = false;
+            return this.canAccessAdmin;
+        }
+    }
+
+    async submitPassword(userPassword: string) {
+        await firstValueFrom(this.http.post(`${this.baseUrl}/admin/login`, { password: userPassword }));
     }
 
     canActivate() {

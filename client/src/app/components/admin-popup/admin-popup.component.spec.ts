@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { FormsModule } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -22,7 +23,7 @@ describe('AdminPopupComponent', () => {
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            imports: [FormsModule],
+            imports: [FormsModule, HttpClientTestingModule],
             declarations: [AdminPopupComponent],
             providers: [
                 { provide: MatDialogRef, useValue: matDialogRefSpy },
@@ -43,7 +44,7 @@ describe('AdminPopupComponent', () => {
     });
 
     it('should display an error message when given password is invalid', async () => {
-        adminGuardServiceSpy.isAccessGranted.and.returnValue(false);
+        adminGuardServiceSpy.isAccessGranted.and.resolveTo(false);
         const submitButton = fixture.debugElement.nativeElement.querySelector('#submit');
         await submitButton.click();
 
@@ -54,7 +55,7 @@ describe('AdminPopupComponent', () => {
     });
 
     it('should close modal when the right password is given and redirect to /admin', async () => {
-        adminGuardServiceSpy.isAccessGranted.and.returnValue(true);
+        adminGuardServiceSpy.isAccessGranted.and.resolveTo(true);
         const closeAdminPopupSpy = spyOn(component, 'closeAdminPopup').and.callThrough();
         const submitButton = fixture.debugElement.nativeElement.querySelector('#submit');
         await submitButton.click();
