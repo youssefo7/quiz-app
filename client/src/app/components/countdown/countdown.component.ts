@@ -67,8 +67,9 @@ export class CountdownComponent implements OnInit {
         // eslint-disable-next-line @typescript-eslint/prefer-for-of
         for (let i = 0; i <= lastQuestionIndex; i++) {
             await this.questionClock();
-            if (i === lastQuestionIndex) break;
-            await this.transitionClock();
+            if (i !== lastQuestionIndex) {
+                await this.transitionClock();
+            }
         }
         this.leaveGame();
     }
