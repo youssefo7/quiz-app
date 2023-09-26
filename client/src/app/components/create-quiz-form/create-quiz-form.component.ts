@@ -41,13 +41,14 @@ export class CreateQuizFormComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit(): void {
-        this.newQuiz = this.quizManagerService.getNewQuiz();
         if (this.quizId !== null) {
             this.quizManagerService.isQuizBeingModified = true;
-            if(this.modifyQuiz) {
+            if(this.modifyQuiz.title !== '') {
+                console.log(this.newQuiz);
                 this.newQuiz = this.modifyQuiz;
-                this.quizGeneralInfo.loadGeneralData();
-                this.quizQuestionInfo.loadQuestionData();
+                this.quizManagerService.setQuizToModify(this.newQuiz);
+                this.quizGeneralInfo.loadGeneralData(this.newQuiz);
+                this.quizQuestionInfo.loadQuestionData(this.newQuiz);
                 this.isQuizToModify = true;
             }
         } else {
@@ -113,7 +114,6 @@ export class CreateQuizFormComponent implements OnInit, AfterViewInit {
         if (
             this.newQuiz.questions.some((question) => this.isQuestionValid(question)) &&
             this.newQuiz.title !== '' &&
-            this.newQuiz.description !== '' &&
             this.newQuiz.duration !== 0
         ) {
             return true;
@@ -173,27 +173,3 @@ export class CreateQuizFormComponent implements OnInit, AfterViewInit {
         }
     }
 }
-
-
-// onQuestionModified(event: { question: Question; index: number }) {
-//     console.log("onModified");
-//     const modifiedQuestion = event.question;
-//     const index = event.index;
-//     const nonValidIndex = -1;
-//     if (index !== nonValidIndex) {
-//         if (index < this.newQuiz.questions.length) {
-//             this.newQuiz.questions[index] = modifiedQuestion;
-//         }
-//     }
-// }
-
-// onQuestionModified(event: { question: Question; index: number }) {
-//     const modifiedQuestion = event.question;
-//     const index = event.index;
-
-//     if (index !== undefined && index !== null && index >= 0 && index < this.newQuiz.questions.length) {
-//         this.newQuiz.questions[index] = modifiedQuestion;
-//     } else {
-//         this.newQuiz.questions.push(modifiedQuestion);
-//     }
-// }

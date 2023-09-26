@@ -47,8 +47,7 @@
                 </app-quiz-question-info> 
             </div>
         </div>
-        <button (click)="saveQuiz()">Add Quiz</button>
-        <!-- [disabled]="!isQuizFormValid()" -->
+        <button (click)="saveQuiz()" [disabled]="!isQuizFormValid()">Add Quiz</button>
     </form>
 </div>
 

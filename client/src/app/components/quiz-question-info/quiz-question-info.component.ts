@@ -216,8 +216,8 @@ export class QuizQuestionInfoComponent implements OnInit {
         };
     }
 
-    loadQuestionData() {
+    loadQuestionData(quiz: Quiz) {
         this.resetForm();
-        this.newQuiz = this.modifyQuiz;
+        this.newQuiz = quiz;
     }
 }

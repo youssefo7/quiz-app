@@ -40,7 +40,6 @@ export class QuizGeneralInfoComponent implements OnInit {
     ngOnInit(): void {
         this.quizManagerService.getQuizListFromServer();
         this.newQuiz = this.quizManagerService.getNewQuiz();
-        this.modifyQuiz = this.quizManagerService.getQuizToModify();
         this.initCounters();
     }
 
@@ -91,11 +90,14 @@ export class QuizGeneralInfoComponent implements OnInit {
         this.newQuiz.duration = this.generalInfoForm.value?.duration as number;
     }
 
-    loadGeneralData() {
+    loadGeneralData(quiz: Quiz) {
+        this.newQuiz.title = quiz.title;
+        this.newQuiz.description = quiz.description;
+        this.newQuiz.duration = quiz.duration;
         this.generalInfoForm.patchValue({
-            title: this.modifyQuiz.title,
-            description: this.modifyQuiz.description,
-            duration: this.modifyQuiz.duration,
+            title: this.newQuiz.title,
+            description: this.newQuiz.description,
+            duration: this.newQuiz.duration,
         });
     }
 }

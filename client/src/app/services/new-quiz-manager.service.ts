@@ -82,6 +82,7 @@ export class NewQuizManagerService {
                 this.message = responseString;
             },
         });
+        this.addNewQuiz(updatedQuiz);
     }
 
     getQuizFromServer(id: string): void {
@@ -125,46 +126,34 @@ export class NewQuizManagerService {
         return this.newQuiz;
     }
 
+    setNewQuiz(quiz: Quiz) {
+        this.newQuiz = quiz;
+    }
+
     getNewQuizQuestions() {
         return this.newQuiz.questions;
     }
 
     addNewQuestion(newQuestion: Question) {
-        if(!this.isQuizBeingModified) {
-            if (this.newQuiz.questions.length === 0 || (this.newQuiz.questions.length === 1 && this.newQuiz.questions[0].text === '')) {
-                this.newQuiz.questions[0] = newQuestion;
-            } else {
-                this.newQuiz.questions.push(newQuestion);
-            }
-        }
-        else {
-            if (this.quizToModify.questions.length === 0 || (this.quizToModify.questions.length === 1 && this.quizToModify.questions[0].text === '')) {
-                this.quizToModify.questions[0] = newQuestion;
-            } else {
-                this.quizToModify.questions.push(newQuestion);
-            }
+        if (this.newQuiz.questions.length === 0 || (this.newQuiz.questions.length === 1 && this.newQuiz.questions[0].text === '')) {
+            this.newQuiz.questions[0] = newQuestion;
+        } else {
+            this.newQuiz.questions.push(newQuestion);
         }
     }
 
     modifyQuestion(question: Question, index: number) {
-        if(!this.isQuizBeingModified) {
-            if (index !== undefined && index !== null && index >= 0 && index < this.newQuiz.questions.length) {
-                this.newQuiz.questions[index] = question;
-            }
-        }
-        else {
-            if (index !== undefined && index !== null && index >= 0 && index < this.quizToModify.questions.length) {
-                this.quizToModify.questions[index] = question;
-            }
+        if (index !== undefined && index !== null && index >= 0 && index < this.newQuiz.questions.length) {
+            this.newQuiz.questions[index] = question;
         }
     }
 
-    setQuizToModify(quizToModify: Quiz) {
-        this.quizToModify = quizToModify;
+    setQuizToModify(quizForModification: Quiz) {
+        this.newQuiz = quizForModification;
     }
 
     getQuizToModify() {
-        return this.quizToModify;
+        return this.newQuiz;
     }
 
     addNewQuiz(quiz: Quiz) {

@@ -24,15 +24,30 @@
       },
       {
         "type": "QCM",
-        "text": "new questio test!",
+        "text": "1",
         "points": 10,
         "choices": [
           {
-            "text": "1",
+            "text": "3",
             "isCorrect": true
           },
           {
             "text": "2",
+            "isCorrect": false
+          }
+        ]
+      },
+      {
+        "type": "QCM",
+        "text": "3",
+        "points": 10,
+        "choices": [
+          {
+            "text": "2",
+            "isCorrect": true
+          },
+          {
+            "text": "3",
             "isCorrect": false
           }
         ]
@@ -41,20 +56,24 @@
   },
   {
     "$schema": "",
-    "id": "RzAxVX",
-    "title": "",
+    "id": "NEPH6Y",
+    "title": "1",
     "description": "",
-    "duration": 0,
-    "lastModification": "9/26/2023, 5:06:53 PM",
+    "duration": 10,
+    "lastModification": "9/26/2023, 6:37:45 PM",
     "visibility": false,
     "questions": [
       {
-        "type": "",
-        "text": "",
-        "points": 0,
+        "type": "QCM",
+        "text": "2",
+        "points": 10,
         "choices": [
           {
-            "text": "",
+            "text": "3",
+            "isCorrect": true
+          },
+          {
+            "text": "4",
             "isCorrect": false
           }
         ]
