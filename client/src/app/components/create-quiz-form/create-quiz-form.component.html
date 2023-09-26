@@ -25,7 +25,7 @@
         <label>Liste de questions : </label>
         <div id="all-question-elements">
             <div *ngFor="let question of newQuiz.questions; let i = index" class="question-container">
-                <div *ngIf="question.text !== ''"class="question"><label>{{ i + 1}}. </label>
+                <div *ngIf="question.text !== ''"class="question">{{i + 1}}.
                     <label id="question-display">Question : {{ question.text }}</label><br>
                     <label>Type : {{ question.type }}</label><br>
                     <label>Points : {{ question.points }}</label><br>
@@ -35,46 +35,20 @@
                             <label>{{ choice.isCorrect }}</label>
                         </div>
                     </div>
-                    <button (click)="selectQuestion(i)">Modifier</button>
+                    <button (click)="modifyQuestion(question, i)">Modifier</button>
                     <button (click)="deleteQuestion(i)">Supprimer</button>
                 </div>
+                <button type="button" (click)="moveQuestionUp(i)" class="btn btn-secondary" [disabled]="i === 0">Move Up</button>
+                <button type="button" (click)="moveQuestionDown(i)" class="btn btn-secondary" [disabled]="i === newQuiz.questions.length - 1">Move Down</button>
             </div>
             <div id="new-question-form">
-                <app-quiz-question-info [questionIndex]="selectedQuestionIndex" [question]="selectedQuestion" (questionModified)="onQuestionModified($event)"></app-quiz-question-info>
+                <app-quiz-question-info >
+
+                </app-quiz-question-info> 
             </div>
         </div>
-            <!-- Include your form component here -->
         <button (click)="addQuizToServer(newQuiz)" [disabled]="!isQuizFormValid()">Add Quiz</button>
     </form>
 </div>
 
-
-                    <!-- <div class="questions">
-            <h3>Questions</h3>
-            <div *ngFor="let question of newQuiz.questions; let i = index">
-                <h4>Question {{ i + 1 }}</h4>
-                <label>Type de question :</label>
-                <input [(ngModel)]="question.type" placeholder="Type" required>
-
-                <label>Question :</label>
-                <input [(ngModel)]="question.text" placeholder="Question Text" required>
-
-                <label>Points : </label>
-                <input type="number" [(ngModel)]="question.points" placeholder="Points" required>
-    
-                <div class="choices">
-                    <h5>Choices</h5>
-                    <div *ngFor="let choice of question.choices">
-                        <div class="newAnswer">
-                            <label>Choix 1:</label>
-                            <input [(ngModel)]="choice.text" placeholder="Choix">
-                            <label class="switch">
-                                <input type="checkbox">
-                                <span class="slider round" (click)="choice.isCorrect = true"></span>
-                            </label>
-                        </div>
-                        <button id="newChoice" (click)="addNewResponse()">Add Choice</button>
-                    </div>
-                </div>
-            </div>
-        </div> -->
+                <!-- (questionModified)="onQuestionModified($event)" [modifiedQuestionIndex]="selectedQuestionIndex" [modifiedQuestion]="selectedQuestion"-->

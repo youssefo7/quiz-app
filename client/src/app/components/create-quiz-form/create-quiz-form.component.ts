@@ -19,9 +19,9 @@ export class CreateQuizFormComponent implements OnInit {
     message: BehaviorSubject<string> = new BehaviorSubject<string>('');
     quizzes: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
     selectedQuiz: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
-    selectedQuestionIndex: number;
+    // selectedQuestionIndex: number;
     newQuiz: Quiz;
-    selectedQuestion: Question;
+    // selectedQuestion: Question;
 
     constructor(
         private readonly communicationService: CommunicationService,
@@ -84,28 +84,8 @@ export class CreateQuizFormComponent implements OnInit {
         });
     }
 
-    selectQuestion(selectedIndex: number) {
-        this.selectedQuestion = this.newQuiz.questions[selectedIndex];
-        this.selectedQuestionIndex = selectedIndex;
-        this.quizQuestionInfo.loadQuestionInformation(this.selectedQuestion);
-    }
-
-    loadQuestionInformation(selectedQuestion: Question) {
-        if (this.quizQuestionInfo) {
-            this.quizQuestionInfo.loadQuestionInformation(selectedQuestion);
-            this.selectedQuestionIndex = this.newQuiz.questions.findIndex((question) => question === selectedQuestion);
-        }
-    }
-
-    onQuestionModified(event: { question: Question; index: number }) {
-        const modifiedQuestion = event.question;
-        const index = event.index;
-        const nonValidIndex = -1;
-        if (index !== nonValidIndex) {
-            if (index < this.newQuiz.questions.length) {
-                this.newQuiz.questions[index] = modifiedQuestion;
-            }
-        }
+    modifyQuestion(selectedQuestion: Question, selectedIndex: number) {
+        this.quizQuestionInfo.loadQuestionInformation(selectedQuestion, selectedIndex);
     }
 
     isQuizFormValid(): boolean {
@@ -133,15 +113,62 @@ export class CreateQuizFormComponent implements OnInit {
     deleteQuestion(index: number): void {
         if (index >= 0 && index < this.newQuiz.questions.length) {
             this.newQuiz.questions.splice(index, 1);
-            this.selectedQuestionIndex = -1;
-            this.repositionQuestions(index);
+            // this.selectedQuestionIndex = -1;
+            // this.repositionQuestions(index);
             this.quizQuestionInfo.resetForm();
         }
     }
 
-    repositionQuestions(index: number) {
-        for (let i = index; i < this.newQuiz.questions.length; i++) {
-            this.newQuiz.questions[index] = this.newQuiz.questions[index + 1];
+    // repositionQuestions(index: number) {
+    //     for (let i = index; i < this.newQuiz.questions.length; i++) {
+    //         let tmp = this.newQuiz.questions.
+    //         this.newQuiz.questions[index] = this.newQuiz.questions[index + 1];
+    //     }
+    // }
+
+    moveQuestionUp(index: number) {
+        if (index > 0) {
+            const tmp = this.newQuiz.questions[index - 1];
+            this.newQuiz.questions[index - 1] = this.newQuiz.questions[index];
+            this.newQuiz.questions[index] = tmp;
+        }
+    }
+
+    moveQuestionDown(index: number) {
+        if (index < this.newQuiz.questions.length - 1) {
+            const tmp = this.newQuiz.questions[index + 1];
+            this.newQuiz.questions[index + 1] = this.newQuiz.questions[index];
+            this.newQuiz.questions[index] = tmp;
         }
     }
 }
+
+// loadQuestionInformation(selectedQuestion: Question) {
+//     if (this.quizQuestionInfo) {
+//         this.quizQuestionInfo.loadQuestionInformation(selectedQuestion);
+//         this.selectedQuestionIndex = this.newQuiz.questions.findIndex((question) => question === selectedQuestion);
+//     }
+// }
+
+// onQuestionModified(event: { question: Question; index: number }) {
+//     console.log("onModified");
+//     const modifiedQuestion = event.question;
+//     const index = event.index;
+//     const nonValidIndex = -1;
+//     if (index !== nonValidIndex) {
+//         if (index < this.newQuiz.questions.length) {
+//             this.newQuiz.questions[index] = modifiedQuestion;
+//         }
+//     }
+// }
+
+// onQuestionModified(event: { question: Question; index: number }) {
+//     const modifiedQuestion = event.question;
+//     const index = event.index;
+
+//     if (index !== undefined && index !== null && index >= 0 && index < this.newQuiz.questions.length) {
+//         this.newQuiz.questions[index] = modifiedQuestion;
+//     } else {
+//         this.newQuiz.questions.push(modifiedQuestion);
+//     }
+// }

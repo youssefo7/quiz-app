@@ -109,4 +109,10 @@ export class NewQuizManagerService {
             this.newQuiz.questions.push(newQuestion);
         }
     }
+
+    modifyQuestion(question: Question, index: number) {
+        if (index !== undefined && index !== null && index >= 0 && index < this.newQuiz.questions.length) {
+            this.newQuiz.questions[index] = question;
+        }
+    }
 }

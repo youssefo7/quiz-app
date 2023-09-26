@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { QuestionConfirmationComponent } from '@app/components/question-confirmation/question-confirmation.component';
@@ -11,13 +11,16 @@ import { NewQuizManagerService } from '@app/services/new-quiz-manager.service';
     styleUrls: ['./quiz-question-info.component.scss'],
 })
 export class QuizQuestionInfoComponent implements OnInit {
-    @Input() questionIndex: number;
-    @Input() question: Question;
-    @Output() questionModified = new EventEmitter<{ question: Question; index: number }>();
+    // @Input() modifiedQuestionIndex: number | null;
+    // @Input() modifiedQuestion: Question;
+    // @Output() questionModified = new EventEmitter<{ question: Question; index: number }>();
+    modifiedQuestion: Question;
+    modifiedIndex: number;
     newQuiz: Quiz;
     questionInfoForm: FormGroup;
     maxChoices: number;
     defaultPoints: number;
+    isModifiedQuestion: boolean;
 
     isFormVisible = false;
     disableForm = false;
@@ -42,6 +45,7 @@ export class QuizQuestionInfoComponent implements OnInit {
         this.newQuiz = this.quizManagerService.getNewQuiz();
         this.maxChoices = 4;
         this.defaultPoints = 10;
+        this.isModifiedQuestion = false;
         this.questionInfoForm = this.fb.group({
             type: ['', Validators.required],
             text: ['', Validators.required],
@@ -54,12 +58,16 @@ export class QuizQuestionInfoComponent implements OnInit {
         }
     }
 
-    loadQuestionInformation(question: Question) {
+    loadQuestionInformation(question: Question, index: number) {
         this.questionInfoForm.reset();
+        this.modifiedIndex = index;
         const resetChoices = this.questionInfoForm.get('choices') as FormArray;
-        while (resetChoices.length > question.choices.length) {
-            resetChoices.removeAt(resetChoices.length - 1);
+
+        while (resetChoices.length < question.choices.length) {
+            this.addChoice();
         }
+
+        this.isModifiedQuestion = true;
         if (question) {
             this.questionInfoForm.patchValue({
                 text: question.text,
@@ -70,21 +78,6 @@ export class QuizQuestionInfoComponent implements OnInit {
         } else {
             this.questionInfoForm.reset();
         }
-    }
-
-    onQuestionModified(index: number) {
-        const modifiedQuestion: Question = this.getModifiedQuestion();
-        this.questionModified.emit({ question: modifiedQuestion, index });
-    }
-
-    getModifiedQuestion(): Question {
-        const modifiedQuestion: Question = {
-            text: this.questionInfoForm.get('text')?.value,
-            type: this.questionInfoForm.get('type')?.value,
-            points: this.questionInfoForm.get('points')?.value,
-            choices: this.questionInfoForm.get('choices')?.value,
-        };
-        return modifiedQuestion;
     }
 
     toggleForm() {
@@ -140,13 +133,13 @@ export class QuizQuestionInfoComponent implements OnInit {
 
         questionDialogReference.afterClosed().subscribe((result) => {
             if (result === true) {
-                this.addNewQuestion();
+                this.manageQuestion();
                 this.resetForm();
             }
         });
     }
 
-    addNewQuestion() {
+    manageQuestion() {
         const questionType = this.questionInfoForm.get('type')?.value;
         const questionText = this.questionInfoForm.get('text')?.value;
         const questionPoints = this.questionInfoForm.get('points')?.value;
@@ -157,20 +150,26 @@ export class QuizQuestionInfoComponent implements OnInit {
             return { text, isCorrect };
         });
 
-        const modifiedQuestion: Question = {
+        const newQuestion: Question = {
             type: questionType,
             text: questionText,
             points: questionPoints,
             choices: choicesArray,
         };
 
-        // Check if questionIndex is defined (edit mode) and emit the modified question
-        if (this.questionIndex !== undefined && this.questionIndex !== null) {
-            this.questionModified.emit({ question: modifiedQuestion, index: this.questionIndex });
+        if (this.isModifiedQuestion) {
+            this.quizManagerService.modifyQuestion(newQuestion, this.modifiedIndex);
+            this.isModifiedQuestion = false;
         } else {
-            // Otherwise, add a new question
-            this.quizManagerService.addNewQuestion(modifiedQuestion);
+            this.quizManagerService.addNewQuestion(newQuestion);
         }
+
+        // if (this.questionIndex !== undefined && this.questionIndex !== null) {
+        //     this.questionModified.emit({ question: modifiedQuestion, index: this.questionIndex });
+        // } else {
+        //     this.quizManagerService.addNewQuestion(modifiedQuestion);
+        // }
+        // this.questionIndex = null;
     }
 
     resetForm() {
@@ -213,7 +212,7 @@ export class QuizQuestionInfoComponent implements OnInit {
             for (const choice of validChoices) {
                 const text = choice.get('text')?.value.trim();
                 if (text === '') {
-                    return { choiceTextEmpty: true }; // New validation error for empty text
+                    return { choiceTextEmpty: true };
                 }
                 if (differentChoices.has(text)) {
                     return { duplicateChoices: true };
@@ -225,3 +224,18 @@ export class QuizQuestionInfoComponent implements OnInit {
         };
     }
 }
+
+// onQuestionModified(index: number) {
+//     const modifiedQuestion: Question = this.getModifiedQuestion();
+//     this.questionModified.emit({ question: modifiedQuestion, index });
+// }
+
+// getModifiedQuestion(): Question {
+//     const modifiedQuestion: Question = {
+//         text: this.questionInfoForm.get('text')?.value,
+//         type: this.questionInfoForm.get('type')?.value,
+//         points: this.questionInfoForm.get('points')?.value,
+//         choices: this.questionInfoForm.get('choices')?.value,
+//     };
+//     return modifiedQuestion;
+// }
