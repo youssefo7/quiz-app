@@ -12,12 +12,11 @@
       <span class="date">Dernière modification</span>
       <span class="actions">Actions</span>
     </div>
-    <div>
       <div *ngFor="let quiz of quizList.value">
         <div class="quiz">
             <span>{{ quiz.title }}</span>
             <span>{{ quiz.lastModification }}</span>
-            <div class="quiz-actions">
+          <div class="quiz-actions">
             <span (click)="toggleVisibility(quiz)" [title]="quiz.visibility ? 'Cacher ' + quiz.title : 'Afficher ' + quiz.title">
               <i [class]="quiz.visibility ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
             </span>
@@ -31,8 +30,7 @@
               <i class="fas fa-edit"></i>
             </span>
           </div>
-          </div>
-        </div>
         </div>
       </div>
+    </div>
 </body>
