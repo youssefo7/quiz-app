@@ -2,10 +2,14 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AdminGuardService {
-    private userPassword = 'ultimate!!!password';
+    private privateUserPassword = 'ultimate!!!password';
+
+    set userPassword(value: string) {
+        this.privateUserPassword = value;
+    }
 
     isAccessGranted(userPassword: string) {
-        if (userPassword !== this.userPassword) {
+        if (userPassword !== this.privateUserPassword) {
             throw new Error('Invalid password');
         }
     }

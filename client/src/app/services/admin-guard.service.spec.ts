@@ -1,14 +1,11 @@
-import { TestBed } from '@angular/core/testing';
-
-// import { HttpClient } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { environment } from 'src/environments/environment';
 import { AdminGuardService } from './admin-guard.service';
 
 describe('AdminGuardService', () => {
     let service: AdminGuardService;
     let httpMock: HttpTestingController;
-    let baseUrl: string;
-    // let httpClient: HttpClient;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -16,29 +13,28 @@ describe('AdminGuardService', () => {
         });
         service = TestBed.inject(AdminGuardService);
         httpMock = TestBed.inject(HttpTestingController);
-        baseUrl = service['baseUrl'];
     });
 
     it('should be created', () => {
         expect(service).toBeTruthy();
     });
 
-    it('should grant access only when given the right password', async () => {
-        // spyOn(httpClient, 'post').and.returnValue(Promise.resolve());
-        let accessGranted = await service.isAccessGranted('ultimate!!!password');
-        expect(accessGranted).toEqual(true);
-        // spyOn(httpClient, 'post').and.returnValue(throwError(() => new Error('test')));
-        accessGranted = await service.isAccessGranted('wrongPassword');
-        expect(accessGranted).toEqual(false);
-    });
-
-    it('should activate /admin route only when access is granted', async () => {
-        const accessGrantedPromise = Promise.resolve(true);
-        spyOn(service, 'isAccessGranted').and.returnValue(accessGrantedPromise);
-        const req = httpMock.expectOne(`${baseUrl}/example/send`);
+    // using fakeAsync and tick because of timeout problems
+    it('should grant access and activate /admin route only when given the right password', fakeAsync(() => {
+        service.isAccessGranted('ultimate!!!password');
+        let req = httpMock.expectOne(`${environment.serverUrl}/admin/login`);
         expect(req.request.method).toBe('POST');
-        expect(await service.canActivate()).toEqual(true);
-        spyOn(service, 'isAccessGranted').and.returnValue(Promise.resolve(false));
-        expect(await service.canActivate()).toEqual(false);
-    });
+        expect(req.request.body).toEqual({ password: 'ultimate!!!password' });
+        req.flush(null, { status: 200, statusText: 'Ok' });
+        tick();
+        expect(service.canActivate()).toBeTrue();
+
+        service.isAccessGranted('Wrong Password');
+        req = httpMock.expectOne(`${environment.serverUrl}/admin/login`);
+        expect(req.request.method).toBe('POST');
+        expect(req.request.body).toEqual({ password: 'Wrong Password' });
+        req.flush(null, { status: 403, statusText: 'Forbidden' });
+        tick();
+        expect(service.canActivate()).toBeFalse();
+    }));
 });

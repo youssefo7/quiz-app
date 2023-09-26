@@ -15,4 +15,16 @@ describe('AdminGuardService', () => {
     it('should be defined', () => {
         expect(service).toBeDefined();
     });
+
+    it('should grant access with right password', () => {
+        const correctPassword = 'ultimate!!!password';
+        service.userPassword = correctPassword;
+        expect(() => service.isAccessGranted(correctPassword)).not.toThrow();
+    });
+
+    it('should deny access with wrong password', () => {
+        const incorrectPassword = 'wrong password';
+        service.userPassword = 'ultimate!!!password';
+        expect(() => service.isAccessGranted(incorrectPassword)).toThrowError('Invalid password');
+    });
 });
