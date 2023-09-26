@@ -1,0 +1,7 @@
+<div class="errorMessage">
+    <h2>Erreur d'importation</h2>
+    <div *ngFor="let msg of errorMessages">
+        <p>{{ msg }}</p>
+    </div>
+    <button id="cancelImportButton" (click)="closeDialog()">Fermer</button>
+</div>

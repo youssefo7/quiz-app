@@ -28,7 +28,7 @@
             </span>
           </div>
           <div class="game-actions element">
-            <span (click)="deleteQuiz(quiz)" class="action-icon" [title]="'Supprimer ' + quiz.title">
+            <span (click)="openPopupDelete(quiz)" class="action-icon" [title]="'Supprimer ' + quiz.title">
               <i class="fas fa-trash"></i>
             </span>
             <span (click)="exportQuiz(quiz)" class="action-icon" [title]="'Exporter ' + quiz.title">

@@ -16,6 +16,8 @@ import { AdminPopupComponent } from './components/admin-popup/admin-popup.compon
 import { ChatComponent } from './components/chat/chat.component';
 import { CountdownComponent } from './components/countdown/countdown.component';
 import { CreateGameListComponent } from './components/create-game-list/create-game-list.component';
+import { ImportPopupComponent } from './components/import-popup/import-popup.component';
+import { PopupMessageComponent } from './components/popup-message/popup-message.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { QuestionZoneComponent } from './components/question-zone/question-zone.component';
 import { QuizListComponent } from './components/quiz-list/quiz-list.component';
@@ -47,8 +49,10 @@ import { HostGamePageComponent } from './pages/host-game-page/host-game-page.com
         CreateGameListComponent,
         CreateGamePageComponent,
         ChatComponent,
-        QuestionZoneComponent,
         CountdownComponent,
+        PopupMessageComponent,
+        ImportPopupComponent,
+        QuestionZoneComponent,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, MatDialogModule],
     providers: [],

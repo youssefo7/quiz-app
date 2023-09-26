@@ -6,6 +6,7 @@ import { Response } from 'express';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { QuizzesController } from './quizzes.controller';
 
+// TODO : add tests for visibility and deleted check
 describe('QuizzesController', () => {
     let controller: QuizzesController;
     let quizzesService: SinonStubbedInstance<QuizzesService>;
@@ -173,5 +174,93 @@ describe('QuizzesController', () => {
         res.send = () => res;
 
         await controller.deleteQuiz('id', res);
+    });
+
+    it('checkQuizAvailability() should return availability boolean', async () => {
+        quizzesService.checkQuizAvailability.resolves(true);
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.json = (isAvailable) => {
+            expect(isAvailable).toEqual(true);
+            return res;
+        };
+
+        await controller.checkQuizAvailability('id', res);
+    });
+
+    it('checkQuizAvailability() should return INTERNAL_SERVER_ERROR when service cannot check the Quiz', async () => {
+        quizzesService.checkIdAvailability.rejects();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.INTERNAL_SERVER_ERROR);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.checkQuizAvailability('id', res);
+    });
+
+    it('checkQuizVisibility() should return visibility boolean', async () => {
+        quizzesService.checkQuizVisibility.resolves(true);
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.json = (isVisible) => {
+            expect(isVisible).toEqual(true);
+            return res;
+        };
+
+        await controller.checkQuizVisibility('id', res);
+    });
+
+    it('checkQuizVisibility() should return NOT_FOUND when service cannot check the Quiz', async () => {
+        quizzesService.checkQuizVisibility.rejects();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.checkQuizVisibility('id', res);
+    });
+
+    it('importQuiz() should return CREATED', async () => {
+        const fakeQuiz = new Quiz();
+        quizzesService.importQuiz.resolves(fakeQuiz);
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.CREATED);
+            return res;
+        };
+        res.json = (quiz) => {
+            expect(quiz).toEqual(fakeQuiz);
+            return res;
+        };
+
+        await controller.importQuiz(new Quiz(), res);
+    });
+
+    it('importQuiz() should return UNPROCESSABLE_ENTITY when service cannot import the Quiz', async () => {
+        quizzesService.importQuiz.rejects();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.importQuiz(new Quiz(), res);
     });
 });
