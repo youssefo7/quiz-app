@@ -1,6 +1,6 @@
 <div id="question-zone-container" (click)="focusOnButton()">
     <div *ngIf="quiz" class="question-points-zone">
-        <p class="points-message" [ngStyle]="pointsDisplay">{{ points }} Points! {{ bonusMessage }}</p>
+        <p class="points-message" *ngIf="doesDisplayPoints">{{ points }} Points! {{ bonusMessage }}</p>
         <p class="question" *ngIf="question">{{ question.text }}</p>
         <p class="question" *ngIf="question">({{ question.points }} Points)</p>
     </div>
@@ -18,6 +18,6 @@
         </button>
     </div>
     <div id="submit-zone">
-        <input [ngStyle]="submitButtonStyle" (click)="submitAnswerOnClickEvent()" type="button" value="Soumettre" [disabled]="isSubmitDisabled" />
+        <button [ngStyle]="submitButtonStyle" (click)="submitAnswerOnClickEvent()" [disabled]="isSubmitDisabled">Soumettre</button>
     </div>
 </div>

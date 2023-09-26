@@ -25,7 +25,10 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     pointsDisplay: { display: string };
     isSubmitDisabled: boolean;
     isChoiceButtonDisabled: boolean;
-    private mySubscription: Subscription;
+    doesDisplayPoints: boolean;
+    hasGameEnded: boolean;
+    private timerSubscription: Subscription;
+    private gameServiceSubscription: Subscription;
 
     // Raison: J'injecte 5 services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
@@ -44,6 +47,8 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.submitButtonStyle = { backgroundColor: '' };
         this.isSubmitDisabled = true;
         this.isChoiceButtonDisabled = false;
+        this.doesDisplayPoints = false;
+        this.hasGameEnded = false;
     }
 
     @HostListener('keypress', ['$event'])
@@ -58,8 +63,9 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         const keyPressed = event.key;
 
         if (keyPressed === 'Enter') {
-            if (this.isSubmitDisabled) return;
-            this.submitAnswerOnClickEvent();
+            if (!this.isSubmitDisabled) {
+                this.submitAnswerOnClickEvent();
+            }
         } else {
             const choiceIndex = parseInt(keyPressed, 10) - 1;
             this.toggleChoice(choiceIndex);
@@ -85,33 +91,43 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     subscribeToTimer() {
-        this.mySubscription = this.timeService.getTime().subscribe((time: number) => {
-            const timerTime = time;
-            if (timerTime === 0) {
-                if (!this.isQuestionTransition) {
-                    this.submitAnswerOnCountdownEvent();
-                    this.isQuestionTransition = true;
-                } else {
-                    this.isQuestionTransition = false;
-                    ++this.currentQuestionIndex;
-                    this.getQuestion(this.currentQuestionIndex);
+        this.timerSubscription = this.timeService.getTime().subscribe((time: number) => {
+            if (!this.hasGameEnded) {
+                const timerTime = time;
+                if (timerTime === 0) {
+                    if (!this.isQuestionTransition) {
+                        this.submitAnswerOnCountdownEvent();
+                        this.isQuestionTransition = true;
+                    } else {
+                        this.isQuestionTransition = false;
+                        ++this.currentQuestionIndex;
+                        this.getQuestion(this.currentQuestionIndex);
+                    }
                 }
             }
         });
     }
 
-    getQuestion(index: number = 0) {
-        if (index >= this.quiz.questions.length) return;
-        this.question = this.quiz.questions[index];
-        this.chosenChoices = new Array(this.question.choices.length).fill(false);
-        this.question.choices.forEach((choice, buttonIndex) => {
-            this.setButtonsToInitState(buttonIndex);
+    subscribeToGameService() {
+        this.gameServiceSubscription = this.gameService.hasGameEndedObservable.subscribe((hasEnded: boolean) => {
+            this.hasGameEnded = hasEnded;
         });
     }
 
+    getQuestion(index: number = 0) {
+        if (index <= this.quiz.questions.length) {
+            this.question = this.quiz.questions[index];
+            this.chosenChoices = new Array(this.question.choices.length).fill(false);
+            this.question.choices.forEach((choice, buttonIndex) => {
+                this.setButtonsToInitState(buttonIndex);
+            });
+        }
+    }
+
     toggleChoice(index: number) {
-        if (isNaN(index) || index < 0 || index >= this.chosenChoices.length) return;
-        this.chosenChoices[index] = !this.chosenChoices[index];
+        if (!isNaN(index) || index >= 0 || index <= this.chosenChoices.length) {
+            this.chosenChoices[index] = !this.chosenChoices[index];
+        }
     }
 
     disableSubmitButton() {
@@ -136,7 +152,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.hidePoints();
     }
 
-    setButtonsStateOnSubmit(index: number) {
+    setButtonStateOnSubmit(index: number) {
         this.choiceButtonStyle[index] = {
             backgroundColor: this.question.choices[index].isCorrect ? 'rgb(97, 207, 72)' : 'red',
         };
@@ -145,25 +161,22 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
 
     async submitAnswerOnClickEvent() {
         this.gameService.setButtonPressState = true;
-        this.disableSubmitButton();
-        this.displayCorrectAnswer();
-        this.givePoints();
+        this.showResult();
         this.isQuestionTransition = true;
     }
 
     async submitAnswerOnCountdownEvent() {
-        this.disableSubmitButton();
-        this.displayCorrectAnswer();
-        this.givePoints();
+        this.showResult();
     }
 
     isAnswerGood() {
         const isAnswerGood = this.chosenChoices.every((answer, index) => answer === this.question.choices[index].isCorrect);
         return isAnswerGood;
     }
+
     displayCorrectAnswer() {
         this.question.choices.forEach((choice, index) => {
-            this.setButtonsStateOnSubmit(index);
+            this.setButtonStateOnSubmit(index);
         });
         this.showPoints();
     }
@@ -181,25 +194,33 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.pointsEarned.emit(this.points);
     }
 
+    showResult() {
+        this.disableSubmitButton();
+        this.displayCorrectAnswer();
+        this.givePoints();
+    }
+
     showPoints() {
-        this.pointsDisplay = { display: 'block' };
+        this.doesDisplayPoints = true;
     }
 
     hidePoints() {
-        this.pointsDisplay = { display: 'none' };
+        this.doesDisplayPoints = false;
     }
 
-    async loadQuestions() {
+    async loadQuiz() {
         await this.getQuiz();
         this.getQuestion();
     }
 
     ngOnInit() {
-        this.loadQuestions();
+        this.loadQuiz();
         this.subscribeToTimer();
+        this.subscribeToGameService();
     }
 
     ngOnDestroy() {
-        this.mySubscription.unsubscribe();
+        this.timerSubscription.unsubscribe();
+        this.gameServiceSubscription.unsubscribe();
     }
 }
