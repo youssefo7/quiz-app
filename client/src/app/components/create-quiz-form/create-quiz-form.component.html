@@ -47,8 +47,6 @@
                 </app-quiz-question-info> 
             </div>
         </div>
-        <button (click)="saveQuiz()" [disabled]="!isQuizFormValid()">Add Quiz</button>
+        <button (click)="openQuizConfirmation()" [disabled]="!isQuizFormValid()">Add Quiz</button>
     </form>
 </div>
-
-                <!-- (questionModified)="onQuestionModified($event)" [modifiedQuestionIndex]="selectedQuestionIndex" [modifiedQuestion]="selectedQuestion"-->

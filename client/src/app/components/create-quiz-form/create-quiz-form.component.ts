@@ -1,6 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, Input, OnInit, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
+import { QuizConfirmationComponent } from '@app/components/quiz-confirmation/quiz-confirmation.component';
 import { QuizGeneralInfoComponent } from '@app/components/quiz-general-info/quiz-general-info.component';
 import { QuizQuestionInfoComponent } from '@app/components/quiz-question-info/quiz-question-info.component';
 import { Question, Quiz } from '@app/interfaces/quiz';
@@ -29,6 +31,7 @@ export class CreateQuizFormComponent implements OnInit, AfterViewInit {
         private readonly communicationService: CommunicationService,
         private quizManagerService: NewQuizManagerService,
         private route: ActivatedRoute,
+        private confirmationDialogReference: MatDialog,
     ) {}
 
     ngOnInit(): void {
@@ -43,8 +46,7 @@ export class CreateQuizFormComponent implements OnInit, AfterViewInit {
     ngAfterViewInit(): void {
         if (this.quizId !== null) {
             this.quizManagerService.isQuizBeingModified = true;
-            if(this.modifyQuiz.title !== '') {
-                console.log(this.newQuiz);
+            if (this.modifyQuiz.title !== '') {
                 this.newQuiz = this.modifyQuiz;
                 this.quizManagerService.setQuizToModify(this.newQuiz);
                 this.quizGeneralInfo.loadGeneralData(this.newQuiz);
@@ -111,11 +113,7 @@ export class CreateQuizFormComponent implements OnInit, AfterViewInit {
     }
 
     isQuizFormValid(): boolean {
-        if (
-            this.newQuiz.questions.some((question) => this.isQuestionValid(question)) &&
-            this.newQuiz.title !== '' &&
-            this.newQuiz.duration !== 0
-        ) {
+        if (this.newQuiz.questions.some((question) => this.isQuestionValid(question)) && this.newQuiz.title !== '' && this.newQuiz.duration !== 0) {
             return true;
         }
         return false;
@@ -136,17 +134,7 @@ export class CreateQuizFormComponent implements OnInit, AfterViewInit {
             this.newQuiz.questions.splice(index, 1);
             this.quizQuestionInfo.resetForm();
         }
-        // if(this.isQuizToModify && this.quizId !== null) {
-        //     this.quizManagerService.updateQuiz(this.quizId, this.newQuiz);
-        // }
     }
-
-    // repositionQuestions(index: number) {
-    //     for (let i = index; i < this.newQuiz.questions.length; i++) {
-    //         let tmp = this.newQuiz.questions.
-    //         this.newQuiz.questions[index] = this.newQuiz.questions[index + 1];
-    //     }
-    // }
 
     moveQuestionUp(index: number) {
         if (index > 0) {
@@ -164,11 +152,20 @@ export class CreateQuizFormComponent implements OnInit, AfterViewInit {
         }
     }
 
+    openQuizConfirmation(): void {
+        const questionDialogReference = this.confirmationDialogReference.open(QuizConfirmationComponent);
+
+        questionDialogReference.afterClosed().subscribe((result) => {
+            if (result) {
+                this.saveQuiz();
+            }
+        });
+    }
+
     saveQuiz() {
-        if(this.isQuizToModify) {
+        if (this.isQuizToModify) {
             this.quizManagerService.updateQuiz(this.modifyQuiz.id, this.newQuiz);
-        }
-        else {
+        } else {
             this.quizManagerService.addNewQuiz(this.newQuiz);
         }
     }

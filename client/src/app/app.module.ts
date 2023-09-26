@@ -5,6 +5,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
+import { QuizConfirmationComponent } from '@app/components/quiz-confirmation/quiz-confirmation.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AppMaterialModule } from '@app/modules/material.module';
@@ -52,6 +53,7 @@ import { HostGamePageComponent } from './pages/host-game-page/host-game-page.com
         RangeValidatorDirective,
         QuestionFormValidatorDirective,
         QuestionConfirmationComponent,
+        QuizConfirmationComponent,
     ],
     imports: [
         AppMaterialModule,

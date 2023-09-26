@@ -80,9 +80,9 @@ export class NewQuizManagerService {
             error: (err: HttpErrorResponse) => {
                 const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
                 this.message = responseString;
+                this.addNewQuiz(updatedQuiz);
             },
         });
-        this.addNewQuiz(updatedQuiz);
     }
 
     getQuizFromServer(id: string): void {

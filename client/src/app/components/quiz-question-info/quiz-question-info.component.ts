@@ -28,7 +28,7 @@ export class QuizQuestionInfoComponent implements OnInit {
     constructor(
         private quizManagerService: NewQuizManagerService,
         private fb: FormBuilder,
-        public confirmationDialogReference: MatDialog,
+        private confirmationDialogReference: MatDialog,
     ) {}
 
     get choices() {
@@ -131,7 +131,7 @@ export class QuizQuestionInfoComponent implements OnInit {
         const questionDialogReference = this.confirmationDialogReference.open(QuestionConfirmationComponent);
 
         questionDialogReference.afterClosed().subscribe((result) => {
-            if (result === true) {
+            if (result) {
                 this.manageQuestion();
                 this.resetForm();
             }
@@ -155,7 +155,7 @@ export class QuizQuestionInfoComponent implements OnInit {
             points: questionPoints,
             choices: choicesArray,
         };
-        
+
         if (this.isModifiedQuestion) {
             this.quizManagerService.modifyQuestion(newQuestion, this.modifiedIndex);
             this.isModifiedQuestion = false;

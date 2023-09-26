@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { QuizGeneralInfoComponent } from '@app/components/quiz-general-info/quiz-general-info.component';
 import { QuizQuestionInfoComponent } from '@app/components/quiz-question-info/quiz-question-info.component';
@@ -12,7 +12,7 @@ import { BehaviorSubject } from 'rxjs';
     templateUrl: './admin-page.component.html',
     styleUrls: ['./admin-page.component.scss'],
 })
-export class AdminPageComponent {
+export class AdminPageComponent implements OnInit {
     @ViewChild(QuizQuestionInfoComponent, { static: false }) quizQuestionInfo: QuizQuestionInfoComponent;
     @ViewChild(QuizGeneralInfoComponent, { static: false }) quizGeneralInfo: QuizGeneralInfoComponent;
     message: BehaviorSubject<string> = new BehaviorSubject<string>('');
@@ -33,6 +33,7 @@ export class AdminPageComponent {
         this.getQuizListFromServer();
         this.questionIndex = 0;
     }
+
     getQuizListFromServer(): void {
         this.communicationService.getQuizzes().subscribe({
             next: (quizzes) => {
@@ -67,7 +68,7 @@ export class AdminPageComponent {
             },
         });
     }
-    
+
     deleteQuizFromServer(id: string): void {
         this.communicationService.deleteQuiz(id).subscribe({
             next: () => {
