@@ -54,6 +54,13 @@ export class CountdownComponent implements OnInit {
         await this.timeService.startTimer(this.quiz.duration);
     }
 
+    async leaveGameClock() {
+        const exitTransitionTime = 3;
+        this.message = 'Redirection vers «Créer une Partie»';
+        this.clockStyle = { backgroundColor: 'white' };
+        await this.timeService.startTimer(exitTransitionTime);
+    }
+
     async gameClock() {
         const lastQuestionIndex = this.quiz.questions.length - 1;
         // Raison: Boucle for in/of pas pertinent, car je n'ai pas besoin des éléments du tableau
@@ -70,10 +77,7 @@ export class CountdownComponent implements OnInit {
         const isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
         if (isTestGame) {
             this.gameService.setGameEndState = true;
-            const exitTransitionTime = 3;
-            this.message = 'Redirection vers «Organiser Partie»';
-            this.clockStyle = { backgroundColor: 'white' };
-            await this.timeService.startTimer(exitTransitionTime);
+            await this.leaveGameClock();
             this.router.navigateByUrl('/game/new');
         }
     }
