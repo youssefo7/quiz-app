@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
+import { GameService } from '@app/services/game.service';
 import { TimeService } from '@app/services/time.service';
 
 @Component({
@@ -21,6 +22,7 @@ export class CountdownComponent implements OnInit {
         private communicationService: CommunicationService,
         private route: ActivatedRoute,
         private router: Router,
+        private gameService: GameService,
     ) {}
 
     get time(): number {
@@ -66,12 +68,14 @@ export class CountdownComponent implements OnInit {
 
     async leaveGame() {
         const isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
-        if (!isTestGame) return;
-        const exitTransitionTime = 3;
-        this.message = 'Redirection vers «Organiser Partie»';
-        this.clockStyle = { backgroundColor: 'white' };
-        await this.timeService.startTimer(exitTransitionTime);
-        this.router.navigateByUrl('/game/new');
+        if (isTestGame) {
+            this.gameService.setGameEndState = true;
+            const exitTransitionTime = 3;
+            this.message = 'Redirection vers «Organiser Partie»';
+            this.clockStyle = { backgroundColor: 'white' };
+            await this.timeService.startTimer(exitTransitionTime);
+            this.router.navigateByUrl('/game/new');
+        }
     }
 
     async loadTimer() {
