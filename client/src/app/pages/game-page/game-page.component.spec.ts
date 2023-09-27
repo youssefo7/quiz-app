@@ -9,6 +9,7 @@ import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { CommunicationService } from '@app/services/communication.service';
 import { of } from 'rxjs';
 import { GamePageComponent } from './game-page.component';
+import { MatDialogModule } from '@angular/material/dialog';
 
 describe('GamePageComponent', () => {
     let component: GamePageComponent;
@@ -33,7 +34,7 @@ describe('GamePageComponent', () => {
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
             declarations: [GamePageComponent, TopBarComponent, ProfileComponent, ChatComponent, QuestionZoneComponent, CountdownComponent],
-            imports: [MatIconModule, RouterModule],
+            imports: [MatIconModule, RouterModule, MatDialogModule],
             providers: [
                 { provide: CommunicationService, useValue: communicationServiceMock },
                 {
