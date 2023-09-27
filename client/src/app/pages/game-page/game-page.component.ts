@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Quiz } from '@app/interfaces/quiz';
-import { CommunicationService } from '@app/services/communication.service';
+import { GameService } from '@app/services/game.service';
 
 @Component({
     selector: 'app-game-page',
@@ -11,13 +11,13 @@ import { CommunicationService } from '@app/services/communication.service';
 export class GamePageComponent implements OnInit {
     title: string;
     link: string;
-    quiz: Quiz;
+    quiz: Quiz | null;
     playerPoints: number;
     private readonly isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
 
     constructor(
-        private communicationService: CommunicationService,
-        private route: ActivatedRoute,
+        private readonly gameService: GameService,
+        private readonly route: ActivatedRoute,
     ) {
         this.title = 'Partie';
         this.link = '/home';
@@ -31,14 +31,9 @@ export class GamePageComponent implements OnInit {
         }
     }
 
-    getQuiz() {
+    async getQuiz() {
         const id = this.route.snapshot.paramMap.get('id');
-
-        if (id) {
-            this.communicationService.getQuiz(id).subscribe((quiz) => {
-                this.quiz = quiz;
-            });
-        }
+        this.quiz = await this.gameService.getQuizById(id);
     }
 
     givePoints(points: number) {

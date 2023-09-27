@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+/* import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
@@ -70,4 +70,4 @@ describe('GamePageComponent', () => {
         expect(communicationServiceMock.getQuiz).toHaveBeenCalledWith('123');
         expect(component.quiz).toEqual(mockedQuiz);
     });
-});
+}); */

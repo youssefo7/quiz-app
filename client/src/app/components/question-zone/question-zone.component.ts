@@ -1,7 +1,6 @@
 import { Component, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Question, Quiz } from '@app/interfaces/quiz';
-import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
 import { TimeService } from '@app/services/time.service';
 import { Subscription } from 'rxjs';
@@ -16,7 +15,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     isQuestionTransition: boolean;
     currentQuestionIndex: number;
     points: number;
-    quiz: Quiz;
+    quiz: Quiz | null;
     question: Question;
     chosenChoices: boolean[];
     choiceButtonStyle: { backgroundColor: string }[];
@@ -30,10 +29,9 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     private timerSubscription: Subscription;
     private gameServiceSubscription: Subscription;
 
-    // Raison: J'injecte 5 services nécessaire dans mon constructeur
+    // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
     constructor(
-        private communicationService: CommunicationService,
         private route: ActivatedRoute,
         private elementRef: ElementRef,
         private gameService: GameService,
@@ -79,15 +77,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
 
     async getQuiz() {
         const id = this.route.snapshot.paramMap.get('id');
-
-        if (id) {
-            return new Promise<void>((resolve) => {
-                this.communicationService.getQuiz(id).subscribe((quiz) => {
-                    this.quiz = quiz;
-                    resolve();
-                });
-            });
-        }
+        this.quiz = await this.gameService.getQuizById(id);
     }
 
     subscribeToTimer() {
@@ -115,7 +105,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     getQuestion(index: number = 0) {
-        if (index <= this.quiz.questions.length) {
+        if (this.quiz && index <= this.quiz.questions.length) {
             this.question = this.quiz.questions[index];
             this.chosenChoices = new Array(this.question.choices.length).fill(false);
             this.question.choices.forEach((choice, buttonIndex) => {
@@ -181,7 +171,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.showPoints();
     }
 
-    // TODO: Ajouter le point bonus seulement au joueur qui à soumis la bonne réponse en 1er (Sprint 2)
     givePoints() {
         if (!this.isAnswerGood()) {
             this.points = 0;

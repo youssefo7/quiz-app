@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Quiz } from '@app/interfaces/quiz';
-import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
 import { TimeService } from '@app/services/time.service';
 
@@ -11,15 +10,14 @@ import { TimeService } from '@app/services/time.service';
     styleUrls: ['./countdown.component.scss'],
 })
 export class CountdownComponent implements OnInit {
-    quiz: Quiz;
+    quiz: Quiz | null;
     message: string;
     clockStyle: { backgroundColor: string };
 
-    // Raison: J'injecte 4 services nécessaire dans mon constructeur
+    // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
     constructor(
         private readonly timeService: TimeService,
-        private communicationService: CommunicationService,
         private route: ActivatedRoute,
         private router: Router,
         private gameService: GameService,
@@ -31,47 +29,45 @@ export class CountdownComponent implements OnInit {
 
     async getQuiz() {
         const id = this.route.snapshot.paramMap.get('id');
-        if (id) {
-            return new Promise<void>((resolve) => {
-                this.communicationService.getQuiz(id).subscribe((quiz) => {
-                    this.quiz = quiz;
-                    resolve();
-                });
-            });
-        }
+        this.quiz = await this.gameService.getQuizById(id);
+    }
+
+    async setClock(exitTransitionTime: number, message: string, background: string) {
+        this.message = message;
+        this.clockStyle = { backgroundColor: background };
+        await this.timeService.startTimer(exitTransitionTime);
     }
 
     async transitionClock() {
         const transitionTime = 3;
-        this.message = 'Préparez-vous!';
-        this.clockStyle = { backgroundColor: '#E5E562' };
-        await this.timeService.startTimer(transitionTime);
+        await this.setClock(transitionTime, 'Préparez-vous!', '#E5E562');
     }
 
     async questionClock() {
-        this.message = 'Temps Restant';
-        this.clockStyle = { backgroundColor: 'lightblue' };
-        await this.timeService.startTimer(this.quiz.duration);
+        if (this.quiz) {
+            await this.setClock(this.quiz.duration, 'Temps Restant', 'lightblue');
+        }
     }
 
     async leaveGameClock() {
         const exitTransitionTime = 3;
-        this.message = 'Redirection vers «Créer une Partie»';
-        this.clockStyle = { backgroundColor: 'white' };
-        await this.timeService.startTimer(exitTransitionTime);
+        await this.setClock(exitTransitionTime, 'Redirection vers «Créer une Partie»', 'white');
     }
 
     async gameClock() {
-        const lastQuestionIndex = this.quiz.questions.length - 1;
-        // Raison: Boucle for in/of pas pertinent, car je n'ai pas besoin des éléments du tableau
-        // eslint-disable-next-line @typescript-eslint/prefer-for-of
-        for (let i = 0; i <= lastQuestionIndex; i++) {
-            await this.questionClock();
-            if (i !== lastQuestionIndex) {
-                await this.transitionClock();
+        if (this.quiz) {
+            const lastQuestionIndex = this.quiz.questions.length - 1;
+            let currentQuestionIndex = 0;
+
+            while (currentQuestionIndex <= lastQuestionIndex) {
+                await this.questionClock();
+                if (currentQuestionIndex !== lastQuestionIndex) {
+                    await this.transitionClock();
+                }
+                currentQuestionIndex++;
             }
+            this.leaveGame();
         }
-        this.leaveGame();
     }
 
     async leaveGame() {
