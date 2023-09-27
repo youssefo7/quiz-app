@@ -15,7 +15,7 @@ describe('QuizzesService', () => {
             duration: 60,
             lastModification: '2018-11-13T20:20:39+00:00',
             visibility: true,
-            description: '',
+            description: 'description',
             questions: [
                 {
                     type: 'QCM',
@@ -214,6 +214,14 @@ describe('QuizzesService', () => {
         } as unknown as Quiz;
 
         await expect(service.verifyQuiz(mockQuiz)).rejects.toThrow('La durée du quiz est manquante ou doit être un nombre');
+    });
+
+    it('should check for a missing or invalid description', async () => {
+        const mockQuiz = {
+            title: 'test',
+        } as unknown as Quiz;
+
+        await expect(service.verifyQuiz(mockQuiz)).rejects.toThrow('Description du quiz invalide ou manquante');
     });
 
     it('should check for a wrong duration', async () => {

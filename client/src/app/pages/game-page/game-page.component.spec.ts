@@ -32,7 +32,7 @@ describe('GamePageComponent', () => {
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [GamePageComponent, TopBarComponent, ProfileComponent, ChatComponent, CountdownComponent, QuestionZoneComponent],
+            declarations: [GamePageComponent, TopBarComponent, ProfileComponent, ChatComponent, CountdownComponent],
             imports: [MatIconModule, RouterModule],
             providers: [
                 { provide: CommunicationService, useValue: communicationServiceMock },

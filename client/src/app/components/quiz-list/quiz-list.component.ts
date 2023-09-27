@@ -1,11 +1,12 @@
-//  import { ImportService } from '@app/services/import.service';
-import { CommunicationService } from '@app/services/communication.service';
 import { Component, OnInit } from '@angular/core';
-import { Quiz } from '@app/interfaces/quiz';
-import { BehaviorSubject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
+import { ImportPopupComponent } from '@app/components/import-popup/import-popup.component';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
+import { Quiz } from '@app/interfaces/quiz';
+import { CommunicationService } from '@app/services/communication.service';
+import { ImportService } from '@app/services/import.service';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
     selector: 'app-quiz-list',
@@ -18,6 +19,7 @@ export class QuizListComponent implements OnInit {
     constructor(
         private communicationService: CommunicationService,
         private popup: MatDialog,
+        private importService: ImportService,
     ) {}
 
     ngOnInit(): void {
@@ -25,7 +27,7 @@ export class QuizListComponent implements OnInit {
     }
 
     fetchQuizzes(): void {
-        this.communicationService.getQuizzes().subscribe((quizzes) => {
+        this.communicationService.getQuizzes().subscribe((quizzes: Quiz[]) => {
             this.quizList.next(quizzes);
         });
     }
@@ -76,6 +78,32 @@ export class QuizListComponent implements OnInit {
             okButtonFunction: () => {
                 this.deleteQuiz(quiz);
             },
+        };
+        const dialogRef = this.popup.open(PopupMessageComponent);
+        const popupInstance = dialogRef.componentInstance;
+        popupInstance.config = config;
+    }
+
+    async handleImport(event: Event) {
+        try {
+            await this.importService.selectQuiz(event);
+            await this.importService.importQuiz();
+            this.importSuccessPopup();
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "Une erreur s'est produite.";
+            this.popup.open(ImportPopupComponent, {
+                data: { errorMessage },
+            });
+        } finally {
+            this.importService.resetInput(event);
+            this.fetchQuizzes();
+        }
+    }
+
+    importSuccessPopup(): void {
+        const config: PopupMessageConfig = {
+            message: 'Importation réussie',
+            hasCancelButton: false,
         };
         const dialogRef = this.popup.open(PopupMessageComponent);
         const popupInstance = dialogRef.componentInstance;

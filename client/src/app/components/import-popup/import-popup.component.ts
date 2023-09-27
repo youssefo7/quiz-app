@@ -21,26 +21,4 @@ export class ImportPopupComponent {
     closeDialog() {
         this.dialogRef.close();
     }
-
-    // function to use in page
-    // async handleImport(event: Event) {
-    //     try {
-    //         await this.importService.selectQuiz(event);
-    //         await this.importService.importQuiz();
-    //     } catch (error) {
-    //         const errorMessage = error instanceof Error ? error.message : 'An error occurred.';
-    //         this.dialog.open(ImportPopupComponent, {
-    //             data: { errorMessage },
-    //         });
-    //     } finally {
-    //         this.importService.resetInput(event);
-    //     }
-    // }
-
-    // html to use in page
-    // <input type="file" (change)="handleImport($event)" accept=".json"/>
-
-    // in constructor in page
-    // private dialog: MatDialog,
-    // private importService: ImportService,
 }

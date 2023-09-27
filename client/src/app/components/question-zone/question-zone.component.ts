@@ -109,7 +109,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             this.question = this.quiz.questions[index];
             this.chosenChoices = new Array(this.question.choices.length).fill(false);
             this.question.choices.forEach((choice, buttonIndex) => {
-                this.setButtonsToInitState(buttonIndex);
+                this.setButtonToInitState(buttonIndex);
             });
         }
     }
@@ -135,7 +135,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         }
     }
 
-    setButtonsToInitState(index: number) {
+    setButtonToInitState(index: number) {
         this.choiceButtonStyle[index] = { backgroundColor: '' };
         this.isChoiceButtonDisabled = false;
         this.submitButtonStyle = { backgroundColor: '' };

@@ -68,6 +68,7 @@ export class CountdownComponent implements OnInit {
             }
             this.leaveGame();
         }
+        this.leaveGame();
     }
 
     async leaveGame() {
