@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Quiz } from '@app/interfaces/quiz';
-import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
 import { TimeService } from '@app/services/time.service';
 
@@ -11,15 +10,14 @@ import { TimeService } from '@app/services/time.service';
     styleUrls: ['./countdown.component.scss'],
 })
 export class CountdownComponent implements OnInit {
-    quiz: Quiz;
+    quiz: Quiz | null;
     message: string;
     clockStyle: { backgroundColor: string };
 
-    // Raison: J'injecte 4 services nécessaire dans mon constructeur
+    // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
     constructor(
         private readonly timeService: TimeService,
-        private communicationService: CommunicationService,
         private route: ActivatedRoute,
         private router: Router,
         private gameService: GameService,
@@ -31,14 +29,7 @@ export class CountdownComponent implements OnInit {
 
     async getQuiz() {
         const id = this.route.snapshot.paramMap.get('id');
-        if (id) {
-            return new Promise<void>((resolve) => {
-                this.communicationService.getQuiz(id).subscribe((quiz) => {
-                    this.quiz = quiz;
-                    resolve();
-                });
-            });
-        }
+        this.quiz = await this.gameService.getQuizById(id);
     }
 
     async transitionClock() {
@@ -51,7 +42,9 @@ export class CountdownComponent implements OnInit {
     async questionClock() {
         this.message = 'Temps Restant';
         this.clockStyle = { backgroundColor: 'lightblue' };
-        await this.timeService.startTimer(this.quiz.duration);
+        if (this.quiz) {
+            await this.timeService.startTimer(this.quiz.duration);
+        }
     }
 
     async leaveGameClock() {
@@ -62,24 +55,28 @@ export class CountdownComponent implements OnInit {
     }
 
     async gameClock() {
-        const lastQuestionIndex = this.quiz.questions.length - 1;
-        // Raison: Boucle for in/of pas pertinent, car je n'ai pas besoin des éléments du tableau
-        // eslint-disable-next-line @typescript-eslint/prefer-for-of
-        for (let i = 0; i <= lastQuestionIndex; i++) {
-            await this.questionClock();
-            if (i !== lastQuestionIndex) {
-                await this.transitionClock();
+        if (this.quiz) {
+            const lastQuestionIndex = this.quiz.questions.length - 1;
+            let currentQuestionIndex = 0;
+
+            while (currentQuestionIndex <= lastQuestionIndex) {
+                await this.questionClock();
+                if (currentQuestionIndex !== lastQuestionIndex) {
+                    await this.transitionClock();
+                }
+                currentQuestionIndex++;
             }
+            this.leaveGame();
         }
-        this.leaveGame();
     }
 
+    /* TODO: Fix le reload pour que partie en mode test ne soit pas redirigé vers la page de création de partie immédiatement */
     async leaveGame() {
         const isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
         if (isTestGame) {
             this.gameService.setGameEndState = true;
             await this.leaveGameClock();
-            this.router.navigateByUrl('/game/new');
+            await this.router.navigateByUrl('/game/new');
         }
     }
 

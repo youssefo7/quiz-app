@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Quiz } from '@app/interfaces/quiz';
-import { CommunicationService } from '@app/services/communication.service';
+import { GameService } from '@app/services/game.service';
 
 @Component({
     selector: 'app-game-page',
@@ -11,34 +11,39 @@ import { CommunicationService } from '@app/services/communication.service';
 export class GamePageComponent implements OnInit {
     title: string;
     link: string;
-    quiz: Quiz;
+    quiz: Quiz | null;
     playerPoints: number;
-    private readonly isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
+    private readonly isTestGame: boolean;
 
     constructor(
-        private communicationService: CommunicationService,
-        private route: ActivatedRoute,
+        private readonly gameService: GameService,
+        private readonly route: ActivatedRoute,
+        private readonly router: Router,
     ) {
         this.title = 'Partie';
-        this.link = '/home';
         this.playerPoints = 0;
+        this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
     }
 
-    checkGameRoute(isTestGame = this.isTestGame) {
-        if (isTestGame) {
-            this.link = '/game/new';
+    setPageTitle() {
+        if (this.isTestGame) {
             this.title += ' - Test';
         }
     }
 
-    getQuiz() {
-        const id = this.route.snapshot.paramMap.get('id');
-
-        if (id) {
-            this.communicationService.getQuiz(id).subscribe((quiz) => {
-                this.quiz = quiz;
-            });
+    /* TODO: Fix le reload pour que partie en mode test ne soit pas redirigé vers la page de création de partie immédiatement */
+    async leaveGamePage(event: Event) {
+        event.stopPropagation();
+        if (this.isTestGame) {
+            await this.router.navigateByUrl('/game/new');
+        } else {
+            await this.router.navigateByUrl('/home');
         }
+    }
+
+    async getQuiz() {
+        const id = this.route.snapshot.paramMap.get('id');
+        this.quiz = await this.gameService.getQuizById(id);
     }
 
     givePoints(points: number) {
@@ -46,7 +51,7 @@ export class GamePageComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.checkGameRoute();
+        this.setPageTitle();
         this.getQuiz();
     }
 }
