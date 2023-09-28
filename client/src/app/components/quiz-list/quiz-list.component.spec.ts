@@ -41,6 +41,18 @@ describe('QuizListComponent', () => {
             questions: [],
         },
     ];
+
+    const propQuiz: Quiz = {
+        $schema: 'quiz-schema.json',
+        id: '986',
+        title: 'Histoire et culture generale',
+        duration: 15,
+        lastModification: '2018-11-13T20:20:39+00:00',
+        visibility: false,
+        description: "Montrez que vous êtes incollable sur l'histoire et la culture générale",
+        questions: [],
+    };
+
     beforeEach(() => {
         mockImportService = jasmine.createSpyObj('mockImportService', ['selectQuiz', 'importQuiz', 'resetInput']);
         mockDialog = jasmine.createSpyObj('mockDialog', ['open']);
@@ -128,78 +140,35 @@ describe('QuizListComponent', () => {
     });
 
     it('should call delete quiz service with the correct quiz', () => {
-        const quizToDelete: Quiz = {
-            $schema: 'quiz-schema.json',
-            id: '986',
-            title: 'Histoire et culture generale',
-            duration: 15,
-            lastModification: '2018-11-13T20:20:39+00:00',
-            visibility: false,
-            description: "Montrez que vous êtes incollable sur l'histoire et la culture générale",
-            questions: [],
-        };
-        spyOn(communicationService, 'deleteQuiz').and.returnValue(of(quizToDelete.id));
+        spyOn(communicationService, 'deleteQuiz').and.returnValue(of(propQuiz.id));
 
-        component.deleteQuiz(quizToDelete);
+        component.deleteQuiz(propQuiz);
 
-        expect(communicationService.deleteQuiz).toHaveBeenCalledWith(quizToDelete.id);
+        expect(communicationService.deleteQuiz).toHaveBeenCalledWith(propQuiz.id);
     });
 
     it('should call update quiz service with the correct quiz', () => {
-        const quizToToggleVisibility: Quiz = {
-            $schema: 'quiz-schema.json',
-            id: '986',
-            title: 'Histoire et culture generale',
-            duration: 15,
-            lastModification: '2018-11-13T20:20:39+00:00',
-            visibility: false,
-            description: "Montrez que vous êtes incollable sur l'histoire et la culture générale",
-            questions: [],
-        };
+        spyOn(communicationService, 'updateQuiz').and.returnValue(of(propQuiz));
 
-        spyOn(communicationService, 'updateQuiz').and.returnValue(of(quizToToggleVisibility));
+        component.toggleVisibility(propQuiz);
 
-        component.toggleVisibility(quizToToggleVisibility);
-
-        expect(communicationService.updateQuiz).toHaveBeenCalledWith(quizToToggleVisibility.id, quizToToggleVisibility);
+        expect(communicationService.updateQuiz).toHaveBeenCalledWith(propQuiz.id, propQuiz);
     });
 
     it('should export the quiz', () => {
-        const quizToExport: Quiz = {
-            $schema: 'quiz-schema.json',
-            id: '986',
-            title: 'Histoire et culture generale',
-            duration: 15,
-            lastModification: '2018-11-13T20:20:39+00:00',
-            visibility: false,
-            description: "Montrez que vous êtes incollable sur l'histoire et la culture générale",
-            questions: [],
-        };
-
-        const blob = new Blob([JSON.stringify(quizToExport)], { type: 'application/json' });
+        const blob = new Blob([JSON.stringify(propQuiz)], { type: 'application/json' });
         const anchorElement = document.createElement('a');
 
         spyOn(document, 'createElement').and.returnValue(anchorElement);
         spyOn(window.URL, 'createObjectURL').and.returnValue('blob:url');
 
-        component.exportQuiz(quizToExport);
+        component.exportQuiz(propQuiz);
 
         expect(window.URL.createObjectURL).toHaveBeenCalledWith(blob);
-        expect(anchorElement.download).toBe(quizToExport.title);
+        expect(anchorElement.download).toBe(propQuiz.title);
     });
 
     it('should popup a message when the user tries to delete a quiz with the correct configuration', () => {
-        const quizToPopup: Quiz = {
-            $schema: 'quiz-schema.json',
-            id: '986',
-            title: 'Histoire et culture generale',
-            duration: 15,
-            lastModification: '2018-11-13T20:20:39+00:00',
-            visibility: false,
-            description: "Montrez que vous êtes incollable sur l'histoire et la culture générale",
-            questions: [],
-        };
-
         const mockConfig: PopupMessageConfig = {
             message: "Ëtes-vous sûr de vouloir supprimer ce quiz? Cette action n'est pas reversible.",
             hasCancelButton: true,
@@ -207,7 +176,7 @@ describe('QuizListComponent', () => {
             cancelButtonText: 'Annuler',
         };
 
-        component.openPopupDelete(quizToPopup);
+        component.openPopupDelete(propQuiz);
         const config = mockDialogRef.componentInstance.config;
 
         expect(mockDialog.open).toHaveBeenCalled();
