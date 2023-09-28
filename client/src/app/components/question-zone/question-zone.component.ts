@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs';
 })
 export class QuestionZoneComponent implements OnInit, OnDestroy {
     @Output() pointsEarned: EventEmitter<number>;
-    isQuestionTransition: boolean;
+    isQuestionTransitioning: boolean;
     currentQuestionIndex: number;
     points: number;
     quiz: Quiz | null;
@@ -38,7 +38,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         private readonly timeService: TimeService,
     ) {
         this.pointsEarned = new EventEmitter<number>();
-        this.isQuestionTransition = false;
+        this.isQuestionTransitioning = false;
         this.currentQuestionIndex = 0;
         this.points = 0;
         this.choiceButtonStyle = [{ backgroundColor: '' }];
@@ -71,6 +71,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         }
     }
 
+    // Focus sur le bouton, ce qui permet au joueur de pouvoir utiliser les touches du clavier pour répondre
     focusOnButton() {
         this.elementRef.nativeElement.querySelector('button')?.focus();
     }
@@ -85,11 +86,11 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             if (!this.hasGameEnded) {
                 const timerTime = time;
                 if (timerTime === 0) {
-                    if (!this.isQuestionTransition) {
+                    if (!this.isQuestionTransitioning) {
                         this.submitAnswerOnCountdownEvent();
-                        this.isQuestionTransition = true;
+                        this.isQuestionTransitioning = true;
                     } else {
-                        this.isQuestionTransition = false;
+                        this.isQuestionTransitioning = false;
                         ++this.currentQuestionIndex;
                         this.getQuestion(this.currentQuestionIndex);
                     }
@@ -125,6 +126,11 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.submitButtonStyle = { backgroundColor: 'grey' };
     }
 
+    setSubmitButtonToDisabled(isDisabled: boolean, backgroundColor: { backgroundColor: string }) {
+        this.isSubmitEnabled = isDisabled;
+        this.submitButtonStyle = backgroundColor;
+    }
+
     setSubmitButtonStateOnChoices() {
         if (this.chosenChoices.some((choice) => choice === true)) {
             this.isSubmitEnabled = true;
@@ -152,7 +158,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     async submitAnswerOnClickEvent() {
         this.gameService.setButtonPressState = true;
         this.showResult();
-        this.isQuestionTransition = true;
+        this.isQuestionTransitioning = true;
     }
 
     async submitAnswerOnCountdownEvent() {
@@ -184,7 +190,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     showResult() {
-        this.disableSubmitButton();
+        this.setSubmitButtonToDisabled(true, { backgroundColor: 'grey' });
         this.displayCorrectAnswer();
         this.givePoints();
     }

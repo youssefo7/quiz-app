@@ -1,5 +1,5 @@
 import { HttpClientModule } from '@angular/common/http';
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -77,7 +77,7 @@ describe('GamePageComponent in test game route', () => {
         expect(component.playerPoints).toEqual(pointsWonFirstQuestion + pointsWonSecondQuestion);
     });
 
-    it('should fetch the quiz ', fakeAsync(() => {
+    it('should fetch the quiz ', () => {
         const id = '123';
         spyOn(gameService, 'getQuizById').and.returnValue(Promise.resolve(mockedQuiz));
         component.getQuiz();
@@ -85,7 +85,7 @@ describe('GamePageComponent in test game route', () => {
 
         expect(gameService.getQuizById).toHaveBeenCalledWith(id);
         expect(component.quiz).toEqual(mockedQuiz);
-    }));
+    });
 
     it('should popup a message when the user tries to exit a game with the correct configuration', () => {
         const mockConfig: PopupMessageConfig = {
