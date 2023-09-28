@@ -13,18 +13,6 @@ import { NewQuizManagerService } from '@app/services/new-quiz-manager.service';
     styleUrls: ['./create-quiz-page.component.scss'],
 })
 export class CreateQuizPageComponent implements OnInit, OnDestroy {
-    // AfterViewInit
-    // quiz: Quiz;
-    // constructor(private route: ActivatedRoute) {}
-    // private quizManagerService: NewQuizManagerService
-    // ngOnInit(): void {
-    //     const routeParams = this.route.snapshot.paramMap;
-    //     const quizId = String(routeParams.get('id'));
-        // quizId !== null ? this.formTitle = "Créer jeu questionnaire" : this.formTitle="Modifier jeu questionnaire";
-        // if(quizId !== 'null') {
-        //     this.quizManagerService.getQuizById(quizId);
-        // }
-    // }
     @ViewChild(QuizQuestionInfoComponent, { static: false }) quizQuestionInfo: QuizQuestionInfoComponent;
     @ViewChild(QuizGeneralInfoComponent, { static: false }) quizGeneralInfo: QuizGeneralInfoComponent;
     newQuiz: Quiz;
@@ -32,6 +20,7 @@ export class CreateQuizPageComponent implements OnInit, OnDestroy {
     isQuizToModify: boolean;
     quizId: string;
     formTitle: string;
+    resetQuiz: Quiz;
 
     constructor(
         private quizManagerService: NewQuizManagerService,
@@ -43,12 +32,10 @@ export class CreateQuizPageComponent implements OnInit, OnDestroy {
         const routeParams = this.route.snapshot.paramMap;
         console.log(routeParams, "route paramss");
         this.quizId = String(routeParams.get('id'));
-        // this.quizId !== null ? this.formTitle = "Créer jeu questionnaire" : this.formTitle="Modifier jeu questionnaire";
+        this.quizId !== null ? this.formTitle = "Créer jeu questionnaire" : this.formTitle="Modifier jeu questionnaire";
         if (this.quizId !== 'null') {
             const quizObeservable = await this.quizManagerService.getQuizById(this.quizId);
             this.newQuiz = quizObeservable as Quiz;
-            console.log("what");
-            console.log(quizObeservable);
         }
         else {
             this.newQuiz = this.quizManagerService.getNewQuiz();
@@ -62,18 +49,17 @@ export class CreateQuizPageComponent implements OnInit, OnDestroy {
         }
     }
 
-
     ngOnDestroy(): void {
         console.log("i was killed");
     }
-
 
     modifyQuestion(selectedQuestion: Question, selectedIndex: number) {
         this.quizQuestionInfo.loadQuestionInformation(selectedQuestion, selectedIndex);
     }
 
     isQuizFormValid(): boolean {
-        if (this.newQuiz.questions.every((question) => this.isQuestionValid(question)) && this.newQuiz.title !== '' && this.newQuiz.duration !== 0) {
+        if (this.newQuiz.questions.every((question) => this.isQuestionValid(question)) && this.newQuiz.title !== '' && this.newQuiz.duration !== 0 &&
+        this.quizGeneralInfo.buttonText !== 'Sauvegarder') {
             return true;
         }
         return false;

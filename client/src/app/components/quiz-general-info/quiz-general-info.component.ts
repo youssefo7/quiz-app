@@ -24,38 +24,40 @@ export class QuizGeneralInfoComponent implements OnInit {
     charCountDescription: number;
     counterTitle: string;
     counterDescription: string;
-    defaultDuration: number;
 
 
     constructor(
         private quizManagerService: NewQuizManagerService,
         private fb: FormBuilder,
         private route: ActivatedRoute,
-    ) {}
+    ) {         
+        this.initCounters();
+        this.disableForm = false;
+        this.buttonText = 'Sauvegarder';
+        this.buttonName = 'edit-save';}
 
     ngOnInit(): void {
         const routeParams = this.route.snapshot.paramMap;
         const quizId = String(routeParams.get('id'));
-        this.defaultDuration = 10;
         // this.newQuiz = this.quizManagerService.getNewQuiz();
         if(quizId === 'null') {
-            this.newQuiz = this.quizManagerService.getNewQuiz();
             this.generalInfoForm = this.fb.group({
                 title: ['', [Validators.required, Validators.minLength(1)]],
-                description: '',
-                duration: this.defaultDuration,
+                description: ['', [Validators.required, Validators.minLength(1)]],
+                duration: [10, [Validators.min(10), Validators.max(60)]],
             });
+            this.newQuiz = this.quizManagerService.getNewQuiz();
         }
             // console.log(this.newQuiz);
             // this.quizManagerService.getQuizById(quizId);
             // this.newQuiz = this.quizManagerService.getQuizToModify();
         // this.newQuiz = this.quizManagerService.getNewQuiz();
         this.initCounters();
-        this.generalInfoForm = this.fb.group({
-            title: ['', [Validators.required, Validators.minLength(1)]],
-            description: ['', [Validators.minLength(1)]],
-            duration: this.defaultDuration,
-        });
+        // this.generalInfoForm = this.fb.group({
+        //     title: ['', [Validators.required, Validators.minLength(1)]],
+        //     description: ['', [Validators.required, Validators.minLength(1)]],
+        //     duration: [10, [Validators.min(10), Validators.max(60)]],
+        // });
 
         this.disableForm = false;
         this.buttonText = 'Sauvegarder';

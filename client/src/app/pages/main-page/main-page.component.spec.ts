@@ -1,9 +1,24 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { MatDialog } from '@angular/material/dialog';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
+
+import SpyObj = jasmine.SpyObj;
 
 describe('MainPageComponent', () => {
     let component: MainPageComponent;
     let fixture: ComponentFixture<MainPageComponent>;
+    let matDialogServiceSpy: SpyObj<MatDialog>;
+
+    beforeEach(() => {
+        matDialogServiceSpy = jasmine.createSpyObj('MatDialog', ['open']);
+    });
+
+    beforeEach(waitForAsync(() => {
+        TestBed.configureTestingModule({
+            declarations: [MainPageComponent],
+            providers: [{ provide: MatDialog, useValue: matDialogServiceSpy }],
+        }).compileComponents();
+    }));
 
     beforeEach(() => {
         fixture = TestBed.createComponent(MainPageComponent);
@@ -15,10 +30,12 @@ describe('MainPageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should have a "Administer les jeux" button redirecting to /admin', () => {
-        const adminButton = fixture.debugElement.nativeElement.querySelector('#admin-button');
+    it('should have a "Administrer les jeux" button that opens a modal when clicked', () => {
+        const adminButton: HTMLButtonElement = fixture.debugElement.nativeElement.querySelector('#admin-button');
+        adminButton.click();
+
         expect(adminButton.innerText).toEqual('Administrer les jeux');
-        expect(adminButton.getAttribute('RouterLink')).toEqual('/admin');
+        expect(matDialogServiceSpy.open).toHaveBeenCalled();
     });
 
     it('should have a "Joindre une partie" button redirecting to /game', () => {
@@ -27,10 +44,10 @@ describe('MainPageComponent', () => {
         expect(joinGameButton.getAttribute('RouterLink')).toEqual('/game');
     });
 
-    it('should have a "Créer une partie" button redirecting to /game/host', () => {
+    it('should have a "Créer une partie" button redirecting to /game/new', () => {
         const hostGameButton = fixture.debugElement.nativeElement.querySelector('#host-game-button');
         expect(hostGameButton.innerText).toEqual('Créer une partie');
-        expect(hostGameButton.getAttribute('RouterLink')).toEqual('/game/host');
+        expect(hostGameButton.getAttribute('RouterLink')).toEqual('/game/new');
     });
 
     it('should have a section heading containing the team number', () => {
@@ -47,6 +64,6 @@ describe('MainPageComponent', () => {
         expect(teammates.children[2].innerHTML).toBe('Gabrielle Côté');
         expect(teammates.children[3].innerHTML).toBe('Massimo Donato');
         expect(teammates.children[4].innerHTML).toBe('Rima Al-Zawahra');
-        expect(teammates.children[5].innerHTML).toBe('Yousef Ouarady');
+        expect(teammates.children[5].innerHTML).toBe('Youssef Ouarad');
     });
 });

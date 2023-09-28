@@ -18,11 +18,14 @@
             [value]="descriptionValue" [maxlength]="maxLengthDescription" (input)="onCharacterChangeDescription($event)" 
             formControlName="description">
             <span id="description-counter" class="counter">{{ counterDescription }}</span>
+            <span id="verify-description" *ngIf="generalInfoForm.controls.description.invalid && (generalInfoForm.controls.description.dirty || generalInfoForm.controls.description.touched)">
+                Il doit y avoir une description avec au moins un caractère
+            </span>
         </div>
 
         <div id="duration-div">
             <label id="duration-label" for="newDuration">Durée (en secondes) :</label><br>
-            <input type="number" name="newDuration" id="newDuration" min="10" max="60" 
+            <input type="number" name="newDuration" id="newDuration" min="10" max="60"
             placeholder="Durée question" [appRangeValidator]="{ min: 10, max: 60 }" formControlName="duration" required>
             <span id="verify-duration" *ngIf="generalInfoForm.controls.duration.invalid">
                 La durée allouée doit être entre 10 et 60 secondes

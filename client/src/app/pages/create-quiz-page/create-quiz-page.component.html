@@ -5,7 +5,6 @@
     
     <label>Liste de questions : </label>
     <div id="all-question-elements">
-        <!-- *ngIf="newQuiz.questions" -->
         <div *ngFor="let question of newQuiz.questions; let i = index" class="question-container">
             <div *ngIf="question.text !== ''" class="question">{{i + 1}}.
                 <label id="question-display">Question : {{ question.text }}</label><br>

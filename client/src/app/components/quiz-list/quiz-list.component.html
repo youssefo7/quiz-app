@@ -1,0 +1,48 @@
+<body class="background">
+  <div class="game-list">
+    <div class="list-title">
+      <h1>
+        Quiz
+        <i class="fa-solid fa-plus iconClick" [title]="'Créer un quiz'"></i>
+      </h1>
+      <label for="fileInput">
+        <i class="fa-solid fa-file-import fa-2xl iconClick" [title]="'Importer quiz (.json)'"></i>
+      </label>
+      <input id="fileInput" type="file" (change)="handleImport($event)" accept=".json"/>
+    </div> 
+    <div class="item-header">
+      <p class="title" id="name">Nom</p>
+      <p class="title" id="date-created">Dernière modification</p>
+      <p class="title" id="visibility">Visibilité</p>
+      <p class="title" id="actions">Actions</p>
+    </div>
+    <div>
+      <div class="game-container" *ngFor="let quiz of quizList.value">
+        <div class="game-item">
+          <div class="game-info element">
+            <span>{{ quiz.title }}</span>
+          </div>
+          <div class="game-info element">
+            <span>{{ quiz.lastModification }}</span>
+          </div>
+          <div class="game-info element">
+            <span (click)="toggleVisibility(quiz)" class="action-icon" [title]="quiz.visibility ? 'Cacher ' + quiz.title : 'Afficher ' + quiz.title">
+              <i [class]="quiz.visibility ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
+            </span>
+          </div>
+          <div class="game-actions element">
+            <span (click)="openPopupDelete(quiz)" class="action-icon" [title]="'Supprimer ' + quiz.title">
+              <i class="fas fa-trash"></i>
+            </span>
+            <span (click)="exportQuiz(quiz)" class="action-icon" [title]="'Exporter ' + quiz.title">
+              <i class="fas fa-download"></i>
+            </span>
+            <span (click)="editQuiz(quiz)" class="action-icon" [title]="'Modifier ' + quiz.title">
+              <i class="fas fa-edit"></i>
+            </span>
+          </div>
+        </div>
+        </div>
+      </div>
+  </div>
+</body>

@@ -1,0 +1,17 @@
+#player-flex {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    .mat-icon {
+        font-size: 4em;
+    }
+
+    p {
+        grid-column: 2 / 3;
+        font-weight: bold;
+        font-size: 1.5em;
+        flex-basis: 80%;
+    }
+}

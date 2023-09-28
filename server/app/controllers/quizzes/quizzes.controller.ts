@@ -43,7 +43,6 @@ export class QuizzesController {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
         }
     }
-
     @ApiCreatedResponse({
         description: 'Adds Quiz to the list',
         type: Quiz,
@@ -91,6 +90,57 @@ export class QuizzesController {
             response.status(HttpStatus.OK).send();
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
+        }
+    }
+
+    @ApiOkResponse({
+        description: 'Checks if a Quiz is deleted from list',
+        type: Boolean,
+    })
+    @ApiNotFoundResponse({
+        description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
+    })
+    @Get('/available/:id')
+    async checkQuizAvailability(@Param('id') id: string, @Res() response: Response) {
+        try {
+            const isDeleted = await this.quizzesService.checkQuizAvailability(id);
+            response.status(HttpStatus.OK).json(isDeleted);
+        } catch (error) {
+            response.status(HttpStatus.INTERNAL_SERVER_ERROR).send(error.message);
+        }
+    }
+
+    @ApiOkResponse({
+        description: 'Checks the visibility of a Quiz',
+        type: Boolean,
+    })
+    @ApiNotFoundResponse({
+        description: 'Return NOT_FOUND http status when request fails',
+    })
+    @Get('/visible/:id')
+    async checkQuizVisibility(@Param('id') id: string, @Res() response: Response) {
+        try {
+            const visibility = await this.quizzesService.checkQuizVisibility(id);
+            response.status(HttpStatus.OK).json(visibility);
+        } catch (error) {
+            response.status(HttpStatus.NOT_FOUND).send(error.message);
+        }
+    }
+
+    @ApiCreatedResponse({
+        description: 'Imports a Quiz to the list',
+        type: Quiz,
+    })
+    @ApiNotFoundResponse({
+        description: 'Return UNPROCESSABLE_ENTITY http status when request',
+    })
+    @Post('/import')
+    async importQuiz(@Body() newQuiz: Quiz, @Res() response: Response) {
+        try {
+            const quiz = await this.quizzesService.importQuiz(newQuiz);
+            response.status(HttpStatus.CREATED).json(quiz);
+        } catch (error) {
+            response.status(HttpStatus.UNPROCESSABLE_ENTITY).send(`${error.message}`);
         }
     }
 }
