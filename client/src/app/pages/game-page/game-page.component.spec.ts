@@ -98,7 +98,6 @@ describe('GamePageComponent', () => {
         expect(config.message).toEqual(mockConfig.message);
         expect(config.hasCancelButton).toEqual(mockConfig.hasCancelButton);
         expect(config.okButtonText).toEqual(mockConfig.okButtonText);
-        expect(config.cancelButtonText).toEqual(mockConfig.cancelButtonText);
         expect(config.okButtonFunction).toBeDefined();
     });
 });

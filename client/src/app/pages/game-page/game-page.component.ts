@@ -62,7 +62,6 @@ export class GamePageComponent implements OnInit {
             message: 'Êtes-vous sûr de vouloir quitter la partie?',
             hasCancelButton: true,
             okButtonText: 'Quitter',
-            cancelButtonText: 'Annuler',
             okButtonFunction: () => {
                 this.router.navigate(['/home']);
             },
