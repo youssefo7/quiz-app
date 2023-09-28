@@ -5,7 +5,6 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
-import { QuizConfirmationComponent } from '@app/components/quiz-confirmation/quiz-confirmation.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AppMaterialModule } from '@app/modules/material.module';
@@ -13,13 +12,11 @@ import { AppComponent } from '@app/pages/app/app.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
+import { ConfirmationPopUpComponent } from './components/confirmation-pop-up/confirmation-pop-up.component';
 import { CreateQuizFormComponent } from './components/create-quiz-form/create-quiz-form.component';
-import { QuestionConfirmationComponent } from './components/question-confirmation/question-confirmation.component';
 import { QuizGeneralInfoComponent } from './components/quiz-general-info/quiz-general-info.component';
 import { QuizQuestionInfoComponent } from './components/quiz-question-info/quiz-question-info.component';
 import { TopBarComponent } from './components/top-bar/top-bar.component';
-import { QuestionExistsDirective } from './directives/question-exists.directive';
-import { QuestionFormValidatorDirective } from './directives/question-form-validator.directive';
 import { RangeValidatorDirective } from './directives/range-validator.directive';
 import { TitleExistsDirective } from './directives/title-exists.directive';
 import { AdminPageComponent } from './pages/admin-page/admin-page.component';
@@ -49,11 +46,12 @@ import { HostGamePageComponent } from './pages/host-game-page/host-game-page.com
         RangeValidatorDirective,
         QuizQuestionInfoComponent,
         TitleExistsDirective,
-        QuestionExistsDirective,
+        // QuestionExistsDirective,
         RangeValidatorDirective,
-        QuestionFormValidatorDirective,
-        QuestionConfirmationComponent,
-        QuizConfirmationComponent,
+        // QuestionFormValidatorDirective,
+        // QuestionConfirmationComponent,
+        // QuizConfirmationComponent,
+        ConfirmationPopUpComponent,
     ],
     imports: [
         AppMaterialModule,

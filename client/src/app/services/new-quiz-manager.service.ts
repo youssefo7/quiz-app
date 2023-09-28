@@ -4,27 +4,24 @@ import { Question, Quiz } from '@app/interfaces/quiz';
 import { BehaviorSubject } from 'rxjs';
 import { CommunicationService } from './communication.service';
 
-const date = new Date();
-const dateStr = date.toLocaleString('en-US', { timeZone: 'America/New_York' });
-
 @Injectable({
     providedIn: 'root',
 })
 export class NewQuizManagerService {
     message: string = '';
-    quizzes: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
-    selectedQuiz: BehaviorSubject<Quiz | null> = new BehaviorSubject<Quiz | null>(null);
+    quizzes: BehaviorSubject<Quiz[]>;
+    selectedQuiz: BehaviorSubject<Quiz | null>;
     choiceIndex: number;
     quizToModify: Quiz;
     isQuizBeingModified: boolean;
 
     private newQuiz: Quiz = {
-        $schema: '',
+        $schema: 'quiz-schema.json',
         id: '',
         title: '',
         description: '',
         duration: 0,
-        lastModification: dateStr,
+        lastModification: '',
         visibility: false,
         questions: [
             {
@@ -43,6 +40,8 @@ export class NewQuizManagerService {
 
     constructor(private readonly communicationService: CommunicationService) {
         this.getQuizListFromServer();
+        this.quizzes = new BehaviorSubject<Quiz[]>([]);
+        this.selectedQuiz = new BehaviorSubject<Quiz | null>(null);
     }
 
     getQuizListFromServer(): void {
@@ -57,8 +56,7 @@ export class NewQuizManagerService {
         });
     }
 
-    addQuizToServer(newQuiz: Quiz): void {
-        newQuiz.lastModification = dateStr;
+    async addQuizToServer(newQuiz: Quiz) {
         this.communicationService.addQuiz(newQuiz).subscribe({
             next: () => {
                 this.getQuizListFromServer();
@@ -70,22 +68,21 @@ export class NewQuizManagerService {
         });
     }
 
-    updateQuizOnServer(id: string, updatedQuiz: Quiz): void {
+    async updateQuizOnServer(id: string, updatedQuiz: Quiz) {
         this.communicationService.updateQuiz(id, updatedQuiz).subscribe({
             next: (quiz) => {
-                quiz.lastModification = dateStr;
                 this.selectedQuiz.next(quiz);
                 this.getQuizListFromServer();
             },
             error: (err: HttpErrorResponse) => {
                 const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
                 this.message = responseString;
-                this.addNewQuiz(updatedQuiz);
-            },
+                this.addQuizToServer(updatedQuiz);
+            },  
         });
     }
 
-    getQuizFromServer(id: string): void {
+    async getQuizFromServer(id: string) {
         this.communicationService.getQuiz(id).subscribe({
             next: (quiz) => {
                 this.selectedQuiz.next(quiz);
@@ -97,19 +94,25 @@ export class NewQuizManagerService {
         });
     }
 
-    getQuizById(id: string): void {
-        this.communicationService.getQuiz(id).subscribe({
-            next: (quiz) => {
-                this.quizToModify = quiz;
-            },
-            error: (err: HttpErrorResponse) => {
+    async getQuizById(id: string): Promise<Quiz | undefined> {
+        if (id) {
+          return new Promise<Quiz | undefined>((resolve, reject) => {
+            this.communicationService.getQuiz(id).subscribe({
+              next: (quiz) => {
+                resolve(quiz);
+              },
+              error: (err: HttpErrorResponse) => {
                 const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
                 this.message = responseString;
-            },
-        });
-    }
+                reject(err);
+              },
+            });
+          });
+        }
+        return undefined;
+      }
 
-    deleteQuizFromServer(id: string): void {
+    async deleteQuizFromServer(id: string) {
         this.communicationService.deleteQuiz(id).subscribe({
             next: () => {
                 this.getQuizListFromServer();
@@ -126,13 +129,21 @@ export class NewQuizManagerService {
         return this.newQuiz;
     }
 
-    setNewQuiz(quiz: Quiz) {
+    setQuiz(quiz: Quiz) {
         this.newQuiz = quiz;
     }
 
     getNewQuizQuestions() {
         return this.newQuiz.questions;
     }
+
+    setQuizToModify(quiz: Quiz) {
+        this.newQuiz = quiz;
+    }
+
+    getQuizToModify(): Quiz {
+        return this.newQuiz;
+    } 
 
     addNewQuestion(newQuestion: Question) {
         if (this.newQuiz.questions.length === 0 || (this.newQuiz.questions.length === 1 && this.newQuiz.questions[0].text === '')) {
@@ -148,19 +159,41 @@ export class NewQuizManagerService {
         }
     }
 
-    setQuizToModify(quizForModification: Quiz) {
-        this.newQuiz = quizForModification;
+    saveQuiz(id: string, quiz: Quiz, isQuizToModify: boolean) {
+        if (isQuizToModify) {
+            this.updateQuizOnServer(id, quiz);
+        } else {
+            this.addQuizToServer(quiz);
+        }
     }
 
-    getQuizToModify() {
-        return this.newQuiz;
+    setGeneralInfoData(title: string, description: string, duration: number) {
+        this.newQuiz.title = title;
+        this.newQuiz.description = description;
+        this.newQuiz.duration = duration;
     }
 
-    addNewQuiz(quiz: Quiz) {
-        this.addQuizToServer(quiz);
+    // addNewQuiz(quiz: Quiz) {
+    //     this.addQuizToServer(quiz);
+    // }
+
+    // updateQuiz(id: string, quiz: Quiz) {
+    //     this.updateQuizOnServer(id, quiz);
+    // }
+
+    moveQuestionUp(index: number) {
+        if (index > 0) {
+            const tmp = this.newQuiz.questions[index - 1];
+            this.newQuiz.questions[index - 1] = this.newQuiz.questions[index];
+            this.newQuiz.questions[index] = tmp;
+        }
     }
 
-    updateQuiz(id: string, quiz: Quiz) {
-        this.updateQuizOnServer(id, quiz);
+    moveQuestionDown(index: number) {
+        if (index < this.newQuiz.questions.length - 1) {
+            const tmp = this.newQuiz.questions[index + 1];
+            this.newQuiz.questions[index + 1] = this.newQuiz.questions[index];
+            this.newQuiz.questions[index] = tmp;
+        }
     }
 }

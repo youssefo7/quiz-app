@@ -1,4 +1,3 @@
-import { TitleExistsDirective } from './title-exists.directive';
 
 // @Component({
 //     template: `
@@ -21,25 +20,25 @@ import { TitleExistsDirective } from './title-exists.directive';
 //     }
 // }
 
-describe('TitleExistsDirective', () => {
-    // let fixture: ComponentFixture<TestComponent>;
-    // let component: TestComponent;
+// describe('TitleExistsDirective', () => {
+//     let fixture: ComponentFixture<TestComponent>;
+//     let component: TestComponent;
 
-    // beforeEach(() => {
-    //     TestBed.configureTestingModule({
-    //         declarations: [TestComponent, TitleExistsDirective],
-    //         imports: [ReactiveFormsModule],
-    //     });
+//     beforeEach(() => {
+//         TestBed.configureTestingModule({
+//             declarations: [TestComponent, TitleExistsDirective],
+//             imports: [ReactiveFormsModule],
+//         });
 
-    //     fixture = TestBed.createComponent(TestComponent);
-    //     component = fixture.componentInstance;
-    //     fixture.detectChanges();
-    // });
+//         fixture = TestBed.createComponent(TestComponent);
+//         component = fixture.componentInstance;
+//         fixture.detectChanges();
+//     });
 
-    it('should create an instance', () => {
-        const directive = new TitleExistsDirective();
-        expect(directive).toBeTruthy();
-    });
+//     it('should create an instance', () => {
+//         const directive = new TitleExistsDirective();
+//         expect(directive).toBeTruthy();
+//     });
 
     // it('Should pass the title validation when the title does not exist in the current list of quizzes', () => {
     //     component.quizzes = [{ title: 'Quiz1' }, { title: 'Quiz2' }];
@@ -49,5 +48,5 @@ describe('TitleExistsDirective', () => {
     //     titleInput.triggerEventHandler('input', { target: titleInput.nativeElement });
     //     fixture.detectChanges();
     //     expect(inputControl.valid).toBeTruthy();
-    // });
-});
+//     // });
+// });

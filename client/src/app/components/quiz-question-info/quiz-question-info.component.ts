@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { QuestionConfirmationComponent } from '@app/components/question-confirmation/question-confirmation.component';
+import { ConfirmationPopUpComponent } from '@app/components/confirmation-pop-up/confirmation-pop-up.component';
 import { Choice, Question, Quiz } from '@app/interfaces/quiz';
 import { NewQuizManagerService } from '@app/services/new-quiz-manager.service';
 
@@ -10,17 +10,14 @@ import { NewQuizManagerService } from '@app/services/new-quiz-manager.service';
     templateUrl: './quiz-question-info.component.html',
     styleUrls: ['./quiz-question-info.component.scss'],
 })
-export class QuizQuestionInfoComponent implements OnInit {
-    modifiedQuestion: Question;
+export class QuizQuestionInfoComponent implements OnInit, AfterViewInit {
+    @Input() newQuiz: Quiz;
     modifiedIndex: number;
-    newQuiz: Quiz;
     questionInfoForm: FormGroup;
     maxChoices: number;
     defaultPoints: number;
     isModifiedQuestion: boolean;
-    modifyQuiz: Quiz;
 
-    isFormVisible = false;
     disableForm = false;
     buttonText = 'Sauvegarder';
     buttonName = 'edit-save';
@@ -29,6 +26,7 @@ export class QuizQuestionInfoComponent implements OnInit {
         private quizManagerService: NewQuizManagerService,
         private fb: FormBuilder,
         private confirmationDialogReference: MatDialog,
+        // private route: ActivatedRoute,
     ) {}
 
     get choices() {
@@ -39,9 +37,19 @@ export class QuizQuestionInfoComponent implements OnInit {
         this.initializeForm();
     }
 
+    ngAfterViewInit(): void {
+        if(this.newQuiz.title !== '') {
+            this.loadQuestionData(this.newQuiz);
+        }
+    }
+
     initializeForm() {
-        this.newQuiz = this.quizManagerService.getNewQuiz();
-        this.modifyQuiz = this.quizManagerService.getQuizToModify();
+        // const routeParams = this.route.snapshot.paramMap;
+        // const quizId = String(routeParams.get('id'));
+        // if(quizId !== 'null') {
+        //     this.quizManagerService.getQuizById(quizId);
+        // }
+        // this.newQuiz = this.quizManagerService.getNewQuiz();
         this.maxChoices = 4;
         this.defaultPoints = 10;
         this.isModifiedQuestion = false;
@@ -77,10 +85,6 @@ export class QuizQuestionInfoComponent implements OnInit {
         } else {
             this.questionInfoForm.reset();
         }
-    }
-
-    toggleForm() {
-        this.isFormVisible = !this.isFormVisible;
     }
 
     roundToNearest10() {
@@ -128,14 +132,22 @@ export class QuizQuestionInfoComponent implements OnInit {
     }
 
     openQuestionConfirmation(): void {
-        const questionDialogReference = this.confirmationDialogReference.open(QuestionConfirmationComponent);
+        // const questionDialogReference = this.confirmationDialogReference.open(QuestionConfirmationComponent);
+        const confirmationDialogReference = this.confirmationDialogReference.open(ConfirmationPopUpComponent);
+        confirmationDialogReference.componentInstance.setConfirmationText("Sauvegarder cette question?");
 
-        questionDialogReference.afterClosed().subscribe((result) => {
-            if (result) {
+        confirmationDialogReference.afterClosed().subscribe((result) => {
+            if(result) {
                 this.manageQuestion();
                 this.resetForm();
             }
         });
+        // questionDialogReference.afterClosed().subscribe((result) => {
+        //     if (result) {
+        //         this.manageQuestion();
+        //         this.resetForm();
+        //     }
+        // });
     }
 
     manageQuestion() {
@@ -165,7 +177,6 @@ export class QuizQuestionInfoComponent implements OnInit {
     }
 
     resetForm() {
-        this.toggleForm();
         this.questionInfoForm.reset();
 
         this.questionInfoForm.controls.points.setValue(this.defaultPoints);

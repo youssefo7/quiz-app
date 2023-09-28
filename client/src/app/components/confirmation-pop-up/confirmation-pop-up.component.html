@@ -1,6 +1,6 @@
 <h2 mat-dialog-title>Confirmation</h2>
 <mat-dialog-content>
-    Sauvegarder ce quiz?
+   {{ getConfirmationText() }}
 </mat-dialog-content>
 <mat-dialog-actions>
   <button mat-button [mat-dialog-close]="false">Non</button>

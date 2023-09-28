@@ -4,9 +4,10 @@
     <ul>
         <li *ngFor="let quiz of quizzes | async">
             {{ quiz.title }} assuming there's a name property on QuizList
-            <button (click)="getQuizFromServer(quiz.id)">View</button>
+            <!-- <button (click)="getQuizFromServer(quiz.id)">View</button> -->
             <button (click)="deleteQuizFromServer(quiz.id)">Delete</button>
-            <button (click)="modifyQuiz(quiz)">Modify</button>
+            <!-- <button (click)="modifyQuiz(quiz)">Modify</button> -->
+            <button routerLink="/quiz/{{quiz.id}}">Modify</button>
         </li>
     </ul>
 </div>

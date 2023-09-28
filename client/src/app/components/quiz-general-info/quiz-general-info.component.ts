@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { Quiz } from '@app/interfaces/quiz';
 import { NewQuizManagerService } from '@app/services/new-quiz-manager.service';
 
@@ -9,43 +10,73 @@ import { NewQuizManagerService } from '@app/services/new-quiz-manager.service';
     styleUrls: ['./quiz-general-info.component.scss'],
 })
 export class QuizGeneralInfoComponent implements OnInit {
-    myForm: FormGroup;
     newQuiz: Quiz;
-    modifyQuiz: Quiz;
+    generalInfoForm: FormGroup;
+    disableForm: boolean;
+    buttonText: string;
+    buttonName: string;
 
-    disableForm = false;
-    buttonText = 'Sauvegarder';
-    buttonName = 'edit-save';
-
-    titleValue: string = '';
-    descriptionValue: string = '';
+    titleValue: string;
+    descriptionValue: string;
     maxLengthTitle: number;
     maxLengthDescription: number;
     charCountTitle: number;
     charCountDescription: number;
     counterTitle: string;
     counterDescription: string;
+    defaultDuration: number;
 
-    generalInfoForm = this.fb.group({
-        title: ['', [Validators.required, Validators.minLength(1)]],
-        description: '',
-        duration: 10,
-    });
 
     constructor(
         private quizManagerService: NewQuizManagerService,
         private fb: FormBuilder,
+        private route: ActivatedRoute,
     ) {}
 
     ngOnInit(): void {
-        this.quizManagerService.getQuizListFromServer();
-        this.newQuiz = this.quizManagerService.getNewQuiz();
+        const routeParams = this.route.snapshot.paramMap;
+        const quizId = String(routeParams.get('id'));
+        this.defaultDuration = 10;
+        // this.newQuiz = this.quizManagerService.getNewQuiz();
+        if(quizId === 'null') {
+            this.newQuiz = this.quizManagerService.getNewQuiz();
+            this.generalInfoForm = this.fb.group({
+                title: ['', [Validators.required, Validators.minLength(1)]],
+                description: '',
+                duration: this.defaultDuration,
+            });
+        }
+            // console.log(this.newQuiz);
+            // this.quizManagerService.getQuizById(quizId);
+            // this.newQuiz = this.quizManagerService.getQuizToModify();
+        // this.newQuiz = this.quizManagerService.getNewQuiz();
         this.initCounters();
+        this.generalInfoForm = this.fb.group({
+            title: ['', [Validators.required, Validators.minLength(1)]],
+            description: ['', [Validators.minLength(1)]],
+            duration: this.defaultDuration,
+        });
+
+        this.disableForm = false;
+        this.buttonText = 'Sauvegarder';
+        this.buttonName = 'edit-save';
     }
 
+    ngOnDestroy(): void {
+        console.log("i was killed");
+    }
+
+    // ngAfterViewInit(): void {
+    //     this.generalInfoForm.patchValue({
+    //         title: this.newQuiz.title,
+    //         description: this.newQuiz.description,
+    //         duration: this.newQuiz.duration,
+    //     });
+    // }
+
     initCounters() {
-        this.maxLengthTitle = 75;
-        this.maxLengthDescription = 250;
+        this.maxLengthTitle = 150;
+        this.maxLengthDescription = 300;
 
         this.charCountTitle = this.titleValue ? this.titleValue.length : 0;
         this.counterTitle = `${this.charCountTitle} / ${this.maxLengthTitle}`;
@@ -85,15 +116,25 @@ export class QuizGeneralInfoComponent implements OnInit {
     }
 
     onSubmit() {
-        this.newQuiz.title = this.generalInfoForm.value.title as string;
-        this.newQuiz.description = this.generalInfoForm.value.description as unknown as string;
-        this.newQuiz.duration = this.generalInfoForm.value?.duration as number;
+        const title =  this.generalInfoForm.value.title as string;
+        const description = this.generalInfoForm.value.description as unknown as string;
+        const duration = this.generalInfoForm.value?.duration as number;
+        this.quizManagerService.setGeneralInfoData(title, description, duration);
+        // this.newQuiz.title = this.generalInfoForm.value.title as string;
+        // this.newQuiz.description = this.generalInfoForm.value.description as unknown as string;
+        // this.newQuiz.duration = this.generalInfoForm.value?.duration as number;
     }
 
     loadGeneralData(quiz: Quiz) {
-        this.newQuiz.title = quiz.title;
-        this.newQuiz.description = quiz.description;
-        this.newQuiz.duration = quiz.duration;
+        this.newQuiz = quiz;
+        // this.titleValue = quiz.title;
+        // this.descriptionValue = quiz.description;
+        this.initCounters();
+        this.quizManagerService.setGeneralInfoData(quiz.title, quiz.description, quiz.duration);
+
+        // this.newQuiz.title = quiz.title;
+        // this.newQuiz.description = quiz.description;
+        // this.newQuiz.duration = quiz.duration;
         this.generalInfoForm.patchValue({
             title: this.newQuiz.title,
             description: this.newQuiz.description,

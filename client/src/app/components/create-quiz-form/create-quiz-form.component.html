@@ -1,52 +1,30 @@
-<div class="container">
-     <!-- Display the list of Quizs -->
-    <div>
-        <h2>Quizs List</h2>
-        <p></p>
-        <ul>
-            <li *ngFor="let Quiz of quizzes | async">
-                {{ Quiz.title }} <!-- assuming there's a name property on QuizList -->
-                <button (click)="getQuizFromServer(Quiz.id)">View</button>
-                <button (click)="deleteQuizFromServer(Quiz.id)">Delete</button>
-            </li>
-        </ul>
-    </div>
-      <!-- Display the selected Quiz -->
-    <div *ngIf="selectedQuiz | async as currentQuiz">
-        <h2>Selected Quiz</h2>
-        <p>Name: {{ currentQuiz.title }}</p>
-        <p>Description: {{ currentQuiz.description }}</p>
-        <p>Duration: {{ currentQuiz.duration }}</p>
-        <p>Question 1: {{ currentQuiz.questions[0].text }}</p>
-    </div>
-    <h2>Add New Quiz</h2>
-    <form #addQuizForm="ngForm">
-        <app-quiz-general-info #generalInfoForm></app-quiz-general-info>
-        <!-- #generalInfoForm -->
-        <label>Liste de questions : </label>
-        <div id="all-question-elements">
-            <div *ngFor="let question of newQuiz.questions; let i = index" class="question-container">
-                <div *ngIf="question.text !== ''" class="question">{{i + 1}}.
-                    <label id="question-display">Question : {{ question.text }}</label><br>
-                    <label>Type : {{ question.type }}</label><br>
-                    <label>Points : {{ question.points }}</label><br>
-                    <div id="choice-container" *ngFor="let choice of question.choices; let j = index">
-                        <div id="choice"> Choix {{ j + 1 }} :
-                            <label>{{ choice.text }} : </label>
-                            <label>{{ choice.isCorrect }}</label>
-                        </div>
+<!-- <h2>Add New Quiz</h2>
+<form #addQuizForm="ngForm">
+    <app-quiz-general-info [newQuiz]="newQuiz" #generalInfoForm></app-quiz-general-info>
+    <label>Liste de questions : </label>
+    <div id="all-question-elements">
+        *ngIf="newQuiz.questions"
+        <div *ngFor="let question of newQuiz.questions; let i = index" class="question-container">
+            <div *ngIf="question.text !== ''" class="question">{{i + 1}}.
+                <label id="question-display">Question : {{ question.text }}</label><br>
+                <label>Type : {{ question.type }}</label><br>
+                <label>Points : {{ question.points }}</label><br>
+                <div id="choice-container" *ngFor="let choice of question.choices; let j = index">
+                    <div id="choice"> Choix {{ j + 1 }} :
+                        <label>{{ choice.text }} : </label>
+                        <label>{{ choice.isCorrect }}</label>
                     </div>
-                    <button (click)="modifyQuestion(question, i)">Modifier</button>
-                    <button (click)="deleteQuestion(i)">Supprimer</button>
                 </div>
-                <button type="button" (click)="moveQuestionUp(i)" class="btn btn-secondary" [disabled]="i === 0">Move Up</button>
-                <button type="button" (click)="moveQuestionDown(i)" class="btn btn-secondary" [disabled]="i === newQuiz.questions.length - 1">Move Down</button>
+                <button (click)="modifyQuestion(question, i)">Modifier</button>
+                <button (click)="deleteQuestion(i)">Supprimer</button>
             </div>
-            <div id="new-question-form">
-                <app-quiz-question-info >
-                </app-quiz-question-info> 
-            </div>
+            <button type="button" (click)="moveQuestionUp(i)" class="btn btn-secondary" [disabled]="i === 0">Move Up</button>
+            <button type="button" (click)="moveQuestionDown(i)" class="btn btn-secondary" [disabled]="i === newQuiz.questions.length - 1">Move Down</button>
         </div>
-        <button (click)="openQuizConfirmation()" [disabled]="!isQuizFormValid()">Add Quiz</button>
-    </form>
-</div>
+        <div id="new-question-form">
+            <app-quiz-question-info >
+            </app-quiz-question-info> 
+        </div>
+    </div>
+    <button (click)="openQuizConfirmation()" [disabled]="!isQuizFormValid()">Add Quiz</button>
+</form> -->

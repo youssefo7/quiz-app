@@ -55,21 +55,21 @@
     ]
   },
   {
-    "$schema": "",
-    "id": "UA1G24",
-    "title": "test",
-    "description": "testing",
+    "$schema": "quiz-schema.json",
+    "id": "VDY3E2",
+    "title": "sup",
+    "description": "",
     "duration": 10,
-    "lastModification": "9/26/2023, 7:07:19 PM",
+    "lastModification": "",
     "visibility": false,
     "questions": [
       {
         "type": "QCM",
-        "text": "trial test",
+        "text": "new game",
         "points": 10,
         "choices": [
           {
-            "text": "3",
+            "text": "1",
             "isCorrect": true
           },
           {
@@ -78,6 +78,32 @@
           }
         ]
       },
+      {
+        "type": "QCM",
+        "text": "loca loca loca",
+        "points": 10,
+        "choices": [
+          {
+            "text": "crazy crazy crazy",
+            "isCorrect": true
+          },
+          {
+            "text": "3",
+            "isCorrect": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "$schema": "quiz-schema.json",
+    "id": "FEiFJF",
+    "title": "1",
+    "description": "2",
+    "duration": 10,
+    "lastModification": "2023-09-28T14:50:59.355Z",
+    "visibility": false,
+    "questions": [
       {
         "type": "QCM",
         "text": "1",
@@ -96,56 +122,13 @@
     ]
   },
   {
-    "$schema": "",
-    "id": "FR9lwR",
-    "title": "new test",
-    "description": "trial description",
-    "duration": 17,
-    "lastModification": "9/26/2023, 7:29:21 PM",
+    "$schema": "quiz-schema.json",
+    "id": "sLMf10",
+    "title": "sfdsfs",
+    "description": "",
+    "duration": 12,
+    "lastModification": "2023-09-28T16:17:45.111Z",
     "visibility": false,
-    "questions": [
-      {
-        "type": "QCM",
-        "text": "trial_modify",
-        "points": 10,
-        "choices": [
-          {
-            "text": "test",
-            "isCorrect": true
-          },
-          {
-            "text": "test1",
-            "isCorrect": false
-          },
-          {
-            "text": "lol",
-            "isCorrect": false
-          }
-        ]
-      },
-      {
-        "type": "QCM",
-        "text": "1",
-        "points": 10,
-        "choices": [
-          {
-            "text": "2",
-            "isCorrect": true
-          },
-          {
-            "text": "3",
-            "isCorrect": false
-          },
-          {
-            "text": "4",
-            "isCorrect": false
-          },
-          {
-            "text": "5",
-            "isCorrect": true
-          }
-        ]
-      }
-    ]
+    "questions": []
   }
 ]
