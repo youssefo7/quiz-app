@@ -59,11 +59,6 @@ export class QuizListComponent implements OnInit {
         window.URL.revokeObjectURL(blobUrl);
     }
 
-    editQuiz(quiz: Quiz): void {
-        // Implement edit logic here
-        quiz.title = 'editing...';
-    }
-
     toggleVisibility(quiz: Quiz): void {
         quiz.visibility = !quiz.visibility;
         this.communicationService.updateQuiz(quiz.id, quiz).subscribe();

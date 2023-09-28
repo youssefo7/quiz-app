@@ -3,7 +3,7 @@
     <div class="list-title">
       <h1>
         Quiz
-        <i class="fa-solid fa-plus iconClick" [title]="'Créer un quiz'"></i>
+        <i class="fa-solid fa-plus iconClick" [title]="'Créer un quiz'" routerLink="/quiz/new"></i>
       </h1>
       <label for="fileInput">
         <i class="fa-solid fa-file-import fa-2xl iconClick" [title]="'Importer quiz (.json)'"></i>
@@ -37,7 +37,7 @@
             <span (click)="exportQuiz(quiz)" class="action-icon" [title]="'Exporter ' + quiz.title">
               <i class="fas fa-download"></i>
             </span>
-            <span (click)="editQuiz(quiz)" class="action-icon" [title]="'Modifier ' + quiz.title">
+            <span routerLink="/quiz/{{quiz.id}}" class="action-icon" [title]="'Modifier ' + quiz.title">
               <i class="fas fa-edit"></i>
             </span>
           </div>
