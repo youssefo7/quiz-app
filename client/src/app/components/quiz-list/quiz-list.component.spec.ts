@@ -7,9 +7,10 @@ import { PopupMessageComponent } from '@app/components/popup-message/popup-messa
 import { ImportService } from '@app/services/import.service';
 import { QuizListComponent } from './quiz-list.component';
 import SpyObj = jasmine.SpyObj;
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, of, throwError } from 'rxjs';
 import { Quiz } from '@app/interfaces/quiz';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
+import { HttpStatusCode } from '@angular/common/http';
 
 describe('QuizListComponent', () => {
     let component: QuizListComponent;
@@ -168,7 +169,7 @@ describe('QuizListComponent', () => {
         expect(anchorElement.download).toBe(propQuiz.title);
     });
 
-    it('should popup a message when the user tries to delete a quiz with the correct configuration', () => {
+    it('should popup a warning message when the user tries to delete a quiz with the correct configuration', () => {
         const mockConfig: PopupMessageConfig = {
             message: "Ëtes-vous sûr de vouloir supprimer ce quiz? Cette action n'est pas reversible.",
             hasCancelButton: true,
@@ -185,5 +186,29 @@ describe('QuizListComponent', () => {
         expect(config.okButtonText).toEqual(mockConfig.okButtonText);
         expect(config.cancelButtonText).toEqual(mockConfig.cancelButtonText);
         expect(config.okButtonFunction).toBeDefined();
+    });
+
+    it('should popup a warning message with the correct configuration when openPopupWarning() is called', () => {
+        const mockConfig: PopupMessageConfig = {
+            message: 'Ce quiz a déjà été supprimé par un autre administrateur.',
+            hasCancelButton: false,
+        };
+
+        component.openPopupWarning();
+        const config = mockDialogRef.componentInstance.config;
+
+        expect(config.message).toEqual(mockConfig.message);
+        expect(config.hasCancelButton).toEqual(mockConfig.hasCancelButton);
+        expect(config.okButtonText).toEqual(mockConfig.okButtonText);
+        expect(config.cancelButtonText).toEqual(mockConfig.cancelButtonText);
+        expect(config.okButtonFunction).toBeDefined();
+    });
+
+    it('should popup a warning message when the user tries to delete a quiz that is already deleted', () => {
+        spyOn(component, 'openPopupWarning');
+        spyOn(communicationService, 'deleteQuiz').and.returnValue(throwError(() => HttpStatusCode.NotFound));
+        component.deleteQuiz(propQuiz);
+
+        expect(component.openPopupWarning).toHaveBeenCalled();
     });
 });
