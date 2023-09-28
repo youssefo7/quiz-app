@@ -9,14 +9,6 @@ const quizzesPath = join(__dirname, Constants.QUIZZES_PATH);
 
 @Injectable()
 export class QuizzesService {
-    // if implement DB service (MongoDB) use constructor to populate DB
-    // constructor(
-    //   @InjectModel(Quiz.id) public QuizModel: Model<Quiz>,
-    //   private readonly logger: Logger,
-    // ) {
-    //   this.start(); //implement start code below if needed, start should populate db
-    // }
-
     get quizzesPath() {
         return quizzesPath;
     }
@@ -124,9 +116,7 @@ export class QuizzesService {
             return Promise.reject(new Error(`${error.message}`));
         }
     }
-
-    async getQuizIndex(id: string): Promise<number> {
-        const quizzes = await this.getQuizzes();
+    async getQuizIndex(quizzes: Quiz[], id: string): Promise<number> {
         const quizIndex = quizzes.findIndex((quiz) => quiz.id === id);
         if (quizIndex === Constants.INDEX_NOT_FOUND) {
             throw new Error(`Quiz ${id} not found`);
@@ -146,21 +136,19 @@ export class QuizzesService {
     async getQuiz(id: string): Promise<Quiz> {
         try {
             const quizzes = await this.getQuizzes();
-            const quizIndex = await this.getQuizIndex(id);
-            return quizzes[quizIndex];
+            return quizzes[await this.getQuizIndex(quizzes, id)];
         } catch (error) {
             return Promise.reject(new Error(`${error.message}`));
         }
     }
 
-    // TODO addQuiz() should check if id already exists and validate input
     async addQuiz(quiz: Quiz): Promise<Quiz> {
         try {
             const quizzes = await this.getQuizzes();
             quiz.id = await this.createID();
             quiz.lastModification = this.getDate();
             quizzes.push(quiz);
-            await fs.writeFile(this.quizzesPath, JSON.stringify(quizzes, null, 2));
+            await this.saveQuizzes(quizzes);
             return quiz;
         } catch (error) {
             return Promise.reject(new Error(`${error.message}`));
@@ -170,10 +158,9 @@ export class QuizzesService {
     async updateQuiz(id: string, updatedQuiz: Quiz): Promise<Quiz> {
         try {
             const quizzes = await this.getQuizzes();
-            const quizIndex = await this.getQuizIndex(id);
             updatedQuiz.lastModification = this.getDate();
-            quizzes[quizIndex] = updatedQuiz;
-            await fs.writeFile(this.quizzesPath, JSON.stringify(quizzes, null, 2));
+            quizzes[await this.getQuizIndex(quizzes, id)] = updatedQuiz;
+            await this.saveQuizzes(quizzes);
             return updatedQuiz;
         } catch (error) {
             return Promise.reject(new Error(`${error.message}`));
@@ -183,15 +170,12 @@ export class QuizzesService {
     async deleteQuiz(id: string): Promise<Quiz[]> {
         try {
             const quizzes = await this.getQuizzes();
-            await this.getQuizIndex(id);
-            // if only one Quiz in Quizzes, empty Quizzes filter method not removing last obj in json array
             if (quizzes.length === 1) {
-                const updatedEmptyQuizzes = [];
-                await fs.writeFile(this.quizzesPath, JSON.stringify(updatedEmptyQuizzes, null, 2));
-                return updatedEmptyQuizzes;
+                await this.saveQuizzes([]);
+                return [];
             }
             const updatedQuizzes = quizzes.filter((quiz) => quiz.id !== id);
-            await fs.writeFile(this.quizzesPath, JSON.stringify(updatedQuizzes, null, 2));
+            await this.saveQuizzes(updatedQuizzes);
             return updatedQuizzes;
         } catch (error) {
             return Promise.reject(new Error(`${error.message}`));
@@ -204,6 +188,14 @@ export class QuizzesService {
             return await this.addQuiz(quiz);
         } catch (error) {
             throw new Error(`${error.message}`);
+        }
+    }
+
+    async saveQuizzes(quizzes: Quiz[]): Promise<void> {
+        try {
+            await fs.writeFile(this.quizzesPath, JSON.stringify(quizzes, null, 2));
+        } catch (error) {
+            throw new Error(`Error saving quizzes: ${error.message}`);
         }
     }
 }
