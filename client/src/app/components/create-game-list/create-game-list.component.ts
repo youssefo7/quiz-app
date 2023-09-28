@@ -1,9 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
+import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
-import { BehaviorSubject, map } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
     selector: 'app-create-game-list',
@@ -12,30 +15,23 @@ import { BehaviorSubject, map } from 'rxjs';
 })
 export class CreateGameListComponent implements OnInit {
     message: BehaviorSubject<string>;
-    availableQuizzes: BehaviorSubject<Quiz[]>;
     visibleQuizList: BehaviorSubject<Quiz[]>;
     selectedQuizId: string | null;
 
     constructor(
         private readonly communicationService: CommunicationService,
         private router: Router,
+        private popUp: MatDialog,
     ) {}
 
     ngOnInit(): void {
         this.getVisibleQuizListFromServer();
         this.message = new BehaviorSubject<string>('');
-        this.availableQuizzes = new BehaviorSubject<Quiz[]>([]);
         this.visibleQuizList = new BehaviorSubject<Quiz[]>([]);
         this.selectedQuizId = null;
     }
 
-    fetchQuizzes(): void {
-        this.communicationService.getQuizzes().subscribe((available) => {
-            this.availableQuizzes.next(available);
-        });
-    }
-
-    getVisibleQuizListFromServer(): void {
+    getVisibleQuizListFromServer() {
         this.communicationService.getQuizzes().subscribe({
             next: (quizzes) => {
                 const visibleQuizzes = quizzes.filter((quiz) => quiz.visibility === true);
@@ -48,7 +44,6 @@ export class CreateGameListComponent implements OnInit {
         });
     }
 
-    // Permet d'afficher les détails d'un seul quiz à la fois
     toggleDetails(id: string): void {
         if (this.selectedQuizId === id) {
             this.selectedQuizId = null;
@@ -57,28 +52,49 @@ export class CreateGameListComponent implements OnInit {
         }
     }
 
-    // TODO : Implémenter le pop up et la mise à jour de la liste
     checkCanProceed(quiz: Quiz, toTest: boolean = false): void {
-        this.getVisibleQuizListFromServer();
-        this.fetchQuizzes();
-        const isVisible = this.visibleQuizList.value.some((visibleQuiz) => visibleQuiz.id === quiz.id);
-        const isAvailable = this.availableQuizzes.pipe(
-            map((availableQuizzes) => availableQuizzes.some((availableQuiz) => availableQuiz.id === quiz.id)),
-        );
-        if (isAvailable) {
-            if (isVisible) {
-                if (toTest) {
-                    this.router.navigate(['game/', quiz.id, 'test']);
-                } else {
-                    this.router.navigate(['game/', quiz.id]);
-                }
+        this.communicationService.checkQuizAvailability(quiz.id).subscribe((isAvailable) => {
+            if (isAvailable) {
+                this.communicationService.checkQuizVisibility(quiz.id).subscribe((isVisible) => {
+                    if (isVisible) {
+                        if (toTest) {
+                            this.router.navigate(['game/', quiz.id, 'test']);
+                        } else {
+                            this.router.navigate(['waiting/']);
+                        }
+                    } else {
+                        this.isHiddenPopUp();
+                    }
+                });
             } else {
-                // console.log("Le jeu n'est plus disponible. Veuillez en choisir un autre dans la liste.");
+                this.isUnavailablePopUp();
             }
-        } else {
-            // console.log('Le jeu a été supprimé. Veuillez en choisir un autre dans la liste.');
-        }
+        });
     }
 
-    // TODO : implémenter popUp
+    isUnavailablePopUp(): void {
+        const config: PopupMessageConfig = {
+            message: 'Le jeu a été supprimé. Veuillez en choisir un autre dans la liste.',
+            hasCancelButton: false,
+            okButtonFunction: () => {
+                this.getVisibleQuizListFromServer();
+            },
+        };
+        const dialogRef = this.popUp.open(PopupMessageComponent);
+        const popupInstance = dialogRef.componentInstance;
+        popupInstance.config = config;
+    }
+
+    isHiddenPopUp(): void {
+        const config: PopupMessageConfig = {
+            message: "Le jeu n'est plus disponible. Veuillez en choisir un autre dans la liste.",
+            hasCancelButton: false,
+            okButtonFunction: () => {
+                this.getVisibleQuizListFromServer();
+            },
+        };
+        const dialogRef = this.popUp.open(PopupMessageComponent);
+        const popupInstance = dialogRef.componentInstance;
+        popupInstance.config = config;
+    }
 }
