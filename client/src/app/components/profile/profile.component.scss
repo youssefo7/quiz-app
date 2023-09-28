@@ -8,10 +8,16 @@
         font-size: 4em;
     }
 
-    p {
-        grid-column: 2 / 3;
-        font-weight: bold;
-        font-size: 1.5em;
-        flex-basis: 80%;
+    #player-name-points {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        flex: 1 1 auto;
+
+        span {
+            font-weight: bold;
+            font-size: 1.5em;
+        }
     }
 }
