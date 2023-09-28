@@ -115,7 +115,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     toggleChoice(index: number) {
-        if (!isNaN(index) || index >= 0 || index <= this.chosenChoices.length) {
+        if (!isNaN(index) && index >= 0 && index < this.chosenChoices.length) {
             this.chosenChoices[index] = !this.chosenChoices[index];
         }
     }
