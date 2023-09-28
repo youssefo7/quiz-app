@@ -71,7 +71,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         }
     }
 
-    // Focus sur le bouton, ce qui permet au joueur de pouvoir utiliser les touches du clavier pour répondre
     focusOnButton() {
         this.elementRef.nativeElement.querySelector('button')?.focus();
     }
