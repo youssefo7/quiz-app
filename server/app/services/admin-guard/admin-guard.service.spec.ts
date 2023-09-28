@@ -25,6 +25,6 @@ describe('AdminGuardService', () => {
     it('should deny access with wrong password', () => {
         const incorrectPassword = 'wrong password';
         service.userPassword = 'ultimate!!!password';
-        expect(() => service.isAccessGranted(incorrectPassword)).toThrowError('Invalid password');
+        expect(() => service.isAccessGranted(incorrectPassword)).toThrowError('access is not granted');
     });
 });

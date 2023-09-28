@@ -19,7 +19,6 @@ describe('AdminGuardService', () => {
         expect(service).toBeTruthy();
     });
 
-    // using fakeAsync and tick because of timeout problems
     it('should grant access and activate /admin route only when given the right password', fakeAsync(() => {
         service.isAccessGranted('ultimate!!!password');
         let req = httpMock.expectOne(`${environment.serverUrl}/admin/login`);

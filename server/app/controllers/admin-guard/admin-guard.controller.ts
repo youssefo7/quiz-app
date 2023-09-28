@@ -6,22 +6,22 @@ import { Response } from 'express';
 @ApiTags('AdminGuard')
 @Controller('admin')
 export class AdminGuardController {
-    constructor(private adimnGuardService: AdminGuardService) {}
+    constructor(private adminGuardService: AdminGuardService) {}
 
     @ApiOkResponse({
-        description: 'Returns Quizzes list',
+        description: 'Returns password validation response',
         type: Boolean,
     })
     @ApiNotFoundResponse({
-        description: 'Return NOT_FOUND http status when request fails',
+        description: 'Return FORBIDDEN http status when request fails',
     })
     @Post('/login')
-    async isAccessAdmin(@Body() { password: value }, @Res() response: Response) {
+    async isAccessAdmin(@Body() body: { password: string }, @Res() response: Response) {
         try {
-            await this.adimnGuardService.isAccessGranted(value);
+            this.adminGuardService.isAccessGranted(body.password);
             response.status(HttpStatus.OK).json({ message: 'access is granted' });
         } catch (error) {
-            response.status(HttpStatus.FORBIDDEN).send({ message: 'access is not granted' });
+            response.status(HttpStatus.FORBIDDEN).json({ message: error.message });
         }
     }
 }

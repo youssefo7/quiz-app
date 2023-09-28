@@ -29,7 +29,7 @@ describe('AdminGuardController', () => {
     });
 
     it('isAccessAdmin() should return OK when access is granted', async () => {
-        adminGuardService.isAccessGranted.resolves(true);
+        adminGuardService.isAccessGranted.resolves();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
@@ -45,14 +45,14 @@ describe('AdminGuardController', () => {
     });
 
     it('isAccessAdmin() should return FORBIDDEN when access is not granted', async () => {
-        adminGuardService.isAccessGranted.rejects();
+        adminGuardService.isAccessGranted.throws(new Error('access is not granted'));
 
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.FORBIDDEN);
             return res;
         };
-        res.send = (response) => {
+        res.json = (response) => {
             expect(response.message).toEqual('access is not granted');
             return res;
         };

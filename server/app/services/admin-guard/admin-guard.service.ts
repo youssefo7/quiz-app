@@ -10,7 +10,7 @@ export class AdminGuardService {
 
     isAccessGranted(userPassword: string) {
         if (userPassword !== this.privateUserPassword) {
-            throw new Error('Invalid password');
+            throw new Error('access is not granted');
         }
     }
 }

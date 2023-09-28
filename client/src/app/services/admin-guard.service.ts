@@ -11,14 +11,14 @@ export class AdminGuardService {
     // for example, if they provided the password once, do we always allow access?
 
     private canAccessAdmin: boolean;
-    private readonly baseUrl: string = environment.serverUrl;
+    private readonly baseUrl: string;
 
     constructor(private readonly http: HttpClient) {
         this.canAccessAdmin = false;
+        this.baseUrl = environment.serverUrl;
     }
 
     async isAccessGranted(userPassword: string) {
-        // TODO : make service to verify authentication in backend
         try {
             await this.submitPassword(userPassword);
             this.canAccessAdmin = true;
