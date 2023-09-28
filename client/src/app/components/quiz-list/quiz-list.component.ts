@@ -33,8 +33,13 @@ export class QuizListComponent implements OnInit {
     }
 
     deleteQuiz(quiz: Quiz): void {
-        this.communicationService.deleteQuiz(quiz.id).subscribe(() => {
-            this.fetchQuizzes();
+        this.communicationService.deleteQuiz(quiz.id).subscribe({
+            next: () => {
+                this.fetchQuizzes();
+            },
+            error: () => {
+                this.openPopupWarning();
+            },
         });
     }
 
@@ -77,6 +82,19 @@ export class QuizListComponent implements OnInit {
             cancelButtonText: 'Annuler',
             okButtonFunction: () => {
                 this.deleteQuiz(quiz);
+            },
+        };
+        const dialogRef = this.popup.open(PopupMessageComponent);
+        const popupInstance = dialogRef.componentInstance;
+        popupInstance.config = config;
+    }
+
+    openPopupWarning(): void {
+        const config: PopupMessageConfig = {
+            message: 'Ce quiz a déjà été supprimé par un autre administrateur.',
+            hasCancelButton: false,
+            okButtonFunction: () => {
+                this.fetchQuizzes();
             },
         };
         const dialogRef = this.popup.open(PopupMessageComponent);
