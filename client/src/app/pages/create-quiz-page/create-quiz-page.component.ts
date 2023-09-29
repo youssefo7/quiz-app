@@ -1,65 +1,64 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { ConfirmationPopUpComponent } from '@app/components/confirmation-pop-up/confirmation-pop-up.component';
-import { QuizGeneralInfoComponent } from '@app/components/quiz-general-info/quiz-general-info.component';
 import { QuizQuestionInfoComponent } from '@app/components/quiz-question-info/quiz-question-info.component';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { NewQuizManagerService } from '@app/services/new-quiz-manager.service';
+import { Constants } from '@common/constants';
+import { blankQuiz } from './utils';
 
 @Component({
     selector: 'app-create-quiz-page',
     templateUrl: './create-quiz-page.component.html',
     styleUrls: ['./create-quiz-page.component.scss'],
 })
-export class CreateQuizPageComponent implements OnInit, OnDestroy {
+export class CreateQuizPageComponent implements OnInit {
     @ViewChild(QuizQuestionInfoComponent, { static: false }) quizQuestionInfo: QuizQuestionInfoComponent;
-    @ViewChild(QuizGeneralInfoComponent, { static: false }) quizGeneralInfo: QuizGeneralInfoComponent;
+
     newQuiz: Quiz;
-    modifyQuiz: Quiz;
-    isQuizToModify: boolean;
     quizId: string;
-    formTitle: string;
+    pageTitle: string;
     resetQuiz: Quiz;
+    shouldDisableForm: boolean;
 
     constructor(
         private quizManagerService: NewQuizManagerService,
-        private route: ActivatedRoute,
         private confirmationDialogReference: MatDialog,
-    ) {}
-
-    async ngOnInit(): Promise<void> {
-        const routeParams = this.route.snapshot.paramMap;
-        console.log(routeParams, "route paramss");
-        this.quizId = String(routeParams.get('id'));
-        this.quizId !== null ? this.formTitle = "Créer jeu questionnaire" : this.formTitle="Modifier jeu questionnaire";
-        if (this.quizId !== 'null') {
-            const quizObeservable = await this.quizManagerService.getQuizById(this.quizId);
-            this.newQuiz = quizObeservable as Quiz;
-        }
-        else {
-            this.newQuiz = this.quizManagerService.getNewQuiz();
-        }
-        this.quizManagerService.setQuiz(this.newQuiz);
+        private route: ActivatedRoute,
+    ) {
+        this.shouldDisableForm = false;
     }
 
-    ngAfterViewInit(): void {
-        if (this.newQuiz.id !== 'null') {
-            this.quizGeneralInfo.loadGeneralData(this.newQuiz);
-        }
+    ngOnInit(): void {
+        this.loadQuiz();
     }
 
-    ngOnDestroy(): void {
-        console.log("i was killed");
+    async loadQuiz(): Promise<void> {
+        const id = this.route.snapshot.paramMap.get('id');
+        const modifiedQuiz = await this.quizManagerService.fetchQuiz(id);
+        this.newQuiz = modifiedQuiz ?? blankQuiz;
+        this.pageTitle = this.newQuiz.id ? 'Modifier jeu questionnaire' : 'Créer jeu questionnaire';
     }
 
     modifyQuestion(selectedQuestion: Question, selectedIndex: number) {
         this.quizQuestionInfo.loadQuestionInformation(selectedQuestion, selectedIndex);
     }
 
+    onGeneralInfoChange(shouldDisableForm: boolean): void {
+        this.shouldDisableForm = shouldDisableForm;
+    }
+
     isQuizFormValid(): boolean {
-        if (this.newQuiz.questions.every((question) => this.isQuestionValid(question)) && this.newQuiz.title !== '' && this.newQuiz.duration !== 0 &&
-        this.quizGeneralInfo.buttonText !== 'Sauvegarder') {
+        if (
+            this.newQuiz &&
+            this.newQuiz.questions.length > 0 &&
+            this.newQuiz.questions.every((question) => this.isQuestionValid(question)) &&
+            this.newQuiz.title.trim().length > 0 &&
+            this.newQuiz.description.trim().length > 0 &&
+            this.newQuiz.duration >= Constants.MIN_DURATION &&
+            !this.shouldDisableForm
+        ) {
             return true;
         }
         return false;
@@ -69,38 +68,38 @@ export class CreateQuizPageComponent implements OnInit, OnDestroy {
         return (
             question.text.trim().length > 0 &&
             question.type.trim().length > 0 &&
-            question.choices.length >= 2 &&
+            question.choices.length >= Constants.MIN_CHOICES &&
             question.choices.some((choice) => choice.text.trim().length > 0) &&
             question.choices.some((choice) => choice.isCorrect)
         );
     }
 
     deleteQuestion(index: number): void {
-        if (index >= 0 && index < this.newQuiz.questions.length) {
-            this.newQuiz.questions.splice(index, 1);
-        }
+        this.quizManagerService.deleteQuestion(index, this.newQuiz);
     }
 
     moveQuestionUp(index: number) {
-        this.quizManagerService.moveQuestionUp(index);
+        this.quizManagerService.moveQuestionUp(index, this.newQuiz);
     }
 
     moveQuestionDown(index: number) {
-        this.quizManagerService.moveQuestionDown(index);
+        this.quizManagerService.moveQuestionDown(index, this.newQuiz);
     }
 
     openQuizConfirmation(): void {
         const quizConfirmationDialogReference = this.confirmationDialogReference.open(ConfirmationPopUpComponent);
-        quizConfirmationDialogReference.componentInstance.setConfirmationText("Sauvegarder cette question?");
+        quizConfirmationDialogReference.componentInstance.setConfirmationText('Sauvegarder cette question?');
 
-        quizConfirmationDialogReference.afterClosed().subscribe((result) => {
-            if (result) {
+        quizConfirmationDialogReference.afterClosed().subscribe((wantsToSave) => {
+            if (wantsToSave) {
                 this.saveQuiz();
             }
-        })
+        });
     }
 
     saveQuiz() {
-        this.quizManagerService.saveQuiz(this.newQuiz.id, this.newQuiz, this.isQuizToModify);
+        if (this.newQuiz) {
+            this.quizManagerService.saveQuiz(this.newQuiz);
+        }
     }
 }

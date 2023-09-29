@@ -17,7 +17,6 @@ import { ChatComponent } from './components/chat/chat.component';
 import { ConfirmationPopUpComponent } from './components/confirmation-pop-up/confirmation-pop-up.component';
 import { CountdownComponent } from './components/countdown/countdown.component';
 import { CreateGameListComponent } from './components/create-game-list/create-game-list.component';
-import { CreateQuizFormComponent } from './components/create-quiz-form/create-quiz-form.component';
 import { ImportPopupComponent } from './components/import-popup/import-popup.component';
 import { PopupMessageComponent } from './components/popup-message/popup-message.component';
 import { ProfileComponent } from './components/profile/profile.component';
@@ -51,7 +50,6 @@ import { HostGamePageComponent } from './pages/host-game-page/host-game-page.com
         HostGamePageComponent,
         TopBarComponent,
         CreateQuizPageComponent,
-        CreateQuizFormComponent,
         QuizGeneralInfoComponent,
         RangeValidatorDirective,
         QuizQuestionInfoComponent,

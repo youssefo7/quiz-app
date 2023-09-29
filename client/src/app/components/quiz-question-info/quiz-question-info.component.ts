@@ -1,16 +1,17 @@
-import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationPopUpComponent } from '@app/components/confirmation-pop-up/confirmation-pop-up.component';
 import { Choice, Question, Quiz } from '@app/interfaces/quiz';
 import { NewQuizManagerService } from '@app/services/new-quiz-manager.service';
+import { Constants } from '@common/constants';
 
 @Component({
     selector: 'app-quiz-question-info',
     templateUrl: './quiz-question-info.component.html',
     styleUrls: ['./quiz-question-info.component.scss'],
 })
-export class QuizQuestionInfoComponent implements OnInit, AfterViewInit {
+export class QuizQuestionInfoComponent implements OnInit {
     @Input() newQuiz: Quiz;
     modifiedIndex: number;
     questionInfoForm: FormGroup;
@@ -20,14 +21,16 @@ export class QuizQuestionInfoComponent implements OnInit, AfterViewInit {
 
     disableForm = false;
     buttonText = 'Sauvegarder';
-    buttonName = 'edit-save';
 
     constructor(
         private quizManagerService: NewQuizManagerService,
         private fb: FormBuilder,
         private confirmationDialogReference: MatDialog,
-        // private route: ActivatedRoute,
-    ) {}
+    ) {
+        this.maxChoices = Constants.MAX_CHOICES;
+        this.defaultPoints = Constants.MIN_POINTS;
+        this.isModifiedQuestion = false;
+    }
 
     get choices() {
         return this.questionInfoForm.get('choices') as FormArray;
@@ -37,22 +40,7 @@ export class QuizQuestionInfoComponent implements OnInit, AfterViewInit {
         this.initializeForm();
     }
 
-    ngAfterViewInit(): void {
-        if(this.newQuiz.title !== '') {
-            this.loadQuestionData(this.newQuiz);
-        }
-    }
-
     initializeForm() {
-        // const routeParams = this.route.snapshot.paramMap;
-        // const quizId = String(routeParams.get('id'));
-        // if(quizId !== 'null') {
-        //     this.quizManagerService.getQuizById(quizId);
-        // }
-        // this.newQuiz = this.quizManagerService.getNewQuiz();
-        this.maxChoices = 4;
-        this.defaultPoints = 10;
-        this.isModifiedQuestion = false;
         this.questionInfoForm = this.fb.group({
             type: ['', Validators.required],
             text: ['', Validators.required],
@@ -60,7 +48,7 @@ export class QuizQuestionInfoComponent implements OnInit, AfterViewInit {
             choices: this.fb.array([], [this.questionChoicesValidator()]),
         });
 
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < Constants.MIN_CHOICES; i++) {
             this.addChoice();
         }
     }
@@ -68,32 +56,24 @@ export class QuizQuestionInfoComponent implements OnInit, AfterViewInit {
     loadQuestionInformation(question: Question, index: number) {
         this.questionInfoForm.reset();
         this.modifiedIndex = index;
-        const resetChoices = this.questionInfoForm.get('choices') as FormArray;
+        const resetChoices = this.choices;
 
         while (resetChoices.length < question.choices.length) {
             this.addChoice();
         }
 
         this.isModifiedQuestion = true;
-        if (question) {
-            this.questionInfoForm.patchValue({
-                text: question.text,
-                type: question.type,
-                points: question.points,
-                choices: question.choices,
-            });
-        } else {
-            this.questionInfoForm.reset();
-        }
+        this.questionInfoForm.patchValue({
+            text: question.text,
+            type: question.type,
+            points: question.points,
+            choices: question.choices,
+        });
     }
 
     roundToNearest10() {
-        const incrementOf10 = 10;
-        return Math.round((this.questionInfoForm.value.points as number) / incrementOf10) * incrementOf10;
-    }
-
-    getNewQuiz() {
-        return this.newQuiz;
+        const pointsStep = 10;
+        return Math.round((this.questionInfoForm.value.points as number) / pointsStep) * pointsStep;
     }
 
     addChoice() {
@@ -128,36 +108,29 @@ export class QuizQuestionInfoComponent implements OnInit, AfterViewInit {
     toggleButtonNameAndText() {
         this.disableForm = !this.disableForm;
         this.buttonText = this.disableForm ? 'Modifier' : 'Sauvegarder';
-        this.buttonName = this.disableForm ? 'save' : 'edit-save';
     }
 
     openQuestionConfirmation(): void {
-        // const questionDialogReference = this.confirmationDialogReference.open(QuestionConfirmationComponent);
         const confirmationDialogReference = this.confirmationDialogReference.open(ConfirmationPopUpComponent);
-        confirmationDialogReference.componentInstance.setConfirmationText("Sauvegarder cette question?");
+        confirmationDialogReference.componentInstance.setConfirmationText('Sauvegarder cette question?');
 
-        confirmationDialogReference.afterClosed().subscribe((result) => {
-            if(result) {
+        confirmationDialogReference.afterClosed().subscribe((wantsToSave) => {
+            if (wantsToSave) {
                 this.manageQuestion();
                 this.resetForm();
             }
         });
-        // questionDialogReference.afterClosed().subscribe((result) => {
-        //     if (result) {
-        //         this.manageQuestion();
-        //         this.resetForm();
-        //     }
-        // });
     }
 
     manageQuestion() {
-        const questionType = this.questionInfoForm.get('type')?.value;
-        const questionText = this.questionInfoForm.get('text')?.value;
-        const questionPoints = this.questionInfoForm.get('points')?.value;
+        const questionType: string = this.questionInfoForm.get('type')?.value;
+        const questionText: string = this.questionInfoForm.get('text')?.value;
+        const questionPoints: number = this.questionInfoForm.get('points')?.value;
+
         const choicesArray: Choice[] = this.choices.controls.map((control) => {
             control = control as FormGroup;
-            const text = control.get('text')?.value || '';
-            const isCorrect = control.get('isCorrect')?.value || false;
+            const text: string = control.get('text')?.value;
+            const isCorrect: boolean = control.get('isCorrect')?.value;
             return { text, isCorrect };
         });
 
@@ -169,24 +142,23 @@ export class QuizQuestionInfoComponent implements OnInit, AfterViewInit {
         };
 
         if (this.isModifiedQuestion) {
-            this.quizManagerService.modifyQuestion(newQuestion, this.modifiedIndex);
+            this.quizManagerService.modifyQuestion(newQuestion, this.modifiedIndex, this.newQuiz);
             this.isModifiedQuestion = false;
         } else {
-            this.quizManagerService.addNewQuestion(newQuestion);
+            this.quizManagerService.addNewQuestion(newQuestion, this.newQuiz);
         }
     }
 
     resetForm() {
         this.questionInfoForm.reset();
 
-        this.questionInfoForm.controls.points.setValue(this.defaultPoints);
-        const choices = this.questionInfoForm.get('choices') as FormArray;
+        this.questionInfoForm.controls.points.setValue(this.defaultPoints); // voir le value comment ca fonctionne
 
-        while (choices.length > 2) {
-            choices.removeAt(choices.length - 1);
+        while (this.choices.length > Constants.MIN_CHOICES) {
+            this.choices.removeAt(this.choices.length - 1);
         }
 
-        choices.controls.forEach((choiceControl) => {
+        this.choices.controls.forEach((choiceControl) => {
             const choiceGroup = choiceControl as FormGroup;
             choiceGroup.get('isCorrect')?.setValue(false);
         });
@@ -195,12 +167,14 @@ export class QuizQuestionInfoComponent implements OnInit, AfterViewInit {
     questionChoicesValidator(): ValidatorFn {
         return (control: AbstractControl): ValidationErrors | null => {
             const choices = control as FormArray;
+
             const validChoices = choices.controls.filter((choice) => {
-                const text = choice.get('text')?.value || '';
-                const isCorrect = choice.get('isCorrect')?.value || false;
-                return text.trim().length > 0 || isCorrect;
+                const text = choice.get('text')?.value ?? '';
+                const isCorrect = choice.get('isCorrect')?.value ?? '';
+                return text.trim().length > 0 && typeof isCorrect !== undefined;
             });
-            if (validChoices.length < 2) {
+
+            if (validChoices.length < Constants.MIN_CHOICES) {
                 return { missingChoices: true };
             }
 
@@ -214,9 +188,6 @@ export class QuizQuestionInfoComponent implements OnInit, AfterViewInit {
             const differentChoices = new Set<string>();
             for (const choice of validChoices) {
                 const text = choice.get('text')?.value.trim();
-                if (text === '') {
-                    return { choiceTextEmpty: true };
-                }
                 if (differentChoices.has(text)) {
                     return { duplicateChoices: true };
                 }
@@ -225,10 +196,5 @@ export class QuizQuestionInfoComponent implements OnInit, AfterViewInit {
 
             return null;
         };
-    }
-
-    loadQuestionData(quiz: Quiz) {
-        this.resetForm();
-        this.newQuiz = quiz;
     }
 }

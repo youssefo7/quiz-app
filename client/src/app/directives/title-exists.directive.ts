@@ -22,27 +22,13 @@ export class TitleExistsDirective implements Validator {
         if (!this.quizzes) {
             return null;
         }
-        
-        const routeParams = this.route.snapshot.paramMap;
-        const quizId = String(routeParams.get('id'));
+
+        const quizId = this.route.snapshot.paramMap.get('id');
+        const quizzesToParse = quizId ? this.quizzes.filter((quiz) => quiz.id !== quizId) : this.quizzes;
+
         const titleValue = control.value;
-        const sameTitle = this.quizzes.find((quiz) => quiz.title.toLowerCase() === titleValue.toLowerCase());
-        if(quizId === 'null') {
-            if(sameTitle) {
-                return { titleExists: true };
-            } else {
-                return null;
-            }
-        } else {
-            const sameId = this.quizzes.find((quiz) => quiz.id === quizId);
-            if(sameId !== undefined) {
-                if(sameTitle !== undefined) {
-                    return { titleExists: true };
-                } else {
-                    return null;
-                }
-            }
-        }
-        return null;
+        const isSameTitle = quizzesToParse.some((quiz) => quiz.title.toLowerCase() === titleValue.toLowerCase());
+
+        return isSameTitle ? { titleExists: true } : null;
     }
 }

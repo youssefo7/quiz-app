@@ -1,21 +1,15 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Question, Quiz } from '@app/interfaces/quiz';
-import { BehaviorSubject } from 'rxjs';
 import { CommunicationService } from './communication.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class NewQuizManagerService {
-    message: string = '';
-    quizzes: BehaviorSubject<Quiz[]>;
-    selectedQuiz: BehaviorSubject<Quiz | null>;
-    choiceIndex: number;
-    quizToModify: Quiz;
-    isQuizBeingModified: boolean;
+    quizzes: Quiz[];
+    quizId: string | null = null;
 
-    private newQuiz: Quiz = {
+    /*     newQuiz: Quiz | undefined = {
         $schema: 'quiz-schema.json',
         id: '',
         title: '',
@@ -36,142 +30,78 @@ export class NewQuizManagerService {
                 ],
             },
         ],
-    };
+    }; */
 
     constructor(private readonly communicationService: CommunicationService) {
         this.getQuizListFromServer();
-        this.quizzes = new BehaviorSubject<Quiz[]>([]);
-        this.selectedQuiz = new BehaviorSubject<Quiz | null>(null);
     }
 
     getQuizListFromServer(): void {
         this.communicationService.getQuizzes().subscribe({
             next: (quizzes) => {
-                this.quizzes.next(quizzes);
-            },
-            error: (err: HttpErrorResponse) => {
-                const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
-                this.message = responseString;
+                this.quizzes = quizzes;
             },
         });
     }
 
     async addQuizToServer(newQuiz: Quiz) {
-        this.communicationService.addQuiz(newQuiz).subscribe({
-            next: () => {
-                this.getQuizListFromServer();
-            },
-            error: (err: HttpErrorResponse) => {
-                const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
-                this.message = responseString;
-            },
-        });
+        this.communicationService.addQuiz(newQuiz).subscribe();
     }
 
     async updateQuizOnServer(id: string, updatedQuiz: Quiz) {
-        this.communicationService.updateQuiz(id, updatedQuiz).subscribe({
-            next: (quiz) => {
-                this.selectedQuiz.next(quiz);
-                this.getQuizListFromServer();
-            },
-            error: (err: HttpErrorResponse) => {
-                const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
-                this.message = responseString;
-                this.addQuizToServer(updatedQuiz);
-            },  
-        });
+        this.communicationService.updateQuiz(id, updatedQuiz).subscribe();
     }
 
-    async getQuizFromServer(id: string) {
-        this.communicationService.getQuiz(id).subscribe({
-            next: (quiz) => {
-                this.selectedQuiz.next(quiz);
-            },
-            error: (err: HttpErrorResponse) => {
-                const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
-                this.message = responseString;
-            },
-        });
-    }
-
-    async getQuizById(id: string): Promise<Quiz | undefined> {
+    async fetchQuiz(id: string | null): Promise<Quiz | undefined> {
         if (id) {
-          return new Promise<Quiz | undefined>((resolve, reject) => {
-            this.communicationService.getQuiz(id).subscribe({
-              next: (quiz) => {
-                resolve(quiz);
-              },
-              error: (err: HttpErrorResponse) => {
-                const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
-                this.message = responseString;
-                reject(err);
-              },
+            return new Promise<Quiz | undefined>((resolve) => {
+                this.communicationService.getQuiz(id).subscribe({
+                    next: (quiz) => {
+                        console.log(quiz);
+                        resolve(quiz);
+                    },
+                });
             });
-          });
         }
         return undefined;
-      }
-
-    async deleteQuizFromServer(id: string) {
-        this.communicationService.deleteQuiz(id).subscribe({
-            next: () => {
-                this.getQuizListFromServer();
-                this.selectedQuiz.next(null);
-            },
-            error: (err: HttpErrorResponse) => {
-                const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
-                this.message = responseString;
-            },
-        });
     }
 
-    getNewQuiz(): Quiz {
-        return this.newQuiz;
-    }
-
-    setQuiz(quiz: Quiz) {
-        this.newQuiz = quiz;
-    }
-
-    getNewQuizQuestions() {
-        return this.newQuiz.questions;
-    }
-
-    setQuizToModify(quiz: Quiz) {
-        this.newQuiz = quiz;
-    }
-
-    getQuizToModify(): Quiz {
-        return this.newQuiz;
-    } 
-
-    addNewQuestion(newQuestion: Question) {
-        if (this.newQuiz.questions.length === 0 || (this.newQuiz.questions.length === 1 && this.newQuiz.questions[0].text === '')) {
-            this.newQuiz.questions[0] = newQuestion;
+    addNewQuestion(newQuestion: Question, quiz: Quiz) {
+        if (quiz.questions.length === 0 || (quiz.questions.length === 1 && quiz.questions[0].text === '')) {
+            quiz.questions[0] = newQuestion;
         } else {
-            this.newQuiz.questions.push(newQuestion);
+            quiz.questions.push(newQuestion);
         }
     }
 
-    modifyQuestion(question: Question, index: number) {
-        if (index !== undefined && index !== null && index >= 0 && index < this.newQuiz.questions.length) {
-            this.newQuiz.questions[index] = question;
+    modifyQuestion(question: Question, index: number, quiz: Quiz) {
+        if (index !== undefined && index !== null && index >= 0 && index < quiz.questions.length) {
+            quiz.questions[index] = question;
         }
     }
 
-    saveQuiz(id: string, quiz: Quiz, isQuizToModify: boolean) {
-        if (isQuizToModify) {
-            this.updateQuizOnServer(id, quiz);
+    deleteQuestion(index: number, quiz: Quiz) {
+        if (index >= 0 && index < quiz.questions.length) {
+            quiz.questions.splice(index, 1);
+        }
+    }
+
+    // TODO: check for deleted quiz while modifying
+    saveQuiz(quiz: Quiz) {
+        if (this.quizId) {
+            this.updateQuizOnServer(this.quizId, quiz);
         } else {
             this.addQuizToServer(quiz);
         }
     }
 
-    setGeneralInfoData(title: string, description: string, duration: number) {
-        this.newQuiz.title = title;
-        this.newQuiz.description = description;
-        this.newQuiz.duration = duration;
-    }
+    /*     setGeneralInfoData(title: string, description: string, duration: number) {
+        if (this.newQuiz) {
+            this.newQuiz.title = title;
+            this.newQuiz.description = description;
+            this.newQuiz.duration = duration;
+        }
+    } */
 
     // addNewQuiz(quiz: Quiz) {
     //     this.addQuizToServer(quiz);
@@ -181,19 +111,25 @@ export class NewQuizManagerService {
     //     this.updateQuizOnServer(id, quiz);
     // }
 
-    moveQuestionUp(index: number) {
+    moveQuestionUp(index: number, quiz: Quiz) {
         if (index > 0) {
-            const tmp = this.newQuiz.questions[index - 1];
-            this.newQuiz.questions[index - 1] = this.newQuiz.questions[index];
-            this.newQuiz.questions[index] = tmp;
+            const tmp = quiz.questions[index - 1];
+            quiz.questions[index - 1] = quiz.questions[index];
+            quiz.questions[index] = tmp;
         }
     }
 
-    moveQuestionDown(index: number) {
-        if (index < this.newQuiz.questions.length - 1) {
-            const tmp = this.newQuiz.questions[index + 1];
-            this.newQuiz.questions[index + 1] = this.newQuiz.questions[index];
-            this.newQuiz.questions[index] = tmp;
+    moveQuestionDown(index: number, quiz: Quiz) {
+        if (index < quiz.questions.length - 1) {
+            const tmp = quiz.questions[index + 1];
+            quiz.questions[index + 1] = quiz.questions[index];
+            quiz.questions[index] = tmp;
         }
+    }
+
+    updateGeneralInfo(quiz: Quiz, title: string, description: string, duration: number) {
+        quiz.title = title;
+        quiz.description = description;
+        quiz.duration = duration;
     }
 }

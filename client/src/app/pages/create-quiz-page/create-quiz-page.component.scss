@@ -1,28 +1,39 @@
+#container {
+    display: flex;
+    flex-direction: row;
+    padding: 25px;
+}
+
+#forms-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
 #question-info {
     justify-content: center;
     border: 5px solid #04243c;
-    margin-top: 50px;
     padding: 30px;
-  }
-  
-  #all-question-elements {
+}
+
+#all-question-elements {
     display: grid;
-    grid-template-columns: "question-container auto";
-  }
-  
-  #question-container {
+    grid-template-columns: 'question-container auto';
+}
+
+#question-container {
     grid: question-container;
     grid-column: auto;
-  }
-  
-  #question-input {
+}
+
+#question-input {
     align-items: center;
     width: 60%;
     margin-top: 20px;
     border: 5px solid #04243c;
-  }
-  
-  .question {
+}
+
+.question {
     justify-content: space-between;
     display: flex;
     border: 2px solid #7c93a7;
@@ -30,15 +41,14 @@
     padding: 1%;
     width: 40%;
     font-size: 14px;
-  }
-  
-  #choice-container {
+}
+
+#choice-container {
     display: grid;
     grid-template-columns: auto auto;
     margin-bottom: 10px;
-  }
+}
 
- /////////////////////////////////////////////////////////////////////
- /// EVERYTHING BELOW THIS LINE FROM QUIZ GENERAL INFO COMPONENT 
-//////////////////////////////////////////////////////////////// 
-  
+/////////////////////////////////////////////////////////////////////
+/// EVERYTHING BELOW THIS LINE FROM QUIZ GENERAL INFO COMPONENT
+////////////////////////////////////////////////////////////////
