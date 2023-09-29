@@ -81,7 +81,6 @@ export class QuizzesService {
             errors.push(`La question ${questionIndex + 1} doit avoir au moins un bon choix et un mauvais choix.`);
     }
 
-    // if true id is available
     async checkIdAvailability(id: string): Promise<boolean> {
         const quizzes = await this.getQuizzes();
         return quizzes.findIndex((quiz) => quiz.id === id) === Constants.INDEX_NOT_FOUND;
@@ -187,7 +186,7 @@ export class QuizzesService {
             await this.verifyQuiz(quiz);
             return await this.addQuiz(quiz);
         } catch (error) {
-            throw new Error(`${error.message}`);
+            return Promise.reject(new Error(`${error.message}`));
         }
     }
 
@@ -195,7 +194,7 @@ export class QuizzesService {
         try {
             await fs.writeFile(this.quizzesPath, JSON.stringify(quizzes, null, 2));
         } catch (error) {
-            throw new Error(`Error saving quizzes: ${error.message}`);
+            return Promise.reject(new Error(`Error saving quizzes: ${error.message}`));
         }
     }
 }
