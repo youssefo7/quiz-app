@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
+import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
 import { of, throwError } from 'rxjs';
@@ -104,7 +105,6 @@ describe('CreateGameListComponent', () => {
         fixture.detectChanges();
 
         const toggleButton = fixture.nativeElement.querySelector('.toggleButton');
-
         expect(component.visibleQuizList.value).not.toBeNull();
         expect(toggleButton).toBeTruthy();
     });
@@ -114,8 +114,6 @@ describe('CreateGameListComponent', () => {
         expect(component.selectedQuizId).toBeNull();
 
         component.toggleDetails(quizId);
-        fixture.detectChanges();
-
         expect(component.selectedQuizId).toEqual(quizId);
 
         component.toggleDetails(quizId);
@@ -162,7 +160,7 @@ describe('CreateGameListComponent', () => {
     it('should display popup if quiz is hidden', () => {
         communicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
         communicationServiceSpy.checkQuizVisibility.and.returnValue(of(false));
-        const hiddenPopUpSpy = spyOn(component, 'isHiddenPopUp').and.callThrough();
+        const hiddenPopUpSpy = spyOn(component, 'openHiddenPopUp').and.callThrough();
         component.checkCanProceed(hiddenQuizzMock[0]);
 
         expect(communicationServiceSpy.checkQuizAvailability).toHaveBeenCalled();
@@ -173,7 +171,7 @@ describe('CreateGameListComponent', () => {
     it('should display popup if quiz is deleted', () => {
         communicationServiceSpy.checkQuizAvailability.and.returnValue(of(false));
         communicationServiceSpy.checkQuizVisibility.and.returnValue(of(false));
-        const isUnavailableSpy = spyOn(component, 'isUnavailablePopUp').and.callThrough();
+        const isUnavailableSpy = spyOn(component, 'openUnavailablePopUp').and.callThrough();
         component.checkCanProceed(hiddenQuizzMock[0]);
 
         expect(communicationServiceSpy.checkQuizAvailability).toHaveBeenCalled();
@@ -185,7 +183,7 @@ describe('CreateGameListComponent', () => {
         const popUpInstanceSpy = jasmine.createSpyObj('PopupMessageComponent', ['']);
         mockDialogRef.componentInstance = popUpInstanceSpy;
         mockDialog.open.and.returnValue(mockDialogRef);
-        component.isUnavailablePopUp();
+        component.openUnavailablePopUp();
 
         expect(mockDialog.open).toHaveBeenCalled();
     });
@@ -194,8 +192,36 @@ describe('CreateGameListComponent', () => {
         const popUpInstanceSpy = jasmine.createSpyObj('PopupMessageComponent', ['']);
         mockDialogRef.componentInstance = popUpInstanceSpy;
         mockDialog.open.and.returnValue(mockDialogRef);
-        component.isHiddenPopUp();
+        component.openHiddenPopUp();
 
         expect(mockDialog.open).toHaveBeenCalled();
+    });
+
+    it('should show the unavailable quiz popUp with the right configuration', () => {
+        const mockConfig: PopupMessageConfig = {
+            message: 'Le jeu a été supprimé. Veuillez en choisir un autre dans la liste.',
+            hasCancelButton: false,
+        };
+
+        component.openUnavailablePopUp();
+        const config = mockDialogRef.componentInstance.config;
+
+        expect(config.message).toEqual(mockConfig.message);
+        expect(config.hasCancelButton).toEqual(mockConfig.hasCancelButton);
+        expect(config.okButtonFunction).toBeDefined();
+    });
+
+    it('should show the hidden quiz popUp with the right configuration', () => {
+        const mockConfig: PopupMessageConfig = {
+            message: "Le jeu n'est plus disponible. Veuillez en choisir un autre dans la liste.",
+            hasCancelButton: false,
+        };
+
+        component.openHiddenPopUp();
+        const config = mockDialogRef.componentInstance.config;
+
+        expect(config.message).toEqual(mockConfig.message);
+        expect(config.hasCancelButton).toEqual(mockConfig.hasCancelButton);
+        expect(config.okButtonFunction).toBeDefined();
     });
 });
