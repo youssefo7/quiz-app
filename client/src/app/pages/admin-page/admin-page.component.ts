@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { AdminGuardService } from '@app/services/admin-guard.service';
 
@@ -7,7 +7,7 @@ import { AdminGuardService } from '@app/services/admin-guard.service';
     templateUrl: './admin-page.component.html',
     styleUrls: ['./admin-page.component.scss', '../../../assets/shared.scss'],
 })
-export class AdminPageComponent {
+export class AdminPageComponent implements OnInit {
     constructor(
         private router: Router,
         private adminGuardService: AdminGuardService,

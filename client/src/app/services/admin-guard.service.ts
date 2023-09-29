@@ -21,7 +21,7 @@ export class AdminGuardService {
     private readonly baseUrl: string;
 
     constructor(
-        private readonly http: HttpClient,
+        private http: HttpClient,
         private router: Router,
     ) {
         this.canAccessAdmin = sessionStorage.getItem(SessionKeys.CanAccessAdmin) ? true : false;
