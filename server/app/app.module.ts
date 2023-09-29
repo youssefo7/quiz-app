@@ -1,5 +1,4 @@
 import { QuizzesController } from '@app/controllers/quizzes/quizzes.controller';
-import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { QuizzesService } from '@app/services/quizzes/quizzes.service';
 import { LoggerMiddleware } from '@app/utils/logger.middleware';
 import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
@@ -19,7 +18,7 @@ import { MongooseModule } from '@nestjs/mongoose';
         // MongooseModule.forFeature([{ name: Course.name, schema: courseSchema }]),
     ],
     controllers: [QuizzesController],
-    providers: [ChatGateway, Logger, QuizzesService],
+    providers: [Logger, QuizzesService],
 })
 
 // Code provided by: Kamil Myśliwiec
