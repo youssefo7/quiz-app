@@ -13,6 +13,10 @@ export class MainPageComponent {
         private adminPopup: MatDialog,
         private adminGuardService: AdminGuardService,
     ) {
+        this.initializeComponent();
+    }
+
+    initializeComponent(): void {
         if (this.adminGuardService.showAdminPopup()) {
             this.openAdminPopup();
         }
