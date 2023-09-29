@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
+import { AdminGuardService } from '@app/services/admin-guard.service';
 
 import SpyObj = jasmine.SpyObj;
 
@@ -8,15 +9,20 @@ describe('MainPageComponent', () => {
     let component: MainPageComponent;
     let fixture: ComponentFixture<MainPageComponent>;
     let matDialogServiceSpy: SpyObj<MatDialog>;
+    let adminGuardServiceMock: SpyObj<AdminGuardService>;
 
     beforeEach(() => {
         matDialogServiceSpy = jasmine.createSpyObj('MatDialog', ['open']);
+        adminGuardServiceMock = jasmine.createSpyObj('AdminGuardService', ['showAdminPopup']);
     });
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
             declarations: [MainPageComponent],
-            providers: [{ provide: MatDialog, useValue: matDialogServiceSpy }],
+            providers: [
+                { provide: MatDialog, useValue: matDialogServiceSpy },
+                { provide: AdminGuardService, useValue: adminGuardServiceMock },
+            ],
         }).compileComponents();
     }));
 
@@ -65,5 +71,19 @@ describe('MainPageComponent', () => {
         expect(teammates.children[3].innerHTML).toBe('Massimo Donato');
         expect(teammates.children[4].innerHTML).toBe('Rima Al-Zawahra');
         expect(teammates.children[5].innerHTML).toBe('Youssef Ouarad');
+    });
+
+    it('should open the admin popup if admin page is refreshed', () => {
+        adminGuardServiceMock.showAdminPopup.and.returnValue(true);
+        spyOn(component, 'openAdminPopup');
+        component.initializeComponent();
+        expect(component.openAdminPopup).toHaveBeenCalled();
+    });
+
+    it('should not open the admin popup if admin page was not refreshed', () => {
+        adminGuardServiceMock.showAdminPopup.and.returnValue(false);
+        spyOn(component, 'openAdminPopup');
+        component.initializeComponent();
+        expect(component.openAdminPopup).not.toHaveBeenCalled();
     });
 });

@@ -1,7 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
+
+export enum SessionKeys {
+    IsRefreshed = 'isRefreshed',
+    ShowPasswordPopup = 'showPasswordPopup',
+    CanAccessAdmin = 'canAccessAdmin',
+}
 
 @Injectable({
     providedIn: 'root',
@@ -13,8 +20,11 @@ export class AdminGuardService {
     private canAccessAdmin: boolean;
     private readonly baseUrl: string;
 
-    constructor(private readonly http: HttpClient) {
-        this.canAccessAdmin = false;
+    constructor(
+        private http: HttpClient,
+        private router: Router,
+    ) {
+        this.canAccessAdmin = sessionStorage.getItem(SessionKeys.CanAccessAdmin) ? true : false;
         this.baseUrl = environment.serverUrl;
     }
 
@@ -22,6 +32,7 @@ export class AdminGuardService {
         try {
             await this.submitPassword(userPassword);
             this.canAccessAdmin = true;
+            sessionStorage.setItem(SessionKeys.CanAccessAdmin, 'true');
             return this.canAccessAdmin;
         } catch (error) {
             this.canAccessAdmin = false;
@@ -36,5 +47,27 @@ export class AdminGuardService {
     canActivate() {
         // return true to allow user to navigate to admin page
         return this.canAccessAdmin;
+    }
+
+    initializeAdminGuard(): void {
+        this.canAccessAdmin = sessionStorage.getItem(SessionKeys.CanAccessAdmin) ? true : false;
+    }
+
+    pageRefreshState(): void {
+        if (sessionStorage.getItem(SessionKeys.IsRefreshed)) {
+            sessionStorage.setItem(SessionKeys.ShowPasswordPopup, 'true');
+            this.router.navigateByUrl('/home');
+        } else {
+            sessionStorage.setItem(SessionKeys.IsRefreshed, 'true');
+        }
+    }
+
+    showAdminPopup(): boolean {
+        const shouldShow = sessionStorage.getItem(SessionKeys.ShowPasswordPopup);
+        if (shouldShow) {
+            sessionStorage.removeItem(SessionKeys.ShowPasswordPopup);
+            return true;
+        }
+        return false;
     }
 }
