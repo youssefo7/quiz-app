@@ -282,4 +282,9 @@ describe('QuizzesService', () => {
         service.verifyChoices([mockChoice], 0, errors);
         expect(errors).toContain('La propriété "isCorrect" du choix 1 de la question 1 est invalide ou manquante');
     });
+
+    it('should throw error if there is a write failure', async () => {
+        jest.spyOn(fs, 'writeFile').mockRejectedValueOnce(new Error('test'));
+        await expect(service.saveQuizzes(mockQuizzes)).rejects.toThrow('Error saving quizzes: test');
+    });
 });
