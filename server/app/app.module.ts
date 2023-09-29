@@ -1,6 +1,5 @@
 import { AdminGuardController } from '@app/controllers/admin-guard/admin-guard.controller';
 import { QuizzesController } from '@app/controllers/quizzes/quizzes.controller';
-import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { AdminGuardService } from '@app/services/admin-guard/admin-guard.service';
 import { QuizzesService } from '@app/services/quizzes/quizzes.service';
 import { LoggerMiddleware } from '@app/utils/logger.middleware';
@@ -21,7 +20,7 @@ import { MongooseModule } from '@nestjs/mongoose';
         // MongooseModule.forFeature([{ name: Course.name, schema: courseSchema }]),
     ],
     controllers: [QuizzesController, AdminGuardController],
-    providers: [ChatGateway, AdminGuardService, QuizzesService],
+    providers: [AdminGuardService, QuizzesService],
 })
 
 // Code provided by: Kamil Myśliwiec
