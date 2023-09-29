@@ -2,8 +2,7 @@ import { AdminGuardController } from '@app/controllers/admin-guard/admin-guard.c
 import { QuizzesController } from '@app/controllers/quizzes/quizzes.controller';
 import { AdminGuardService } from '@app/services/admin-guard/admin-guard.service';
 import { QuizzesService } from '@app/services/quizzes/quizzes.service';
-import { LoggerMiddleware } from '@app/utils/logger.middleware';
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 
@@ -20,13 +19,6 @@ import { MongooseModule } from '@nestjs/mongoose';
         // MongooseModule.forFeature([{ name: Course.name, schema: courseSchema }]),
     ],
     controllers: [QuizzesController, AdminGuardController],
-    providers: [AdminGuardService, QuizzesService],
+    providers: [Logger, AdminGuardService, QuizzesService],
 })
-
-// Code provided by: Kamil Myśliwiec
-// https://github.com/vladwulf/nestjs-logger-tutorial/blob/main/src/utils/logger.middleware.ts
-export class AppModule implements NestModule {
-    configure(consumer: MiddlewareConsumer) {
-        consumer.apply(LoggerMiddleware).forRoutes('*');
-    }
-}
+export class AppModule {}

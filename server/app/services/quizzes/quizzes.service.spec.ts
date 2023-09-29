@@ -134,6 +134,15 @@ describe('QuizzesService', () => {
         }
     });
 
+    it('should throw error if delete fails', async () => {
+        jest.spyOn(service, 'getQuizzes').mockRejectedValue(new Error('test'));
+        try {
+            await service.deleteQuiz('testID123');
+        } catch (error) {
+            expect(error.message).toBe('test');
+        }
+    });
+
     it('should verify a valid quiz successfully', async () => {
         const quiz = { ...mockQuizzes[0], title: 'new title' };
         await expect(service.verifyQuiz(quiz)).resolves.toBeUndefined();
