@@ -1,17 +1,8 @@
 import { AdminGuardController } from '@app/controllers/admin-guard/admin-guard.controller';
-import { CourseController } from '@app/controllers/course/course.controller';
-import { DateController } from '@app/controllers/date/date.controller';
-import { ExampleController } from '@app/controllers/example/example.controller';
 import { QuizzesController } from '@app/controllers/quizzes/quizzes.controller';
-import { ChatGateway } from '@app/gateways/chat/chat.gateway';
-import { Course, courseSchema } from '@app/model/database/course';
 import { AdminGuardService } from '@app/services/admin-guard/admin-guard.service';
-import { CourseService } from '@app/services/course/course.service';
-import { DateService } from '@app/services/date/date.service';
-import { ExampleService } from '@app/services/example/example.service';
 import { QuizzesService } from '@app/services/quizzes/quizzes.service';
-import { LoggerMiddleware } from '@app/utils/logger.middleware';
-import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 
@@ -25,16 +16,9 @@ import { MongooseModule } from '@nestjs/mongoose';
                 uri: config.get<string>('DATABASE_CONNECTION_STRING'), // Loaded from .env
             }),
         }),
-        MongooseModule.forFeature([{ name: Course.name, schema: courseSchema }]),
+        // MongooseModule.forFeature([{ name: Course.name, schema: courseSchema }]),
     ],
-    controllers: [CourseController, DateController, ExampleController, QuizzesController, AdminGuardController],
-    providers: [ChatGateway, CourseService, DateService, ExampleService, Logger, QuizzesService, AdminGuardService],
+    controllers: [QuizzesController, AdminGuardController],
+    providers: [Logger, AdminGuardService, QuizzesService],
 })
-
-// Code provided by: Kamil Myśliwiec
-// https://github.com/vladwulf/nestjs-logger-tutorial/blob/main/src/utils/logger.middleware.ts
-export class AppModule implements NestModule {
-    configure(consumer: MiddlewareConsumer) {
-        consumer.apply(LoggerMiddleware).forRoutes('*');
-    }
-}
+export class AppModule {}
