@@ -14,14 +14,8 @@ export class ProfileComponent implements OnInit {
         this.name = '';
     }
 
-    checkGameRoute() {
-        const isTestGame = this.route.snapshot.url.some((segment: { path: string }) => segment.path === 'test');
-        if (isTestGame) {
-            this.name = 'Testeur';
-        }
-    }
-
     ngOnInit() {
-        this.checkGameRoute();
+        const isTestGame = this.route.snapshot.url.some((segment: { path: string }) => segment.path === 'test');
+        this.name = isTestGame ? 'Testeur' : 'Joueur A';
     }
 }
