@@ -1,16 +1,16 @@
 import { CommunicationService } from '@app/services/communication.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, tick, fakeAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { ImportPopupComponent } from '@app/components/import-popup/import-popup.component';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { ImportService } from '@app/services/import.service';
 import { QuizListComponent } from './quiz-list.component';
-import SpyObj = jasmine.SpyObj;
-import { BehaviorSubject, of, throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { Quiz } from '@app/interfaces/quiz';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { HttpStatusCode } from '@angular/common/http';
+import SpyObj = jasmine.SpyObj;
 
 describe('QuizListComponent', () => {
     let component: QuizListComponent;
@@ -128,17 +128,15 @@ describe('QuizListComponent', () => {
         });
     });
 
-    it('should fetch quiz list on window load', () => {
-        const quizListSubject = new BehaviorSubject<Quiz[]>([]);
+    it('should fetch quiz list on window load', fakeAsync(() => {
         spyOn(communicationService, 'getQuizzes').and.returnValue(of(mockQuizList));
 
-        component.quizList = quizListSubject;
-
         component.ngOnInit();
+        tick();
 
-        expect(quizListSubject.value).toEqual(mockQuizList);
+        expect(component.quizList).toEqual(mockQuizList);
         expect(communicationService.getQuizzes).toHaveBeenCalled();
-    });
+    }));
 
     it('should call delete quiz service with the correct quiz', () => {
         spyOn(communicationService, 'deleteQuiz').and.returnValue(of(propQuiz.id));

@@ -1,150 +1,230 @@
 [
-    {
-        "$schema": "quiz-schema.json",
-        "id": "546",
-        "title": "Connaissez-vous bien le JavaScript ?",
-        "duration": 10,
-        "lastModification": "2018-11-13T20:20:39+00:00",
-        "visibility": false,
-        "description": "Le quiz parfait pour les débutants en Javascript",
-        "questions": [
-            {
-                "type": "QCM",
-                "text": "Parmi les mots suivants, lesquels sont des mots clés réservés en JS?",
-                "points": 40,
-                "choices": [
-                    {
-                        "text": "var",
-                        "isCorrect": true
-                    },
-                    {
-                        "text": "self",
-                        "isCorrect": false
-                    },
-                    {
-                        "text": "this",
-                        "isCorrect": true
-                    },
-                    {
-                        "text": "int",
-                        "isCorrect": false
-                    }
-                ]
-            },
-            {
-                "type": "QCM",
-                "text": "En quelle année Javascript fut créé? ",
-                "points": 60,
-                "choices": [
-                    {
-                        "text": "1995",
-                        "isCorrect": true
-                    },
-                    {
-                        "text": "2001",
-                        "isCorrect": false
-                    },
-                    {
-                        "text": "1998",
-                        "isCorrect": false
-                    }
-                ]
-            },
-            {
-                "type": "QCM",
-                "text": "Est-ce qu'on le code suivant lance une erreur : const a = 1/NaN; ? ",
-                "points": 20,
-                "choices": [
-                    {
-                        "text": "Non",
-                        "isCorrect": true
-                    },
-                    {
-                        "text": "Oui",
-                        "isCorrect": false
-                    }
-                ]
-            }
+  {
+    "$schema": "quiz-schema.json",
+    "id": "5342",
+    "title": "Histoire et culture generale",
+    "duration": 15,
+    "lastModification": "2018-11-13T20:20:39+00:00",
+    "visibility": false,
+    "description": "Montrez que vous êtes incollable sur l'histoire et la culture générale",
+    "questions": [
+      {
+        "type": "QCM",
+        "text": "Quel événement a marqué le début de la Première Guerre mondiale en 1914 ?",
+        "points": 40,
+        "choices": [
+          {
+            "text": "L'assassinat de l'archiduc François-Ferdinand d'Autriche",
+            "isCorrect": true
+          },
+          {
+            "text": "Le krach boursier de 1929",
+            "isCorrect": false
+          },
+          {
+            "text": "La révolution russe",
+            "isCorrect": false
+          },
+          {
+            "text": "La guerre de Sécession",
+            "isCorrect": false
+          }
         ]
-    },
-    {
-        "$schema": "quiz-schema.json",
-        "id": "986",
-        "title": "Histoire et culture generale",
-        "duration": 15,
-        "lastModification": "2018-11-13T20:20:39+00:00",
-        "visibility": false,
-        "description": "Montrez que vous êtes incollable sur l'histoire et la culture générale",
-        "questions": [
-            {
-                "type": "QCM",
-                "text": "Quel événement a marqué le début de la Première Guerre mondiale en 1914 ?",
-                "points": 40,
-                "choices": [
-                    {
-                        "text": "L'assassinat de l'archiduc François-Ferdinand d'Autriche",
-                        "isCorrect": true
-                    },
-                    {
-                        "text": "Le krach boursier de 1929",
-                        "isCorrect": false
-                    },
-                    {
-                        "text": "La révolution russe",
-                        "isCorrect": false
-                    },
-                    {
-                        "text": "La guerre de Sécession",
-                        "isCorrect": false
-                    }
-                ]
-            },
-            {
-                "type": "QCM",
-                "text": "Quel événement a marqué la fin de la Guerre Froide en 1989 ?",
-                "points": 30,
-                "choices": [
-                    {
-                        "text": "La chute du mur de Berlin",
-                        "isCorrect": true
-                    },
-                    {
-                        "text": "La création de l'OTAN",
-                        "isCorrect": false
-                    },
-                    {
-                        "text": "Le lancement de Spoutnik",
-                        "isCorrect": false
-                    },
-                    {
-                        "text": "La guerre de Corée",
-                        "isCorrect": false
-                    }
-                ]
-            },
-            {
-                "type": "QCM",
-                "text": "Quelles sont les capitales suivantes ?",
-                "points": 40,
-                "choices": [
-                    {
-                        "text": "Paris",
-                        "isCorrect": true
-                    },
-                    {
-                        "text": "Londres",
-                        "isCorrect": true
-                    },
-                    {
-                        "text": "Berlin",
-                        "isCorrect": true
-                    },
-                    {
-                        "text": "Barcelone",
-                        "isCorrect": false
-                    }
-                ]
-            }
+      },
+      {
+        "type": "QCM",
+        "text": "Quel événement a marqué la fin de la Guerre Froide en 1989 ?",
+        "points": 30,
+        "choices": [
+          {
+            "text": "La chute du mur de Berlin",
+            "isCorrect": true
+          },
+          {
+            "text": "La création de l'OTAN",
+            "isCorrect": false
+          },
+          {
+            "text": "Le lancement de Spoutnik",
+            "isCorrect": false
+          },
+          {
+            "text": "La guerre de Corée",
+            "isCorrect": false
+          }
         ]
-    }
+      },
+      {
+        "type": "QCM",
+        "text": "Quelles sont les capitales suivantes ?",
+        "points": 40,
+        "choices": [
+          {
+            "text": "Paris",
+            "isCorrect": true
+          },
+          {
+            "text": "Londres",
+            "isCorrect": true
+          },
+          {
+            "text": "Berlin",
+            "isCorrect": true
+          },
+          {
+            "text": "Barcelone",
+            "isCorrect": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "$schema": "quiz-schema.json",
+    "id": "989899",
+    "title": "Connaissez-vous bien le JavaScript ?",
+    "duration": 10,
+    "lastModification": "2018-11-13T20:20:39+00:00",
+    "visibility": false,
+    "description": "Le quiz parfait pour les débutants en Javascript",
+    "questions": [
+      {
+        "type": "QCM",
+        "text": "Parmi les mots suivants, lesquels sont des mots clés réservés en JS?",
+        "points": 40,
+        "choices": [
+          {
+            "text": "var",
+            "isCorrect": true
+          },
+          {
+            "text": "self",
+            "isCorrect": false
+          },
+          {
+            "text": "this",
+            "isCorrect": true
+          },
+          {
+            "text": "int",
+            "isCorrect": false
+          }
+        ]
+      },
+      {
+        "type": "QCM",
+        "text": "En quelle année Javascript fut créé? ",
+        "points": 60,
+        "choices": [
+          {
+            "text": "1995",
+            "isCorrect": true
+          },
+          {
+            "text": "2001",
+            "isCorrect": false
+          },
+          {
+            "text": "1998",
+            "isCorrect": false
+          }
+        ]
+      },
+      {
+        "type": "QCM",
+        "text": "Est-ce qu'on le code suivant lance une erreur : const a = 1/NaN; ? ",
+        "points": 20,
+        "choices": [
+          {
+            "text": "Non",
+            "isCorrect": true
+          },
+          {
+            "text": "Oui",
+            "isCorrect": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "$schema": "quiz-schema.json",
+    "id": "00000",
+    "title": "Histoire et culture generale",
+    "duration": 15,
+    "lastModification": "2023-09-30T01:25:41.381Z",
+    "visibility": false,
+    "description": "Montrez que vous êtes incollable sur l'histoire et la culture générale",
+    "questions": [
+      {
+        "type": "QCM",
+        "text": "Quel événement a marqué le début de la Première Guerre mondiale en 1914 ?",
+        "points": 40,
+        "choices": [
+          {
+            "text": "L'assassinat de l'archiduc François-Ferdinand d'Autriche",
+            "isCorrect": true
+          },
+          {
+            "text": "Le krach boursier de 1929",
+            "isCorrect": false
+          },
+          {
+            "text": "La révolution russe",
+            "isCorrect": false
+          },
+          {
+            "text": "La guerre de Sécession",
+            "isCorrect": false
+          }
+        ]
+      },
+      {
+        "type": "QCM",
+        "text": "Quel événement a marqué la fin de la Guerre Froide en 1989 ?",
+        "points": 30,
+        "choices": [
+          {
+            "text": "La chute du mur de Berlin",
+            "isCorrect": true
+          },
+          {
+            "text": "La création de l'OTAN",
+            "isCorrect": false
+          },
+          {
+            "text": "Le lancement de Spoutnik",
+            "isCorrect": false
+          },
+          {
+            "text": "La guerre de Corée",
+            "isCorrect": false
+          }
+        ]
+      },
+      {
+        "type": "QCM",
+        "text": "Quelles sont les capitales suivantes ?",
+        "points": 40,
+        "choices": [
+          {
+            "text": "Paris",
+            "isCorrect": true
+          },
+          {
+            "text": "Londres",
+            "isCorrect": true
+          },
+          {
+            "text": "Berlin",
+            "isCorrect": true
+          },
+          {
+            "text": "Barcelone",
+            "isCorrect": false
+          }
+        ]
+      }
+    ]
+  }
 ]
