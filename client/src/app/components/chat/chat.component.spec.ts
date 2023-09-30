@@ -25,6 +25,12 @@ describe('ChatComponent', () => {
         expect(event.target.style.height).toEqual('100px');
     });
 
+    it('expandTextArea should set height to 150px if scrollHeight is  150px', () => {
+        const event = { target: { scrollHeight: 150, style: { height: '' } } };
+        component.expandTextArea(event as unknown as Event);
+        expect(event.target.style.height).toEqual('150px');
+    });
+
     it('expandTextArea should set height to 150px if scrollHeight is greater than 150px', () => {
         const event = { target: { scrollHeight: 200, style: { height: '' } } };
         component.expandTextArea(event as unknown as Event);
@@ -36,5 +42,6 @@ describe('ChatComponent', () => {
         const inputLength = 4;
         component.detectCharacterLengthOnInput(event as unknown as Event);
         expect(component.currentInputLength).toEqual(inputLength);
+        expect(component.characterCounterDisplay).toBe('4 / 200');
     });
 });

@@ -1,4 +1,4 @@
-#player-flex {
+#player-flex-container {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -8,7 +8,7 @@
         font-size: 4em;
     }
 
-    #player-name-points {
+    #player-info {
         display: flex;
         flex-direction: column;
         align-items: flex-start;

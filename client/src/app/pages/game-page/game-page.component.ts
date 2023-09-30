@@ -32,18 +32,10 @@ export class GamePageComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.checkGameRoute();
         this.getQuiz();
+        this.title += this.isTestGame ? ' - Test' : '';
     }
 
-    checkGameRoute(isTestGame = this.isTestGame) {
-        if (isTestGame) {
-            this.link = '/game/new';
-            this.title += ' - Test';
-        }
-    }
-
-    /* TODO: Fix le reload pour que partie en mode test ne soit pas redirigé vers la page de création de partie immédiatement */
     async leaveGamePage(event: Event) {
         event.stopPropagation();
         if (this.isTestGame) {

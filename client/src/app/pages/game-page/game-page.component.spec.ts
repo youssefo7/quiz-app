@@ -12,9 +12,9 @@ import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
+import { of } from 'rxjs';
 import { GamePageComponent } from './game-page.component';
 import SpyObj = jasmine.SpyObj;
-// import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 
 describe('GamePageComponent in test game route', () => {
     let component: GamePageComponent;
@@ -22,6 +22,8 @@ describe('GamePageComponent in test game route', () => {
     let communicationServiceMock: jasmine.SpyObj<CommunicationService>;
     let mockDialog: SpyObj<MatDialog>;
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
+    let router: Router;
+    let gameService: GameService;
     const mockedQuiz = {
         $schema: 'test.json',
         id: '123',
@@ -38,14 +40,17 @@ describe('GamePageComponent in test game route', () => {
         communicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
         mockDialog = jasmine.createSpyObj('mockDialog', ['open']);
         mockDialogRef = jasmine.createSpyObj('mockDialogRef', ['componentInstance']);
-    let router: Router;
-    let gameService: GameService;
+    });
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
             declarations: [GamePageComponent, TopBarComponent, CountdownComponent, QuestionZoneComponent, ProfileComponent, ChatComponent],
-            imports: [MatIconModule, HttpClientModule],
-            providers: [{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'test' }] } } }],
+            imports: [MatIconModule, MatDialogModule, HttpClientModule],
+            providers: [
+                { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'test' }] } } },
+                { provide: MatDialog, useValue: mockDialog },
+                { provide: MatDialogRef, useValue: mockDialogRef },
+            ],
         }).compileComponents();
 
         router = TestBed.inject(Router);
@@ -54,6 +59,7 @@ describe('GamePageComponent in test game route', () => {
 
     beforeEach(() => {
         fixture = TestBed.createComponent(GamePageComponent);
+        mockDialog.open.and.returnValue(mockDialogRef);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
@@ -74,9 +80,11 @@ describe('GamePageComponent in test game route', () => {
     });
 
     it('should give points to the player', () => {
-        const pointsWon = 42;
-        component.givePoints(pointsWon);
-        expect(component.playerPoints).toEqual(pointsWon);
+        const pointsWonFirstQuestion = 30;
+        const pointsWonSecondQuestion = 50;
+        component.givePoints(pointsWonFirstQuestion);
+        component.givePoints(pointsWonSecondQuestion);
+        expect(component.playerPoints).toEqual(pointsWonFirstQuestion + pointsWonSecondQuestion);
     });
 
     it('should fetch the quiz ', fakeAsync(() => {
@@ -88,17 +96,25 @@ describe('GamePageComponent in test game route', () => {
         expect(gameService.getQuizById).toHaveBeenCalledWith(id);
         expect(component.quiz).toEqual(mockedQuiz);
     }));
+
+    it('should popup a message when the user tries to exit a game with the correct configuration', () => {
+        const mockConfig: PopupMessageConfig = {
+            message: 'Êtes-vous sûr de vouloir quitter la partie?',
+            hasCancelButton: true,
+            okButtonText: 'Quitter',
+            cancelButtonText: 'Annuler',
+        };
+
+        component.openQuitPopUp();
+        const config = mockDialogRef.componentInstance.config;
+
+        expect(mockDialog.open).toHaveBeenCalled();
+        expect(config.message).toEqual(mockConfig.message);
+        expect(config.hasCancelButton).toEqual(mockConfig.hasCancelButton);
+        expect(config.okButtonText).toEqual(mockConfig.okButtonText);
+        expect(config.okButtonFunction).toBeDefined();
+    });
 });
-const mockedQuiz = {
-    $schema: 'test.json',
-    id: '123',
-    title: 'Test quiz',
-    description: 'Test quiz description',
-    visibility: true,
-    duration: 60,
-    lastModification: '2018-11-13T20:20:39+00:00',
-    questions: [],
-};
 
 describe('GamePageComponent in regular game route', () => {
     let component: GamePageComponent;
@@ -108,16 +124,8 @@ describe('GamePageComponent in regular game route', () => {
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
             declarations: [GamePageComponent, TopBarComponent, ProfileComponent, ChatComponent, QuestionZoneComponent, CountdownComponent],
-            imports: [MatIconModule, RouterModule, MatDialogModule, HttpClientModule],
-            providers: [
-                { provide: CommunicationService, useValue: communicationServiceMock },
-                {
-                    provide: ActivatedRoute,
-                    useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'game/123/test' }, { path: 'game/123' }] } },
-                },
-                { provide: MatDialog, useValue: mockDialog },
-                { provide: MatDialogRef, useValue: mockDialogRef },
-            ],
+            imports: [MatIconModule, RouterModule, HttpClientModule, MatDialogModule],
+            providers: [{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: '' }] } } }],
         }).compileComponents();
 
         router = TestBed.inject(Router);
@@ -125,7 +133,6 @@ describe('GamePageComponent in regular game route', () => {
 
     beforeEach(() => {
         fixture = TestBed.createComponent(GamePageComponent);
-        mockDialog.open.and.returnValue(mockDialogRef);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
@@ -143,41 +150,5 @@ describe('GamePageComponent in regular game route', () => {
         const exitClickEvent = new Event('click');
         component.leaveGamePage(exitClickEvent);
         expect(navigateSpy).toHaveBeenCalledWith('/home');
-    });
-
-    it('should popup a message when the user tries to delete a quiz with the correct configuration', () => {
-        const mockConfig: PopupMessageConfig = {
-            message: 'Êtes-vous sûr de vouloir quitter la partie?',
-            hasCancelButton: true,
-            okButtonText: 'Quitter',
-            cancelButtonText: 'Annuler',
-        };
-
-        component.openQuitPopUp();
-        const config = mockDialogRef.componentInstance.config;
-
-        expect(mockDialog.open).toHaveBeenCalled();
-        expect(config.message).toEqual(mockConfig.message);
-        expect(config.hasCancelButton).toEqual(mockConfig.hasCancelButton);
-        expect(config.okButtonText).toEqual(mockConfig.okButtonText);
-        expect(config.okButtonFunction).toBeDefined();
-    });
-
-    it('should popup a message when the user tries to delete a quiz with the correct configuration', () => {
-        const mockConfig: PopupMessageConfig = {
-            message: 'Êtes-vous sûr de vouloir quitter la partie?',
-            hasCancelButton: true,
-            okButtonText: 'Quitter',
-            cancelButtonText: 'Annuler',
-        };
-
-        component.openQuitPopUp();
-        const config = mockDialogRef.componentInstance.config;
-
-        expect(mockDialog.open).toHaveBeenCalled();
-        expect(config.message).toEqual(mockConfig.message);
-        expect(config.hasCancelButton).toEqual(mockConfig.hasCancelButton);
-        expect(config.okButtonText).toEqual(mockConfig.okButtonText);
-        expect(config.okButtonFunction).toBeDefined();
     });
 });

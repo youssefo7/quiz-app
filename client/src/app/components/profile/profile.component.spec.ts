@@ -58,8 +58,8 @@ describe('ProfileComponent in regular game route', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should display nothing when the route doesn\'\t contain "test"', () => {
-        expect(component.name).toEqual('');
+    it('should display "Joueur A" when the route doesn\'\t contain "test"', () => {
+        expect(component.name).toEqual('Joueur A');
     });
 
     it('should display points given as input', () => {

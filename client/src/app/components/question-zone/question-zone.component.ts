@@ -22,7 +22,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     submitButtonStyle: { backgroundColor: string };
     bonusMessage: string;
     pointsDisplay: { display: string };
-    isSubmitDisabled: boolean;
+    isSubmitEnabled: boolean;
     isChoiceButtonDisabled: boolean;
     doesDisplayPoints: boolean;
     hasGameEnded: boolean;
@@ -43,7 +43,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.points = 0;
         this.choiceButtonStyle = [{ backgroundColor: '' }];
         this.submitButtonStyle = { backgroundColor: '' };
-        this.isSubmitDisabled = true;
+        this.isSubmitEnabled = false;
         this.isChoiceButtonDisabled = false;
         this.doesDisplayPoints = false;
         this.hasGameEnded = false;
@@ -61,7 +61,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         const keyPressed = event.key;
 
         if (keyPressed === 'Enter') {
-            if (!this.isSubmitDisabled) {
+            if (this.isSubmitEnabled) {
                 this.submitAnswerOnClickEvent();
             }
         } else {
@@ -121,16 +121,16 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     disableSubmitButton() {
-        this.isSubmitDisabled = true;
+        this.isSubmitEnabled = false;
         this.submitButtonStyle = { backgroundColor: 'grey' };
     }
 
     setSubmitButtonStateOnChoices() {
         if (this.chosenChoices.some((choice) => choice === true)) {
-            this.isSubmitDisabled = false;
+            this.isSubmitEnabled = true;
             this.submitButtonStyle = { backgroundColor: 'green' };
         } else {
-            this.isSubmitDisabled = true;
+            this.isSubmitEnabled = false;
             this.submitButtonStyle = { backgroundColor: 'grey' };
         }
     }
