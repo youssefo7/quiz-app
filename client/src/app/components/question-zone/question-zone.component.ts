@@ -78,6 +78,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
+        this.timeService.stopTimer();
         this.timerSubscription.unsubscribe();
         this.gameServiceSubscription.unsubscribe();
     }
