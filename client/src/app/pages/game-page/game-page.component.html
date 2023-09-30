@@ -3,14 +3,15 @@
 
 <div id="grid-container">
     <div id="exit-button-grid">
-        <mat-icon [routerLink]="link" title="Quitter la Partie" inline="true">exit_to_app</mat-icon>
+        <mat-icon (click)="openQuitPopUp()" title="Quitter la Partie" inline="true">exit_to_app</mat-icon>
     </div>
     <div id="game-title-grid">
         <h2 *ngIf="quiz">{{ quiz.title }}</h2>
     </div>
     <app-countdown id="countdown-grid"></app-countdown>
+    <app-question-zone id="questions-grid" (pointsEarned)="givePoints($event)"></app-question-zone>
     <div id="chat-player-flex">
-        <app-profile id="profile-container"></app-profile>
+        <app-profile id="profile-container" [points]="playerPoints"></app-profile>
         <app-chat id="chat-container"></app-chat>
     </div>
 </div>

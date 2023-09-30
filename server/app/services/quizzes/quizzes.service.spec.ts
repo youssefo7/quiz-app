@@ -15,7 +15,7 @@ describe('QuizzesService', () => {
             duration: 60,
             lastModification: '2018-11-13T20:20:39+00:00',
             visibility: true,
-            description: '',
+            description: 'description',
             questions: [
                 {
                     type: 'QCM',
@@ -134,6 +134,15 @@ describe('QuizzesService', () => {
         }
     });
 
+    it('should throw error if delete fails', async () => {
+        jest.spyOn(service, 'getQuizzes').mockRejectedValue(new Error('test'));
+        try {
+            await service.deleteQuiz('testID123');
+        } catch (error) {
+            expect(error.message).toBe('test');
+        }
+    });
+
     it('should verify a valid quiz successfully', async () => {
         const quiz = { ...mockQuizzes[0], title: 'new title' };
         await expect(service.verifyQuiz(quiz)).resolves.toBeUndefined();
@@ -216,6 +225,14 @@ describe('QuizzesService', () => {
         await expect(service.verifyQuiz(mockQuiz)).rejects.toThrow('La durée du quiz est manquante ou doit être un nombre');
     });
 
+    it('should check for a missing or invalid description', async () => {
+        const mockQuiz = {
+            title: 'test',
+        } as unknown as Quiz;
+
+        await expect(service.verifyQuiz(mockQuiz)).rejects.toThrow('Description du quiz invalide ou manquante');
+    });
+
     it('should check for a wrong duration', async () => {
         const mockQuiz = {
             title: 'test',
@@ -273,5 +290,10 @@ describe('QuizzesService', () => {
 
         service.verifyChoices([mockChoice], 0, errors);
         expect(errors).toContain('La propriété "isCorrect" du choix 1 de la question 1 est invalide ou manquante');
+    });
+
+    it('should throw error if there is a write failure', async () => {
+        jest.spyOn(fs, 'writeFile').mockRejectedValueOnce(new Error('test'));
+        await expect(service.saveQuizzes(mockQuizzes)).rejects.toThrow('Error saving quizzes: test');
     });
 });

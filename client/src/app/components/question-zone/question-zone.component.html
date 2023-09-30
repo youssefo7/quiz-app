@@ -1,0 +1,23 @@
+<div id="question-zone-container" (click)="focusOnButton()">
+    <div *ngIf="quiz" class="question-points-zone">
+        <p class="points-message" *ngIf="doesDisplayPoints">{{ points }} Points! {{ bonusMessage }}</p>
+        <p class="question" *ngIf="question">{{ question.text }}</p>
+        <p class="question" *ngIf="question">({{ question.points }} Points)</p>
+    </div>
+    <div *ngIf="quiz" class="choices-zone">
+        <button
+            *ngFor="let choice of question?.choices; index as i"
+            type="button"
+            (click)="toggleChoice(i)"
+            (click)="setSubmitButtonStateOnChoices()"
+            [ngClass]="{ active: chosenChoices[i] }"
+            [ngStyle]="choiceButtonStyle[i]"
+            [disabled]="isChoiceButtonDisabled"
+        >
+            {{ i + 1 }}. {{ choice.text }}
+        </button>
+    </div>
+    <div id="submit-zone">
+        <button [ngStyle]="submitButtonStyle" (click)="submitAnswerOnClickEvent()" [disabled]="isSubmitEnabled">Soumettre</button>
+    </div>
+</div>

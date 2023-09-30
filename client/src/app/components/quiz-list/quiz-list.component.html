@@ -1,3 +1,4 @@
+<a #export style="visibility: hidden"></a>
 <body class="background">
   <div class="quiz-list-container">
     <div class="header">
@@ -12,7 +13,7 @@
       <span class="date">Dernière modification</span>
       <span class="actions">Actions</span>
     </div>
-      <div *ngFor="let quiz of quizList.value">
+      <div *ngFor="let quiz of quizList">
         <div class="quiz">
             <span>{{ quiz.title }}</span>
             <span>{{ quiz.lastModification }}</span>

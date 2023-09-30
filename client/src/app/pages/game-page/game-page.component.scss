@@ -39,6 +39,18 @@
         }
     }
 
+    #questions-grid {
+        grid-row: 2 / 3;
+        grid-column: 2 / 3;
+        border: 1px solid black;
+    }
+
+    #questions-grid {
+        grid-row: 2 / 3;
+        grid-column: 2 / 3;
+        border: 1px solid black;
+    }
+
     #countdown-grid {
         grid-row: 2 / 3;
         grid-column: 1 / 2;
@@ -53,6 +65,7 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        margin-left: 25px;
 
         #profile-container {
             flex-basis: 10%;

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AdminGuardService } from '@app/services/admin-guard.service';
@@ -25,6 +25,13 @@ export class AdminPopupComponent {
         this.passwordInputType = 'password';
     }
 
+    @HostListener('keyup', ['$event'])
+    async submitPasswordOnEnter(event: KeyboardEvent) {
+        if (event.key === 'Enter') {
+            await this.verifyAccess();
+        }
+    }
+
     closeAdminPopup() {
         this.adminPopupRef.close();
     }
@@ -35,8 +42,11 @@ export class AdminPopupComponent {
 
     async submitPassword($event: MouseEvent) {
         $event.preventDefault();
+        await this.verifyAccess();
+    }
 
-        this.isGivenPasswordValid = this.adminGuard.isAccessGranted(this.givenPassword);
+    async verifyAccess() {
+        this.isGivenPasswordValid = await this.adminGuard.isAccessGranted(this.givenPassword);
 
         if (!this.isGivenPasswordValid) {
             this.givenPassword = '';

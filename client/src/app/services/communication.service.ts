@@ -38,8 +38,8 @@ export class CommunicationService {
         return this.http.put<Quiz>(`${this.baseUrl}/quizzes/${id}`, updatedQuiz).pipe(catchError(this.receiveError<Quiz>()));
     }
 
-    deleteQuiz(id: string): Observable<void> {
-        return this.http.delete<void>(`${this.baseUrl}/quizzes/${id}`).pipe(catchError(this.receiveError<void>()));
+    deleteQuiz(id: string): Observable<string> {
+        return this.http.delete<string>(`${this.baseUrl}/quizzes/${id}`).pipe(catchError(this.receiveError<string>()));
     }
 
     checkQuizAvailability(id: string): Observable<boolean> {
