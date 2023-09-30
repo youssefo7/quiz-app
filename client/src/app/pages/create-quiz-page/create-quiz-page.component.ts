@@ -38,7 +38,7 @@ export class CreateQuizPageComponent implements OnInit {
         const id = this.route.snapshot.paramMap.get('id');
         const modifiedQuiz = await this.quizManagerService.fetchQuiz(id);
         this.newQuiz = modifiedQuiz ?? blankQuiz;
-        this.pageTitle = this.newQuiz.id ? 'Modifier jeu questionnaire' : 'Créer jeu questionnaire';
+        this.pageTitle = this.newQuiz.id ? 'Modifier un jeu questionnaire' : 'Créer un jeu questionnaire';
     }
 
     modifyQuestion(selectedQuestion: Question, selectedIndex: number) {

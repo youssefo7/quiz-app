@@ -1,6 +1,7 @@
 #container {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
     padding: 25px;
 }
 
@@ -10,27 +11,9 @@
     height: 100%;
 }
 
-#question-info {
-    justify-content: center;
-    border: 5px solid #04243c;
-    padding: 30px;
-}
-
-#all-question-elements {
-    display: grid;
-    grid-template-columns: 'question-container auto';
-}
-
-#question-container {
-    grid: question-container;
-    grid-column: auto;
-}
-
-#question-input {
-    align-items: center;
-    width: 60%;
-    margin-top: 20px;
-    border: 5px solid #04243c;
+#question-list {
+    display: flex;
+    flex-direction: column;
 }
 
 .question {
@@ -47,6 +30,10 @@
     display: grid;
     grid-template-columns: auto auto;
     margin-bottom: 10px;
+}
+
+footer {
+    padding-left: 25px;
 }
 
 /////////////////////////////////////////////////////////////////////

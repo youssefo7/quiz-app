@@ -3,15 +3,13 @@
     <div id="forms-container">
         <form #addQuizForm="ngForm">
             <app-quiz-general-info (blockSubmit)="onGeneralInfoChange($event)" [newQuiz]="newQuiz"></app-quiz-general-info>
-            <div id="new-question-form">
-                <app-quiz-question-info [newQuiz]="newQuiz"></app-quiz-question-info>
-            </div>
-            <button (click)="openQuizConfirmation()" [disabled]="!isQuizFormValid()">Add Quiz</button>
+            <app-quiz-question-info [newQuiz]="newQuiz"></app-quiz-question-info>
+            <button (click)="openQuizConfirmation()" [disabled]="!isQuizFormValid()">Sauvegarder</button>
         </form>
     </div>
-    <label>Liste de questions : </label>
-    <div id="all-question-elements">
-        <div *ngFor="let question of newQuiz.questions; let i = index" class="question-container">
+    <div id="question-list">
+        <label>Liste de questions : </label>
+        <div *ngFor="let question of newQuiz.questions; let i = index">
             <div *ngIf="question.text !== ''" class="question">
                 {{ i + 1 }}. <label id="question-display">Question : {{ question.text }}</label
                 ><br />

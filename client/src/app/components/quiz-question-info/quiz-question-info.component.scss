@@ -1,96 +1,119 @@
-#verify-points,
-#verify-question,
-#verify-choices,
-#verify-type {
-    font-size: 11px;
-    color: red;
+h2 {
+    margin: unset;
+    padding-bottom: 5px;
+    color: #082540;
 }
 
-#create-question-container {
-    height: auto;
-    border: 3px solid blue;
-}
-
-#general-question-info {
+form {
+    border: 3px solid #082540;
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding-bottom: 4%;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: flex-start;
+    padding: 10px;
+
+    #type-and-points {
+        display: flex;
+        flex-direction: row;
+        gap: 10%;
+        width: 100%;
+    }
+
+    .overflow-input {
+        text-overflow: ellipsis;
+        // width: 100%;
+    }
+
+    div {
+        width: 100%;
+    }
+
+    // #choice-container {
+    //     display: flex;
+    //     flex-direction: column;
+    //     justify-content: flex-start;
+    // }
+
+    .error {
+        color: red;
+    }
+
+    .choice {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .choice-def {
+        display: flex;
+        flex-direction: column;
+    }
+
+    li {
+        padding-bottom: 5px;
+    }
+
+    .icon {
+        font-size: 10px;
+    }
 }
 
-#newQuestion,
-#newChoice {
-    text-overflow: ellipsis;
-}
+// CSS for the toggle switch (good/bad answer)
+// Source : https://www.w3schools.com/howto/howto_css_switch.asp
+// .switch {
+//     grid-area: switch;
+//     position: relative;
+//     display: inline-block;
+//     width: 40px;
+//     height: 24px;
+// }
 
-#choice-container {
-    display: grid;
-    grid-template-columns: auto auto;
-    flex-direction: row;
-    padding-top: 3%;
-    padding-bottom: 7%;
-}
+// .switch input {
+//     opacity: 0;
+//     width: 0;
+//     height: 0;
+// }
 
-#question-validation {
-    position: absolute;
-    right: 3%;
-}
+// .slider {
+//     position: absolute;
+//     cursor: pointer;
+//     top: 0;
+//     left: 0;
+//     right: 0;
+//     bottom: 0;
+//     background-color: #ccc;
+//     -webkit-transition: 0.4s;
+//     transition: 0.4s;
+// }
 
-//CSS concernant le boutton switch qui determine si le choix est une bonne response ou non : https://www.w3schools.com/howto/howto_css_switch.asp
-.switch {
-    grid-area: switch;
-    position: relative;
-    display: inline-block;
-    width: 40px;
-    height: 24px;
-}
+// .slider:before {
+//     position: absolute;
+//     content: '';
+//     height: 16px;
+//     width: 16px;
+//     left: 4px;
+//     bottom: 4px;
+//     background-color: white;
+//     -webkit-transition: 0.4s;
+//     transition: 0.4s;
+// }
 
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
+// input:checked + .slider {
+//     background-color: #2196f3;
+// }
 
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    -webkit-transition: 0.4s;
-    transition: 0.4s;
-}
+// input:focus + .slider {
+//     box-shadow: 0 0 1px #2196f3;
+// }
 
-.slider:before {
-    position: absolute;
-    content: '';
-    height: 16px;
-    width: 16px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    -webkit-transition: 0.4s;
-    transition: 0.4s;
-}
+// input:checked + .slider:before {
+//     transform: translateX(16px);
+// }
 
-input:checked + .slider {
-    background-color: #2196f3;
-}
+// .slider.round {
+//     border-radius: 34px;
+// }
 
-input:focus + .slider {
-    box-shadow: 0 0 1px #2196f3;
-}
-
-input:checked + .slider:before {
-    transform: translateX(16px);
-}
-
-.slider.round {
-    border-radius: 34px;
-}
-
-.slider.round:before {
-    border-radius: 50%;
-}
+// .slider.round:before {
+//     border-radius: 50%;
+// }

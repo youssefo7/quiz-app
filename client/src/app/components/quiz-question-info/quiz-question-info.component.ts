@@ -19,9 +19,6 @@ export class QuizQuestionInfoComponent implements OnInit {
     defaultPoints: number;
     isModifiedQuestion: boolean;
 
-    disableForm = false;
-    buttonText = 'Sauvegarder';
-
     constructor(
         private quizManagerService: NewQuizManagerService,
         private fb: FormBuilder,
@@ -103,11 +100,6 @@ export class QuizQuestionInfoComponent implements OnInit {
             this.choices.removeAt(index);
             this.choices.insert(index + 1, choice);
         }
-    }
-
-    toggleButtonNameAndText() {
-        this.disableForm = !this.disableForm;
-        this.buttonText = this.disableForm ? 'Modifier' : 'Sauvegarder';
     }
 
     openQuestionConfirmation(): void {
