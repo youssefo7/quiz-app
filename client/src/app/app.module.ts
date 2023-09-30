@@ -25,6 +25,7 @@ import { TopBarComponent } from './components/top-bar/top-bar.component';
 import { AdminPageComponent } from './pages/admin-page/admin-page.component';
 import { CreateGamePageComponent } from './pages/create-game-page/create-game-page.component';
 import { HostGamePageComponent } from './pages/host-game-page/host-game-page.component';
+import { WaitingPageComponent } from './pages/waiting-page/waiting-page.component';
 
 /**
  * Main module that is used in main.ts.
@@ -53,6 +54,7 @@ import { HostGamePageComponent } from './pages/host-game-page/host-game-page.com
         PopupMessageComponent,
         ImportPopupComponent,
         QuestionZoneComponent,
+        WaitingPageComponent,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, MatDialogModule],
     providers: [],
