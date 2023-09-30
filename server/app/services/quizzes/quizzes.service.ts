@@ -169,6 +169,7 @@ export class QuizzesService {
     async deleteQuiz(id: string): Promise<Quiz[]> {
         try {
             const quizzes = await this.getQuizzes();
+            await this.getQuizIndex(quizzes, id);
             if (quizzes.length === 1) {
                 await this.saveQuizzes([]);
                 return [];

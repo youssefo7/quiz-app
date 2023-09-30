@@ -1,16 +1,21 @@
-import { TestBed, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { TestBed, discardPeriodicTasks, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { GameService } from './game.service';
 import { TimeService } from './time.service';
 
 describe('TimeService', () => {
     let service: TimeService;
     const TIMEOUT = 5;
     const MS_SECOND = 1000;
+    let gameService: GameService;
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({});
+    beforeEach(waitForAsync(() => {
+        TestBed.configureTestingModule({
+            imports: [HttpClientTestingModule],
+        }).compileComponents();
         service = TestBed.inject(TimeService);
-    });
+        gameService = TestBed.inject(GameService);
+    }));
 
     it('should be created', () => {
         expect(service).toBeTruthy();
@@ -70,4 +75,14 @@ describe('TimeService', () => {
         expect(service['interval']).toBeFalsy();
         discardPeriodicTasks();
     }));
+
+    it('should set to isButtonPressed to its value when it changes in gameService', () => {
+        let isButtonPressedValue = true;
+        gameService.setButtonPressState = isButtonPressedValue;
+        expect(service['isButtonPressed']).toEqual(isButtonPressedValue);
+
+        isButtonPressedValue = false;
+        gameService.setButtonPressState = isButtonPressedValue;
+        expect(service['isButtonPressed']).toEqual(isButtonPressedValue);
+    });
 });

@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
-import { CommunicationService } from '@app/services/communication.service';
+import { GameService } from '@app/services/game.service';
 
 @Component({
     selector: 'app-game-page',
@@ -14,43 +14,40 @@ import { CommunicationService } from '@app/services/communication.service';
 export class GamePageComponent implements OnInit {
     title: string;
     link: string;
-    quiz: Quiz;
+    quiz: Quiz | null;
     playerPoints: number;
-    private readonly isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
+    private readonly isTestGame: boolean;
 
     // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
     constructor(
-        private communicationService: CommunicationService,
+        private gameService: GameService,
         private route: ActivatedRoute,
         private popup: MatDialog,
         private router: Router,
     ) {
         this.title = 'Partie';
-        this.link = '/home';
         this.playerPoints = 0;
+        this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
     }
 
     ngOnInit() {
-        this.checkGameRoute();
         this.getQuiz();
+        this.title += this.isTestGame ? ' - Test' : '';
     }
 
-    checkGameRoute(isTestGame = this.isTestGame) {
-        if (isTestGame) {
-            this.link = '/game/new';
-            this.title += ' - Test';
+    async leaveGamePage(event: Event) {
+        event.stopPropagation();
+        if (this.isTestGame) {
+            await this.router.navigateByUrl('/game/new');
+        } else {
+            await this.router.navigateByUrl('/home');
         }
     }
 
-    getQuiz() {
+    async getQuiz() {
         const id = this.route.snapshot.paramMap.get('id');
-
-        if (id) {
-            this.communicationService.getQuiz(id).subscribe((quiz) => {
-                this.quiz = quiz;
-            });
-        }
+        this.quiz = await this.gameService.getQuizById(id);
     }
 
     givePoints(points: number) {
