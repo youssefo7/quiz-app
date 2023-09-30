@@ -1,7 +1,7 @@
 // Raison: On est à des mockQuiz qui prennent beaucoup de place, mais on ne vaut pas les déplacer dans un fichier séparé
 /* eslint-disable max-lines */
 import { DebugElement } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
@@ -95,14 +95,14 @@ describe('QuestionZoneComponent', () => {
         expect(getQuizByIdSpy).toHaveBeenCalledWith(id);
     });
 
-    // TODO: Fix this test
-    it('should fetch the quiz and the first question', () => {
-        /* const getQuizSpy = spyOn(component, 'getQuiz');
+    it('should fetch the quiz and the first question', fakeAsync(() => {
+        const getQuizSpy = spyOn(component, 'getQuiz');
         const getQuestionSpy = spyOn(component, 'getQuestion');
-        spyOn(component, 'loadQuiz').and.callThrough();
+        component.loadQuiz();
+        tick();
         expect(getQuizSpy).toHaveBeenCalled();
-        expect(getQuestionSpy).toHaveBeenCalled(); */
-    });
+        expect(getQuestionSpy).toHaveBeenCalled();
+    }));
 
     it('should focus on the buttons when the question zone container is clicked', () => {
         const focusOnButtonSpy = spyOn(component, 'focusOnButton');
@@ -202,6 +202,19 @@ describe('QuestionZoneComponent', () => {
         expect(setButtonToInitStateSpy).not.toHaveBeenCalled();
     });
 
+    it('should not modify chosenChoices if quiz is not defined or index is out of range', () => {
+        const choiceArray = component.chosenChoices;
+        const outOfRangeIndex = 10;
+        component.quiz = validMockQuiz;
+        component.getQuestion(outOfRangeIndex);
+        expect(choiceArray).toBeUndefined();
+
+        const validIndex = 0;
+        component.quiz = null;
+        component.getQuestion(validIndex);
+        expect(choiceArray).toBeUndefined();
+    });
+
     it('should toggle the choice if the index is valid', () => {
         const invalidIndex = 1;
         component.chosenChoices = [false, false, false];
@@ -254,13 +267,17 @@ describe('QuestionZoneComponent', () => {
     });
 
     it('should change the buttons state when setButtonStateOnSubmit is called', () => {
-        const buttonIndex = 0;
-        component.choiceButtonStyle[buttonIndex] = { backgroundColor: '' };
+        const firstButtonIndex = 0;
+        const secondButtonIndex = 1;
+        component.choiceButtonStyle[firstButtonIndex] = { backgroundColor: '' };
+        component.choiceButtonStyle[secondButtonIndex] = { backgroundColor: '' };
         component.isChoiceButtonDisabled = false;
-        component.setButtonStateOnSubmit(buttonIndex);
+        component.setButtonStateOnSubmit(firstButtonIndex);
+        component.setButtonStateOnSubmit(secondButtonIndex);
         expect(component.isChoiceButtonDisabled).toBeTrue();
         expect(component.submitButtonStyle).toEqual({ backgroundColor: '' });
-        expect(component.choiceButtonStyle[buttonIndex]).toEqual({ backgroundColor: 'red' });
+        expect(component.choiceButtonStyle[firstButtonIndex]).toEqual({ backgroundColor: 'red' });
+        expect(component.choiceButtonStyle[secondButtonIndex]).toEqual({ backgroundColor: 'rgb(97, 207, 72)' });
     });
 
     it('should submit answer on click event', () => {

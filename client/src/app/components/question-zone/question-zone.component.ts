@@ -89,7 +89,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
 
     async loadQuiz() {
         await this.getQuiz();
-        this.getQuestion();
+        this.getQuestion(this.currentQuestionIndex);
     }
 
     focusOnButton() {
@@ -120,7 +120,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         });
     }
 
-    getQuestion(index: number = 0) {
+    getQuestion(index: number) {
         if (this.quiz && index <= this.quiz.questions.length) {
             this.question = this.quiz.questions[index];
             this.chosenChoices = new Array(this.question.choices.length).fill(false);

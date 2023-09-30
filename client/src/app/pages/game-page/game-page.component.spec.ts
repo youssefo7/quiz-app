@@ -74,8 +74,7 @@ describe('GamePageComponent in test game route', () => {
 
     it('clicking the exit icon should redirect to "game/new" page', () => {
         const navigateSpy = spyOn(router, 'navigateByUrl');
-        const exitClickEvent = new Event('click');
-        component.leaveGamePage(exitClickEvent);
+        component.leaveGamePage();
         expect(navigateSpy).toHaveBeenCalledWith('/game/new');
     });
 
@@ -147,8 +146,7 @@ describe('GamePageComponent in regular game route', () => {
 
     it('clicking the exit icon should redirect to "/home" page', () => {
         const navigateSpy = spyOn(router, 'navigateByUrl');
-        const exitClickEvent = new Event('click');
-        component.leaveGamePage(exitClickEvent);
+        component.leaveGamePage();
         expect(navigateSpy).toHaveBeenCalledWith('/home');
     });
 });
