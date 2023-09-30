@@ -1,41 +1,62 @@
+h2 {
+    margin: unset;
+}
+
 #container {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
-    padding: 25px;
-}
+    gap: 5%;
+    padding: 10px 25px;
 
-#forms-container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
+    #forms-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-width: 50%;
+    }
 
-#question-list {
-    display: flex;
-    flex-direction: column;
-}
+    #questions-container {
+        width: 100%;
+    }
 
-.question {
-    justify-content: space-between;
-    display: flex;
-    border: 2px solid #7c93a7;
-    border-radius: 25px;
-    padding: 1%;
-    width: 40%;
-    font-size: 14px;
-}
+    .question {
+        border: 2px solid #bbdaf7;
+        border-radius: 5px;
 
-#choice-container {
-    display: grid;
-    grid-template-columns: auto auto;
-    margin-bottom: 10px;
-}
+        .question-content {
+            display: grid;
+            grid-template-rows: auto auto;
 
-footer {
-    padding-left: 25px;
-}
+            .question-actions {
+                grid-row: 1/2;
+                justify-self: flex-end;
+            }
 
-/////////////////////////////////////////////////////////////////////
-/// EVERYTHING BELOW THIS LINE FROM QUIZ GENERAL INFO COMPONENT
-////////////////////////////////////////////////////////////////
+            .question-info {
+                grid-row: 2/3;
+                overflow: hidden;
+                max-width: 100%;
+                width: fit-content;
+                white-space: nowrap;
+            }
+        }
+
+        .icon {
+            font-size: 10px;
+            background-color: green;
+        }
+    }
+
+    p {
+        margin: unset;
+    }
+
+    ol {
+        padding: unset;
+        padding-left: 4%;
+    }
+
+    .icon {
+        font-size: 5px;
+    }
+}

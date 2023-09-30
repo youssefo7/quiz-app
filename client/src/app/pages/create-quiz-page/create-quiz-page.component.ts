@@ -88,7 +88,7 @@ export class CreateQuizPageComponent implements OnInit {
 
     openQuizConfirmation(): void {
         const quizConfirmationDialogReference = this.confirmationDialogReference.open(ConfirmationPopUpComponent);
-        quizConfirmationDialogReference.componentInstance.setConfirmationText('Sauvegarder cette question?');
+        quizConfirmationDialogReference.componentInstance.setConfirmationText('Sauvegarder ce quiz?');
 
         quizConfirmationDialogReference.afterClosed().subscribe((wantsToSave) => {
             if (wantsToSave) {

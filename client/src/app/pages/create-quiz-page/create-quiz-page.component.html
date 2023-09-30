@@ -7,32 +7,41 @@
             <button (click)="openQuizConfirmation()" [disabled]="!isQuizFormValid()">Sauvegarder</button>
         </form>
     </div>
-    <div id="question-list">
-        <label>Liste de questions : </label>
-        <div *ngFor="let question of newQuiz.questions; let i = index">
-            <div *ngIf="question.text !== ''" class="question">
-                {{ i + 1 }}. <label id="question-display">Question : {{ question.text }}</label
-                ><br />
-                <label>Type : {{ question.type }}</label
-                ><br />
-                <label>Points : {{ question.points }}</label
-                ><br />
-                <div id="choice-container" *ngFor="let choice of question.choices; let j = index">
-                    <div id="choice">
-                        Choix {{ j + 1 }} :
-                        <label>{{ choice.text }} : </label>
-                        <label>{{ choice.isCorrect }}</label>
+
+    <div id="questions-container">
+        <h2>Liste des questions</h2>
+        <ol>
+            <li class="question" *ngFor="let question of newQuiz.questions; let i = index">
+                <div class="question-content">
+                    <div class="question-actions">
+                        <button type="button" (click)="moveQuestionUp(i)" [disabled]="i === 0">
+                            <mat-icon [inline]="true">arrow_upward</mat-icon>
+                        </button>
+                        <button type="button" (click)="moveQuestionDown(i)" [disabled]="i === newQuiz.questions.length - 1">
+                            <mat-icon [inline]="true">arrow_downward</mat-icon>
+                        </button>
+                        <button (click)="modifyQuestion(question, i)">
+                            <mat-icon [inline]="true">edit</mat-icon>
+                        </button>
+                        <button (click)="deleteQuestion(i)">
+                            <mat-icon [inline]="true">delete</mat-icon>
+                        </button>
+                    </div>
+                    <div class="question-info">
+                        <p>Question : {{ question.text }}</p>
+                        <p>Type : {{ question.type }}</p>
+                        <p>Points : {{ question.points }}</p>
+                        <p>Choix de réponse :</p>
+                        <ol>
+                            <li *ngFor="let choice of question.choices; let j = index">
+                                <span>Choix {{ j + 1 }} : {{ choice.text }}</span>
+                                <mat-icon *ngIf="choice.isCorrect" [inline]="true">check_circle</mat-icon>
+                                <mat-icon *ngIf="!choice.isCorrect" [inline]="true">cancel</mat-icon>
+                            </li>
+                        </ol>
                     </div>
                 </div>
-                <button (click)="modifyQuestion(question, i)">Modifier</button>
-                <button (click)="deleteQuestion(i)">Supprimer</button>
-            </div>
-            <button type="button" class="btn btn-secondary" [disabled]="i === 0">
-                <mat-icon>arrow_upward</mat-icon>
-            </button>
-            <button type="button" (click)="moveQuestionDown(i)" class="btn btn-secondary" [disabled]="i === newQuiz.questions.length - 1">
-                <mat-icon>arrow_downward</mat-icon>
-            </button>
-        </div>
+            </li>
+        </ol>
     </div>
 </div>

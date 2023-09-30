@@ -41,28 +41,6 @@ export class QuizGeneralInfoComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        /* const routeParams = this.route.snapshot.paramMap;
-        const quizId = String(routeParams.get('id'));
-        // this.newQuiz = this.quizManagerService.getNewQuiz();
-        if (quizId === 'null') {
-            this.generalInfoForm = this.fb.group({
-                title: ['', [Validators.required, Validators.minLength(1)]],
-                description: ['', [Validators.required, Validators.minLength(1)]],
-                duration: [10, [Validators.min(10), Validators.max(60)]],
-            });
-            this.newQuiz = this.quizManagerService.newQuiz;
-        } */
-        // console.log(this.newQuiz);
-        // this.quizManagerService.getQuizById(quizId);
-        // this.newQuiz = this.quizManagerService.getQuizToModify();
-        // this.newQuiz = this.quizManagerService.getNewQuiz();
-        // this.initCounters();
-        // this.generalInfoForm = this.fb.group({
-        //     title: ['', [Validators.required, Validators.minLength(1)]],
-        //     description: ['', [Validators.required, Validators.minLength(1)]],
-        //     duration: [10, [Validators.min(10), Validators.max(60)]],
-        // });
-
         if (this.newQuiz.id === '') {
             this.generalInfoForm = this.fb.group({
                 title: ['', [Validators.required, Validators.minLength(1)]],
@@ -75,22 +53,12 @@ export class QuizGeneralInfoComponent implements OnInit {
                 description: [this.newQuiz.description, [Validators.required, Validators.minLength(1)]],
                 duration: [this.newQuiz.duration, [Validators.min(Constants.MIN_DURATION), Validators.max(Constants.MAX_DURATION)]],
             });
+
+            this.blockSubmit.emit(true);
         }
 
         this.initCounters();
     }
-
-    /*     ngOnDestroy(): void {
-        console.log('i was killed');
-    } */
-
-    // ngAfterViewInit(): void {
-    //     this.generalInfoForm.patchValue({
-    //         title: this.newQuiz.title,
-    //         description: this.newQuiz.description,
-    //         duration: this.newQuiz.duration,
-    //     });
-    // }
 
     initCounters() {
         this.maxLengthTitle = 150;
@@ -165,21 +133,4 @@ export class QuizGeneralInfoComponent implements OnInit {
             this.isDurationValid = true;
         }
     }
-
-    // loadGeneralData(quiz: Quiz) {
-    //     this.newQuiz = quiz;
-    //     // this.titleValue = quiz.title;
-    //     // this.descriptionValue = quiz.description;
-    //     this.initCounters();
-    //     this.quizManagerService.setGeneralInfoData(quiz.title, quiz.description, quiz.duration);
-
-    //     // this.newQuiz.title = quiz.title;
-    //     // this.newQuiz.description = quiz.description;
-    //     // this.newQuiz.duration = quiz.duration;
-    //     this.generalInfoForm.patchValue({
-    //         title: this.newQuiz.title,
-    //         description: this.newQuiz.description,
-    //         duration: this.newQuiz.duration,
-    //     });
-    // }
 }

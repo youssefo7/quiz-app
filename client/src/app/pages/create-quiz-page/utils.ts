@@ -8,17 +8,5 @@ export const blankQuiz: Quiz = {
     duration: 0,
     lastModification: '',
     visibility: false,
-    questions: [
-        {
-            type: '',
-            text: '',
-            points: 0,
-            choices: [
-                {
-                    text: '',
-                    isCorrect: false,
-                },
-            ],
-        },
-    ],
+    questions: [],
 };

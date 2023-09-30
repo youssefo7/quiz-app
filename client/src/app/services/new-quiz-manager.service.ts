@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from './communication.service';
 
@@ -7,32 +8,11 @@ import { CommunicationService } from './communication.service';
 })
 export class NewQuizManagerService {
     quizzes: Quiz[];
-    quizId: string | null = null;
 
-    /*     newQuiz: Quiz | undefined = {
-        $schema: 'quiz-schema.json',
-        id: '',
-        title: '',
-        description: '',
-        duration: 0,
-        lastModification: '',
-        visibility: false,
-        questions: [
-            {
-                type: '',
-                text: '',
-                points: 0,
-                choices: [
-                    {
-                        text: '',
-                        isCorrect: false,
-                    },
-                ],
-            },
-        ],
-    }; */
-
-    constructor(private readonly communicationService: CommunicationService) {
+    constructor(
+        private readonly communicationService: CommunicationService,
+        private router: Router,
+    ) {
         this.getQuizListFromServer();
     }
 
@@ -45,11 +25,22 @@ export class NewQuizManagerService {
     }
 
     async addQuizToServer(newQuiz: Quiz) {
-        this.communicationService.addQuiz(newQuiz).subscribe();
+        this.communicationService.addQuiz(newQuiz).subscribe({
+            next: () => {
+                this.router.navigateByUrl('admin');
+            },
+        });
     }
 
     async updateQuizOnServer(id: string, updatedQuiz: Quiz) {
-        this.communicationService.updateQuiz(id, updatedQuiz).subscribe();
+        this.communicationService.updateQuiz(id, updatedQuiz).subscribe({
+            next: () => {
+                this.router.navigateByUrl('admin');
+            },
+            error: () => {
+                this.addQuizToServer(updatedQuiz);
+            },
+        });
     }
 
     async fetchQuiz(id: string | null): Promise<Quiz | undefined> {
@@ -57,7 +48,6 @@ export class NewQuizManagerService {
             return new Promise<Quiz | undefined>((resolve) => {
                 this.communicationService.getQuiz(id).subscribe({
                     next: (quiz) => {
-                        console.log(quiz);
                         resolve(quiz);
                     },
                 });
@@ -86,30 +76,13 @@ export class NewQuizManagerService {
         }
     }
 
-    // TODO: check for deleted quiz while modifying
     saveQuiz(quiz: Quiz) {
-        if (this.quizId) {
-            this.updateQuizOnServer(this.quizId, quiz);
+        if (quiz.id !== '') {
+            this.updateQuizOnServer(quiz.id, quiz);
         } else {
             this.addQuizToServer(quiz);
         }
     }
-
-    /*     setGeneralInfoData(title: string, description: string, duration: number) {
-        if (this.newQuiz) {
-            this.newQuiz.title = title;
-            this.newQuiz.description = description;
-            this.newQuiz.duration = duration;
-        }
-    } */
-
-    // addNewQuiz(quiz: Quiz) {
-    //     this.addQuizToServer(quiz);
-    // }
-
-    // updateQuiz(id: string, quiz: Quiz) {
-    //     this.updateQuizOnServer(id, quiz);
-    // }
 
     moveQuestionUp(index: number, quiz: Quiz) {
         if (index > 0) {

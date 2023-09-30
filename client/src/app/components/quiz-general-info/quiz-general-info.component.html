@@ -1,10 +1,11 @@
 <h2>Informations générales</h2>
 <form id="general-info" [formGroup]="generalInfoForm" (ngSubmit)="onSubmit()">
     <div id="title-div">
-        <label class="textarea-label" for="newTitle">Titre :</label><br />
+        <label class="textarea-label" for="newTitle">Titre :</label>
         <div class="flex-input" [ngClass]="{ infoPadding: isTitleValid }">
             <input
                 (input)="adjustPadding()"
+                (blur)="adjustPadding()"
                 [attr.disabled]="disableForm ? '' : null"
                 type="text"
                 name="newTitle"
@@ -29,10 +30,11 @@
     </div>
 
     <div id="description-div">
-        <label class="textarea-label" for="newDescription">Description :</label><br />
+        <label class="textarea-label" for="newDescription">Description :</label>
         <div class="flex-input" [ngClass]="{ infoPadding: isDescriptionValid }">
             <input
                 (input)="adjustPadding()"
+                (blur)="adjustPadding()"
                 [attr.disabled]="disableForm ? '' : null"
                 type="text"
                 name="newDescription"
@@ -58,7 +60,7 @@
     </div>
 
     <div id="duration-div">
-        <label id="duration-label" for="newDuration">Durée (en secondes) :</label><br />
+        <label id="duration-label" for="newDuration">Durée (en secondes) :</label>
         <div [ngClass]="{ infoPadding: isDurationValid }">
             <input
                 (input)="adjustPadding()"
