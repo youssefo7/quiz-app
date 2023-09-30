@@ -36,8 +36,7 @@ export class GamePageComponent implements OnInit {
         this.title += this.isTestGame ? ' - Test' : '';
     }
 
-    async leaveGamePage(event: Event) {
-        event.stopPropagation();
+    async leaveGamePage() {
         if (this.isTestGame) {
             await this.router.navigateByUrl('/game/new');
         } else {
@@ -60,7 +59,7 @@ export class GamePageComponent implements OnInit {
             hasCancelButton: true,
             okButtonText: 'Quitter',
             okButtonFunction: () => {
-                this.router.navigate(['/game/new']);
+                this.leaveGamePage();
             },
         };
         const dialogRef = this.popup.open(PopupMessageComponent);
