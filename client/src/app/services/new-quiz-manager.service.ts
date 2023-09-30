@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from './communication.service';
@@ -65,7 +66,7 @@ export class NewQuizManagerService {
     }
 
     modifyQuestion(question: Question, index: number, quiz: Quiz) {
-        if (index !== undefined && index !== null && index >= 0 && index < quiz.questions.length) {
+        if (index >= 0 && index < quiz.questions.length) {
             quiz.questions[index] = question;
         }
     }
@@ -77,6 +78,9 @@ export class NewQuizManagerService {
     }
 
     saveQuiz(quiz: Quiz) {
+        const date = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
+        quiz.lastModification = date;
+
         if (quiz.id !== '') {
             this.updateQuizOnServer(quiz.id, quiz);
         } else {
@@ -100,9 +104,9 @@ export class NewQuizManagerService {
         }
     }
 
-    updateGeneralInfo(quiz: Quiz, title: string, description: string, duration: number) {
-        quiz.title = title;
-        quiz.description = description;
-        quiz.duration = duration;
+    updateGeneralInfo(quiz: Quiz, generalInfoForm: FormGroup) {
+        quiz.title = generalInfoForm.value.title;
+        quiz.description = generalInfoForm.value.description;
+        quiz.duration = generalInfoForm.value.duration;
     }
 }

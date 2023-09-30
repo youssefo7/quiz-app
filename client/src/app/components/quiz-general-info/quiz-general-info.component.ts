@@ -102,10 +102,7 @@ export class QuizGeneralInfoComponent implements OnInit {
     }
 
     onSubmit() {
-        const title = this.generalInfoForm.value.title as string;
-        const description = this.generalInfoForm.value.description as string;
-        const duration = this.generalInfoForm.value?.duration as number;
-        this.quizManagerService.updateGeneralInfo(this.newQuiz, title, description, duration);
+        this.quizManagerService.updateGeneralInfo(this.newQuiz, this.generalInfoForm);
     }
 
     adjustPadding() {
