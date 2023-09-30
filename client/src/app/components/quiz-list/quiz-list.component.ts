@@ -6,7 +6,6 @@ import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
 import { ImportService } from '@app/services/import.service';
-import { BehaviorSubject } from 'rxjs';
 
 @Component({
     selector: 'app-quiz-list',
@@ -15,13 +14,15 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class QuizListComponent implements OnInit {
     @ViewChild('export') anchor: ElementRef<HTMLAnchorElement>;
-    quizList: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
+    quizList: Quiz[];
 
     constructor(
         private communicationService: CommunicationService,
         private popup: MatDialog,
         private importService: ImportService,
-    ) {}
+    ) {
+        this.quizList = [];
+    }
 
     ngOnInit(): void {
         this.fetchQuizzes();
@@ -29,7 +30,7 @@ export class QuizListComponent implements OnInit {
 
     fetchQuizzes(): void {
         this.communicationService.getQuizzes().subscribe((quizzes: Quiz[]) => {
-            this.quizList.next(quizzes);
+            this.quizList = quizzes;
         });
     }
 
