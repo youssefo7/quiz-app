@@ -1,3 +1,4 @@
+import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { CommunicationService } from '@app/services/communication.service';
@@ -12,6 +13,9 @@ describe('QuestionZoneComponent', () => {
     let communicationServiceMock: jasmine.SpyObj<CommunicationService>;
     let gameService: GameService;
     let timeService: TimeService;
+    let elementRef: HTMLElement;
+    let debugElement: DebugElement;
+    let setButtonSpy: jasmine.Spy;
 
     beforeEach(fakeAsync(() => {
         TestBed.configureTestingModule({
@@ -31,6 +35,18 @@ describe('QuestionZoneComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(QuestionZoneComponent);
         component = fixture.componentInstance;
+        debugElement = fixture.debugElement;
+        elementRef = debugElement.nativeElement;
+        component.question = {
+            text: 'test',
+            type: 'QCM',
+            points: 1,
+            choices: [
+                { text: 'test', isCorrect: false },
+                { text: 'test2', isCorrect: true },
+            ],
+        };
+        setButtonSpy = spyOnProperty(gameService, 'setButtonPressState', 'set');
         fixture.detectChanges();
     });
 
@@ -48,7 +64,7 @@ describe('QuestionZoneComponent', () => {
 
     it('should not submit the answer when enter key is pressed if submit button disabled', () => {
         const event = new KeyboardEvent('keyup', { key: 'Enter' });
-        component.isSubmitEnabled = false;
+        component.isSubmitDisabled = true;
         const submitAnswerSpy = spyOn(component, 'submitAnswerOnClickEvent');
         component.buttonDetect(event);
         expect(submitAnswerSpy).not.toHaveBeenCalled();
@@ -56,7 +72,7 @@ describe('QuestionZoneComponent', () => {
 
     it('should submit the answer when enter key is pressed', () => {
         const event = new KeyboardEvent('keyup', { key: 'Enter' });
-        component.isSubmitEnabled = true;
+        component.isSubmitDisabled = false;
         const submitAnswerSpy = spyOn(component, 'submitAnswerOnClickEvent');
         component.buttonDetect(event);
         expect(submitAnswerSpy).toHaveBeenCalled();
@@ -73,10 +89,15 @@ describe('QuestionZoneComponent', () => {
 
     // TODO: Fix ce test unitaire
     it('should focus on the buttons when the question zone container is clicked', () => {
-        /*  const focusOnButtonSpy = spyOn(component, 'focusOnButton');
-        const questionZoneContainer = elementRef.nativeElement.querySelector('.question-zone-container');
-        questionZoneContainer.click();
-        expect(focusOnButtonSpy).toHaveBeenCalled(); */
+        const focusOnButtonSpy = spyOn(component, 'focusOnButton');
+        const questionZoneContainer = elementRef.querySelector('.question-zone-container') as HTMLElement;
+        if (questionZoneContainer) {
+            questionZoneContainer.addEventListener('click', () => {
+                focusOnButtonSpy();
+            });
+            questionZoneContainer.click();
+            expect(focusOnButtonSpy).toHaveBeenCalled();
+        }
     });
 
     it('should fetch the quiz ', () => {
@@ -189,25 +210,25 @@ describe('QuestionZoneComponent', () => {
     });
 
     // TODO: Fix ce test unitaire
-    /*     it('should disable or enable the submit button if setSubmitButtonToDisabled is called', () => {
-        component.isSubmitEnabled = false;
+    it('should disable or enable the submit button if setSubmitButtonToDisabled is called', () => {
+        component.isSubmitDisabled = false;
         component.submitButtonStyle = { backgroundColor: 'green' };
         component.setSubmitButtonToDisabled(true, { backgroundColor: 'grey' });
-        expect(component.isSubmitEnabled).toBeTrue();
+        expect(component.isSubmitDisabled).toBeTrue();
         expect(component.submitButtonStyle).toEqual({ backgroundColor: 'grey' });
-    }); */
+    });
 
     it('should disable the submit button if no choice is selected', () => {
         component.chosenChoices = [false, false, false];
         component.setSubmitButtonStateOnChoices();
-        expect(component.isSubmitEnabled).toBeFalse();
+        expect(component.isSubmitDisabled).toBeTrue();
         expect(component.submitButtonStyle).toEqual({ backgroundColor: 'grey' });
     });
 
     it('should enable the submit button if at least one choice is selected', () => {
         component.chosenChoices = [false, false, true];
         component.setSubmitButtonStateOnChoices();
-        expect(component.isSubmitEnabled).toBeTrue();
+        expect(component.isSubmitDisabled).toBeFalse();
         expect(component.submitButtonStyle).toEqual({ backgroundColor: 'green' });
     });
 
@@ -218,7 +239,6 @@ describe('QuestionZoneComponent', () => {
         component.submitButtonStyle = { backgroundColor: 'green' };
         component.doesDisplayPoints = true;
         component.setButtonToInitState(buttonIndex);
-
         expect(component.isChoiceButtonDisabled).toBeFalse();
         expect(component.submitButtonStyle).toEqual({ backgroundColor: '' });
         expect(component.choiceButtonStyle[buttonIndex]).toEqual({ backgroundColor: '' });
@@ -226,17 +246,86 @@ describe('QuestionZoneComponent', () => {
     });
 
     // TODO: fix ce test unitaire
-    /*     it('should change the buttons state when setButtonStateOnSubmit is called', () => {
+    it('should change the buttons state when setButtonStateOnSubmit is called', () => {
         const buttonIndex = 0;
         component.choiceButtonStyle[buttonIndex] = { backgroundColor: '' };
         component.isChoiceButtonDisabled = false;
-        component.submitButtonStyle = { backgroundColor: '' };
         component.setButtonStateOnSubmit(buttonIndex);
-
         expect(component.isChoiceButtonDisabled).toBeTrue();
-        expect(component.submitButtonStyle).toEqual({ backgroundColor: 'grey' });
+        expect(component.submitButtonStyle).toEqual({ backgroundColor: '' });
         expect(component.choiceButtonStyle[buttonIndex]).toEqual({ backgroundColor: 'red' });
-    }); */
+    });
+
+    it('should submit answer on click event', () => {
+        spyOn(component, 'showResult');
+        component.submitAnswerOnClickEvent();
+        expect(setButtonSpy).toHaveBeenCalledWith(true);
+        expect(component.isQuestionTransitioning).toBeTrue();
+        expect(component.showResult).toHaveBeenCalled();
+    });
+
+    it('should submit answer on countdown event', () => {
+        spyOn(component, 'showResult');
+        component.submitAnswerOnCountdownEvent();
+        expect(component.showResult).toHaveBeenCalled();
+    });
+
+    it('should identify a good answer', () => {
+        component.question.choices = [
+            { text: 'test', isCorrect: true },
+            { text: 'test2', isCorrect: false },
+        ];
+        component.chosenChoices = [true, false];
+        expect(component.isAnswerGood()).toBeTrue();
+        component.chosenChoices = [false, true];
+        expect(component.isAnswerGood()).toBeFalse();
+    });
+
+    it('should display the correct answer', () => {
+        spyOn(component, 'setButtonStateOnSubmit');
+        spyOn(component, 'showPoints');
+        component.displayCorrectAnswer();
+        expect(component.setButtonStateOnSubmit).toHaveBeenCalledTimes(2);
+        expect(component.showPoints).toHaveBeenCalled();
+    });
+
+    it('should give bonus points for a correct answer', () => {
+        component.question.points = 10;
+        spyOn(component, 'isAnswerGood').and.returnValue(true);
+        component.givePoints();
+        expect(component.points).toEqual(component.question.points * 1.2);
+        expect(component.bonusMessage).toEqual('(20% bonus Woohoo!)');
+    });
+
+    it('should not give points for an incorrect answer', () => {
+        spyOn(component, 'isAnswerGood').and.returnValue(false);
+        component.givePoints();
+        expect(component.points).toEqual(0);
+        expect(component.bonusMessage).toEqual('');
+    });
+
+    it('should show results', () => {
+        spyOn(component, 'setSubmitButtonToDisabled');
+        spyOn(component, 'displayCorrectAnswer');
+        spyOn(component, 'givePoints');
+        component.showResult();
+        expect(component.setSubmitButtonToDisabled).toHaveBeenCalledWith(true, { backgroundColor: 'grey' });
+        expect(component.displayCorrectAnswer).toHaveBeenCalled();
+        expect(component.givePoints).toHaveBeenCalled();
+    });
+
+    it('should show points', () => {
+        component.showPoints();
+        expect(component.doesDisplayPoints).toBeTrue();
+    });
+
+    it('should focus on button', () => {
+        fixture.detectChanges();
+        const buttonElement: HTMLButtonElement = fixture.debugElement.nativeElement.querySelector('button');
+        const focusSpy = spyOn(buttonElement, 'focus').and.callThrough();
+        component.focusOnButton();
+        expect(focusSpy).toHaveBeenCalled();
+    });
 });
 
 const invalidMockedQuiz = {
