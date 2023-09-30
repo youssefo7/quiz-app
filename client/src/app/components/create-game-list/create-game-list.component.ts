@@ -1,4 +1,3 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -14,7 +13,7 @@ import { BehaviorSubject } from 'rxjs';
     styleUrls: ['./create-game-list.component.scss'],
 })
 export class CreateGameListComponent implements OnInit {
-    message: BehaviorSubject<string>;
+    message: string;
     visibleQuizList: BehaviorSubject<Quiz[]>;
     selectedQuizId: string | null;
 
@@ -26,7 +25,7 @@ export class CreateGameListComponent implements OnInit {
 
     ngOnInit(): void {
         this.getVisibleQuizListFromServer();
-        this.message = new BehaviorSubject<string>('');
+        this.message = '';
         this.visibleQuizList = new BehaviorSubject<Quiz[]>([]);
         this.selectedQuizId = null;
     }
@@ -36,10 +35,6 @@ export class CreateGameListComponent implements OnInit {
             next: (quizzes) => {
                 const visibleQuizzes = quizzes.filter((quiz) => quiz.visibility === true);
                 this.visibleQuizList.next(visibleQuizzes);
-            },
-            error: (err: HttpErrorResponse) => {
-                const responseString = `Le serveur ne répond pas et a retourné : ${err.message}`;
-                this.message.next(responseString);
             },
         });
     }

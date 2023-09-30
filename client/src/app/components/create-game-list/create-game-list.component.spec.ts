@@ -6,7 +6,7 @@ import { PopupMessageComponent } from '@app/components/popup-message/popup-messa
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { CreateGameListComponent } from './create-game-list.component';
 import SpyObj = jasmine.SpyObj;
 
@@ -81,15 +81,6 @@ describe('CreateGameListComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
-    });
-
-    it('should handle error when getting quizzes', () => {
-        const errorMessage = 'erreur du get';
-        communicationServiceSpy.getQuizzes.and.returnValue(throwError(() => new Error(errorMessage)));
-        component.getVisibleQuizListFromServer();
-        fixture.detectChanges();
-
-        expect(component.message.value).toEqual(`Le serveur ne répond pas et a retourné : ${errorMessage}`);
     });
 
     it('should show visible games', () => {
