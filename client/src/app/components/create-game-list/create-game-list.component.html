@@ -5,7 +5,7 @@
             <th>Nom du jeu</th>
         </tr>
         <tbody>
-            <ng-container *ngFor="let quiz of visibleQuizList | async">
+            <ng-container *ngFor="let quiz of visibleQuizList">
                 <tr class="mainDetails">       
                     <td>
                         {{ quiz.title }}
