@@ -13,6 +13,7 @@ import { ImportService } from '@app/services/import.service';
     styleUrls: ['./quiz-list.component.scss'],
 })
 export class QuizListComponent implements OnInit {
+    @ViewChild('export') anchor: ElementRef<HTMLAnchorElement>;
     quizList: Quiz[];
 
     constructor(

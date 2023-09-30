@@ -11,6 +11,7 @@ import { Quiz } from '@app/interfaces/quiz';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { HttpStatusCode } from '@angular/common/http';
 import SpyObj = jasmine.SpyObj;
+import { By } from '@angular/platform-browser';
 
 describe('QuizListComponent', () => {
     let component: QuizListComponent;
@@ -156,15 +157,15 @@ describe('QuizListComponent', () => {
 
     it('should export the quiz', () => {
         const blob = new Blob([JSON.stringify(propQuiz)], { type: 'application/json' });
-        const anchorElement = document.createElement('a');
 
-        spyOn(document, 'createElement').and.returnValue(anchorElement);
+        // Find the anchor element by its template reference variable
+        const anchorElement = fixture.debugElement.query(By.css('#export')).nativeElement;
         spyOn(window.URL, 'createObjectURL').and.returnValue('blob:url');
 
         component.exportQuiz(propQuiz);
 
         expect(window.URL.createObjectURL).toHaveBeenCalledWith(blob);
-        expect(anchorElement.download).toBe(propQuiz.title);
+        expect(anchorElement.getAttribute('download')).toBe(propQuiz.title);
     });
 
     it('should popup a warning message when the user tries to delete a quiz with the correct configuration', () => {
