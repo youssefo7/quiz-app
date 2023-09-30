@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs';
 })
 export class QuestionZoneComponent implements OnInit, OnDestroy {
     @Output() pointsEarned: EventEmitter<number>;
-    isQuestionTransition: boolean;
+    isQuestionTransitioning: boolean;
     currentQuestionIndex: number;
     points: number;
     quiz: Quiz | null;
@@ -22,7 +22,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     submitButtonStyle: { backgroundColor: string };
     bonusMessage: string;
     pointsDisplay: { display: string };
-    isSubmitEnabled: boolean;
+    isSubmitDisabled: boolean;
     isChoiceButtonDisabled: boolean;
     doesDisplayPoints: boolean;
     hasGameEnded: boolean;
@@ -38,12 +38,12 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         private readonly timeService: TimeService,
     ) {
         this.pointsEarned = new EventEmitter<number>();
-        this.isQuestionTransition = false;
+        this.isQuestionTransitioning = false;
         this.currentQuestionIndex = 0;
         this.points = 0;
         this.choiceButtonStyle = [{ backgroundColor: '' }];
         this.submitButtonStyle = { backgroundColor: '' };
-        this.isSubmitEnabled = false;
+        this.isSubmitDisabled = true;
         this.isChoiceButtonDisabled = false;
         this.doesDisplayPoints = false;
         this.hasGameEnded = false;
@@ -61,7 +61,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         const keyPressed = event.key;
 
         if (keyPressed === 'Enter') {
-            if (this.isSubmitEnabled) {
+            if (!this.isSubmitDisabled) {
                 this.submitAnswerOnClickEvent();
             }
         } else {
@@ -71,8 +71,15 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         }
     }
 
-    focusOnButton() {
-        this.elementRef.nativeElement.querySelector('button')?.focus();
+    ngOnInit() {
+        this.loadQuiz();
+        this.subscribeToTimer();
+        this.subscribeToGameService();
+    }
+
+    ngOnDestroy() {
+        this.timerSubscription.unsubscribe();
+        this.gameServiceSubscription.unsubscribe();
     }
 
     async getQuiz() {
@@ -80,16 +87,25 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.quiz = await this.gameService.getQuizById(id);
     }
 
+    async loadQuiz() {
+        await this.getQuiz();
+        this.getQuestion();
+    }
+
+    focusOnButton() {
+        this.elementRef.nativeElement.querySelector('button')?.focus();
+    }
+
     subscribeToTimer() {
         this.timerSubscription = this.timeService.getTime().subscribe((time: number) => {
             if (!this.hasGameEnded) {
                 const timerTime = time;
                 if (timerTime === 0) {
-                    if (!this.isQuestionTransition) {
+                    if (!this.isQuestionTransitioning) {
                         this.submitAnswerOnCountdownEvent();
-                        this.isQuestionTransition = true;
+                        this.isQuestionTransitioning = true;
                     } else {
-                        this.isQuestionTransition = false;
+                        this.isQuestionTransitioning = false;
                         ++this.currentQuestionIndex;
                         this.getQuestion(this.currentQuestionIndex);
                     }
@@ -120,17 +136,17 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         }
     }
 
-    disableSubmitButton() {
-        this.isSubmitEnabled = false;
-        this.submitButtonStyle = { backgroundColor: 'grey' };
+    setSubmitButtonToDisabled(isDisabled: boolean, backgroundColor: { backgroundColor: string }) {
+        this.isSubmitDisabled = isDisabled;
+        this.submitButtonStyle = backgroundColor;
     }
 
     setSubmitButtonStateOnChoices() {
         if (this.chosenChoices.some((choice) => choice === true)) {
-            this.isSubmitEnabled = true;
+            this.isSubmitDisabled = false;
             this.submitButtonStyle = { backgroundColor: 'green' };
         } else {
-            this.isSubmitEnabled = false;
+            this.isSubmitDisabled = true;
             this.submitButtonStyle = { backgroundColor: 'grey' };
         }
     }
@@ -152,7 +168,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     async submitAnswerOnClickEvent() {
         this.gameService.setButtonPressState = true;
         this.showResult();
-        this.isQuestionTransition = true;
+        this.isQuestionTransitioning = true;
     }
 
     async submitAnswerOnCountdownEvent() {
@@ -184,7 +200,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     showResult() {
-        this.disableSubmitButton();
+        this.setSubmitButtonToDisabled(true, { backgroundColor: 'grey' });
         this.displayCorrectAnswer();
         this.givePoints();
     }
@@ -195,21 +211,5 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
 
     hidePoints() {
         this.doesDisplayPoints = false;
-    }
-
-    async loadQuiz() {
-        await this.getQuiz();
-        this.getQuestion();
-    }
-
-    ngOnInit() {
-        this.loadQuiz();
-        this.subscribeToTimer();
-        this.subscribeToGameService();
-    }
-
-    ngOnDestroy() {
-        this.timerSubscription.unsubscribe();
-        this.gameServiceSubscription.unsubscribe();
     }
 }
