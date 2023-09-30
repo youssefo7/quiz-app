@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ImportPopupComponent } from '@app/components/import-popup/import-popup.component';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
@@ -14,7 +14,7 @@ import { BehaviorSubject } from 'rxjs';
     styleUrls: ['./quiz-list.component.scss'],
 })
 export class QuizListComponent implements OnInit {
-    @ViewChild('export') anchor: HTMLAnchorElement;
+    @ViewChild('export') anchor: ElementRef<HTMLAnchorElement>;
     quizList: BehaviorSubject<Quiz[]> = new BehaviorSubject<Quiz[]>([]);
 
     constructor(
@@ -54,10 +54,10 @@ export class QuizListComponent implements OnInit {
         const blob = new Blob([JSON.stringify(exportedQuiz)], { type: 'application/json' });
         const blobUrl = window.URL.createObjectURL(blob);
 
-        this.anchor.href = blobUrl;
-        this.anchor.download = quizName;
+        this.anchor.nativeElement.href = blobUrl;
+        this.anchor.nativeElement.download = quizName;
 
-        this.anchor.click();
+        this.anchor.nativeElement.click();
 
         window.URL.revokeObjectURL(blobUrl);
     }
