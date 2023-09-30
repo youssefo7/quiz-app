@@ -1,5 +1,5 @@
 import { HttpClientModule } from '@angular/common/http';
-import { ComponentFixture, TestBed, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -10,13 +10,16 @@ import { ProfileComponent } from '@app/components/profile/profile.component';
 import { QuestionZoneComponent } from '@app/components/question-zone/question-zone.component';
 import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
+import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
+import { of } from 'rxjs';
 import { GamePageComponent } from './game-page.component';
 import SpyObj = jasmine.SpyObj;
 
 describe('GamePageComponent in test game route', () => {
     let component: GamePageComponent;
     let fixture: ComponentFixture<GamePageComponent>;
+    let communicationServiceMock: jasmine.SpyObj<CommunicationService>;
     let mockDialog: SpyObj<MatDialog>;
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
     let router: Router;
@@ -31,6 +34,13 @@ describe('GamePageComponent in test game route', () => {
         lastModification: '2018-11-13T20:20:39+00:00',
         questions: [],
     };
+
+    beforeEach(() => {
+        communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
+        communicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
+        mockDialog = jasmine.createSpyObj('mockDialog', ['open']);
+        mockDialogRef = jasmine.createSpyObj('mockDialogRef', ['componentInstance']);
+    });
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
@@ -77,7 +87,7 @@ describe('GamePageComponent in test game route', () => {
         expect(component.playerPoints).toEqual(pointsWonFirstQuestion + pointsWonSecondQuestion);
     });
 
-    it('should fetch the quiz ', () => {
+    it('should fetch the quiz ', fakeAsync(() => {
         const id = '123';
         spyOn(gameService, 'getQuizById').and.returnValue(Promise.resolve(mockedQuiz));
         component.getQuiz();
@@ -85,7 +95,7 @@ describe('GamePageComponent in test game route', () => {
 
         expect(gameService.getQuizById).toHaveBeenCalledWith(id);
         expect(component.quiz).toEqual(mockedQuiz);
-    });
+    }));
 
     it('should popup a message when the user tries to exit a game with the correct configuration', () => {
         const mockConfig: PopupMessageConfig = {

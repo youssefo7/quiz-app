@@ -48,6 +48,7 @@ describe('QuestionZoneComponent', () => {
 
     it('should not submit the answer when enter key is pressed if submit button disabled', () => {
         const event = new KeyboardEvent('keyup', { key: 'Enter' });
+        component.isSubmitEnabled = false;
         const submitAnswerSpy = spyOn(component, 'submitAnswerOnClickEvent');
         component.buttonDetect(event);
         expect(submitAnswerSpy).not.toHaveBeenCalled();
@@ -55,7 +56,7 @@ describe('QuestionZoneComponent', () => {
 
     it('should submit the answer when enter key is pressed', () => {
         const event = new KeyboardEvent('keyup', { key: 'Enter' });
-        component.isSubmitDisabled = false;
+        component.isSubmitEnabled = true;
         const submitAnswerSpy = spyOn(component, 'submitAnswerOnClickEvent');
         component.buttonDetect(event);
         expect(submitAnswerSpy).toHaveBeenCalled();
@@ -189,24 +190,24 @@ describe('QuestionZoneComponent', () => {
 
     // TODO: Fix ce test unitaire
     /*     it('should disable or enable the submit button if setSubmitButtonToDisabled is called', () => {
-        component.isSubmitDisabled = false;
+        component.isSubmitEnabled = false;
         component.submitButtonStyle = { backgroundColor: 'green' };
         component.setSubmitButtonToDisabled(true, { backgroundColor: 'grey' });
-        expect(component.isSubmitDisabled).toBeTrue();
+        expect(component.isSubmitEnabled).toBeTrue();
         expect(component.submitButtonStyle).toEqual({ backgroundColor: 'grey' });
     }); */
 
     it('should disable the submit button if no choice is selected', () => {
         component.chosenChoices = [false, false, false];
         component.setSubmitButtonStateOnChoices();
-        expect(component.isSubmitDisabled).toBeTrue();
+        expect(component.isSubmitEnabled).toBeFalse();
         expect(component.submitButtonStyle).toEqual({ backgroundColor: 'grey' });
     });
 
     it('should enable the submit button if at least one choice is selected', () => {
         component.chosenChoices = [false, false, true];
         component.setSubmitButtonStateOnChoices();
-        expect(component.isSubmitDisabled).toBeFalse();
+        expect(component.isSubmitEnabled).toBeTrue();
         expect(component.submitButtonStyle).toEqual({ backgroundColor: 'green' });
     });
 

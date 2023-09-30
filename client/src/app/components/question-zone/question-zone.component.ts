@@ -71,6 +71,17 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         }
     }
 
+    ngOnInit() {
+        this.loadQuiz();
+        this.subscribeToTimer();
+        this.subscribeToGameService();
+    }
+
+    ngOnDestroy() {
+        this.timerSubscription.unsubscribe();
+        this.gameServiceSubscription.unsubscribe();
+    }
+
     focusOnButton() {
         this.elementRef.nativeElement.querySelector('button')?.focus();
     }
@@ -205,16 +216,5 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     async loadQuiz() {
         await this.getQuiz();
         this.getQuestion();
-    }
-
-    ngOnInit() {
-        this.loadQuiz();
-        this.subscribeToTimer();
-        this.subscribeToGameService();
-    }
-
-    ngOnDestroy() {
-        this.timerSubscription.unsubscribe();
-        this.gameServiceSubscription.unsubscribe();
     }
 }
