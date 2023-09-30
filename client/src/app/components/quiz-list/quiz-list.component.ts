@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ImportPopupComponent } from '@app/components/import-popup/import-popup.component';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
@@ -46,21 +46,18 @@ export class QuizListComponent implements OnInit {
 
     //  https://stackoverflow.com/questions/57922872/angular-save-blob-in-local-text-file
     exportQuiz(quiz: Quiz): void {
-        //  TODO: logique quiz est bon
         const exportedQuiz = { ...quiz };
         delete exportedQuiz.visibility;
-        //  const exportedQuizQuestions = [ ...quiz.questions ]
         const quizName: string = quiz.title;
 
         //  create blob file
         const blob = new Blob([JSON.stringify(exportedQuiz)], { type: 'application/json' });
         const blobUrl = window.URL.createObjectURL(blob);
-        //  create anchor element (invisible in html)
-        const anchor = document.createElement('a');
-        anchor.href = blobUrl;
-        anchor.download = quizName;
 
-        anchor.click();
+        this.anchor.nativeElement.href = blobUrl;
+        this.anchor.nativeElement.download = quizName;
+
+        this.anchor.nativeElement.click();
 
         window.URL.revokeObjectURL(blobUrl);
     }

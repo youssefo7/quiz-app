@@ -46,7 +46,7 @@ export class AdminPopupComponent {
     }
 
     async verifyAccess() {
-        this.isGivenPasswordValid = this.adminGuard.isAccessGranted(this.givenPassword);
+        this.isGivenPasswordValid = await this.adminGuard.isAccessGranted(this.givenPassword);
 
         if (!this.isGivenPasswordValid) {
             this.givenPassword = '';

@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { FormsModule } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -22,7 +23,7 @@ describe('AdminPopupComponent', () => {
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            imports: [FormsModule],
+            imports: [FormsModule, HttpClientTestingModule],
             declarations: [AdminPopupComponent],
             providers: [
                 { provide: MatDialogRef, useValue: matDialogRefSpy },
@@ -42,62 +43,69 @@ describe('AdminPopupComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should display an error message when given password is invalid', async () => {
-        adminGuardServiceSpy.isAccessGranted.and.returnValue(false);
+    it('should display an error message when given password is invalid', waitForAsync(() => {
+        adminGuardServiceSpy.isAccessGranted.and.resolveTo(false);
         const submitButton = fixture.debugElement.nativeElement.querySelector('#submit');
-        await submitButton.click();
+        submitButton.click();
 
-        fixture.detectChanges();
-        const errorMessage = fixture.debugElement.nativeElement.querySelector('.error');
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            const errorMessage = fixture.debugElement.nativeElement.querySelector('.error');
 
-        expect(errorMessage).toBeTruthy();
-    });
+            expect(errorMessage).toBeTruthy();
+        });
+    }));
 
-    it('should close modal when the right password is given and redirect to /admin', async () => {
-        adminGuardServiceSpy.isAccessGranted.and.returnValue(true);
+    it('should close modal when the right password is given and redirect to /admin', waitForAsync(() => {
+        adminGuardServiceSpy.isAccessGranted.and.resolveTo(true);
         const closeAdminPopupSpy = spyOn(component, 'closeAdminPopup').and.callThrough();
         const submitButton = fixture.debugElement.nativeElement.querySelector('#submit');
-        await submitButton.click();
+        submitButton.click();
 
-        expect(closeAdminPopupSpy).toHaveBeenCalled();
-        expect(matDialogRefSpy.close).toHaveBeenCalled();
-        expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/admin');
-    });
+        fixture.whenStable().then(() => {
+            expect(closeAdminPopupSpy).toHaveBeenCalled();
+            expect(matDialogRefSpy.close).toHaveBeenCalled();
+            expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/admin');
+        });
+    }));
 
-    it('should close the modal when the cancel button is clicked', async () => {
+    it('should close the modal when the cancel button is clicked', waitForAsync(() => {
         const submitButton = fixture.debugElement.nativeElement.querySelector('#cancel');
         const closeAdminPopupSpy = spyOn(component, 'closeAdminPopup').and.callThrough();
-        await submitButton.click();
-        fixture.detectChanges();
+        submitButton.click();
 
-        expect(closeAdminPopupSpy).toHaveBeenCalled();
-        expect(matDialogRefSpy.close).toHaveBeenCalled();
-    });
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            expect(closeAdminPopupSpy).toHaveBeenCalled();
+            expect(matDialogRefSpy.close).toHaveBeenCalled();
+        });
+    }));
 
-    it('should make password visible when "Afficher" checkbox is checked', async () => {
+    it('should make password visible when "Afficher" checkbox is checked', waitForAsync(() => {
         const visibilityCheckbox = fixture.debugElement.nativeElement.querySelector('#show-hide');
-
         expect(component.passwordInputType).toEqual('password');
-
         const togglePasswordVisibilitySpy = spyOn(component, 'togglePasswordVisibility').and.callThrough();
-        await visibilityCheckbox.click();
-        fixture.detectChanges();
+        visibilityCheckbox.click();
 
-        expect(togglePasswordVisibilitySpy).toHaveBeenCalled();
-        expect(component.passwordInputType).toEqual('text');
-    });
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            expect(togglePasswordVisibilitySpy).toHaveBeenCalled();
+            expect(component.passwordInputType).toEqual('text');
+        });
+    }));
 
-    it('should make password invisible when "Afficher" checkbox is unchecked', async () => {
+    it('should make password invisible when "Afficher" checkbox is unchecked', waitForAsync(() => {
         const visibilityCheckbox = fixture.debugElement.nativeElement.querySelector('#show-hide');
         component.passwordInputType = 'text';
-
         const togglePasswordVisibilitySpy = spyOn(component, 'togglePasswordVisibility').and.callThrough();
-        await visibilityCheckbox.click();
-        fixture.detectChanges();
+        visibilityCheckbox.click();
 
-        expect(togglePasswordVisibilitySpy).toHaveBeenCalled();
-        expect(component.passwordInputType).toEqual('password');
-    });
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            expect(togglePasswordVisibilitySpy).toHaveBeenCalled();
+            expect(component.passwordInputType).toEqual('password');
+        });
+    }));
 
     it('should submit entered password when clicking on the enter key', () => {
         const mockEnterKeyUpEvent = new KeyboardEvent('keyup', { key: 'Enter' });
