@@ -28,7 +28,15 @@ describe('GameService', () => {
         expect(communicationServiceSpy).toHaveBeenCalledWith('123');
     });
 
-    // TODO: Trouver une façon de test les set
+    it('should set button presser state to the assigned value', () => {
+        service.setButtonPressState = true;
+        expect(service.isButtonPressed).toBeTruthy();
+    });
+
+    it('should set game end state to the assigned value', () => {
+        service.setGameEndState = true;
+        expect(service.hasGameEndedObservable).toBeTruthy();
+    });
 
     it('should return null if quiz id is null', () => {
         service.getQuizById(null);

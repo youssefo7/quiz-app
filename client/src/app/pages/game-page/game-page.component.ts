@@ -60,7 +60,7 @@ export class GamePageComponent implements OnInit {
             hasCancelButton: true,
             okButtonText: 'Quitter',
             okButtonFunction: () => {
-                this.router.navigate(['/home']);
+                this.router.navigate(['/game/new']);
             },
         };
         const dialogRef = this.popup.open(PopupMessageComponent);

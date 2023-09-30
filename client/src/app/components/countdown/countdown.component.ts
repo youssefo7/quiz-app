@@ -27,6 +27,10 @@ export class CountdownComponent implements OnInit {
         return this.timeService.time;
     }
 
+    ngOnInit() {
+        this.loadTimer();
+    }
+
     async getQuiz() {
         const id = this.route.snapshot.paramMap.get('id');
         this.quiz = await this.gameService.getQuizById(id);
@@ -83,9 +87,5 @@ export class CountdownComponent implements OnInit {
     async loadTimer() {
         await this.getQuiz();
         this.gameClock();
-    }
-
-    ngOnInit() {
-        this.loadTimer();
     }
 }
