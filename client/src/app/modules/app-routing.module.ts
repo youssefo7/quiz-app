@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { mapToCanActivate, RouterModule, Routes } from '@angular/router';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
+import { CreateEditQuizPageComponent } from '@app/pages/create-edit-quiz-page/create-edit-quiz-page.component';
 import { CreateGamePageComponent } from '@app/pages/create-game-page/create-game-page.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
@@ -15,6 +16,8 @@ const routes: Routes = [
     { path: 'game/:id', component: GamePageComponent },
     { path: 'admin', component: AdminPageComponent, canActivate: mapToCanActivate([AdminGuardService]) },
     { path: 'game/:id/test', component: GamePageComponent },
+    { path: 'quiz/new', component: CreateEditQuizPageComponent },
+    { path: 'quiz/:id', component: CreateEditQuizPageComponent },
     { path: 'material', component: MaterialPageComponent },
     { path: 'waiting', component: WaitingPageComponent },
     { path: '**', redirectTo: '/home' },

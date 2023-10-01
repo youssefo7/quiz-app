@@ -1,17 +1,17 @@
-import { CommunicationService } from '@app/services/communication.service';
+import { HttpStatusCode } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed, tick, fakeAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { By } from '@angular/platform-browser';
 import { ImportPopupComponent } from '@app/components/import-popup/import-popup.component';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
-import { ImportService } from '@app/services/import.service';
-import { QuizListComponent } from './quiz-list.component';
-import { of, throwError } from 'rxjs';
-import { Quiz } from '@app/interfaces/quiz';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
-import { HttpStatusCode } from '@angular/common/http';
+import { Quiz } from '@app/interfaces/quiz';
+import { CommunicationService } from '@app/services/communication.service';
+import { ImportService } from '@app/services/import.service';
+import { of, throwError } from 'rxjs';
+import { QuizListComponent } from './quiz-list.component';
 import SpyObj = jasmine.SpyObj;
-import { By } from '@angular/platform-browser';
 
 describe('QuizListComponent', () => {
     let component: QuizListComponent;
@@ -170,7 +170,7 @@ describe('QuizListComponent', () => {
 
     it('should popup a warning message when the user tries to delete a quiz with the correct configuration', () => {
         const mockConfig: PopupMessageConfig = {
-            message: "Ëtes-vous sûr de vouloir supprimer ce quiz? Cette action n'est pas reversible.",
+            message: "Êtes-vous sûr de vouloir supprimer ce quiz? Cette action n'est pas réversible.",
             hasCancelButton: true,
             okButtonText: 'Supprimer',
             cancelButtonText: 'Annuler',
