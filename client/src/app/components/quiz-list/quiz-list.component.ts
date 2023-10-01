@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ImportPopupComponent } from '@app/components/import-popup/import-popup.component';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
@@ -63,11 +63,6 @@ export class QuizListComponent implements OnInit {
         window.URL.revokeObjectURL(blobUrl);
     }
 
-    editQuiz(quiz: Quiz): void {
-        // Implement edit logic here
-        quiz.title = 'editing...';
-    }
-
     toggleVisibility(quiz: Quiz): void {
         quiz.visibility = !quiz.visibility;
         this.communicationService.updateQuiz(quiz.id, quiz).subscribe();
@@ -75,7 +70,7 @@ export class QuizListComponent implements OnInit {
 
     openPopupDelete(quiz: Quiz): void {
         const config: PopupMessageConfig = {
-            message: "Ëtes-vous sûr de vouloir supprimer ce quiz? Cette action n'est pas reversible.",
+            message: "Êtes-vous sûr de vouloir supprimer ce quiz? Cette action n'est pas réversible.",
             hasCancelButton: true,
             okButtonText: 'Supprimer',
             cancelButtonText: 'Annuler',

@@ -1,0 +1,82 @@
+<h2>Informations générales</h2>
+<form id="general-info" [formGroup]="generalInfoForm" (ngSubmit)="onSubmit()">
+    <div id="title-div">
+        <label class="textarea-label" for="newTitle">Titre :</label>
+        <div class="flex-input" [ngClass]="{ infoPadding: isTitleValid }">
+            <input
+                (input)="adjustPadding()"
+                (blur)="adjustPadding()"
+                [attr.disabled]="disableForm ? '' : null"
+                type="text"
+                name="newTitle"
+                id="newTitle"
+                placeholder="Titre quiz"
+                [value]="titleValue"
+                [maxlength]="maxLengthTitle"
+                (input)="onCharacterChangeTitle($event)"
+                [appTitleExists]="getQuizList()"
+                formControlName="title"
+                required
+            />
+            <span id="title-counter" class="counter">{{ counterTitle }}</span>
+        </div>
+        <p
+            class="error"
+            id="verify-title"
+            *ngIf="generalInfoForm.controls.title.invalid && (generalInfoForm.controls.title.dirty || generalInfoForm.controls.title.touched)"
+        >
+            Le titre entré existe déjà ou doit avoir au moins un caractère
+        </p>
+    </div>
+
+    <div id="description-div">
+        <label class="textarea-label" for="newDescription">Description :</label>
+        <div class="flex-input" [ngClass]="{ infoPadding: isDescriptionValid }">
+            <input
+                (input)="adjustPadding()"
+                (blur)="adjustPadding()"
+                [attr.disabled]="disableForm ? '' : null"
+                type="text"
+                name="newDescription"
+                id="newDescription"
+                placeholder="Description quiz"
+                [value]="descriptionValue"
+                [maxlength]="maxLengthDescription"
+                (input)="onCharacterChangeDescription($event)"
+                formControlName="description"
+            />
+            <span id="description-counter" class="counter">{{ counterDescription }}</span>
+        </div>
+        <p
+            class="error"
+            id="verify-description"
+            *ngIf="
+                generalInfoForm.controls.description.invalid &&
+                (generalInfoForm.controls.description.dirty || generalInfoForm.controls.description.touched)
+            "
+        >
+            La description est obligatoire
+        </p>
+    </div>
+
+    <div id="duration-div">
+        <label id="duration-label" for="newDuration">Durée (en secondes) :</label>
+        <div [ngClass]="{ infoPadding: isDurationValid }">
+            <input
+                (input)="adjustPadding()"
+                [attr.disabled]="disableForm ? '' : null"
+                type="number"
+                name="newDuration"
+                id="newDuration"
+                min="10"
+                max="60"
+                placeholder="Durée question"
+                [appRangeValidator]="{ min: 10, max: 60 }"
+                formControlName="duration"
+                required
+            />
+        </div>
+        <p id="verify-duration" class="error" *ngIf="generalInfoForm.controls.duration.invalid">La durée allouée doit être entre 10 et 60 secondes</p>
+    </div>
+    <button id="submit-button" (click)="toggleButtonTextAndName()" [disabled]="generalInfoForm.invalid">{{ buttonText }}</button>
+</form>

@@ -18,7 +18,7 @@ export interface Question {
     choices: Choice[];
 }
 
-interface Choice {
+export interface Choice {
     text: string;
     isCorrect: boolean;
 }

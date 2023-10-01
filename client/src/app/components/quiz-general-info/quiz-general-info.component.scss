@@ -1,0 +1,44 @@
+h2 {
+    margin: unset;
+    padding-bottom: 5px;
+    color: #082540;
+}
+
+#general-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: flex-start;
+    border: 3px solid #082540;
+    min-height: 200px;
+    padding: 10px;
+
+    .infoPadding {
+        padding-bottom: 12px;
+    }
+
+    .error {
+        margin: unset;
+        color: red;
+        font-size: 10px;
+    }
+
+    .flex-input {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+
+        > input {
+            width: 90%;
+            text-overflow: ellipsis;
+        }
+    }
+
+    div {
+        width: 100%;
+    }
+
+    .counter {
+        white-space: nowrap;
+    }
+}

@@ -1,0 +1,79 @@
+h2 {
+    margin: unset;
+    padding-bottom: 5px;
+    color: #082540;
+}
+
+form {
+    border: 3px solid #082540;
+    display: grid;
+    grid-template-rows: auto auto auto auto;
+    padding: 10px;
+
+    .actions {
+        display: flex;
+        flex-direction: row;
+        gap: 5px;
+        height: 50%;
+        margin-left: 10px;
+    }
+
+    .overflow-input {
+        text-overflow: ellipsis;
+        width: 98%;
+    }
+
+    .error {
+        color: red;
+        margin: unset;
+        font-size: 10px;
+    }
+
+    .choice {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .choice-def {
+        display: flex;
+        flex-direction: column;
+        flex-basis: 80%;
+    }
+
+    li {
+        padding-bottom: 10px;
+    }
+
+    .icon {
+        font-size: 10px;
+    }
+
+    .actions > button,
+    #add-choice > button {
+        margin: unset;
+    }
+
+    #question-container {
+        grid-row: 1/2;
+    }
+
+    #no-error-type-and-points {
+        display: flex;
+        flex-direction: row;
+        gap: 10%;
+        width: 100%;
+    }
+
+    #error-type-and-points {
+        grid-row: 2/3;
+    }
+
+    #add-choice {
+        grid-row: 3/4;
+    }
+
+    #save-button {
+        grid-row: 4/5;
+    }
+}

@@ -1,0 +1,91 @@
+<h2>Ajout & modification de questions</h2>
+<form [formGroup]="questionInfoForm">
+    <div id="question-container">
+        <label for="newQuestion">Question : </label>
+        <input class="overflow-input" type="text" formControlName="text" name="newQuestion" id="newQuestion" placeholder="Question" required />
+        <p
+            class="error"
+            *ngIf="questionInfoForm.controls.text.invalid && (questionInfoForm.controls.text.dirty || questionInfoForm.controls.text.touched)"
+        >
+            La question ne doit pas être vide
+        </p>
+    </div>
+
+    <div id="type-and-points">
+        <div id="no-error-type-and-points">
+            <div>
+                <label>Type de question : </label>
+                <select for="question-type" formControlName="type" required>
+                    <option value="QCM">QCM</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="newPoints">Points : </label>
+                <input
+                    type="number"
+                    [value]="defaultPoints"
+                    step="10"
+                    formControlName="points"
+                    name="newPoints"
+                    min="10"
+                    max="100"
+                    [appRangeValidator]="{ min: 10, max: 100 }"
+                    placeholder="Points"
+                    (change)="questionInfoForm.controls.points.setValue(roundToNearest10())"
+                    required
+                />
+            </div>
+        </div>
+        <p class="error" *ngIf="questionInfoForm.controls.points.invalid">
+            Les points attribués pour une bonne réponse doivent être des multiples de 10 entre 10 et 100
+        </p>
+    </div>
+
+    <div id="add-choice">
+        <label>Choix : </label>
+        <button type="button" (click)="addChoice()" [disabled]="choices.length >= maxChoices">
+            <mat-icon [inline]="true">add</mat-icon>
+        </button>
+
+        <ol formArrayName="choices">
+            <li *ngFor="let choice of choices.controls; let i = index">
+                <div class="choice" [formGroupName]="i">
+                    <div class="choice-def">
+                        <input
+                            class="overflow-input"
+                            type="text"
+                            formControlName="text"
+                            minLength="1"
+                            placeholder="Choix {{ i + 1 }}"
+                            [required]="i < 2"
+                        />
+                        <mat-slide-toggle color="primary" formControlName="isCorrect">Bonne réponse</mat-slide-toggle>
+                    </div>
+
+                    <div class="actions">
+                        <button type="button" (click)="moveChoiceUp(i)" [disabled]="i === 0">
+                            <mat-icon [inline]="true">arrow_upward</mat-icon>
+                        </button>
+                        <button type="button" (click)="moveChoiceDown(i)" [disabled]="i === choices.length - 1">
+                            <mat-icon [inline]="true">arrow_downward</mat-icon>
+                        </button>
+                        <button type="button" (click)="removeChoice(i)">
+                            <mat-icon [inline]="true">delete</mat-icon>
+                        </button>
+                    </div>
+                </div>
+            </li>
+            <p
+                class="error"
+                *ngIf="
+                    questionInfoForm.controls.choices.invalid &&
+                    (questionInfoForm.controls.choices.dirty || questionInfoForm.controls.choices.touched)
+                "
+            >
+                Les choix doivent être distincts, et il doit y avoir au moins 2 choix de réponse, dont un bon et un mauvais
+            </p>
+        </ol>
+    </div>
+    <button id="save-button" (click)="openQuestionConfirmation()" [disabled]="questionInfoForm.invalid">Sauvegarder</button>
+</form>

@@ -1,0 +1,47 @@
+<app-top-bar [title]="pageTitle"></app-top-bar>
+<div id="container" *ngIf="newQuiz">
+    <div id="forms-container">
+        <form #addQuizForm="ngForm">
+            <app-quiz-general-info (blockSubmit)="onGeneralInfoChange($event)" [newQuiz]="newQuiz"></app-quiz-general-info>
+            <app-quiz-question-info [newQuiz]="newQuiz"></app-quiz-question-info>
+            <button (click)="openQuizConfirmation()" [disabled]="!isQuizFormValid()">Sauvegarder</button>
+        </form>
+    </div>
+
+    <div id="questions-container">
+        <h2>Liste des questions</h2>
+        <ol>
+            <li class="question" *ngFor="let question of newQuiz.questions; let i = index">
+                <div class="question-content">
+                    <div class="question-actions">
+                        <button type="button" (click)="moveQuestionUp(i)" [disabled]="i === 0">
+                            <mat-icon [inline]="true">arrow_upward</mat-icon>
+                        </button>
+                        <button type="button" (click)="moveQuestionDown(i)" [disabled]="i === newQuiz.questions.length - 1">
+                            <mat-icon [inline]="true">arrow_downward</mat-icon>
+                        </button>
+                        <button (click)="modifyQuestion(question, i)">
+                            <mat-icon [inline]="true">edit</mat-icon>
+                        </button>
+                        <button (click)="deleteQuestion(i)">
+                            <mat-icon [inline]="true">delete</mat-icon>
+                        </button>
+                    </div>
+                    <div class="question-info">
+                        <p>Question : {{ question.text }}</p>
+                        <p>Type : {{ question.type }}</p>
+                        <p>Points : {{ question.points }}</p>
+                        <p>Choix de réponse :</p>
+                        <ol>
+                            <li *ngFor="let choice of question.choices; let j = index">
+                                <span>Choix {{ j + 1 }} : {{ choice.text }}</span>
+                                <mat-icon *ngIf="choice.isCorrect" [inline]="true">check_circle</mat-icon>
+                                <mat-icon *ngIf="!choice.isCorrect" [inline]="true">cancel</mat-icon>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </li>
+        </ol>
+    </div>
+</div>
