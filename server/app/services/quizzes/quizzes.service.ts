@@ -13,8 +13,6 @@ export class QuizzesService {
         return quizzesPath;
     }
 
-    // TODO : fix time zone
-    // Time not in EST for some reason
     getDate(): string {
         return new Date().toISOString();
     }

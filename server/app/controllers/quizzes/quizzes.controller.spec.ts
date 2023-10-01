@@ -6,7 +6,6 @@ import { Response } from 'express';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { QuizzesController } from './quizzes.controller';
 
-// TODO : add tests for visibility and deleted check
 describe('QuizzesController', () => {
     let controller: QuizzesController;
     let quizzesService: SinonStubbedInstance<QuizzesService>;

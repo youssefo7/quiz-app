@@ -7,7 +7,6 @@ import { ImportService } from './import.service';
 
 describe('ImportService', () => {
     let service: ImportService;
-    // jasmine instead of jest to avoid package.json changes
     let mockCommunicationService: jasmine.SpyObj<CommunicationService>;
     const mockQuiz = {
         $schema: '',
@@ -59,7 +58,6 @@ describe('ImportService', () => {
     });
 
     it('should import quiz', async () => {
-        // mock has no visibility and no description
         const mockFileContent = JSON.stringify({
             $schema: '',
             id: '',
@@ -80,18 +78,15 @@ describe('ImportService', () => {
                 },
             ],
         });
-        // expect visibility to be false and description to be empty
 
         const mockFile = new File([mockFileContent], 'filename.json', { type: 'application/json' });
         service.quizToImport = mockFile;
-        // mocking addQuiz to return observable
         mockCommunicationService.importQuiz.and.returnValue(of(mockQuiz));
         await service.importQuiz();
         expect(mockCommunicationService.importQuiz).toHaveBeenCalledWith(mockQuiz);
     });
 
     it('should catch and rethrow error from communicationService', async () => {
-        // missing title
         const mockFileContent = JSON.stringify({
             $schema: '',
             id: '',
