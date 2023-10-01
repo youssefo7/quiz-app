@@ -4,7 +4,7 @@
         <form #addQuizForm="ngForm">
             <app-quiz-general-info (blockSubmit)="onGeneralInfoChange($event)" [newQuiz]="newQuiz"></app-quiz-general-info>
             <app-quiz-question-info [newQuiz]="newQuiz"></app-quiz-question-info>
-            <button (click)="openQuizConfirmation()" [disabled]="!isQuizFormValid()">Sauvegarder</button>
+            <button (click)="openQuizConfirmation()" [disabled]="!isQuizFormValid()">Sauvegarder le quiz</button>
         </form>
     </div>
 
