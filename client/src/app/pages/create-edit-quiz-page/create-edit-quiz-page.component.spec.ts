@@ -40,7 +40,6 @@ describe('CreateEditQuizPageComponent', () => {
                 { provide: MatDialog, useValue: matDialogSpy },
                 { provide: ActivatedRoute, useValue: activatedRouteSpy },
                 { provide: QuizManagerService, useValue: quizManagerServiceSpy },
-                { provide: QuizQuestionInfoComponent, useValue: quizQuestionInfoSpy },
             ],
         });
     }));
@@ -89,8 +88,18 @@ describe('CreateEditQuizPageComponent', () => {
             type: 'QCM',
             text: 'TEST',
             points: 20,
-            choices: [],
+            choices: [
+                {
+                    text: 'choice',
+                    isCorrect: true,
+                },
+                {
+                    text: 'choice',
+                    isCorrect: false,
+                },
+            ],
         };
+        component.quizQuestionInfo = quizQuestionInfoSpy;
         component.modifyQuestion(mockQuestion, 2);
 
         expect(quizQuestionInfoSpy.loadQuestionInformation).toHaveBeenCalledWith(mockQuestion, 2);
@@ -204,17 +213,22 @@ describe('CreateEditQuizPageComponent', () => {
         expect(quizManagerServiceSpy.moveQuestionDown).toHaveBeenCalledWith(2, mockQuiz);
     });
 
-    it('should save a quiz', () => {
+    it('should save a quiz if newQuiz is defined', () => {
         component.newQuiz = mockQuiz;
         component.saveQuiz();
         expect(quizManagerServiceSpy.saveQuiz).toHaveBeenCalledWith(mockQuiz);
+    });
+
+    it('should not save a quiz if newQuiz is not defined', () => {
+        component.saveQuiz();
+        expect(quizManagerServiceSpy.saveQuiz).not.toHaveBeenCalled();
     });
 
     it('should load a quiz', async () => {
         // TODO
     });
 
-    it('should open quiz confirmation to save', async () => {
+    it('should open quiz confirmation to save', () => {
         // TODO
     });
 });
