@@ -78,9 +78,6 @@ export class QuizManagerService {
     }
 
     saveQuiz(quiz: Quiz) {
-        const date = new Date().toLocaleString('fr-CA', { timeZone: 'America/Montreal' });
-        quiz.lastModification = date;
-
         if (quiz.id !== '') {
             this.updateQuizOnServer(quiz.id, quiz);
         } else {
