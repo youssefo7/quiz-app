@@ -1,52 +1,117 @@
+import { FormControl } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { Quiz } from '@app/interfaces/quiz';
+import { TitleExistsDirective } from './title-exists.directive';
 
-// @Component({
-//     template: `
-//         <form [formGroup]="form">
-//             <input id="title-input" type="text" [formControlName]="controlName" [appTitleExists]="quizzes"/>
-//         </form>
-//     `,
-// })
-// class TestComponent {
-//     form: FormGroup;
-//     controlName: string;
-//     quizzes: any[];
+describe('TitleExistsDirective', () => {
+    let directive: TitleExistsDirective;
+    let control: FormControl;
+    let mockActivatedRoute: any;
 
-//     constructor() {
-//         this.form = new FormGroup({
-//             title: new FormControl(''),
-//         });
-//         this.controlName = 'title';
-//         this.quizzes = [];
-//     }
-// }
+    const testQuizzes: Quiz[] = [
+        {
+            $schema: 'quiz-schema.json',
+            id: '1',
+            title: 'Quiz 1',
+            description: '',
+            duration: 0,
+            lastModification: '',
+            visibility: false,
+            questions: [
+                {
+                    type: '',
+                    text: '',
+                    points: 0,
+                    choices: [
+                        {
+                            text: '',
+                            isCorrect: false,
+                        },
+                    ],
+                },
+            ],
+        },
+    ];
 
-// describe('TitleExistsDirective', () => {
-//     let fixture: ComponentFixture<TestComponent>;
-//     let component: TestComponent;
+    beforeEach(() => {
+        mockActivatedRoute = {
+            snapshot: {
+                paramMap: {
+                    get: () => '1',
+                },
+            },
+        };
 
-//     beforeEach(() => {
-//         TestBed.configureTestingModule({
-//             declarations: [TestComponent, TitleExistsDirective],
-//             imports: [ReactiveFormsModule],
-//         });
+        directive = new TitleExistsDirective(mockActivatedRoute as ActivatedRoute);
+        control = new FormControl();
+        directive['quizzes'] = testQuizzes;
+    });
 
-//         fixture = TestBed.createComponent(TestComponent);
-//         component = fixture.componentInstance;
-//         fixture.detectChanges();
-//     });
+    it('Should create an instance', () => {
+        expect(directive).toBeTruthy();
+    });
 
-//     it('should create an instance', () => {
-//         const directive = new TitleExistsDirective();
-//         expect(directive).toBeTruthy();
-//     });
+    it('Should return null if quizzes was not provided', () => {
+        directive['quizzes'] = null as unknown as Quiz[];
+        const validatorResult = directive.validate(control);
+        expect(validatorResult).toBeNull();
+    });
 
-    // it('Should pass the title validation when the title does not exist in the current list of quizzes', () => {
-    //     component.quizzes = [{ title: 'Quiz1' }, { title: 'Quiz2' }];
-    //     const titleInput = fixture.debugElement.query(By.css('input'));
-    //     const inputControl = component.form.get(component.controlName) as FormControl;
-    //     inputControl.setValue('New Quiz Title');
-    //     titleInput.triggerEventHandler('input', { target: titleInput.nativeElement });
-    //     fixture.detectChanges();
-    //     expect(inputControl.valid).toBeTruthy();
-//     // });
-// });
+    it('Should return null if the title the quiz does not match any of an existing quiz', () => {
+        control.setValue('New Quiz Title');
+        const validatorResult = directive.validate(control);
+        expect(validatorResult).toBeNull();
+    });
+
+    it('Should return { titleExists: true } if there is an existing game in quizzes with that title already', () => {
+        control.setValue('Quiz 1');
+        const validatorResult = directive.validate(control);
+        if (validatorResult !== null) {
+            expect(validatorResult).toEqual({ titleExists: true });
+        }
+    });
+
+    it('Should exclude the current quiz when comparing titles with those of the existing quizzes', () => {
+        control.setValue('Quiz 1');
+        const validatorResult = directive.validate(control);
+        expect(validatorResult).toBeNull();
+    });
+
+    it('Should not return null if the url does not have an Id but the title still exists wihtin the existing quizzes', () => {
+        mockActivatedRoute.snapshot.paramMap.get = () => null;
+        control.setValue('Quiz 1');
+        const validatorResult = directive.validate(control);
+        if (validatorResult !== null) {
+            expect(validatorResult).toEqual({ titleExists: true });
+        }
+    });
+
+    it('Should work if there arent any quizzes in the database and the route snapshot does not have a quiz Id', () => {
+        directive['quizzes'] = null as unknown as Quiz[];
+        mockActivatedRoute.snapshot.paramMap.get = () => null;
+        control.setValue('Quiz 1');
+        const validatorResult = directive.validate(control);
+        expect(validatorResult).toBeNull();
+    });
+
+    it('Should handle null value for control', () => {
+        control.setValue(null);
+        const validatorResult = directive.validate(control);
+        expect(validatorResult).toBeNull();
+    });
+
+    it('Should filter the quizzes from the database based on the route snapshot', () => {
+        mockActivatedRoute.snapshot.paramMap.get = () => '1';
+        control.setValue('Quiz 1');
+        const validatorResult = directive.validate(control);
+        expect(validatorResult).toBeNull();
+    });
+
+    it('Should return { titleExists: true } for quizzes with the same title but different character casing', () => {
+        control.setValue('quiz 1');
+        const validatorResult = directive.validate(control);
+        if (validatorResult !== null) {
+            expect(validatorResult).toEqual({ titleExists: true });
+        }
+    });
+});
