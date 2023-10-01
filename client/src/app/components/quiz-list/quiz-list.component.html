@@ -41,7 +41,7 @@
                         <span (click)="exportQuiz(quiz)" class="action-icon" [title]="'Exporter ' + quiz.title">
                             <i class="fas fa-download"></i>
                         </span>
-                        <span routerLink="/quiz/{{ quiz.id }}" class="action-icon" [title]="'Modifier ' + quiz.title">
+                        <span (click)="editQuiz(quiz)" class="action-icon" [title]="'Modifier ' + quiz.title">
                             <i class="fas fa-edit"></i>
                         </span>
                     </div>
