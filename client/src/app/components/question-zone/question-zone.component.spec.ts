@@ -307,10 +307,9 @@ describe('QuestionZoneComponent', () => {
 
     it('should display the correct answer', () => {
         spyOn(component, 'setButtonStateOnSubmit');
-        spyOn(component, 'showPoints');
         component.displayCorrectAnswer();
         expect(component.setButtonStateOnSubmit).toHaveBeenCalledTimes(2);
-        expect(component.showPoints).toHaveBeenCalled();
+        expect(component.doesDisplayPoints).toBeTrue();
     });
 
     it('should give bonus points for a correct answer', () => {
@@ -337,11 +336,6 @@ describe('QuestionZoneComponent', () => {
         expect(component.setSubmitButtonToDisabled).toHaveBeenCalledWith(true, { backgroundColor: 'grey' });
         expect(component.displayCorrectAnswer).toHaveBeenCalled();
         expect(component.givePoints).toHaveBeenCalled();
-    });
-
-    it('should show points', () => {
-        component.showPoints();
-        expect(component.doesDisplayPoints).toBeTrue();
     });
 
     it('should focus on button', () => {
