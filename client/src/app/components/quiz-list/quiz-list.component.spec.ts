@@ -222,9 +222,16 @@ describe('QuizListComponent', () => {
     });
 
     it('should popup a warning message when the user tries to edit a quiz that is already deleted', () => {
-        spyOn(component, 'openPopupWarning');
+        const mockConfig: PopupMessageConfig = {
+            message: 'Le quiz que vous souhaitez modifier a été supprimé.',
+            hasCancelButton: false,
+        };
+
         spyOn(communicationService, 'checkQuizAvailability').and.returnValue(of(false));
+        spyOn(component, 'openPopupWarning').and.callThrough();
         component.editQuiz(propQuiz);
-        expect(component.openPopupWarning).toHaveBeenCalled();
+        expect(component.openPopupWarning).toHaveBeenCalledWith(mockConfig.message);
+        const config = mockDialogRef.componentInstance.config;
+        expect(config.message).toEqual(mockConfig.message);
     });
 });
