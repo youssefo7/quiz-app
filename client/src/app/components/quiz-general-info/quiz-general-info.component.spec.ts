@@ -91,14 +91,14 @@ describe('QuizGeneralInfoComponent', () => {
     });
 
     it('should get title length and set counterTitle', () => {
-        component.titleValue = 'Sample Title';
+        component.titleValue = 'test title';
         component.initCounters();
         expect(component.titleLength).toBe(component.titleValue.length);
         expect(component.counterTitle).toBe(`${component.titleLength} / ${component.maxLengthTitle}`);
     });
 
     it('should get description length and set counterDescription', () => {
-        component.descriptionValue = 'Sample Description for the Quiz';
+        component.descriptionValue = 'test description';
         component.initCounters();
         expect(component.descriptionLength).toBe(component.descriptionValue.length);
         expect(component.counterDescription).toBe(`${component.descriptionLength} / ${component.maxLengthDescription}`);
@@ -127,7 +127,7 @@ describe('QuizGeneralInfoComponent', () => {
         expect(validResult).toBeNull();
     });
 
-    it('should validate null charachter value', () => {
+    it('should validate null character value', () => {
         const control = { value: null };
         const validationResult = component.characterCountValidator(maxTitleLength)(control as AbstractControl);
         expect(validationResult).toBeNull();
