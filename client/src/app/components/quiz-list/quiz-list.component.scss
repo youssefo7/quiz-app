@@ -1,6 +1,5 @@
 @import "~@fortawesome/fontawesome-free/css/all.css";
 
-
 body {
   display: flex;
   justify-content: center;
@@ -42,11 +41,13 @@ body {
   justify-content: center;
   margin-left: 3%;
 }
+
 #actions {
   display: flex;
   justify-content: center;
   margin-left: 4%;
 }
+
 .list-title {
   display: flex;
   justify-content: space-between; 
@@ -110,10 +111,10 @@ body {
   color: #007bff;
 }
 
-#fileInput{
+#fileInput {
   display: none;
 }
 
-.iconClick{
+.iconClick {
   cursor: pointer;
 }
