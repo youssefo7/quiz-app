@@ -4,17 +4,22 @@ header {
     justify-content: space-between;
     align-items: center;
     border-bottom: 2px solid #082540;
-    background-color: #bbdaf7;
+    background-image: linear-gradient(144deg,#0021b3, #0048bc 50%,#bf9aff);
+    border: 2px;
+    box-shadow: rgba(151, 65, 252, 0.2) 0 15px 30px -5px;    
     padding: 0px 8px;
+}
+
+h1 {
+    margin: unset;
+    color: #ffffff;
 }
 
 img {
     padding-top: 5px;
     width: 55px;
     height: 100%;
+    filter: drop-shadow(3px 3px 1px rgb(253, 231, 255));
 }
 
-h1 {
-    margin: unset;
-    color: #082540;
-}
+
