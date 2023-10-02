@@ -1,117 +1,126 @@
-@import "~@fortawesome/fontawesome-free/css/all.css";
+@import '~@fortawesome/fontawesome-free/css/all.css';
 
-
-.background {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+#container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
 }
+
 .title-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px;
-  background-color: #f0f0f0; 
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #f0f0f0;
+    h1 {
+        margin: 0;
+    }
 }
 
-
-.title-container h1 {
-  margin: 0; 
-}
-
+.fa,
+.fas,
 .fa-solid {
-  margin-right: 10px; 
-  color: #000000;
-  font-weight: bold;
+    margin-right: 10px;
+    color: #007bff;
+    font-weight: bold;
+    text-shadow: rgba(69, 68, 66, 0.387) 1px 0 5px;
 }
 
+.fa:hover,
+.fas:hover,
 .fa-solid:hover {
-  color: #007bff;
-  font-weight: bold;
-
-}
-.list-title {
-  display: flex;
-  justify-content: space-between; 
-  align-items: center;
-  font-weight: bold;
-  margin-bottom: 10px;
-  text-align: center;
+    color: #060688;
+    font-weight: bold;
+    cursor: pointer;
 }
 
-.title-left {
-  flex-grow: 1; 
+#nom {
+    display: flex;
+    justify-content: flex-start;
 }
 
-
-.title-right {
-  font-size: 24px; 
-}
-.game-list {
-  background-color: #fff;
-  border-radius: 5px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  width: 75%;
-  max-width: 1200px;
+#date-created {
+    display: flex;
+    justify-content: center;
+    margin-left: 3%;
 }
 
-.item-header {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 0;
-  font-weight: bold;
-  border-bottom: 1px solid #ccc;
+#actions {
+    display: flex;
+    justify-content: center;
+    margin-left: 4%;
 }
 
-.title {
-  flex: 1;
-  padding: 0 10px;
+#list-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
 }
 
-
-.game-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 25px 0;
-  border-bottom: 1px solid #ccc;
-  transition: background-color 0.3s;
+#quiz-list {
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 75%;
+    max-width: 1200px;
+    max-height: 500px;
+    overflow: auto;
 }
 
-.game-item:hover {
-  background-color: #f0f0f0;
-}
-.game-info {
-  flex: 1;
-  padding: 0 10px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+#item-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    border-bottom: 1px solid #ccc;
+    p {
+        flex: 1;
+        padding: 0 10px;
+    }
 }
 
-.game-actions {
-  flex: 0 0 auto;
-  display: flex;
-  gap: 10px;
-  padding-right: 25px;
+#quiz-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 10px;
+    border-bottom: 1px solid #ccc;
+    transition: background-color 0.3s;
+    overflow: hidden;
+    span {
+        flex: 1;
+        padding: 0 10px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+}
+
+#quiz-item:hover {
+    background-color: #f0f0f0;
 }
 
 .action-icon {
-  cursor: pointer;
-  color: #000000;
-  transition: color 0.3s;
-  padding: 15px;
+    cursor: pointer;
+    color: #000000;
+    transition: color 0.3s;
+    padding: 15px;
 }
 
 .action-icon:hover {
-  color: #007bff;
+    color: #007bff;
 }
 
-#fileInput{
-  display: none;
+#fileInput {
+    display: none;
 }
 
-.iconClick{
-  cursor: pointer;
+.iconClick {
+    cursor: pointer;
 }

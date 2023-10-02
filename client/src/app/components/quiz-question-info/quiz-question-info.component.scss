@@ -1,4 +1,5 @@
 h2 {
+    padding-top: 15px;
     margin: unset;
     padding-bottom: 5px;
     color: #082540;
@@ -8,7 +9,9 @@ form {
     border: 3px solid #082540;
     display: grid;
     grid-template-rows: auto auto auto auto;
-    padding: 10px;
+    padding: 5px;
+    overflow: hidden;
+    min-width: 250px;
 
     .actions {
         display: flex;
@@ -56,6 +59,7 @@ form {
 
     #question-container {
         grid-row: 1/2;
+        padding-bottom: 5px;
     }
 
     #no-error-type-and-points {
@@ -63,6 +67,7 @@ form {
         flex-direction: row;
         gap: 10%;
         width: 100%;
+        padding: 5px 0;
     }
 
     #error-type-and-points {
