@@ -1,5 +1,5 @@
-<body>
-    <div class="quiz-list">
+<div id="component">
+    <div id="quiz-list">
         <div class="list-title">
             <h1>
                 Quiz
@@ -10,13 +10,13 @@
             </label>
             <input id="fileInput" type="file" (change)="handleImport($event)" accept=".json" />
         </div>
-        <div class="item-header">
+        <div id="item-header">
             <p id="name">Nom</p>
             <p id="date-created">Dernière modification</p>
             <p id="actions">Actions</p>
         </div>
           <div *ngFor="let quiz of quizList">
-          <div class="quiz-item">
+          <div id="quiz-item">
             <span>{{ quiz.title }}</span>
             <span>{{ quiz.lastModification }}</span>
             <div>
@@ -42,4 +42,4 @@
         </div>
     </div>
     <a #export id="export" style="visibility: hidden"></a>
-</body>
+</div>

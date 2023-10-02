@@ -3,6 +3,10 @@
     height: auto;
 }
 
+img {
+    filter: drop-shadow(10px 10px 5px rgb(253, 231, 255));
+}
+
 .justified {
     display: flex;
     flex-direction: column;

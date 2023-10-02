@@ -1,10 +1,11 @@
 @import "~@fortawesome/fontawesome-free/css/all.css";
 
-body {
+#component {
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: auto;
+  overflow: hidden;
+  height: 100%;
 }
 
 .title-container {
@@ -57,7 +58,7 @@ body {
   text-align: center;
 }
 
-.quiz-list {
+#quiz-list {
   background-color: #fff;
   border-radius: 5px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
@@ -68,7 +69,7 @@ body {
   overflow: auto;
 }
 
-.item-header {
+#item-header {
   display: flex;
   justify-content: space-between;
   font-weight: bold;
@@ -79,7 +80,7 @@ body {
   }
 }
 
-.quiz-item {
+#quiz-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -96,7 +97,7 @@ body {
   }
 }
 
-.quiz-item:hover {
+#quiz-item:hover {
   background-color: #f0f0f0;
 }
 
