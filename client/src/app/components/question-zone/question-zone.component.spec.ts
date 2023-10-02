@@ -106,7 +106,7 @@ describe('QuestionZoneComponent', () => {
 
     it('should focus on the buttons when the question zone container is clicked', () => {
         const focusOnButtonSpy = spyOn(component, 'focusOnButton');
-        const questionZoneContainer = elementRef.querySelector('.question-zone-container') as HTMLElement;
+        const questionZoneContainer = elementRef.querySelector('#question-zone-container') as HTMLElement;
         if (questionZoneContainer) {
             questionZoneContainer.addEventListener('click', () => {
                 focusOnButtonSpy();
