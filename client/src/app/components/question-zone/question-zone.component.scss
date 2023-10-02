@@ -14,16 +14,25 @@
         justify-content: space-evenly;
         align-items: center;
 
-        .points-message {
-            font-size: 1.5vw;
+        #points-message {
+            font-size: 1.5em;
             font-weight: bold;
-            max-width: 90%;
+            margin-top: 10px;
+            margin-bottom: 5px;
         }
 
-        .question {
+        #question {
             font-size: 1.5em;
             text-align: center;
-            margin: 0;
+            margin: 10px 10px;
+            overflow: auto;
+        }
+
+        #points {
+            font-size: 1.5em;
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 0;
         }
     }
 
@@ -52,9 +61,9 @@
             background-color: blueviolet;
             font-size: 2em;
             font-family: Arial, Helvetica, sans-serif;
-            font-weight: bold;
+            overflow-wrap: break-word;
             color: white;
-            padding: 2% 0%;
+            padding: 15px 0;
 
             &.active {
                 background-color: blue;

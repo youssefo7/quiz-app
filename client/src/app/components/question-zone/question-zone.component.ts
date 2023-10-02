@@ -156,7 +156,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.choiceButtonStyle[index] = { backgroundColor: '' };
         this.isChoiceButtonDisabled = false;
         this.submitButtonStyle = { backgroundColor: '' };
-        this.hidePoints();
+        this.doesDisplayPoints = false;
     }
 
     setButtonStateOnSubmit(index: number) {
@@ -185,7 +185,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.question.choices.forEach((choice, index) => {
             this.setButtonStateOnSubmit(index);
         });
-        this.showPoints();
+        this.doesDisplayPoints = true;
     }
 
     givePoints() {
@@ -204,13 +204,5 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.setSubmitButtonToDisabled(true, { backgroundColor: 'grey' });
         this.displayCorrectAnswer();
         this.givePoints();
-    }
-
-    showPoints() {
-        this.doesDisplayPoints = true;
-    }
-
-    hidePoints() {
-        this.doesDisplayPoints = false;
     }
 }
