@@ -16,6 +16,7 @@ import { ImportService } from '@app/services/import.service';
 export class QuizListComponent implements OnInit {
     @ViewChild('export') anchor: ElementRef<HTMLAnchorElement>;
     quizList: Quiz[];
+    message: string;
 
     // Plus que 3 paramètres sont necessaires pour le fonctionnement de cette composante
     // eslint-disable-next-line max-params
@@ -44,7 +45,8 @@ export class QuizListComponent implements OnInit {
                 this.fetchQuizzes();
             },
             error: () => {
-                this.openPopupWarning();
+                this.message = 'Ce quiz a déjà été supprimé par un autre administrateur.';
+                this.openPopupWarning(this.message);
             },
         });
     }
@@ -87,9 +89,22 @@ export class QuizListComponent implements OnInit {
         popupInstance.config = config;
     }
 
-    openPopupWarning(): void {
+    // openPopupWarning(): void {
+    //     const config: PopupMessageConfig = {
+    //         message: 'Ce quiz a déjà été supprimé par un autre administrateur.',
+    //         hasCancelButton: false,
+    //         okButtonFunction: () => {
+    //             this.fetchQuizzes();
+    //         },
+    //     };
+    //     const dialogRef = this.popup.open(PopupMessageComponent);
+    //     const popupInstance = dialogRef.componentInstance;
+    //     popupInstance.config = config;
+    // }
+
+    openPopupWarning(message: string): void {
         const config: PopupMessageConfig = {
-            message: 'Ce quiz a déjà été supprimé par un autre administrateur.',
+            message,
             hasCancelButton: false,
             okButtonFunction: () => {
                 this.fetchQuizzes();
@@ -132,7 +147,8 @@ export class QuizListComponent implements OnInit {
                 if (isAvailable) {
                     this.router.navigate([`/quiz/${quiz.id}`]);
                 } else {
-                    this.openPopupWarning();
+                    this.message = 'Le quiz que vous souhaitez modifier a été supprimé.';
+                    this.openPopupWarning(this.message);
                 }
             },
         });

@@ -197,7 +197,7 @@ describe('QuizListComponent', () => {
             hasCancelButton: false,
         };
 
-        component.openPopupWarning();
+        component.openPopupWarning(mockConfig.message);
         const config = mockDialogRef.componentInstance.config;
 
         expect(config.message).toEqual(mockConfig.message);
