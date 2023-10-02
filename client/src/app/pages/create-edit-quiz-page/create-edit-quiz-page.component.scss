@@ -5,7 +5,7 @@ h2 {
 #save-button {
     display: flex;
     justify-content: flex-end;
-    padding-top: 5px;
+    margin-top: 15px;
 
     button {
         padding: 5px;
@@ -36,6 +36,7 @@ h2 {
         .question-content {
             display: grid;
             grid-template-rows: auto auto;
+            padding: 5px 10px;
 
             .question-actions {
                 grid-row: 1/2;
@@ -59,11 +60,6 @@ h2 {
 
     p {
         margin: unset;
-    }
-
-    ol {
-        padding: unset;
-        padding-left: 4%;
     }
 
     .icon {

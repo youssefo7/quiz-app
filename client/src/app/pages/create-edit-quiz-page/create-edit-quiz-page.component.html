@@ -11,7 +11,7 @@
     </div>
     <div id="questions-container">
         <h2>Liste des questions</h2>
-        <p *ngIf="newQuiz.questions.length < 1 " style="color: brown;">Veuillez ajouter au moins une question pour sauvegarder...</p>
+        <p *ngIf="newQuiz.questions.length < 1" style="color: brown">Veuillez ajouter au moins une question pour sauvegarder...</p>
         <ol>
             <li class="question" *ngFor="let question of newQuiz.questions; let i = index">
                 <div class="question-content">
@@ -34,13 +34,13 @@
                         <p>Type : {{ question.type }}</p>
                         <p>Points : {{ question.points }}</p>
                         <p>Choix de réponse :</p>
-                        <ol>
+                        <ul>
                             <li *ngFor="let choice of question.choices; let j = index">
                                 <span>Choix {{ j + 1 }} : {{ choice.text }}</span>
                                 <mat-icon *ngIf="choice.isCorrect" [inline]="true">check_circle</mat-icon>
                                 <mat-icon *ngIf="!choice.isCorrect" [inline]="true">cancel</mat-icon>
                             </li>
-                        </ol>
+                        </ul>
                     </div>
                 </div>
             </li>

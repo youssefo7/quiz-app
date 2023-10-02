@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, AfterViewInit } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { Quiz } from '@app/interfaces/quiz';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
@@ -64,9 +64,12 @@ export class QuizGeneralInfoComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit(): void {
         if (this.newQuiz.id !== '') {
-            this.toggleButtonTextAndName();
+            setTimeout(() => {
+                this.toggleButtonTextAndName();
+            });
         }
     }
+
     initCounters() {
         this.maxLengthTitle = 150;
         this.maxLengthDescription = 300;

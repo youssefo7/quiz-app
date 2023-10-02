@@ -1,6 +1,6 @@
 <div id="container">
     <div id="quiz-list">
-        <div class="list-title">
+        <div id="list-title">
             <h1>
                 Quiz
                 <i class="fa-solid fa-plus iconClick" [title]="'Créer un quiz'" routerLink="/quiz/new"></i>
@@ -15,30 +15,30 @@
             <p id="date-created">Dernière modification</p>
             <p id="actions">Actions</p>
         </div>
-          <div *ngFor="let quiz of quizList">
-          <div id="quiz-item">
-            <span>{{ quiz.title }}</span>
-            <span>{{ quiz.lastModification }}</span>
-            <div>
-                <span
-                id="visibility"
-                    (click)="toggleVisibility(quiz)"
-                    class="action-icon"
-                    [title]="quiz.visibility ? 'Cacher ' + quiz.title : 'Afficher ' + quiz.title"
-                >
-                    <i [class]="quiz.visibility ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
-                </span>
-                <span (click)="openPopupDelete(quiz)" class="action-icon" [title]="'Supprimer ' + quiz.title">
-                    <i class="fas fa-trash"></i>
-                </span>
-                <span (click)="exportQuiz(quiz)" class="action-icon" [title]="'Exporter ' + quiz.title">
-                    <i class="fas fa-download"></i>
-                </span>
-                <span routerLink="/quiz/{{ quiz.id }}" class="action-icon" [title]="'Modifier ' + quiz.title">
-                    <i class="fas fa-edit"></i>
-                </span>
+        <div *ngFor="let quiz of quizList">
+            <div id="quiz-item">
+                <span>{{ quiz.title }}</span>
+                <span>{{ quiz.lastModification }}</span>
+                <div>
+                    <span
+                        id="visibility"
+                        (click)="toggleVisibility(quiz)"
+                        class="action-icon"
+                        [title]="quiz.visibility ? 'Cacher ' + quiz.title : 'Afficher ' + quiz.title"
+                    >
+                        <i [class]="quiz.visibility ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
+                    </span>
+                    <span (click)="openPopupDelete(quiz)" class="action-icon" [title]="'Supprimer ' + quiz.title">
+                        <i class="fas fa-trash"></i>
+                    </span>
+                    <span (click)="exportQuiz(quiz)" class="action-icon" [title]="'Exporter ' + quiz.title">
+                        <i class="fas fa-download"></i>
+                    </span>
+                    <span routerLink="/quiz/{{ quiz.id }}" class="action-icon" [title]="'Modifier ' + quiz.title">
+                        <i class="fas fa-edit"></i>
+                    </span>
+                </div>
             </div>
-          </div>
         </div>
     </div>
     <a #export id="export" style="visibility: hidden"></a>
