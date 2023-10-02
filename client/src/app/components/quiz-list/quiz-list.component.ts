@@ -89,19 +89,6 @@ export class QuizListComponent implements OnInit {
         popupInstance.config = config;
     }
 
-    // openPopupWarning(): void {
-    //     const config: PopupMessageConfig = {
-    //         message: 'Ce quiz a déjà été supprimé par un autre administrateur.',
-    //         hasCancelButton: false,
-    //         okButtonFunction: () => {
-    //             this.fetchQuizzes();
-    //         },
-    //     };
-    //     const dialogRef = this.popup.open(PopupMessageComponent);
-    //     const popupInstance = dialogRef.componentInstance;
-    //     popupInstance.config = config;
-    // }
-
     openPopupWarning(message: string): void {
         const config: PopupMessageConfig = {
             message,
