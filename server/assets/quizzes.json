@@ -4,33 +4,10 @@
     "id": "546",
     "title": "Connaissez-vous bien le JavaScript ?",
     "duration": 10,
-    "lastModification": "2023-09-30T18:47:03.037Z",
+    "lastModification": "2023-10-02T16:36:52.574Z",
     "visibility": false,
     "description": "Le quiz parfait pour les débutants en Javascript",
     "questions": [
-      {
-        "type": "QCM",
-        "text": "Parmi les mots suivants, lesquels sont des mots clés réservés en JS?",
-        "points": 40,
-        "choices": [
-          {
-            "text": "var",
-            "isCorrect": true
-          },
-          {
-            "text": "self",
-            "isCorrect": false
-          },
-          {
-            "text": "this",
-            "isCorrect": true
-          },
-          {
-            "text": "int",
-            "isCorrect": false
-          }
-        ]
-      },
       {
         "type": "QCM",
         "text": "En quelle année Javascript fut créé? ",
@@ -61,6 +38,29 @@
           },
           {
             "text": "Oui",
+            "isCorrect": false
+          }
+        ]
+      },
+      {
+        "type": "QCM",
+        "text": "Parmi les mots suivants, lesquels sont des mots clés réservés en JS?",
+        "points": 40,
+        "choices": [
+          {
+            "text": "var",
+            "isCorrect": true
+          },
+          {
+            "text": "self",
+            "isCorrect": false
+          },
+          {
+            "text": "this",
+            "isCorrect": true
+          },
+          {
+            "text": "int",
             "isCorrect": false
           }
         ]
