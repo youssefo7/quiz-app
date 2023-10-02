@@ -2,6 +2,16 @@ h2 {
     margin: unset;
 }
 
+#save-button {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 5px;
+
+    button {
+        padding: 5px;
+    }
+}
+
 #container {
     display: flex;
     flex-direction: row;
