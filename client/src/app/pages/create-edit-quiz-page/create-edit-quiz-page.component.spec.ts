@@ -1,12 +1,14 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, convertToParamMap } from '@angular/router';
+import { ConfirmationPopupComponent } from '@app/components/confirmation-popup/confirmation-popup.component';
 import { QuizGeneralInfoComponent } from '@app/components/quiz-general-info/quiz-general-info.component';
 import { QuizQuestionInfoComponent } from '@app/components/quiz-question-info/quiz-question-info.component';
 import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
+import { of } from 'rxjs';
 import { CreateEditQuizPageComponent } from './create-edit-quiz-page.component';
 import SpyObj = jasmine.SpyObj;
 
@@ -40,6 +42,14 @@ describe('CreateEditQuizPageComponent', () => {
                 { provide: MatDialog, useValue: matDialogSpy },
                 { provide: ActivatedRoute, useValue: activatedRouteSpy },
                 { provide: QuizManagerService, useValue: quizManagerServiceSpy },
+                {
+                    provide: ActivatedRoute,
+                    useValue: {
+                        snapshot: {
+                            paramMap: convertToParamMap({ id: 'abc' }),
+                        },
+                    },
+                },
             ],
         });
     }));
@@ -66,6 +76,7 @@ describe('CreateEditQuizPageComponent', () => {
             title: 'TEST',
             description: 'DESCRIPTION',
             duration: 20,
+            id: 'abc',
         } as unknown as Quiz;
         fixture = TestBed.createComponent(CreateEditQuizPageComponent);
         component = fixture.componentInstance;
@@ -224,11 +235,43 @@ describe('CreateEditQuizPageComponent', () => {
         expect(quizManagerServiceSpy.saveQuiz).not.toHaveBeenCalled();
     });
 
-    it('should load a quiz', async () => {
-        // TODO
+    it('should load the correct quiz', async () => {
+        await component.loadQuiz();
+        expect(quizManagerServiceSpy.fetchQuiz).toHaveBeenCalledWith(mockQuiz.id);
     });
 
-    it('should open quiz confirmation to save', () => {
-        // TODO
+    it("should assign the page title to be 'Créer un jeu questionnaire' if newQuiz is undefined", async () => {
+        await component.loadQuiz();
+        expect(component.pageTitle).toEqual('Créer un jeu questionnaire');
+    });
+
+    it('should open the confirmation dialog and call saveQuiz when wantsToSave is true', () => {
+        spyOn(component, 'saveQuiz');
+        const dialogRefSpyObj = jasmine.createSpyObj('MatDialogRef', ['afterClosed', 'componentInstance']);
+        dialogRefSpyObj.afterClosed.and.returnValue(of(true));
+        dialogRefSpyObj.componentInstance = jasmine.createSpyObj('ConfirmationPopupComponent', ['setConfirmationText']);
+        matDialogSpy.open.and.returnValue(dialogRefSpyObj);
+
+        component.openQuizConfirmation();
+
+        expect(matDialogSpy.open).toHaveBeenCalledWith(ConfirmationPopupComponent);
+        expect(dialogRefSpyObj.componentInstance.setConfirmationText).toHaveBeenCalledWith('Sauvegarder ce quiz?');
+        expect(dialogRefSpyObj.afterClosed).toHaveBeenCalled();
+        expect(component.saveQuiz).toHaveBeenCalled();
+    });
+
+    it('should open the confirmation dialog and not call saveQuiz when wantsToSave is false', () => {
+        spyOn(component, 'saveQuiz');
+        const dialogRefSpyObj = jasmine.createSpyObj('MatDialogRef', ['afterClosed', 'componentInstance']);
+        dialogRefSpyObj.afterClosed.and.returnValue(of(false));
+        dialogRefSpyObj.componentInstance = jasmine.createSpyObj('ConfirmationPopupComponent', ['setConfirmationText']);
+        matDialogSpy.open.and.returnValue(dialogRefSpyObj);
+
+        component.openQuizConfirmation();
+
+        expect(matDialogSpy.open).toHaveBeenCalledWith(ConfirmationPopupComponent);
+        expect(dialogRefSpyObj.componentInstance.setConfirmationText).toHaveBeenCalledWith('Sauvegarder ce quiz?');
+        expect(dialogRefSpyObj.afterClosed).toHaveBeenCalled();
+        expect(component.saveQuiz).not.toHaveBeenCalled();
     });
 });
