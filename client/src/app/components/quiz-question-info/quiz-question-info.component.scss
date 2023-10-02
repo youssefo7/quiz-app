@@ -9,6 +9,8 @@ form {
     display: grid;
     grid-template-rows: auto auto auto auto;
     padding: 10px;
+    overflow: hidden;
+    min-width: 250px;
 
     .actions {
         display: flex;
