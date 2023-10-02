@@ -4,8 +4,8 @@
     "id": "546",
     "title": "Connaissez-vous bien le JavaScript ?",
     "duration": 10,
-    "lastModification": "2023-10-02T03:24:00.368Z",
-    "visibility": true,
+    "lastModification": "2023-09-30T18:47:03.037Z",
+    "visibility": false,
     "description": "Le quiz parfait pour les débutants en Javascript",
     "questions": [
       {
@@ -72,8 +72,8 @@
     "id": "986",
     "title": "Histoire et culture generale",
     "duration": 15,
-    "lastModification": "2023-10-02T03:24:00.801Z",
-    "visibility": true,
+    "lastModification": "2023-09-30T18:47:04.060Z",
+    "visibility": false,
     "description": "Montrez que vous êtes incollable sur l'histoire et la culture générale",
     "questions": [
       {
