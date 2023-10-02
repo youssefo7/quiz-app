@@ -130,7 +130,7 @@ describe('CreateEditQuizPageComponent', () => {
     });
 
     it('should return true if the question is valid', () => {
-        const mockQuestion: Question = {
+        const mockValidQuestion: Question = {
             type: 'QCM',
             text: 'TEST',
             points: 20,
@@ -146,12 +146,12 @@ describe('CreateEditQuizPageComponent', () => {
             ],
         };
 
-        const validQuestion = component.isQuestionValid(mockQuestion);
-        expect(validQuestion).toBeTruthy();
+        const isValidQuestion = component.isQuestionValid(mockValidQuestion);
+        expect(isValidQuestion).toBeTruthy();
     });
 
     it('should return false if the question is invalid', () => {
-        const mockQuestion: Question = {
+        const mockInvalidQuestion: Question = {
             type: 'QCM',
             text: 'TEST',
             points: 20,
@@ -159,12 +159,12 @@ describe('CreateEditQuizPageComponent', () => {
                 {
                     text: 'choice',
                     isCorrect: true,
-                }, // a question requires 2 choices
+                },
             ],
         };
 
-        const validQuestion = component.isQuestionValid(mockQuestion);
-        expect(validQuestion).not.toBeTruthy();
+        const isValidQuestion = component.isQuestionValid(mockInvalidQuestion);
+        expect(isValidQuestion).not.toBeTruthy();
     });
 
     it('should return true if the quiz form is valid', () => {
@@ -197,7 +197,7 @@ describe('CreateEditQuizPageComponent', () => {
 
     it('should return false if the quiz form is invalid', () => {
         component.newQuiz = {
-            questions: [], // a quiz requires at least one question
+            questions: [],
             title: 'TEST',
             description: 'DESCRIPTION',
             duration: 20,
@@ -236,13 +236,13 @@ describe('CreateEditQuizPageComponent', () => {
         expect(quizManagerServiceSpy.saveQuiz).not.toHaveBeenCalled();
     });
 
-    it('should load the correct quiz', fakeAsync(async () => {
+    it('should load the correct quiz', fakeAsync(() => {
         component.loadQuiz();
         tick();
         expect(quizManagerServiceSpy.fetchQuiz).toHaveBeenCalledWith(mockQuiz.id);
     }));
 
-    it("should assign the page title to be 'Créer un jeu questionnaire' if newQuiz is undefined", fakeAsync(async () => {
+    it("should assign the page title to be 'Créer un jeu questionnaire' if newQuiz is undefined", fakeAsync(() => {
         component.loadQuiz();
         tick();
         expect(component.pageTitle).toEqual('Créer un jeu questionnaire');
