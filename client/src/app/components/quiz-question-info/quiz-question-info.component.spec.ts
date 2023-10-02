@@ -1,7 +1,7 @@
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-// import { ConfirmationPopupComponent } from '@app/components/confirmation-popup/confirmation-popup.component';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
 import { Constants } from '@common/constants';
 import { of } from 'rxjs';
@@ -10,43 +10,79 @@ import { QuizQuestionInfoComponent } from './quiz-question-info.component';
 describe('QuizQuestionInfoComponent', () => {
     let component: QuizQuestionInfoComponent;
     let fixture: ComponentFixture<QuizQuestionInfoComponent>;
-    // let matDialog: MatDialog;
-    // let matDialogRef: MatDialogRef<ConfirmationPopupComponent>;
+    let mockMatDialog: MatDialog;
+
+    // beforeEach(() => {
+    //     const quizManagerServiceSpy = jasmine.createSpyObj('QuizManagerService', ['modifyQuestion', 'addNewQuestion']);
+    //     TestBed.configureTestingModule({
+    //         imports: [HttpClientTestingModule],
+    //         declarations: [QuizQuestionInfoComponent],
+    //         providers: [
+    //             FormBuilder,
+    //             { provide: MatDialog, useValue: { open: () => {} } },
+    //             { provide: QuizManagerService, useValue: quizManagerServiceSpy },
+    //         ],
+    //     });
+
+    //     fixture = TestBed.createComponent(QuizQuestionInfoComponent);
+    //     component = fixture.componentInstance;
+    //     fixture.detectChanges();
+    //     mockMatDialog = TestBed.inject(MatDialog);
+    // });
 
     beforeEach(() => {
         const quizManagerServiceSpy = jasmine.createSpyObj('QuizManagerService', ['modifyQuestion', 'addNewQuestion']);
-
         TestBed.configureTestingModule({
-            imports: [MatDialogModule],
+            imports: [HttpClientTestingModule],
             declarations: [QuizQuestionInfoComponent],
             providers: [
                 FormBuilder,
-                { provide: QuizManagerService, useValue: quizManagerServiceSpy },
                 {
-                    provide: MatDialogRef,
+                    provide: MatDialog,
                     useValue: {
-                        afterClosed: () => of(true),
+                        open: () => ({
+                            componentInstance: {
+                                setConfirmationText: () => 'Sauvegarder cette question?',
+                            },
+                            afterClosed: () => of(true),
+                        }),
                     },
                 },
-                { provide: MatDialog, useClass: MatDialogMock },
+                { provide: QuizManagerService, useValue: quizManagerServiceSpy },
             ],
         });
-
         fixture = TestBed.createComponent(QuizQuestionInfoComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
-
-        // matDialog = TestBed.inject(MatDialog);
-        // matDialogRef = TestBed.inject(MatDialogRef);
+        mockMatDialog = TestBed.inject(MatDialog);
     });
 
-    it('Should create the component', () => {
+    it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should open the confirmation dialog and call manageQuestion when wantsToSave is true', () => {
+        spyOn(mockMatDialog, 'open').and.returnValue({
+            componentInstance: {
+                setConfirmationText: () => {
+                    'Sauvegarder cette question?';
+                },
+            },
+            afterClosed: () => {
+                return of(true);
+            },
+        } as MatDialogRef<unknown>);
+
+        spyOn(component, 'manageQuestion');
+        component.ngOnInit();
+        component.openQuestionConfirmation();
+
+        expect(mockMatDialog.open).toHaveBeenCalled();
+        expect(component.manageQuestion).toHaveBeenCalled();
     });
 
     it('Should initialize the form and add choices when page is loaded', () => {
         component.initializeForm();
-
         expect(component.questionInfoForm.get('type')?.value).toEqual('');
         expect(component.questionInfoForm.get('text')?.value).toEqual('');
         expect(component.questionInfoForm.get('points')?.value).toEqual(Constants.MIN_POINTS);
@@ -65,8 +101,8 @@ describe('QuizQuestionInfoComponent', () => {
             ],
         };
 
+        component.initializeForm();
         component.loadQuestionInformation(question, 0);
-
         expect(component.isModifiedQuestion).toBeTrue();
         expect(component.questionInfoForm.get('type')?.value).toEqual(question.type);
         expect(component.questionInfoForm.get('text')?.value).toEqual(question.text);
@@ -83,13 +119,10 @@ describe('QuizQuestionInfoComponent', () => {
         expect(roundedPoints).toEqual(expectedFirstQuestion);
     });
 
-    it('Should add a choice to the form array', () => {
+    it('Should add and remove a choice from the form array', () => {
         component.addChoice();
         expect(component.choices.length).toEqual(Constants.MIN_CHOICES + 1);
-    });
 
-    it('Should remove a choice from the form array', () => {
-        component.addChoice();
         component.removeChoice(0);
         expect(component.choices.length).toEqual(Constants.MIN_CHOICES);
     });
@@ -153,7 +186,7 @@ describe('QuizQuestionInfoComponent', () => {
         choice2.get('text')?.setValue('Choice 2');
         choice2.get('isCorrect')?.setValue(false);
 
-        const quizManagerServiceSpy = TestBed.inject(QuizManagerService) as jasmine.SpyObj<QuizManagerService>;
+        const quizManagerServiceSpy = TestBed.inject(QuizManagerService);
         component.manageQuestion();
 
         const newQuestion = {
@@ -165,7 +198,6 @@ describe('QuizQuestionInfoComponent', () => {
                 { text: 'Choice 2', isCorrect: false },
             ],
         };
-
         expect(quizManagerServiceSpy.addNewQuestion).toHaveBeenCalledWith(newQuestion, component.newQuiz);
         expect(component.isModifiedQuestion).toBeFalse();
     });
@@ -188,7 +220,7 @@ describe('QuizQuestionInfoComponent', () => {
         choice2.get('text')?.setValue('Modified Choice 2');
         choice2.get('isCorrect')?.setValue(false);
 
-        const quizManagerServiceSpy = TestBed.inject(QuizManagerService) as jasmine.SpyObj<QuizManagerService>;
+        const quizManagerServiceSpy = TestBed.inject(QuizManagerService);
         component.manageQuestion();
 
         const modifiedQuestion = {
@@ -200,37 +232,9 @@ describe('QuizQuestionInfoComponent', () => {
                 { text: 'Modified Choice 2', isCorrect: false },
             ],
         };
-
         expect(quizManagerServiceSpy.modifyQuestion).toHaveBeenCalledWith(modifiedQuestion, component.modifiedIndex, component.newQuiz);
         expect(component.isModifiedQuestion).toBeFalse();
     });
-
-    // it('should open the confirmation dialog and save question on confirmation', () => {
-    //   spyOn(component, 'manageQuestion');
-    //   spyOn(component, 'resetForm');
-
-    //   component.openQuestionConfirmation();
-    //   expect(confirmationDialogReference.componentInstance.setConfirmationText).toHaveBeenCalledWith('Sauvegarder cette question?');
-
-    //   matDialogRef.afterClosed.and.returnValue(of(true));
-    //   confirmationDialogReference.afterClosed().subscribe((wantsToSave: any) => {
-    //     if (wantsToSave) {
-    //       expect(component.manageQuestion).toHaveBeenCalled();
-    //       expect(component.resetForm).toHaveBeenCalled();
-    //     }
-    //   });
-    // });
-
-    // it('should open the confirmation dialog and save question on confirmation', () => {
-    //     const manageQuestionSpy = spyOn(component, 'manageQuestion');
-    //     const resetFormSpy = spyOn(component, 'resetForm');
-    //     spyOn(matDialog, 'open').and.returnValue(matDialogRef);
-    //     component.openQuestionConfirmation();
-
-    //     expect(matDialog.open).toHaveBeenCalledWith(ConfirmationPopupComponent, {});
-    //     expect(manageQuestionSpy).toHaveBeenCalled();
-    //     expect(resetFormSpy).toHaveBeenCalled();
-    // });
 
     it('Should not validate the the question form if choices are missing in the form', () => {
         component.initializeForm();
@@ -243,7 +247,6 @@ describe('QuizQuestionInfoComponent', () => {
                 isCorrect: new FormControl(true),
             }),
         );
-
         const invalidChoicesControl = new FormBuilder().array(invalidChoicesArray.controls, validator);
         const invalidResult = validator(invalidChoicesControl);
         expect(invalidResult).toEqual({
@@ -268,7 +271,6 @@ describe('QuizQuestionInfoComponent', () => {
                 isCorrect: new FormControl(true),
             }),
         );
-
         const invalidChoicesControl = new FormBuilder().array(invalidChoicesArray.controls, validator);
         const invalidResult = validator(invalidChoicesControl);
         expect(invalidResult).toEqual({
@@ -296,7 +298,6 @@ describe('QuizQuestionInfoComponent', () => {
 
         const invalidChoicesControl = new FormBuilder().array(invalidChoicesArray.controls, validator);
         const invalidResult = validator(invalidChoicesControl);
-
         expect(invalidResult).toEqual({
             duplicateChoices: true,
         });
@@ -325,18 +326,24 @@ describe('QuizQuestionInfoComponent', () => {
                 isCorrect: new FormControl(false),
             }),
         );
-
         const validChoicesControl = new FormBuilder().array(validChoicesArray.controls, validator);
         const validResult = validator(validChoicesControl);
-
         expect(validResult).toBeNull();
     });
-});
 
-class MatDialogMock {
-    open() {
-        return {
-            afterClosed: () => of(true),
+    it('Should add choices in while loop when loading a question with more choices', () => {
+        const question = {
+            type: 'QCM',
+            text: 'Question 1',
+            points: 50,
+            choices: [
+                { text: 'Choice 1', isCorrect: false },
+                { text: 'Choice 2', isCorrect: false },
+                { text: 'Choice 3', isCorrect: true },
+            ],
         };
-    }
-}
+        component.initializeForm();
+        component.loadQuestionInformation(question, 0);
+        expect(component.choices.length).toEqual(question.choices.length);
+    });
+});
