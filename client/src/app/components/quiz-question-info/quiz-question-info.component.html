@@ -5,7 +5,8 @@
         <input class="overflow-input" type="text" formControlName="text" name="newQuestion" id="newQuestion" placeholder="Question" required />
         <p
             class="error"
-            *ngIf="questionInfoForm.controls.text.invalid && (questionInfoForm.controls.text.dirty || questionInfoForm.controls.text.touched)"
+            *ngIf="questionInfoForm.controls.text.invalid && 
+            (questionInfoForm.controls.text.dirty || questionInfoForm.controls.text.touched)"
         >
             La question ne doit pas être vide
         </p>
@@ -80,8 +81,7 @@
                 class="error"
                 *ngIf="
                     questionInfoForm.controls.choices.invalid &&
-                    (questionInfoForm.controls.choices.dirty || questionInfoForm.controls.choices.touched)
-                "
+                    (questionInfoForm.controls.choices.dirty || questionInfoForm.controls.choices.touched)"
             >
                 Les choix doivent être distincts, et il doit y avoir au moins 2 choix de réponse, dont un bon et un mauvais
             </p>
