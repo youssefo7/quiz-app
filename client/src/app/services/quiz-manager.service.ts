@@ -25,7 +25,7 @@ export class QuizManagerService {
         });
     }
 
-    async addQuizToServer(newQuiz: Quiz) {
+    addQuizToServer(newQuiz: Quiz) {
         this.communicationService.addQuiz(newQuiz).subscribe({
             next: () => {
                 this.router.navigateByUrl('admin');
@@ -33,7 +33,7 @@ export class QuizManagerService {
         });
     }
 
-    async updateQuizOnServer(id: string, updatedQuiz: Quiz) {
+    updateQuizOnServer(id: string, updatedQuiz: Quiz) {
         this.communicationService.updateQuiz(id, updatedQuiz).subscribe({
             next: () => {
                 this.router.navigateByUrl('admin');
@@ -58,11 +58,7 @@ export class QuizManagerService {
     }
 
     addNewQuestion(newQuestion: Question, quiz: Quiz) {
-        if (quiz.questions.length === 0 || (quiz.questions.length === 1 && quiz.questions[0].text === '')) {
-            quiz.questions[0] = newQuestion;
-        } else {
-            quiz.questions.push(newQuestion);
-        }
+        quiz.questions.push(newQuestion);
     }
 
     modifyQuestion(question: Question, index: number, quiz: Quiz) {
@@ -86,7 +82,7 @@ export class QuizManagerService {
     }
 
     moveQuestionUp(index: number, quiz: Quiz) {
-        if (index > 0) {
+        if (index > 0 && index < quiz.questions.length) {
             const tmp = quiz.questions[index - 1];
             quiz.questions[index - 1] = quiz.questions[index];
             quiz.questions[index] = tmp;
@@ -94,7 +90,7 @@ export class QuizManagerService {
     }
 
     moveQuestionDown(index: number, quiz: Quiz) {
-        if (index < quiz.questions.length - 1) {
+        if (index < quiz.questions.length - 1 && index >= 0) {
             const tmp = quiz.questions[index + 1];
             quiz.questions[index + 1] = quiz.questions[index];
             quiz.questions[index] = tmp;
