@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, AfterViewInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { Quiz } from '@app/interfaces/quiz';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
@@ -9,7 +9,7 @@ import { Constants } from '@common/constants';
     templateUrl: './quiz-general-info.component.html',
     styleUrls: ['./quiz-general-info.component.scss'],
 })
-export class QuizGeneralInfoComponent implements OnInit {
+export class QuizGeneralInfoComponent implements OnInit, AfterViewInit {
     @Input() newQuiz: Quiz;
     @Output() blockSubmit: EventEmitter<boolean>;
 
@@ -57,9 +57,16 @@ export class QuizGeneralInfoComponent implements OnInit {
             this.blockSubmit.emit(true);
         }
 
+        this.titleValue = this.generalInfoForm.controls.title.value;
+        this.descriptionValue = this.generalInfoForm.controls.description.value;
         this.initCounters();
     }
 
+    ngAfterViewInit(): void {
+        if (this.newQuiz.id !== '') {
+            this.toggleButtonTextAndName();
+        }
+    }
     initCounters() {
         this.maxLengthTitle = 150;
         this.maxLengthDescription = 300;
