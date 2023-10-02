@@ -168,11 +168,14 @@ describe('QuizManagerService', () => {
     });
 
     it('should not modify the questions array of a quiz when the given index is out of bounds', () => {
-        service.modifyQuestion(newQuestion, 1, quizToEditMock);
+        let outOfBoundsIndex = 1;
+
+        service.modifyQuestion(newQuestion, outOfBoundsIndex, quizToEditMock);
         expect(quizToEditMock.questions.length).toEqual(1);
         expect(quizToEditMock.questions[0]).not.toEqual(newQuestion);
 
-        service.modifyQuestion(newQuestion, -1, quizToEditMock);
+        outOfBoundsIndex -= 2;
+        service.modifyQuestion(newQuestion, outOfBoundsIndex, quizToEditMock);
         expect(quizToEditMock.questions.length).toEqual(1);
         expect(quizToEditMock.questions[0]).not.toEqual(newQuestion);
     });
@@ -185,10 +188,12 @@ describe('QuizManagerService', () => {
     });
 
     it('should not delete any question when the given index is out of bounds', () => {
-        service.deleteQuestion(-1, quizToEditMock);
+        let outOfBoundsIndex = -1;
+        service.deleteQuestion(outOfBoundsIndex, quizToEditMock);
         expect(quizToEditMock.questions.length).toEqual(1);
 
-        service.deleteQuestion(3, quizToEditMock);
+        outOfBoundsIndex = 3;
+        service.deleteQuestion(outOfBoundsIndex, quizToEditMock);
         expect(quizToEditMock.questions.length).toEqual(1);
     });
 
@@ -251,15 +256,17 @@ describe('QuizManagerService', () => {
     });
 
     it('should correctly update name, title and description', () => {
+        const newQuizDuration = 50;
+
         const generalInfoFormMock = new FormGroup({
             title: new FormControl('new title'),
             description: new FormControl('dummy description edited'),
-            duration: new FormControl(50),
+            duration: new FormControl(newQuizDuration),
         });
 
         service.updateGeneralInfo(quizToEditMock, generalInfoFormMock);
         expect(quizToEditMock.title).toEqual('new title');
         expect(quizToEditMock.description).toEqual('dummy description edited');
-        expect(quizToEditMock.duration).toEqual(50);
+        expect(quizToEditMock.duration).toEqual(newQuizDuration);
     });
 });
