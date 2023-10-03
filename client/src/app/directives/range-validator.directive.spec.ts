@@ -17,7 +17,7 @@ describe('RangeValidatorDirective', () => {
         directive.range = { min: 1, max: 10 };
     });
 
-    it('Should create an instance', () => {
+    it('should create an instance', () => {
         expect(directive).toBeTruthy();
     });
 
@@ -31,12 +31,12 @@ describe('RangeValidatorDirective', () => {
         expect(directive.validate(new FormControl(aboveMaximumValue))).toEqual({ rangeError: true });
     });
 
-    it('should validate when the value is the same as the the minimum numerical value permitted', () => {
+    it('should validate when the value is the same as the minimum numerical value permitted', () => {
         const minimumValue = 1;
         expect(directive.validate(new FormControl(minimumValue))).toBeNull();
     });
 
-    it('should validate when the value is the same as the the maximum numerical value permitted', () => {
+    it('should validate when the value is the same as the maximum numerical value permitted', () => {
         const maximumValue = 10;
         expect(directive.validate(new FormControl(maximumValue))).toBeNull();
     });
@@ -47,7 +47,7 @@ describe('RangeValidatorDirective', () => {
     });
 
     it('should not validate a non-numerical value', () => {
-        const nonNumericalvalue = 'abc' as unknown as number;
-        expect(directive.validate(new FormControl(nonNumericalvalue))).toEqual({ rangeError: true });
+        const nonNumericalValue = 'abc' as unknown as number;
+        expect(directive.validate(new FormControl(nonNumericalValue))).toEqual({ rangeError: true });
     });
 });
