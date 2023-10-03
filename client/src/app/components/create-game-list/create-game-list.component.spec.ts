@@ -89,6 +89,17 @@ describe('CreateGameListComponent', () => {
         expect(paragraphElement.innerText).toEqual("Aucun jeu n'est disponible pour le moment...");
     });
 
+    it('should not display a message if 1 or more games are available', () => {
+        communicationServiceSpy.getQuizzes.and.returnValue(of(visibleQuizzMock));
+        component.getVisibleQuizListFromServer();
+        fixture.detectChanges();
+
+        const paragraphElement = fixture.nativeElement.querySelector('p');
+
+        expect(component.visibleQuizList.length).toBeGreaterThan(0);
+        expect(paragraphElement).toBeNull();
+    });
+
     it('should show visible games', () => {
         communicationServiceSpy.getQuizzes.and.returnValue(of(hiddenQuizzMock));
         component.getVisibleQuizListFromServer();
