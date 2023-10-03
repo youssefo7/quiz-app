@@ -83,6 +83,12 @@ describe('CreateGameListComponent', () => {
         expect(component).toBeTruthy();
     });
 
+    it('should display a message if no games are available', () => {
+        const paragraphElement = fixture.nativeElement.querySelector('p');
+        expect(component.visibleQuizList.length).toEqual(0);
+        expect(paragraphElement.innerText).toEqual("Aucun jeu n'est disponible pour le moment...");
+    });
+
     it('should show visible games', () => {
         communicationServiceSpy.getQuizzes.and.returnValue(of(hiddenQuizzMock));
         component.getVisibleQuizListFromServer();
