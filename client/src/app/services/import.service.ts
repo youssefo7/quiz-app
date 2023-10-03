@@ -20,6 +20,10 @@ export class ImportService {
     async importQuiz() {
         const fileReader = new FileReader();
 
+        if (!this.quizToImport.name.toLowerCase().endsWith('.json')) {
+            throw new Error('Seulement les fichiers JSON sont acceptés');
+        }
+
         const fileContentPromise = new Promise<string>((resolve, reject) => {
             fileReader.onload = () => resolve(fileReader.result as string);
             fileReader.onerror = (error) => reject('Error reading file: ' + error);
@@ -31,6 +35,9 @@ export class ImportService {
             const fileContent = await fileContentPromise;
             const quiz: Quiz = JSON.parse(fileContent);
 
+            if (Array.isArray(quiz) || typeof quiz !== 'object') {
+                throw new Error('Il faut un objet JSON qui représente un seul quiz');
+            }
             quiz.visibility = false;
 
             await lastValueFrom(this.communicationService.importQuiz(quiz));
