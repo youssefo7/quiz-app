@@ -1,5 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { ImportPopupComponent } from '@app/components/import-popup/import-popup.component';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
@@ -15,11 +16,15 @@ import { ImportService } from '@app/services/import.service';
 export class QuizListComponent implements OnInit {
     @ViewChild('export') anchor: ElementRef<HTMLAnchorElement>;
     quizList: Quiz[];
+    message: string;
 
+    // Plus que 3 paramètres sont necessaires pour le fonctionnement de cette composante
+    // eslint-disable-next-line max-params
     constructor(
         private communicationService: CommunicationService,
         private popup: MatDialog,
         private importService: ImportService,
+        private router: Router,
     ) {
         this.quizList = [];
     }
@@ -40,7 +45,8 @@ export class QuizListComponent implements OnInit {
                 this.fetchQuizzes();
             },
             error: () => {
-                this.openPopupWarning();
+                this.message = 'Ce quiz a déjà été supprimé par un autre administrateur.';
+                this.openPopupWarning(this.message);
             },
         });
     }
@@ -83,9 +89,9 @@ export class QuizListComponent implements OnInit {
         popupInstance.config = config;
     }
 
-    openPopupWarning(): void {
+    openPopupWarning(message: string): void {
         const config: PopupMessageConfig = {
-            message: 'Ce quiz a déjà été supprimé par un autre administrateur.',
+            message,
             hasCancelButton: false,
             okButtonFunction: () => {
                 this.fetchQuizzes();
@@ -120,5 +126,18 @@ export class QuizListComponent implements OnInit {
         const dialogRef = this.popup.open(PopupMessageComponent);
         const popupInstance = dialogRef.componentInstance;
         popupInstance.config = config;
+    }
+
+    editQuiz(quiz: Quiz): void {
+        this.communicationService.checkQuizAvailability(quiz.id).subscribe({
+            next: (isAvailable: boolean) => {
+                if (isAvailable) {
+                    this.router.navigate([`/quiz/${quiz.id}`]);
+                } else {
+                    this.message = 'Le quiz que vous souhaitez modifier a été supprimé.';
+                    this.openPopupWarning(this.message);
+                }
+            },
+        });
     }
 }
