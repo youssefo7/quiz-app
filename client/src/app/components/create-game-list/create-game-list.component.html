@@ -4,6 +4,7 @@
         <tr>
             <th>Nom du jeu</th>
         </tr>
+        <p *ngIf="visibleQuizList.length < 1">Aucun jeu n'est disponible pour le moment...</p>
         <tbody>
             <ng-container *ngFor="let quiz of visibleQuizList">
                 <tr class="mainDetails">       
