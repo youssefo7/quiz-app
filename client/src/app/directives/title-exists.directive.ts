@@ -1,4 +1,4 @@
-import { Directive, Input, forwardRef } from '@angular/core';
+import { Directive, Input } from '@angular/core';
 import { AbstractControl, NG_VALIDATORS, ValidationErrors, Validator } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Quiz } from '@app/interfaces/quiz';
@@ -8,13 +8,13 @@ import { Quiz } from '@app/interfaces/quiz';
     providers: [
         {
             provide: NG_VALIDATORS,
-            useExisting: forwardRef(() => TitleExistsDirective),
+            useExisting: TitleExistsDirective,
             multi: true,
         },
     ],
 })
 export class TitleExistsDirective implements Validator {
-    @Input('appTitleExists') quizzes: Quiz[];
+    @Input('appTitleExists') quizzes: Quiz[] | null;
 
     constructor(private route: ActivatedRoute) {}
 
