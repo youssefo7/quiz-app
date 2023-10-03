@@ -1,71 +1,53 @@
-import { Component } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
+import { TestBed } from '@angular/core/testing';
+import { FormControl, FormsModule } from '@angular/forms';
 import { RangeValidatorDirective } from './range-validator.directive';
 
-@Component({
-    template: '<input type="number" [ngModel]="value" [appRangeValidator]="range" />',
-})
-class TestComponent {
-    value: number;
-    range = { min: 1, max: 10 };
-}
-
 describe('RangeValidatorDirective', () => {
-    let fixture: ComponentFixture<TestComponent>;
+    let directive: RangeValidatorDirective;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            declarations: [TestComponent, RangeValidatorDirective],
+            declarations: [RangeValidatorDirective],
             imports: [FormsModule],
         });
-        fixture = TestBed.createComponent(TestComponent);
+    });
+
+    beforeEach(() => {
+        directive = new RangeValidatorDirective();
+        directive.range = { min: 1, max: 10 };
     });
 
     it('Should create an instance', () => {
-        const directive = new RangeValidatorDirective();
         expect(directive).toBeTruthy();
     });
 
-    it('Should validate a value that is contained within the permitted values of the interval', () => {
-        fixture.componentInstance.value = 5;
-        fixture.detectChanges();
-        const inputElement = fixture.debugElement.nativeElement.querySelector('input');
-        expect(inputElement.validity).toBeTruthy();
+    it('should validate a value that is contained within the permitted values of the interval', () => {
+        const inRangeValue = 5;
+        expect(directive.validate(new FormControl(inRangeValue))).toBeNull();
     });
 
-    it('Should not validate a value above the maximum numerical range permitted', () => {
-        fixture.componentInstance.value = 15;
-        fixture.detectChanges();
-        const inputElement = fixture.debugElement.nativeElement.querySelector('input');
-        expect(inputElement.value.validity).toBeFalsy();
+    it('should not validate a value above the maximum numerical range permitted', () => {
+        const aboveMaximumValue = 15;
+        expect(directive.validate(new FormControl(aboveMaximumValue))).toEqual({ rangeError: true });
     });
 
-    it('Should validate when the value is the same as the the minimum numerical value permitted', () => {
-        fixture.componentInstance.value = 1;
-        fixture.detectChanges();
-        const inputElement = fixture.debugElement.nativeElement.querySelector('input');
-        expect(inputElement.value.validity).toBeFalsy();
+    it('should validate when the value is the same as the the minimum numerical value permitted', () => {
+        const minimumValue = 1;
+        expect(directive.validate(new FormControl(minimumValue))).toBeNull();
     });
 
-    it('Should validate when the value is the same as the the maximum numerical value permitted', () => {
-        fixture.componentInstance.value = 10;
-        fixture.detectChanges();
-        const inputElement = fixture.debugElement.nativeElement.querySelector('input');
-        expect(inputElement.value.validity).toBeFalsy();
+    it('should validate when the value is the same as the the maximum numerical value permitted', () => {
+        const maximumValue = 10;
+        expect(directive.validate(new FormControl(maximumValue))).toBeNull();
     });
 
-    it('Should not validate a value below the minimum numerical range permitted', () => {
-        fixture.componentInstance.value = 0;
-        fixture.detectChanges();
-        const inputElement = fixture.debugElement.nativeElement.querySelector('input');
-        expect(inputElement.value.validity).toBeFalsy();
+    it('should not validate a value below the minimum numerical range permitted', () => {
+        const belowMinimumValue = 0;
+        expect(directive.validate(new FormControl(belowMinimumValue))).toEqual({ rangeError: true });
     });
 
-    it('Should not validate a non-numeric value', () => {
-        fixture.componentInstance.value = 'abc' as unknown as number;
-        fixture.detectChanges();
-        const inputElement = fixture.debugElement.nativeElement.querySelector('input');
-        expect(inputElement.value.validity).toBeFalsy();
+    it('should not validate a non-numerical value', () => {
+        const nonNumericalvalue = 'abc' as unknown as number;
+        expect(directive.validate(new FormControl(nonNumericalvalue))).toEqual({ rangeError: true });
     });
 });
