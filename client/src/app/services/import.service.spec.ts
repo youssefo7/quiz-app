@@ -59,9 +59,9 @@ describe('ImportService', () => {
         const mockFileContent = JSON.stringify(mockQuiz);
         const mockFile = new File([mockFileContent], 'filename.json', { type: 'application/json' });
         service.quizToImport = mockFile;
-        mockCommunicationService.importQuiz.and.returnValue(of({ ...mockQuiz, description: '', visibility: false }));
+        mockCommunicationService.importQuiz.and.returnValue(of({ ...mockQuiz, visibility: false }));
         await service.importQuiz();
-        expect(mockCommunicationService.importQuiz).toHaveBeenCalledWith({ ...mockQuiz, description: '', visibility: false });
+        expect(mockCommunicationService.importQuiz).toHaveBeenCalledWith({ ...mockQuiz, visibility: false });
     });
 
     it('should catch and rethrow error from communicationService', async () => {

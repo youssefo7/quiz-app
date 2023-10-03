@@ -33,9 +33,6 @@ export class ImportService {
 
             quiz.visibility = false;
 
-            if (!quiz.description) {
-                quiz.description = '';
-            }
             await lastValueFrom(this.communicationService.importQuiz(quiz));
         } catch (error) {
             if (error instanceof Error) {
