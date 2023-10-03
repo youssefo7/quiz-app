@@ -79,6 +79,46 @@ describe('ImportService', () => {
         }
     });
 
+    it('should throw an error when importing non JSON file', async () => {
+        const mockFile = new File(['content'], 'quiz.txt', { type: 'text/plain' });
+        service.quizToImport = mockFile;
+        try {
+            await service.importQuiz();
+        } catch (error) {
+            if (error instanceof Error) {
+                expect(error.message).toBe('Seulement les fichiers JSON sont acceptés');
+            }
+        }
+    });
+
+    it('should throw an error file data is not an object', async () => {
+        const mockFileContent = JSON.stringify('quiz1');
+        const mockFile = new File([mockFileContent], 'quiz.json', { type: 'application/json' });
+        service.quizToImport = mockFile;
+        try {
+            await service.importQuiz();
+            fail('Expected an error to be thrown');
+        } catch (error) {
+            if (error instanceof Error) {
+                expect(error.message).toBe('Il faut un objet JSON qui représente un seul quiz');
+            }
+        }
+    });
+
+    it('should throw an error file data is an array', async () => {
+        const mockFileContent = JSON.stringify([mockQuiz, mockQuiz]);
+        const mockFile = new File([mockFileContent], 'quiz.json', { type: 'application/json' });
+        service.quizToImport = mockFile;
+        try {
+            await service.importQuiz();
+            fail('Expected an error to be thrown');
+        } catch (error) {
+            if (error instanceof Error) {
+                expect(error.message).toBe('Il faut un objet JSON qui représente un seul quiz');
+            }
+        }
+    });
+
     it('should reset the input value', () => {
         const mockInput = document.createElement('input');
         mockInput.value = 'test';
