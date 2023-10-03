@@ -1,41 +1,42 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { ConfirmationPopupComponent } from '@app/components/confirmation-popup/confirmation-popup.component';
+import { RangeValidatorDirective } from '@app/directives/range-validator.directive';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
 import { Constants } from '@common/constants';
 import { of } from 'rxjs';
 import { QuizQuestionInfoComponent } from './quiz-question-info.component';
+import SpyObj = jasmine.SpyObj;
 
 describe('QuizQuestionInfoComponent', () => {
     let component: QuizQuestionInfoComponent;
     let fixture: ComponentFixture<QuizQuestionInfoComponent>;
-    let mockMatDialog: MatDialog;
-    let mockQuizManagerService = jasmine.createSpyObj('QuizManagerService', ['modifyQuestion', 'addNewQuestion']);
+    let mockMatDialog: SpyObj<MatDialog>;
+    let mockMatDialogRef: SpyObj<MatDialogRef<ConfirmationPopupComponent>>;
+    let mockQuizManagerService: SpyObj<QuizManagerService>;
+
+    beforeEach(() => {
+        mockQuizManagerService = jasmine.createSpyObj('QuizManagerService', ['modifyQuestion', 'addNewQuestion']);
+        mockMatDialog = jasmine.createSpyObj('MatDialog', ['open']);
+        mockMatDialogRef = jasmine.createSpyObj<MatDialogRef<ConfirmationPopupComponent>>('MatDialogRef', ['afterClosed'], {
+            componentInstance: jasmine.createSpyObj('ConfirmationPopupComponent', ['setConfirmationText']),
+        });
+    });
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [HttpClientTestingModule],
-            declarations: [QuizQuestionInfoComponent],
+            imports: [HttpClientTestingModule, MatIconModule, MatSlideToggleModule, ReactiveFormsModule],
+            declarations: [QuizQuestionInfoComponent, RangeValidatorDirective],
             providers: [
-                FormBuilder,
-                {
-                    provide: MatDialog,
-                    useValue: {
-                        open: () => ({
-                            componentInstance: {
-                                setConfirmationText: () => 'Sauvegarder cette question?',
-                            },
-                            afterClosed: () => of(true),
-                        }),
-                    },
-                },
                 { provide: QuizManagerService, useValue: mockQuizManagerService },
+                { provide: MatDialog, useValue: mockMatDialog },
+                { provide: MatDialogRef, useValue: mockMatDialogRef },
             ],
         }).compileComponents();
-
-        mockMatDialog = TestBed.inject(MatDialog);
-        mockQuizManagerService = TestBed.inject(QuizManagerService);
     });
 
     beforeEach(() => {
@@ -49,16 +50,8 @@ describe('QuizQuestionInfoComponent', () => {
     });
 
     it('should open the confirmation dialog and call manageQuestion when wantsToSave is true', () => {
-        spyOn(mockMatDialog, 'open').and.returnValue({
-            componentInstance: {
-                setConfirmationText: () => {
-                    'Sauvegarder cette question?';
-                },
-            },
-            afterClosed: () => {
-                return of(true);
-            },
-        } as MatDialogRef<unknown>);
+        mockMatDialogRef.afterClosed.and.returnValue(of(true));
+        mockMatDialog.open.and.returnValue(mockMatDialogRef);
 
         spyOn(component, 'manageQuestion');
         spyOn(component, 'resetForm');
@@ -75,6 +68,10 @@ describe('QuizQuestionInfoComponent', () => {
         expect(component.questionInfoForm.get('text')?.value).toEqual('');
         expect(component.questionInfoForm.get('points')?.value).toEqual(Constants.MIN_POINTS);
         expect(component.choices.length).toEqual(Constants.MIN_CHOICES);
+        expect(component.choices.at(0).get('text')?.value).toEqual('');
+        expect(component.choices.at(0).get('isCorrect')?.value).toEqual(false);
+        expect(component.choices.at(1).get('text')?.value).toEqual('');
+        expect(component.choices.at(1).get('isCorrect')?.value).toEqual(false);
     });
 
     it('should load question information and set isModifiedQuestion flag', () => {
@@ -146,12 +143,14 @@ describe('QuizQuestionInfoComponent', () => {
     });
 
     it('should reset the form and choices', () => {
-        const addChoiceSpy = spyOn(component, 'addChoice').and.callThrough();
+        component.choices.at(0).get('text')?.setValue('First Choice');
+        component.choices.at(0).get('isCorrect')?.setValue(true);
+        component.choices.at(1).get('text')?.setValue('Second Choice');
+
         component.addChoice();
-        component.addChoice();
+        component.choices.at(2).get('text')?.setValue('Third Choice');
 
         component.resetForm();
-        expect(addChoiceSpy).toHaveBeenCalledTimes(2);
         component.initializeForm();
 
         expect(component.questionInfoForm.get('type')?.value).toEqual('');
@@ -162,7 +161,6 @@ describe('QuizQuestionInfoComponent', () => {
         expect(component.choices.at(0).get('isCorrect')?.value).toEqual(false);
         expect(component.choices.at(1).get('text')?.value).toEqual('');
         expect(component.choices.at(1).get('isCorrect')?.value).toEqual(false);
-        expect(addChoiceSpy).toHaveBeenCalledWith();
     });
 
     it('should correctly add a new question to the quiz', () => {
@@ -236,15 +234,14 @@ describe('QuizQuestionInfoComponent', () => {
         component.initializeForm();
         const validator = component.questionChoicesValidator();
 
-        const invalidChoicesArray = component.choices as FormArray;
+        const invalidChoicesArray = component.choices;
         invalidChoicesArray.push(
             new FormGroup({
                 text: new FormControl('Choice 1'),
                 isCorrect: new FormControl(true),
             }),
         );
-        const invalidChoicesControl = new FormBuilder().array(invalidChoicesArray.controls, validator);
-        const invalidResult = validator(invalidChoicesControl);
+        const invalidResult = validator(invalidChoicesArray);
         expect(invalidResult).toEqual({
             missingChoices: true,
         });
@@ -254,7 +251,7 @@ describe('QuizQuestionInfoComponent', () => {
         component.initializeForm();
         const validator = component.questionChoicesValidator();
 
-        const invalidChoicesArray = component.choices as FormArray;
+        const invalidChoicesArray = component.choices;
         invalidChoicesArray.push(
             new FormGroup({
                 text: new FormControl('Choice 1'),
@@ -277,7 +274,7 @@ describe('QuizQuestionInfoComponent', () => {
         component.initializeForm();
         const validator = component.questionChoicesValidator();
 
-        const invalidChoicesArray = component.choices as FormArray;
+        const invalidChoicesArray = component.choices;
         invalidChoicesArray.push(
             new FormGroup({
                 text: new FormControl('Choice 1'),
@@ -301,7 +298,7 @@ describe('QuizQuestionInfoComponent', () => {
         component.initializeForm();
         const validator = component.questionChoicesValidator();
 
-        const validChoicesArray = component.choices as FormArray;
+        const validChoicesArray = component.choices;
         validChoicesArray.push(
             new FormGroup({
                 text: new FormControl('Choice 1'),
@@ -320,8 +317,7 @@ describe('QuizQuestionInfoComponent', () => {
                 isCorrect: new FormControl(false),
             }),
         );
-        const validChoicesControl = new FormBuilder().array(validChoicesArray.controls, validator);
-        const validResult = validator(validChoicesControl);
+        const validResult = validator(validChoicesArray);
         expect(validResult).toBeNull();
     });
 
