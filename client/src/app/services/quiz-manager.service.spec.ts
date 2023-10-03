@@ -227,7 +227,7 @@ describe('QuizManagerService', () => {
 
     it('should not move question up when index is 0 or out of bounds', () => {
         service.addNewQuestion(newQuestion, quizToEditMock);
-        const quizQuestions = quizToEditMock.questions;
+        const quizQuestions = [...quizToEditMock.questions];
 
         service.moveQuestionUp(0, quizToEditMock);
         expect(quizToEditMock.questions).toEqual(quizQuestions);
@@ -248,7 +248,7 @@ describe('QuizManagerService', () => {
 
     it('should not move question down when index is the last or out of bounds', () => {
         service.addNewQuestion(newQuestion, quizToEditMock);
-        const quizQuestions = quizToEditMock.questions;
+        const quizQuestions = [...quizToEditMock.questions];
 
         service.moveQuestionDown(1, quizToEditMock);
         expect(quizToEditMock.questions).toEqual(quizQuestions);

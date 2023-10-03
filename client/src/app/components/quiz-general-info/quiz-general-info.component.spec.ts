@@ -1,40 +1,67 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { RangeValidatorDirective } from '@app/directives/range-validator.directive';
+import { TitleExistsDirective } from '@app/directives/title-exists.directive';
 import { Quiz } from '@app/interfaces/quiz';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
 import { Constants } from '@common/constants';
 import { QuizGeneralInfoComponent } from './quiz-general-info.component';
 
-const maxTitleLength = 150;
-const maxDescriptionLength = 300;
-const stringLength = 5;
-const mockEvent = {
-    target: {
-        value: '12345',
-    },
-} as unknown as Event;
-let mockQuiz: Quiz;
-
 describe('QuizGeneralInfoComponent', () => {
     let component: QuizGeneralInfoComponent;
     let fixture: ComponentFixture<QuizGeneralInfoComponent>;
     let mockQuizManagerService: jasmine.SpyObj<QuizManagerService>;
+    let activatedRouteMock: jasmine.SpyObj<ActivatedRoute>;
+
+    const maxTitleLength = 150;
+    const maxDescriptionLength = 300;
+    const stringLength = 5;
+
+    const mockEvent = {
+        target: {
+            value: '12345',
+        },
+    } as unknown as Event;
+
+    const mockQuiz: Quiz = {
+        $schema: 'quiz-schema.json',
+        id: '',
+        title: '',
+        duration: 10,
+        lastModification: '',
+        visibility: false,
+        description: '',
+        questions: [],
+    };
 
     beforeEach(() => {
         mockQuizManagerService = jasmine.createSpyObj('QuizManagerService', ['updateGeneralInfo']);
+        activatedRouteMock = jasmine.createSpyObj('ActivatedRoute', ['snapshot']);
+    });
+
+    beforeEach(() => {
         TestBed.configureTestingModule({
-            declarations: [QuizGeneralInfoComponent],
+            declarations: [QuizGeneralInfoComponent, TitleExistsDirective, RangeValidatorDirective],
             imports: [HttpClientTestingModule, ReactiveFormsModule],
-            providers: [{ provide: QuizManagerService, useValue: mockQuizManagerService }],
+            providers: [
+                { provide: QuizManagerService, useValue: mockQuizManagerService },
+                { provide: ActivatedRoute, useValue: activatedRouteMock },
+            ],
         }).compileComponents();
+    });
+
+    beforeEach(() => {
         fixture = TestBed.createComponent(QuizGeneralInfoComponent);
         component = fixture.componentInstance;
+
         component.generalInfoForm = new FormGroup({
             title: new FormControl(''),
             description: new FormControl(''),
             duration: new FormControl(0),
         });
+
         component.newQuiz = {
             $schema: 'quiz-schema.json',
             id: '1',
@@ -46,18 +73,10 @@ describe('QuizGeneralInfoComponent', () => {
             questions: [],
         };
 
-        mockQuiz = {
-            ...component.newQuiz,
-            id: '',
-            title: '',
-            duration: 0,
-            description: '',
-        };
+        fixture.detectChanges();
     });
 
     it('should create', () => {
-        component.newQuiz = mockQuiz;
-        fixture.detectChanges();
         expect(component).toBeTruthy();
     });
 
