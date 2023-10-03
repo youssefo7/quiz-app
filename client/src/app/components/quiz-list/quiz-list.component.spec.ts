@@ -3,6 +3,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 import { ImportPopupComponent } from '@app/components/import-popup/import-popup.component';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
@@ -20,6 +21,7 @@ describe('QuizListComponent', () => {
     let mockImportService: SpyObj<ImportService>;
     let mockDialog: SpyObj<MatDialog>;
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
+    let router: SpyObj<Router>;
 
     const mockQuizList: Quiz[] = [
         {
@@ -59,6 +61,7 @@ describe('QuizListComponent', () => {
         mockImportService = jasmine.createSpyObj('mockImportService', ['selectQuiz', 'importQuiz', 'resetInput']);
         mockDialog = jasmine.createSpyObj('mockDialog', ['open']);
         mockDialogRef = jasmine.createSpyObj('mockDialogRef', ['componentInstance']);
+        router = jasmine.createSpyObj('Router', ['navigate']);
 
         TestBed.configureTestingModule({
             declarations: [QuizListComponent],
@@ -66,6 +69,7 @@ describe('QuizListComponent', () => {
             providers: [
                 { provide: ImportService, useValue: mockImportService },
                 { provide: MatDialog, useValue: mockDialog },
+                { provide: Router, useValue: router },
             ],
         });
     });
@@ -193,7 +197,7 @@ describe('QuizListComponent', () => {
             hasCancelButton: false,
         };
 
-        component.openPopupWarning();
+        component.openPopupWarning(mockConfig.message);
         const config = mockDialogRef.componentInstance.config;
 
         expect(config.message).toEqual(mockConfig.message);
@@ -209,5 +213,25 @@ describe('QuizListComponent', () => {
         component.deleteQuiz(propQuiz);
 
         expect(component.openPopupWarning).toHaveBeenCalled();
+    });
+
+    it('should navigate to edit page when editing a quiz that is available', () => {
+        spyOn(communicationService, 'checkQuizAvailability').and.returnValue(of(true));
+        component.editQuiz(propQuiz);
+        expect(router.navigate).toHaveBeenCalledWith([`/quiz/${propQuiz.id}`]);
+    });
+
+    it('should popup a warning message when the user tries to edit a quiz that is already deleted', () => {
+        const mockConfig: PopupMessageConfig = {
+            message: 'Le quiz que vous souhaitez modifier a été supprimé.',
+            hasCancelButton: false,
+        };
+
+        spyOn(communicationService, 'checkQuizAvailability').and.returnValue(of(false));
+        spyOn(component, 'openPopupWarning').and.callThrough();
+        component.editQuiz(propQuiz);
+        expect(component.openPopupWarning).toHaveBeenCalledWith(mockConfig.message);
+        const config = mockDialogRef.componentInstance.config;
+        expect(config.message).toEqual(mockConfig.message);
     });
 });
