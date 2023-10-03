@@ -41,6 +41,20 @@ describe('RangeValidatorDirective', () => {
         expect(inputElement.value.validity).toBeFalsy();
     });
 
+    it('Should validate when the value is the same as the the minimum numerical value permitted', () => {
+        fixture.componentInstance.value = 1;
+        fixture.detectChanges();
+        const inputElement = fixture.debugElement.nativeElement.querySelector('input');
+        expect(inputElement.value.validity).toBeFalsy();
+    });
+
+    it('Should validate when the value is the same as the the maximum numerical value permitted', () => {
+        fixture.componentInstance.value = 10;
+        fixture.detectChanges();
+        const inputElement = fixture.debugElement.nativeElement.querySelector('input');
+        expect(inputElement.value.validity).toBeFalsy();
+    });
+
     it('Should not validate a value below the minimum numerical range permitted', () => {
         fixture.componentInstance.value = 0;
         fixture.detectChanges();
