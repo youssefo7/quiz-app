@@ -27,8 +27,6 @@ describe('ImportService', () => {
                 ],
             },
         ],
-        visibility: false,
-        description: '',
     } as Quiz;
 
     beforeEach(() => {
@@ -58,58 +56,18 @@ describe('ImportService', () => {
     });
 
     it('should import quiz', async () => {
-        const mockFileContent = JSON.stringify({
-            $schema: '',
-            id: '',
-            title: '',
-            duration: 0,
-            lastModification: '',
-            questions: [
-                {
-                    type: '',
-                    text: '',
-                    points: 0,
-                    choices: [
-                        {
-                            text: '',
-                            isCorrect: true,
-                        },
-                    ],
-                },
-            ],
-        });
-
+        const mockFileContent = JSON.stringify(mockQuiz);
         const mockFile = new File([mockFileContent], 'filename.json', { type: 'application/json' });
         service.quizToImport = mockFile;
-        mockCommunicationService.importQuiz.and.returnValue(of(mockQuiz));
+        mockCommunicationService.importQuiz.and.returnValue(of({ ...mockQuiz, description: '', visibility: false }));
         await service.importQuiz();
-        expect(mockCommunicationService.importQuiz).toHaveBeenCalledWith(mockQuiz);
+        expect(mockCommunicationService.importQuiz).toHaveBeenCalledWith({ ...mockQuiz, description: '', visibility: false });
     });
 
     it('should catch and rethrow error from communicationService', async () => {
-        const mockFileContent = JSON.stringify({
-            $schema: '',
-            id: '',
-            duration: 0,
-            lastModification: '',
-            questions: [
-                {
-                    type: '',
-                    text: '',
-                    points: 0,
-                    choices: [
-                        {
-                            text: '',
-                            isCorrect: true,
-                        },
-                    ],
-                },
-            ],
-        });
-
+        const mockFileContent = JSON.stringify(mockQuiz);
         const mockFile = new File([mockFileContent], 'filename.json', { type: 'application/json' });
         service.quizToImport = mockFile;
-
         mockCommunicationService.importQuiz.and.returnValue(throwError(() => new Error('Titre du quiz invalide ou manquant')));
 
         try {

@@ -14,9 +14,6 @@ export enum SessionKeys {
     providedIn: 'root',
 })
 export class AdminGuardService {
-    // TODO : see if we want some sort of history for the user
-    // for example, if they provided the password once, do we always allow access?
-
     private canAccessAdmin: boolean;
     private readonly baseUrl: string;
 
@@ -45,7 +42,6 @@ export class AdminGuardService {
     }
 
     canActivate() {
-        // return true to allow user to navigate to admin page
         return this.canAccessAdmin;
     }
 
