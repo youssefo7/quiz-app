@@ -58,7 +58,7 @@ export class QuizListComponent implements OnInit {
         const quizName: string = quiz.title;
 
         //  create blob file
-        const blob = new Blob([JSON.stringify(exportedQuiz)], { type: 'application/json' });
+        const blob = new Blob([JSON.stringify(exportedQuiz, null, 2)], { type: 'application/json' });
         const blobUrl = window.URL.createObjectURL(blob);
 
         this.anchor.nativeElement.href = blobUrl;
