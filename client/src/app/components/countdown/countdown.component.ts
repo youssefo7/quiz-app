@@ -74,7 +74,6 @@ export class CountdownComponent implements OnInit {
         }
     }
 
-    /* TODO: Fix le reload pour que partie en mode test ne soit pas redirigé vers la page de création de partie immédiatement */
     async leaveGame() {
         const isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
         if (isTestGame) {
