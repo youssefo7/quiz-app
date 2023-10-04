@@ -1,6 +1,6 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -88,7 +88,7 @@ describe('QuizQuestionInfoComponent', () => {
 
         component.initializeForm();
         component.loadQuestionInformation(question, 0);
-        expect(component.isModifiedQuestion).toBeTrue();
+        expect(mockQuizManagerService.isModifiedQuestion).toBeTrue();
         expect(component.questionInfoForm.get('type')?.value).toEqual(question.type);
         expect(component.questionInfoForm.get('text')?.value).toEqual(question.text);
         expect(component.questionInfoForm.get('points')?.value).toEqual(question.points);
@@ -122,7 +122,7 @@ describe('QuizQuestionInfoComponent', () => {
         component.choices.at(0).get('isCorrect')?.setValue(true);
         component.moveChoiceUp(1);
 
-        const choices = component.choices.controls.map((control) => control.value);
+        const choices = component.choices.controls.map((control: AbstractControl) => control.value);
         expect(choices).toEqual([
             { text: 'Second Choice', isCorrect: false },
             { text: 'First Choice', isCorrect: true },
@@ -135,7 +135,7 @@ describe('QuizQuestionInfoComponent', () => {
         component.choices.at(0).get('isCorrect')?.setValue(true);
         component.moveChoiceDown(0);
 
-        const choices = component.choices.controls.map((control) => control.value);
+        const choices = component.choices.controls.map((control: AbstractControl) => control.value);
         expect(choices).toEqual([
             { text: 'Second Choice', isCorrect: false },
             { text: 'First Choice', isCorrect: true },
@@ -192,16 +192,15 @@ describe('QuizQuestionInfoComponent', () => {
             ],
         };
         expect(mockQuizManagerService.addNewQuestion).toHaveBeenCalledWith(newQuestion, component.newQuiz);
-        expect(component.isModifiedQuestion).toBeFalse();
     });
 
     it('should correctly edit a question', () => {
-        component.isModifiedQuestion = true;
+        mockQuizManagerService.isModifiedQuestion = true;
         const questionIndex = 0;
         const questionType = 'QCM';
         const questionText = 'Modified Question';
         const questionPoints = 60;
-        component.modifiedIndex = questionIndex;
+        mockQuizManagerService.modifiedIndex = questionIndex;
 
         component.questionInfoForm.get('type')?.setValue(questionType);
         component.questionInfoForm.get('text')?.setValue(questionText);
@@ -226,8 +225,7 @@ describe('QuizQuestionInfoComponent', () => {
                 { text: 'Modified Choice 2', isCorrect: false },
             ],
         };
-        expect(mockQuizManagerService.modifyQuestion).toHaveBeenCalledWith(modifiedQuestion, component.modifiedIndex, component.newQuiz);
-        expect(component.isModifiedQuestion).toBeFalse();
+        expect(mockQuizManagerService.modifyQuestion).toHaveBeenCalledWith(modifiedQuestion, mockQuizManagerService.modifiedIndex, component.newQuiz);
     });
 
     it('should not validate the question form if choices are missing in the form', () => {

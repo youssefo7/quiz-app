@@ -4,14 +4,11 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
-import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AppMaterialModule } from '@app/modules/material.module';
 import { AppComponent } from '@app/pages/app/app.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
-import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
 import { AdminPopupComponent } from './components/admin-popup/admin-popup.component';
 import { ChatComponent } from './components/chat/chat.component';
 import { ConfirmationPopupComponent } from './components/confirmation-popup/confirmation-popup.component';
@@ -30,7 +27,6 @@ import { TitleExistsDirective } from './directives/title-exists.directive';
 import { AdminPageComponent } from './pages/admin-page/admin-page.component';
 import { CreateEditQuizPageComponent } from './pages/create-edit-quiz-page/create-edit-quiz-page.component';
 import { CreateGamePageComponent } from './pages/create-game-page/create-game-page.component';
-import { HostGamePageComponent } from './pages/host-game-page/host-game-page.component';
 import { WaitingPageComponent } from './pages/waiting-page/waiting-page.component';
 
 /**
@@ -44,11 +40,7 @@ import { WaitingPageComponent } from './pages/waiting-page/waiting-page.componen
         AppComponent,
         GamePageComponent,
         MainPageComponent,
-        MaterialPageComponent,
-        PlayAreaComponent,
-        SidebarComponent,
         AdminPageComponent,
-        HostGamePageComponent,
         TopBarComponent,
         QuizListComponent,
         AdminPopupComponent,

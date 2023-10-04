@@ -166,6 +166,7 @@ describe('QuizManagerService', () => {
         service.modifyQuestion(newQuestion, 0, quizToEditMock);
         expect(quizToEditMock.questions.length).toEqual(1);
         expect(quizToEditMock.questions[0]).toEqual(newQuestion);
+        expect(service.isModifiedQuestion).toEqual(false);
     });
 
     it('should not modify the questions array of a quiz when the given index is out of bounds', () => {

@@ -68,6 +68,7 @@ export class QuizManagerService {
         if (index >= 0 && index < quiz.questions.length) {
             quiz.questions[index] = question;
         }
+        this.isModifiedQuestion = false;
     }
 
     deleteQuestion(index: number, quiz: Quiz) {
