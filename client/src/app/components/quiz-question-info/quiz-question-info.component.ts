@@ -131,7 +131,6 @@ export class QuizQuestionInfoComponent implements OnInit {
 
         if (this.quizManagerService.isModifiedQuestion) {
             this.quizManagerService.modifyQuestion(newQuestion, this.quizManagerService.modifiedIndex, this.newQuiz);
-            this.quizManagerService.isModifiedQuestion = false;
         } else {
             this.quizManagerService.addNewQuestion(newQuestion, this.newQuiz);
         }
