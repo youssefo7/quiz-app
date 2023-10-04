@@ -76,6 +76,10 @@ export class CreateEditQuizPageComponent implements OnInit {
 
     deleteQuestion(index: number): void {
         this.quizManagerService.deleteQuestion(index, this.newQuiz);
+        if (this.quizManagerService.modifiedIndex === index && this.quizManagerService.isModifiedQuestion) {
+            this.quizQuestionInfo.resetForm();
+            this.quizManagerService.isModifiedQuestion = false;
+        }
     }
 
     moveQuestionUp(index: number) {

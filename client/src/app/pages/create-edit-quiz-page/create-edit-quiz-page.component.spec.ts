@@ -30,7 +30,7 @@ describe('CreateEditQuizPageComponent', () => {
             'moveQuestionDown',
             'saveQuiz',
         ]);
-        quizQuestionInfoSpy = jasmine.createSpyObj('QuizQuestionInfoComponent', ['loadQuestionInformation']);
+        quizQuestionInfoSpy = jasmine.createSpyObj('QuizQuestionInfoComponent', ['loadQuestionInformation', 'resetForm']);
         dialogRefSpyObj = jasmine.createSpyObj<MatDialogRef<ConfirmationPopupComponent>>('MatDialogRef', ['afterClosed'], {
             componentInstance: jasmine.createSpyObj('ConfirmationPopupComponent', ['setConfirmationText']),
         });
@@ -279,5 +279,15 @@ describe('CreateEditQuizPageComponent', () => {
         expect(dialogRefSpyObj.componentInstance.setConfirmationText).toHaveBeenCalledWith('Sauvegarder ce quiz?');
         expect(dialogRefSpyObj.afterClosed).toHaveBeenCalled();
         expect(component.saveQuiz).not.toHaveBeenCalled();
+    });
+
+    it('should reset form when deleting the question that is currently being edited', () => {
+        component.quizQuestionInfo = quizQuestionInfoSpy;
+        quizManagerServiceSpy.isModifiedQuestion = true;
+        quizManagerServiceSpy.modifiedIndex = 0;
+        component.deleteQuestion(0);
+
+        expect(quizQuestionInfoSpy.resetForm).toHaveBeenCalled();
+        expect(quizManagerServiceSpy.isModifiedQuestion).toBeFalsy();
     });
 });
