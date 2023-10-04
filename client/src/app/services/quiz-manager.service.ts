@@ -9,12 +9,15 @@ import { CommunicationService } from './communication.service';
 })
 export class QuizManagerService {
     quizzes: Quiz[];
+    isModifiedQuestion: boolean;
+    modifiedIndex: number;
 
     constructor(
         private readonly communicationService: CommunicationService,
         private router: Router,
     ) {
         this.getQuizListFromServer();
+        this.isModifiedQuestion = false;
     }
 
     getQuizListFromServer(): void {

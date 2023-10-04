@@ -13,11 +13,9 @@ import { Constants } from '@common/constants';
 })
 export class QuizQuestionInfoComponent implements OnInit {
     @Input() newQuiz: Quiz;
-    modifiedIndex: number;
     questionInfoForm: FormGroup;
     maxChoices: number;
     defaultPoints: number;
-    isModifiedQuestion: boolean;
 
     constructor(
         private quizManagerService: QuizManagerService,
@@ -26,7 +24,6 @@ export class QuizQuestionInfoComponent implements OnInit {
     ) {
         this.maxChoices = Constants.MAX_CHOICES;
         this.defaultPoints = Constants.MIN_POINTS;
-        this.isModifiedQuestion = false;
     }
 
     get choices() {
@@ -52,14 +49,14 @@ export class QuizQuestionInfoComponent implements OnInit {
 
     loadQuestionInformation(question: Question, index: number) {
         this.questionInfoForm.reset();
-        this.modifiedIndex = index;
+        this.quizManagerService.modifiedIndex = index;
         const resetChoices = this.choices;
 
         while (resetChoices.length < question.choices.length) {
             this.addChoice();
         }
 
-        this.isModifiedQuestion = true;
+        this.quizManagerService.isModifiedQuestion = true;
         this.questionInfoForm.patchValue({
             text: question.text,
             type: question.type,
@@ -119,8 +116,7 @@ export class QuizQuestionInfoComponent implements OnInit {
         const questionText: string = this.questionInfoForm.get('text')?.value;
         const questionPoints: number = this.questionInfoForm.get('points')?.value;
 
-        const choicesArray: Choice[] = this.choices.controls.map((control) => {
-            control = control as FormGroup;
+        const choicesArray: Choice[] = this.choices.controls.map((control: AbstractControl) => {
             const text: string = control.get('text')?.value;
             const isCorrect: boolean = control.get('isCorrect')?.value;
             return { text, isCorrect };
@@ -133,9 +129,9 @@ export class QuizQuestionInfoComponent implements OnInit {
             choices: choicesArray,
         };
 
-        if (this.isModifiedQuestion) {
-            this.quizManagerService.modifyQuestion(newQuestion, this.modifiedIndex, this.newQuiz);
-            this.isModifiedQuestion = false;
+        if (this.quizManagerService.isModifiedQuestion) {
+            this.quizManagerService.modifyQuestion(newQuestion, this.quizManagerService.modifiedIndex, this.newQuiz);
+            this.quizManagerService.isModifiedQuestion = false;
         } else {
             this.quizManagerService.addNewQuestion(newQuestion, this.newQuiz);
         }
@@ -150,7 +146,7 @@ export class QuizQuestionInfoComponent implements OnInit {
             this.choices.removeAt(this.choices.length - 1);
         }
 
-        this.choices.controls.forEach((choiceControl) => {
+        this.choices.controls.forEach((choiceControl: AbstractControl) => {
             const choiceGroup = choiceControl as FormGroup;
             choiceGroup.get('isCorrect')?.setValue(false);
         });
@@ -160,7 +156,7 @@ export class QuizQuestionInfoComponent implements OnInit {
         return (control: AbstractControl): ValidationErrors | null => {
             const choices = control as FormArray;
 
-            const validChoices = choices.controls.filter((choice) => {
+            const validChoices = choices.controls.filter((choice: AbstractControl) => {
                 const text = choice.get('text')?.value ?? '';
                 const isCorrect = choice.get('isCorrect')?.value ?? '';
                 return text.trim().length > 0 && typeof isCorrect !== undefined;
@@ -170,8 +166,8 @@ export class QuizQuestionInfoComponent implements OnInit {
                 return { missingChoices: true };
             }
 
-            const hasCorrectChoice = validChoices.some((choice) => choice.get('isCorrect')?.value === true);
-            const hasIncorrectChoice = validChoices.some((choice) => choice.get('isCorrect')?.value === false);
+            const hasCorrectChoice = validChoices.some((choice: AbstractControl) => choice.get('isCorrect')?.value === true);
+            const hasIncorrectChoice = validChoices.some((choice: AbstractControl) => choice.get('isCorrect')?.value === false);
 
             if (!hasCorrectChoice || !hasIncorrectChoice) {
                 return { missingCorrectOrIncorrectChoice: true };
