@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { PopupMessageComponent } from './popup-message.component';
 
@@ -30,6 +30,7 @@ describe('PopupMessageComponent', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
+            imports: [MatDialogModule],
             declarations: [PopupMessageComponent],
             providers: [{ provide: MatDialogRef, useValue: matDialogRefSpy }],
         }).compileComponents();

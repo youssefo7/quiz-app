@@ -1,10 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmationPopupComponent } from '@app/components/confirmation-popup/confirmation-popup.component';
+import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Choice, Question, Quiz } from '@app/interfaces/quiz';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
 import { Constants } from '@common/constants';
+import { PopupMessageComponent } from '../popup-message/popup-message.component';
 
 @Component({
     selector: 'app-quiz-question-info',
@@ -99,16 +100,32 @@ export class QuizQuestionInfoComponent implements OnInit {
         }
     }
 
-    openQuestionConfirmation(): void {
-        const confirmationDialogReference = this.confirmationDialogReference.open(ConfirmationPopupComponent);
-        confirmationDialogReference.componentInstance.setConfirmationText('Sauvegarder cette question?');
+    // openQuestionConfirmation(): void {
+    //     const confirmationDialogReference = this.confirmationDialogReference.open(ConfirmationPopupComponent);
+    //     confirmationDialogReference.componentInstance.setConfirmationText('Sauvegarder cette question?');
 
-        confirmationDialogReference.afterClosed().subscribe((wantsToSave) => {
-            if (wantsToSave) {
+    //     confirmationDialogReference.afterClosed().subscribe((wantsToSave) => {
+    //         if (wantsToSave) {
+    //             this.manageQuestion();
+    //             this.resetForm();
+    //         }
+    //     });
+    // }
+
+    openQuestionConfirmation() {
+        const config: PopupMessageConfig = {
+            message: 'Sauvegarder cette question?',
+            hasCancelButton: true,
+            cancelButtonText: 'Non',
+            okButtonText: 'Oui',
+            okButtonFunction: () => {
                 this.manageQuestion();
                 this.resetForm();
-            }
-        });
+            },
+        };
+        const dialogRef = this.confirmationDialogReference.open(PopupMessageComponent);
+        const popupInstance = dialogRef.componentInstance;
+        popupInstance.config = config;
     }
 
     manageQuestion() {
