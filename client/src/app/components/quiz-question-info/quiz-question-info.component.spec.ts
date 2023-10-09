@@ -4,11 +4,11 @@ import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule } from '@a
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { RangeValidatorDirective } from '@app/directives/range-validator.directive';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
 import { Constants } from '@common/constants';
-import { PopupMessageComponent } from '../popup-message/popup-message.component';
 import { QuizQuestionInfoComponent } from './quiz-question-info.component';
 import SpyObj = jasmine.SpyObj;
 
@@ -72,7 +72,6 @@ describe('QuizQuestionInfoComponent', () => {
         expect(component.manageQuestion).toHaveBeenCalled();
         expect(component.resetForm).toHaveBeenCalled();
     });
-    
 
     it('should initialize the form and add choices when page is loaded', () => {
         component.initializeForm();

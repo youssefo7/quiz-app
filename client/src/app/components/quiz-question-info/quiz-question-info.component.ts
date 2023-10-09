@@ -1,11 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Choice, Question, Quiz } from '@app/interfaces/quiz';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
 import { Constants } from '@common/constants';
-import { PopupMessageComponent } from '../popup-message/popup-message.component';
 
 @Component({
     selector: 'app-quiz-question-info',
