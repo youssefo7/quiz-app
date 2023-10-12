@@ -1,20 +1,29 @@
-import { ChoiceType, QuestionType, Quiz } from '@app/model/database/quiz';
+import { ChoiceType, QuestionType, Quiz, QuizDocument } from '@app/model/database/quiz';
 import { Constants } from '@common/constants';
-import { Injectable } from '@nestjs/common';
-import { promises as fs } from 'fs';
-import { join } from 'path';
+import { Injectable, Logger } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import * as randomstring from 'randomstring';
-
-const quizzesPath = join(__dirname, Constants.QUIZZES_PATH);
 
 @Injectable()
 export class QuizzesService {
-    get quizzesPath() {
-        return quizzesPath;
+    constructor(
+        @InjectModel(Quiz.name) public quizModel: Model<QuizDocument>,
+        private readonly logger: Logger,
+    ) {
+        this.start();
     }
 
-    getDate(): string {
-        return new Date().toISOString();
+    async start() {
+        if ((await this.quizModel.countDocuments()) === 0) {
+            await this.populateDB();
+        }
+    }
+
+    async populateDB(): Promise<void> {
+        const quizzes: Quiz[] = [];
+        await this.quizModel.insertMany(quizzes);
+        this.logger.log('DB populated');
     }
 
     async verifyQuiz(quiz: Quiz): Promise<void> {
@@ -67,8 +76,12 @@ export class QuizzesService {
             if (!choice.text || typeof choice.text !== 'string')
                 errors.push(`Texte du choix ${indexChoice + 1} de la question ${questionIndex + 1} invalide ou manquant`);
 
+            if (choice.isCorrect == null || choice.isCorrect === undefined) {
+                choice.isCorrect = false;
+            }
+
             if (typeof choice.isCorrect !== 'boolean')
-                errors.push(`La propriété "isCorrect" du choix ${indexChoice + 1} de la question ${questionIndex + 1} est invalide ou manquante`);
+                errors.push(`La propriété "isCorrect" du choix ${indexChoice + 1} de la question ${questionIndex + 1} est invalide (true ou false)`);
             else {
                 if (choice.isCorrect) correctChoiceCount++;
                 else incorrectChoiceCount++;
@@ -79,27 +92,53 @@ export class QuizzesService {
             errors.push(`La question ${questionIndex + 1} doit avoir au moins un bon choix et un mauvais choix.`);
     }
 
-    async checkIdAvailability(id: string): Promise<boolean> {
-        const quizzes = await this.getQuizzes();
-        return quizzes.findIndex((quiz) => quiz.id === id) === Constants.INDEX_NOT_FOUND;
+    async getQuizzes(): Promise<Quiz[]> {
+        return await this.quizModel.find();
+    }
+
+    async getQuiz(id: string): Promise<Quiz> {
+        const quiz = await this.quizModel.findOne({ id });
+        if (!quiz) throw new Error(`Quiz ${id} not found`);
+        return quiz;
+    }
+
+    async addQuiz(quiz: Quiz): Promise<Quiz> {
+        quiz.id = await this.createID();
+        // _id is required by MongoDB
+        // eslint-disable-next-line no-underscore-dangle
+        quiz._id = quiz.id;
+        quiz.lastModification = new Date().toISOString();
+        return await this.quizModel.create(quiz);
+    }
+
+    async updateQuiz(id: string, updatedQuiz: Quiz): Promise<Quiz> {
+        updatedQuiz.lastModification = new Date().toISOString();
+        const quiz = await this.quizModel.findOneAndUpdate({ id }, updatedQuiz, { new: true });
+        if (!quiz) throw new Error(`Quiz ${id} not found`);
+        return quiz;
+    }
+
+    async deleteQuiz(id: string): Promise<void> {
+        const result = await this.quizModel.findOneAndDelete({ id });
+        if (!result) throw new Error(`Quiz ${id} not found`);
     }
 
     async checkTitleExists(title: string): Promise<boolean> {
-        const quizzes = await this.getQuizzes();
-        return !!quizzes.find((quiz) => quiz.title === title);
+        const quiz = await this.quizModel.findOne({ title });
+        return !!quiz;
     }
 
     async createID(): Promise<string> {
-        let id;
+        let id: string;
         do {
             id = randomstring.generate(Constants.RANDOM_STRING_LENGTH);
-        } while (!(await this.checkIdAvailability(id)));
+        } while (await this.quizModel.exists({ _id: id }));
         return id;
     }
 
     async checkQuizAvailability(id: string): Promise<boolean> {
         try {
-            return !(await this.checkIdAvailability(id));
+            return Boolean(await this.quizModel.findById(id));
         } catch (error) {
             return Promise.reject(new Error(`${error.message}`));
         }
@@ -113,72 +152,6 @@ export class QuizzesService {
             return Promise.reject(new Error(`${error.message}`));
         }
     }
-    async getQuizIndex(quizzes: Quiz[], id: string): Promise<number> {
-        const quizIndex = quizzes.findIndex((quiz) => quiz.id === id);
-        if (quizIndex === Constants.INDEX_NOT_FOUND) {
-            throw new Error(`Quiz ${id} not found`);
-        }
-        return quizIndex;
-    }
-
-    async getQuizzes(): Promise<Quiz[]> {
-        try {
-            const quizzes = await fs.readFile(this.quizzesPath, 'utf8');
-            return JSON.parse(quizzes);
-        } catch (error) {
-            return Promise.reject(new Error(`${error.message}`));
-        }
-    }
-
-    async getQuiz(id: string): Promise<Quiz> {
-        try {
-            const quizzes = await this.getQuizzes();
-            return quizzes[await this.getQuizIndex(quizzes, id)];
-        } catch (error) {
-            return Promise.reject(new Error(`${error.message}`));
-        }
-    }
-
-    async addQuiz(quiz: Quiz): Promise<Quiz> {
-        try {
-            const quizzes = await this.getQuizzes();
-            quiz.id = await this.createID();
-            quiz.lastModification = this.getDate();
-            quizzes.push(quiz);
-            await this.saveQuizzes(quizzes);
-            return quiz;
-        } catch (error) {
-            return Promise.reject(new Error(`${error.message}`));
-        }
-    }
-
-    async updateQuiz(id: string, updatedQuiz: Quiz): Promise<Quiz> {
-        try {
-            const quizzes = await this.getQuizzes();
-            updatedQuiz.lastModification = this.getDate();
-            quizzes[await this.getQuizIndex(quizzes, id)] = updatedQuiz;
-            await this.saveQuizzes(quizzes);
-            return updatedQuiz;
-        } catch (error) {
-            return Promise.reject(new Error(`${error.message}`));
-        }
-    }
-
-    async deleteQuiz(id: string): Promise<Quiz[]> {
-        try {
-            const quizzes = await this.getQuizzes();
-            await this.getQuizIndex(quizzes, id);
-            if (quizzes.length === 1) {
-                await this.saveQuizzes([]);
-                return [];
-            }
-            const updatedQuizzes = quizzes.filter((quiz) => quiz.id !== id);
-            await this.saveQuizzes(updatedQuizzes);
-            return updatedQuizzes;
-        } catch (error) {
-            return Promise.reject(new Error(`${error.message}`));
-        }
-    }
 
     async importQuiz(quiz: Quiz): Promise<Quiz> {
         try {
@@ -186,14 +159,6 @@ export class QuizzesService {
             return await this.addQuiz(quiz);
         } catch (error) {
             return Promise.reject(new Error(`${error.message}`));
-        }
-    }
-
-    async saveQuizzes(quizzes: Quiz[]): Promise<void> {
-        try {
-            await fs.writeFile(this.quizzesPath, JSON.stringify(quizzes, null, 2));
-        } catch (error) {
-            return Promise.reject(new Error(`Error saving quizzes: ${error.message}`));
         }
     }
 }

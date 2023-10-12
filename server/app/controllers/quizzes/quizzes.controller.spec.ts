@@ -192,7 +192,7 @@ describe('QuizzesController', () => {
     });
 
     it('checkQuizAvailability() should return INTERNAL_SERVER_ERROR when service cannot check the Quiz', async () => {
-        quizzesService.checkIdAvailability.rejects();
+        quizzesService.checkQuizAvailability.rejects();
 
         const res = {} as unknown as Response;
         res.status = (code) => {

@@ -12,18 +12,18 @@ export type QuestionType = {
 
 export type ChoiceType = {
     text: string;
-    isCorrect: boolean;
+    isCorrect?: boolean;
 };
 
 @Schema()
 export class Quiz {
     @ApiProperty()
-    @Prop({ required: true })
-    $schema: string;
+    @Prop({ required: true, unique: true, index: true })
+    id: string;
 
     @ApiProperty()
-    @Prop({ required: true })
-    id: string;
+    @Prop()
+    _id: string;
 
     @ApiProperty()
     @Prop({ required: true })
