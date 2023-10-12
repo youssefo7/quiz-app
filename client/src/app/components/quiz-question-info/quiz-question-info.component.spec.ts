@@ -21,7 +21,7 @@ describe('QuizQuestionInfoComponent', () => {
     beforeEach(() => {
         mockQuizManagerService = jasmine.createSpyObj('QuizManagerService', ['modifyQuestion', 'addNewQuestion']);
         mockDialog = jasmine.createSpyObj('mockDialog', ['open']);
-        mockDialogRef = jasmine.createSpyObj('mockDialogRef', ['componentInstance']);
+        mockDialogRef = jasmine.createSpyObj(MatDialogRef<PopupMessageComponent>, ['componentInstance']);
     });
 
     beforeEach(() => {

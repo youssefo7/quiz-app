@@ -31,7 +31,7 @@ describe('CreateEditQuizPageComponent', () => {
         ]);
         quizQuestionInfoSpy = jasmine.createSpyObj('QuizQuestionInfoComponent', ['loadQuestionInformation', 'resetForm']);
         mockDialog = jasmine.createSpyObj('mockDialog', ['open']);
-        mockDialogRef = jasmine.createSpyObj('mockDialogRef', ['componentInstance']);
+        mockDialogRef = jasmine.createSpyObj(MatDialogRef<PopupMessageComponent>, ['componentInstance']);
     });
 
     beforeEach(waitForAsync(() => {
