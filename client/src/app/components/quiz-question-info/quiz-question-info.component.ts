@@ -100,18 +100,6 @@ export class QuizQuestionInfoComponent implements OnInit {
         }
     }
 
-    // openQuestionConfirmation(): void {
-    //     const confirmationDialogReference = this.confirmationDialogReference.open(ConfirmationPopupComponent);
-    //     confirmationDialogReference.componentInstance.setConfirmationText('Sauvegarder cette question?');
-
-    //     confirmationDialogReference.afterClosed().subscribe((wantsToSave) => {
-    //         if (wantsToSave) {
-    //             this.manageQuestion();
-    //             this.resetForm();
-    //         }
-    //     });
-    // }
-
     openQuestionConfirmation() {
         const config: PopupMessageConfig = {
             message: 'Sauvegarder cette question?',

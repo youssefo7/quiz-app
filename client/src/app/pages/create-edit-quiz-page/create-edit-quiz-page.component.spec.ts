@@ -6,7 +6,6 @@ import { PopupMessageComponent } from '@app/components/popup-message/popup-messa
 import { QuizGeneralInfoComponent } from '@app/components/quiz-general-info/quiz-general-info.component';
 import { QuizQuestionInfoComponent } from '@app/components/quiz-question-info/quiz-question-info.component';
 import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
-import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
 import { firstValueFrom, of } from 'rxjs';
@@ -256,37 +255,16 @@ describe('CreateEditQuizPageComponent', () => {
         expect(component.pageTitle).toEqual('Modifier un jeu questionnaire');
     }));
 
-    // it('should open the confirmation dialog and not call saveQuiz when wantsToSave is false', () => {
-    //     spyOn(component, 'saveQuiz');
-    //     dialogRefSpyObj.afterClosed.and.returnValue(of(false));
-    //     matDialogSpy.open.and.returnValue(dialogRefSpyObj);
-
-    //     component.openQuizConfirmation();
-
-    //     expect(matDialogSpy.open).toHaveBeenCalledWith(ConfirmationPopupComponent);
-    //     expect(dialogRefSpyObj.componentInstance.setConfirmationText).toHaveBeenCalledWith('Sauvegarder ce quiz?');
-    //     expect(dialogRefSpyObj.afterClosed).toHaveBeenCalled();
-    //     expect(component.saveQuiz).not.toHaveBeenCalled();
-    // });
-
     it('should popup a message when the user tries to save a valid quiz', () => {
-        const mockConfig: PopupMessageConfig = {
-            message: 'Sauvegarder ce quiz?',
-            hasCancelButton: true,
-            okButtonText: 'Oui',
-            cancelButtonText: 'Non',
-            okButtonFunction: () => null,
-        };
-        mockDialog.open.and.returnValue(mockDialogRef);
-
         spyOn(component, 'saveQuiz');
         component.openQuizConfirmation();
 
         const config = mockDialogRef.componentInstance.config;
         expect(mockDialog.open).toHaveBeenCalled();
-        expect(config.message).toEqual(mockConfig.message);
-        expect(config.hasCancelButton).toEqual(mockConfig.hasCancelButton);
-        expect(config.okButtonText).toEqual(mockConfig.okButtonText);
+        expect(config.message).toEqual('Sauvegarder ce quiz?');
+        expect(config.hasCancelButton).toEqual(true);
+        expect(config.okButtonText).toEqual('Oui');
+        expect(config.cancelButtonText).toEqual('Non');
 
         config.okButtonFunction?.();
         expect(component.saveQuiz).toHaveBeenCalled();

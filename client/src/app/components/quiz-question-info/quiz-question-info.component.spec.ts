@@ -6,7 +6,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { RangeValidatorDirective } from '@app/directives/range-validator.directive';
-import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
 import { Constants } from '@common/constants';
 import { QuizQuestionInfoComponent } from './quiz-question-info.component';
@@ -49,24 +48,16 @@ describe('QuizQuestionInfoComponent', () => {
     });
 
     it('should popup a message when the user tries to save a valid question', () => {
-        const mockConfig: PopupMessageConfig = {
-            message: 'Sauvegarder cette question?',
-            hasCancelButton: true,
-            okButtonText: 'Oui',
-            cancelButtonText: 'Non',
-            okButtonFunction: () => null,
-        };
-        mockDialog.open.and.returnValue(mockDialogRef);
-
         spyOn(component, 'manageQuestion');
         spyOn(component, 'resetForm');
         component.openQuestionConfirmation();
 
         const config = mockDialogRef.componentInstance.config;
         expect(mockDialog.open).toHaveBeenCalled();
-        expect(config.message).toEqual(mockConfig.message);
-        expect(config.hasCancelButton).toEqual(mockConfig.hasCancelButton);
-        expect(config.okButtonText).toEqual(mockConfig.okButtonText);
+        expect(config.message).toEqual('Sauvegarder cette question?');
+        expect(config.hasCancelButton).toEqual(true);
+        expect(config.okButtonText).toEqual('Oui');
+        expect(config.cancelButtonText).toEqual('Non');
 
         config.okButtonFunction?.();
         expect(component.manageQuestion).toHaveBeenCalled();
