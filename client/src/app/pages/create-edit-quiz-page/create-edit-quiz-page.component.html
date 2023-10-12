@@ -6,12 +6,12 @@
             <app-quiz-question-info [newQuiz]="newQuiz"></app-quiz-question-info>
         </form>
         <div id="save-button">
+            <p *ngIf="newQuiz.questions.length < 1" style="color: brown">Veuillez ajouter au moins une question pour sauvegarder...</p>
             <button (click)="openQuizConfirmation()" [disabled]="!isQuizFormValid()">Sauvegarder le quiz</button>
         </div>
     </div>
     <div id="questions-container">
         <h2>Liste des questions</h2>
-        <p *ngIf="newQuiz.questions.length < 1" style="color: brown">Veuillez ajouter au moins une question pour sauvegarder...</p>
         <ol>
             <li class="question" *ngFor="let question of newQuiz.questions; let i = index">
                 <div class="question-content">
