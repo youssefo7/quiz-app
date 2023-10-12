@@ -11,6 +11,7 @@ export class QuizManagerService {
     quizzes: Quiz[];
     isModifiedQuestion: boolean;
     modifiedIndex: number;
+    quizToModify: Quiz;
 
     constructor(
         private readonly communicationService: CommunicationService,
@@ -52,6 +53,7 @@ export class QuizManagerService {
             return new Promise<Quiz | undefined>((resolve) => {
                 this.communicationService.getQuiz(id).subscribe({
                     next: (quiz) => {
+                        this.quizToModify = JSON.parse(JSON.stringify(quiz));
                         resolve(quiz);
                     },
                 });

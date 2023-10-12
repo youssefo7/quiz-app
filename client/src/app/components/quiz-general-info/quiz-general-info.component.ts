@@ -53,8 +53,6 @@ export class QuizGeneralInfoComponent implements OnInit, AfterViewInit {
                 description: [this.newQuiz.description, [Validators.required, Validators.minLength(1)]],
                 duration: [this.newQuiz.duration, [Validators.min(Constants.MIN_DURATION), Validators.max(Constants.MAX_DURATION)]],
             });
-
-            this.blockSubmit.emit(true);
         }
 
         this.titleValue = this.generalInfoForm.controls.title.value;
@@ -63,11 +61,14 @@ export class QuizGeneralInfoComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit(): void {
-        if (this.newQuiz.id !== '') {
-            setTimeout(() => {
-                this.toggleButtonTextAndName();
-            });
-        }
+        this.generalInfoForm.valueChanges.subscribe(() => {
+            if (this.generalInfoForm.valid) {
+                this.blockSubmit.emit(false);
+                this.onSubmit();
+            } else {
+                this.blockSubmit.emit(true);
+            }
+        });
     }
 
     initCounters() {
@@ -87,12 +88,6 @@ export class QuizGeneralInfoComponent implements OnInit, AfterViewInit {
             const charCount = value.length;
             return charCount <= maxLength ? null : { characterCountExceeded: true };
         };
-    }
-
-    toggleButtonTextAndName(): void {
-        this.disableForm = !this.disableForm;
-        this.buttonText = this.disableForm ? 'Modifier' : 'Sauvegarder';
-        this.blockSubmit.emit(!this.disableForm);
     }
 
     getQuizList() {

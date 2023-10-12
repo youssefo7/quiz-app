@@ -20,14 +20,17 @@ export class CreateEditQuizPageComponent implements OnInit {
     quizId: string;
     pageTitle: string;
     resetQuiz: Quiz;
-    shouldDisableForm: boolean;
+    isGeneralInfoFormValid: boolean;
+    quizToModify: Quiz;
+    isQuizModified: boolean;
 
     constructor(
         private quizManagerService: QuizManagerService,
         private confirmationDialogReference: MatDialog,
         private route: ActivatedRoute,
     ) {
-        this.shouldDisableForm = false;
+        this.isGeneralInfoFormValid = false;
+        this.isQuizModified = false;
     }
 
     ngOnInit(): void {
@@ -39,14 +42,18 @@ export class CreateEditQuizPageComponent implements OnInit {
         const modifiedQuiz = await this.quizManagerService.fetchQuiz(id);
         this.newQuiz = modifiedQuiz ?? blankQuiz;
         this.pageTitle = this.newQuiz.id ? 'Modifier un jeu questionnaire' : 'Créer un jeu questionnaire';
+        if (id !== '') {
+            this.isQuizModified = false;
+            this.quizToModify = this.quizManagerService.quizToModify;
+        }
     }
 
     modifyQuestion(selectedQuestion: Question, selectedIndex: number) {
         this.quizQuestionInfo.loadQuestionInformation(selectedQuestion, selectedIndex);
     }
 
-    onGeneralInfoChange(shouldDisableForm: boolean): void {
-        this.shouldDisableForm = shouldDisableForm;
+    onGeneralInfoChange(isFormValid: boolean): void {
+        this.isGeneralInfoFormValid = isFormValid;
     }
 
     isQuizFormValid(): boolean {
@@ -57,10 +64,54 @@ export class CreateEditQuizPageComponent implements OnInit {
             this.newQuiz.title.trim().length > 0 &&
             this.newQuiz.description.trim().length > 0 &&
             this.newQuiz.duration >= Constants.MIN_DURATION &&
-            !this.shouldDisableForm
+            this.newQuiz.duration <= Constants.MAX_DURATION &&
+            !this.isGeneralInfoFormValid
+        ) {
+            if (this.newQuiz.id !== '') {
+                this.isQuizModified = this.hasQuizModified();
+                return this.isQuizModified;
+            } else {
+                return true;
+            }
+        }
+
+        this.isQuizModified = false;
+        return false;
+    }
+
+    hasQuizModified(): boolean {
+        if (
+            this.quizToModify.title.trim() !== this.newQuiz.title.trim() ||
+            this.quizToModify.description.trim() !== this.newQuiz.description.trim() ||
+            this.quizToModify.duration !== this.newQuiz.duration
         ) {
             return true;
         }
+
+        if (this.quizToModify.questions.length !== this.newQuiz.questions.length) {
+            return true;
+        }
+
+        for (let i = 0; i < this.quizToModify.questions.length; i++) {
+            if (
+                this.quizToModify.questions[i].type !== this.newQuiz.questions[i].type ||
+                this.quizToModify.questions[i].text.trim() !== this.newQuiz.questions[i].text.trim() ||
+                this.quizToModify.questions[i].points !== this.newQuiz.questions[i].points ||
+                this.quizToModify.questions[i].choices.length !== this.newQuiz.questions[i].choices.length
+            ) {
+                return true;
+            }
+
+            for (let j = 0; j < this.quizToModify.questions[i].choices.length; j++) {
+                if (
+                    this.quizToModify.questions[i].choices[j].text.trim() !== this.newQuiz.questions[i].choices[j].text.trim() ||
+                    this.quizToModify.questions[i].choices[j].isCorrect !== this.newQuiz.questions[i].choices[j].isCorrect
+                ) {
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
