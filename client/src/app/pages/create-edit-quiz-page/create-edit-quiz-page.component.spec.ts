@@ -10,15 +10,6 @@ import { Question, Quiz } from '@app/interfaces/quiz';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
 import { firstValueFrom, of } from 'rxjs';
 import { CreateEditQuizPageComponent } from './create-edit-quiz-page.component';
-import {
-    CHOICE_QTY_MODIFIED_QUIZ,
-    MODIFIED_QUIZ,
-    NOT_MODIFIED_QUIZ,
-    NOT_VALID_QUIZ,
-    QUESTION_CHOICE_MODIFIED_QUIZ,
-    QUESTION_QTY_MODIFIED_QUIZ,
-    TDD_MODIFIED_QUIZ,
-} from './test-utils';
 import SpyObj = jasmine.SpyObj;
 
 describe('CreateEditQuizPageComponent', () => {
@@ -38,6 +29,7 @@ describe('CreateEditQuizPageComponent', () => {
             'moveQuestionUp',
             'moveQuestionDown',
             'saveQuiz',
+            'hasQuizModified',
         ]);
         quizQuestionInfoSpy = jasmine.createSpyObj('QuizQuestionInfoComponent', ['loadQuestionInformation', 'resetForm']);
         dialogRefSpyObj = jasmine.createSpyObj<MatDialogRef<ConfirmationPopupComponent>>('MatDialogRef', ['afterClosed'], {
@@ -91,10 +83,12 @@ describe('CreateEditQuizPageComponent', () => {
         fixture = TestBed.createComponent(CreateEditQuizPageComponent);
         component = fixture.componentInstance;
         component.quizToModify = {
+            $schema: 'quiz-schema.json',
             id: '1',
             title: 'Title',
             description: 'Description',
             duration: 30,
+            lastModification: '',
             questions: [
                 {
                     type: 'QCM',
@@ -139,7 +133,6 @@ describe('CreateEditQuizPageComponent', () => {
         };
         component.quizQuestionInfo = quizQuestionInfoSpy;
         component.modifyQuestion(mockQuestion, 2);
-
         expect(quizQuestionInfoSpy.loadQuestionInformation).toHaveBeenCalledWith(mockQuestion, 2);
     });
 
@@ -150,7 +143,6 @@ describe('CreateEditQuizPageComponent', () => {
         expect(component.isGeneralInfoFormValid).toEqual(isGeneralInfoFormValid);
 
         isGeneralInfoFormValid = false;
-
         component.onGeneralInfoChange(isGeneralInfoFormValid);
         expect(component.isGeneralInfoFormValid).toEqual(isGeneralInfoFormValid);
     });
@@ -209,7 +201,6 @@ describe('CreateEditQuizPageComponent', () => {
         matDialogSpy.open.and.returnValue(dialogRefSpyObj);
 
         component.openQuizConfirmation();
-
         expect(matDialogSpy.open).toHaveBeenCalledWith(ConfirmationPopupComponent);
         expect(dialogRefSpyObj.componentInstance.setConfirmationText).toHaveBeenCalledWith('Sauvegarder ce quiz?');
         expect(dialogRefSpyObj.afterClosed).toHaveBeenCalled();
@@ -222,7 +213,6 @@ describe('CreateEditQuizPageComponent', () => {
         matDialogSpy.open.and.returnValue(dialogRefSpyObj);
 
         component.openQuizConfirmation();
-
         expect(matDialogSpy.open).toHaveBeenCalledWith(ConfirmationPopupComponent);
         expect(dialogRefSpyObj.componentInstance.setConfirmationText).toHaveBeenCalledWith('Sauvegarder ce quiz?');
         expect(dialogRefSpyObj.afterClosed).toHaveBeenCalled();
@@ -239,51 +229,108 @@ describe('CreateEditQuizPageComponent', () => {
         expect(quizManagerServiceSpy.isModifiedQuestion).toBeFalsy();
     });
 
-    it('should return true if quiz has been modified', () => {
-        component.newQuiz = MODIFIED_QUIZ;
-        const isQuizModified = component.hasQuizModified();
-        expect(isQuizModified).toBeTrue();
+    it('should return false if newQuiz is undefined', () => {
+        component.newQuiz = undefined as unknown as Quiz;
+        component.isGeneralInfoFormValid = true;
+        expect(component.isQuizFormValid()).toBeFalse();
     });
 
-    it('should return false if quiz has not been modified', () => {
-        component.newQuiz = NOT_MODIFIED_QUIZ;
-        const isQuizModified = component.hasQuizModified();
-        expect(isQuizModified).toBeFalse();
+    it('should return false if newQuiz has no questions', () => {
+        component.newQuiz = { ...mockQuiz, questions: [] };
+        component.isGeneralInfoFormValid = true;
+        expect(component.isQuizFormValid()).toBeFalse();
     });
 
-    it('should return true if quiz form is valid and either the title, description or duration is modified (when newQuiz.id is not empty)', () => {
-        component.newQuiz = TDD_MODIFIED_QUIZ;
-        const isQuizFormValid = component.isQuizFormValid();
-        expect(component.isQuizModified).toBe(true);
-        expect(isQuizFormValid).toBeTrue();
+    it('should return false if any of the questions in a quiz are invalid', () => {
+        const invalidQuestion = {
+            type: 'QCM',
+            text: 'Invalid Question',
+            points: 20,
+            choices: [
+                { text: 'choice 1', isCorrect: false },
+                { text: 'choice 2', isCorrect: true },
+            ],
+        };
+        component.newQuiz = { ...mockQuiz, questions: [mockQuiz.questions[0], invalidQuestion] };
+        component.isGeneralInfoFormValid = true;
+        expect(component.isQuizFormValid()).toBeFalse();
     });
 
-    it('should return true if quiz form is valid and there are a different amount of questions (when newQuiz.id is not empty)', () => {
-        component.newQuiz = QUESTION_QTY_MODIFIED_QUIZ;
-        const isQuizFormValid = component.isQuizFormValid();
-        expect(component.isQuizModified).toBe(true);
-        expect(isQuizFormValid).toBeTrue();
+    it('should return false if the general info form is invalid', () => {
+        const invalidQuiz = {
+            ...mockQuiz,
+            title: '',
+            description: '',
+            duration: 5,
+        };
+        component.newQuiz = invalidQuiz;
+        component.isGeneralInfoFormValid = false;
+        expect(component.isQuizFormValid()).toBeFalse();
     });
 
-    it('should return true if quiz form is valid and the amount of choices of a question have been modified (when newQuiz.id is not empty)', () => {
-        component.newQuiz = CHOICE_QTY_MODIFIED_QUIZ;
-
-        const isQuizFormValid = component.isQuizFormValid();
-        expect(component.isQuizModified).toBe(true);
-        expect(isQuizFormValid).toBeTrue();
+    it('should return true if all conditions are met for a modified quiz', () => {
+        const validQuiz: Quiz = {
+            $schema: 'quiz-schema.json',
+            id: '',
+            title: 'Valid Title',
+            description: 'Valid Description',
+            duration: 15,
+            lastModification: '',
+            questions: [
+                {
+                    type: 'QCM',
+                    text: 'Valid Question',
+                    points: 20,
+                    choices: [
+                        { text: 'Valid Choice 1', isCorrect: true },
+                        { text: 'Valid Choice 2', isCorrect: false },
+                    ],
+                },
+            ],
+        };
+        component.newQuiz = validQuiz;
+        component.isGeneralInfoFormValid = false;
+        quizManagerServiceSpy.hasQuizModified.and.returnValue(true);
+        expect(component.isQuizFormValid()).toBeTrue();
     });
 
-    it('should return true if quiz form is valid and the information of a question choice was modified (when newQuiz.id is not empty)', () => {
-        component.newQuiz = QUESTION_CHOICE_MODIFIED_QUIZ;
-        const isQuizFormValid = component.isQuizFormValid();
-        expect(component.isQuizModified).toBe(true);
-        expect(isQuizFormValid).toBeTrue();
+    it('should return true if all conditions are met', () => {
+        const validQuiz: Quiz = {
+            $schema: 'quiz-schema.json',
+            id: '1',
+            title: 'Valid Title',
+            description: 'Valid Description',
+            duration: 15,
+            lastModification: '',
+            questions: [
+                {
+                    type: 'QCM',
+                    text: 'Valid Question',
+                    points: 20,
+                    choices: [
+                        { text: 'Valid Choice 1', isCorrect: true },
+                        { text: 'Valid Choice 2', isCorrect: false },
+                    ],
+                },
+            ],
+        };
+        component.newQuiz = validQuiz;
+        component.isGeneralInfoFormValid = false;
+        quizManagerServiceSpy.hasQuizModified.and.returnValue(true);
+        expect(component.isQuizFormValid()).toBeTrue();
     });
 
-    it('should return false if quiz form is not valid (when newQuiz.id is not empty)', () => {
-        component.newQuiz = NOT_VALID_QUIZ;
-        const isQuizFormValid = component.isQuizFormValid();
-        expect(component.isQuizModified).toBe(false);
-        expect(isQuizFormValid).toBeFalse();
+    it('should return true if the quiz is modified', () => {
+        component.newQuiz = mockQuiz;
+        component.isGeneralInfoFormValid = false;
+        quizManagerServiceSpy.hasQuizModified.and.returnValue(true);
+        expect(component.isQuizFormValid()).toBeTrue();
+    });
+
+    it('should return false if the quiz is not modified', () => {
+        component.newQuiz = mockQuiz;
+        component.isGeneralInfoFormValid = true;
+        quizManagerServiceSpy.hasQuizModified.and.returnValue(false);
+        expect(component.isQuizFormValid()).toBeFalse();
     });
 });

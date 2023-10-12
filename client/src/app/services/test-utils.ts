@@ -129,23 +129,3 @@ export const QUESTION_CHOICE_MODIFIED_QUIZ: Quiz = {
         },
     ],
 };
-
-export const NOT_VALID_QUIZ: Quiz = {
-    $schema: 'quiz-schema.json',
-    id: '1',
-    title: 'Test',
-    description: '',
-    duration: 5,
-    lastModification: '',
-    questions: [
-        {
-            type: 'QCM',
-            text: 'Question 1',
-            points: 10,
-            choices: [
-                { text: 'Choice 1', isCorrect: true },
-                { text: 'Choice 2', isCorrect: false },
-            ],
-        },
-    ],
-};

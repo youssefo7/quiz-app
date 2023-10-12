@@ -68,7 +68,7 @@ export class CreateEditQuizPageComponent implements OnInit {
             !this.isGeneralInfoFormValid
         ) {
             if (this.newQuiz.id !== '') {
-                this.isQuizModified = this.hasQuizModified();
+                this.isQuizModified = this.quizManagerService.hasQuizModified(this.newQuiz);
                 return this.isQuizModified;
             } else {
                 return true;
@@ -76,42 +76,6 @@ export class CreateEditQuizPageComponent implements OnInit {
         }
 
         this.isQuizModified = false;
-        return false;
-    }
-
-    hasQuizModified(): boolean {
-        if (
-            this.quizToModify.title.trim() !== this.newQuiz.title.trim() ||
-            this.quizToModify.description.trim() !== this.newQuiz.description.trim() ||
-            this.quizToModify.duration !== this.newQuiz.duration
-        ) {
-            return true;
-        }
-
-        if (this.quizToModify.questions.length !== this.newQuiz.questions.length) {
-            return true;
-        }
-
-        for (let i = 0; i < this.quizToModify.questions.length; i++) {
-            if (
-                this.quizToModify.questions[i].type !== this.newQuiz.questions[i].type ||
-                this.quizToModify.questions[i].text.trim() !== this.newQuiz.questions[i].text.trim() ||
-                this.quizToModify.questions[i].points !== this.newQuiz.questions[i].points ||
-                this.quizToModify.questions[i].choices.length !== this.newQuiz.questions[i].choices.length
-            ) {
-                return true;
-            }
-
-            for (let j = 0; j < this.quizToModify.questions[i].choices.length; j++) {
-                if (
-                    this.quizToModify.questions[i].choices[j].text.trim() !== this.newQuiz.questions[i].choices[j].text.trim() ||
-                    this.quizToModify.questions[i].choices[j].isCorrect !== this.newQuiz.questions[i].choices[j].isCorrect
-                ) {
-                    return true;
-                }
-            }
-        }
-
         return false;
     }
 

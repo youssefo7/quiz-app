@@ -1,12 +1,18 @@
-import { TestBed } from '@angular/core/testing';
-
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { of, throwError } from 'rxjs';
 import { CommunicationService } from './communication.service';
 import { QuizManagerService } from './quiz-manager.service';
+import {
+    CHOICE_QTY_MODIFIED_QUIZ,
+    NOT_MODIFIED_QUIZ,
+    QUESTION_CHOICE_MODIFIED_QUIZ,
+    QUESTION_QTY_MODIFIED_QUIZ,
+    TDD_MODIFIED_QUIZ,
+} from './test-utils';
 
 import SpyObj = jasmine.SpyObj;
 
@@ -87,6 +93,26 @@ describe('QuizManagerService', () => {
 
     beforeEach(() => {
         service = TestBed.inject(QuizManagerService);
+
+        service.quizToModify = {
+            $schema: 'quiz-schema.json',
+            id: '1',
+            title: 'Title',
+            description: 'Description',
+            duration: 30,
+            lastModification: '',
+            questions: [
+                {
+                    type: 'QCM',
+                    text: 'Question 1',
+                    points: 10,
+                    choices: [
+                        { text: 'Choice 1', isCorrect: true },
+                        { text: 'Choice 2', isCorrect: false },
+                    ],
+                },
+            ],
+        } as unknown as Quiz;
 
         quizToEditMock = {
             $schema: 'quiz-schema.json',
@@ -271,5 +297,30 @@ describe('QuizManagerService', () => {
         expect(quizToEditMock.title).toEqual('new title');
         expect(quizToEditMock.description).toEqual('dummy description edited');
         expect(quizToEditMock.duration).toEqual(newQuizDuration);
+    });
+
+    it('should return true if quiz form is valid and either the title, description, or duration is modified (when newQuiz.id is not empty)', () => {
+        const result = service.hasQuizModified(TDD_MODIFIED_QUIZ);
+        expect(result).toBe(true);
+    });
+
+    it('should return true if quiz form is valid and there are a different amount of questions (when newQuiz.id is not empty)', () => {
+        const result = service.hasQuizModified(QUESTION_QTY_MODIFIED_QUIZ);
+        expect(result).toBe(true);
+    });
+
+    it('should return true if quiz form is valid and the amount of choices of a question has been modified (when newQuiz.id is not empty)', () => {
+        const result = service.hasQuizModified(CHOICE_QTY_MODIFIED_QUIZ);
+        expect(result).toBe(true);
+    });
+
+    it('should return true if quiz form is valid and the information of a question choice was modified (when newQuiz.id is not empty)', () => {
+        const result = service.hasQuizModified(QUESTION_CHOICE_MODIFIED_QUIZ);
+        expect(result).toBe(true);
+    });
+
+    it('should return false if quiz form is not modified (when newQuiz.id is not empty)', () => {
+        const result = service.hasQuizModified(NOT_MODIFIED_QUIZ);
+        expect(result).toBe(false);
     });
 });
