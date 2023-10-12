@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { MatIconModule } from '@angular/material/icon';
+import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute } from '@angular/router';
 import { ProfileComponent } from './profile.component';
 
@@ -9,8 +9,7 @@ describe('ProfileComponent in test game route', () => {
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [ProfileComponent],
-            imports: [MatIconModule],
+            declarations: [ProfileComponent, MatIcon],
             providers: [{ provide: ActivatedRoute, useValue: { snapshot: { url: [{ path: 'test' }] } } }],
         }).compileComponents();
     }));
@@ -42,8 +41,7 @@ describe('ProfileComponent in regular game route', () => {
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [ProfileComponent],
-            imports: [MatIconModule],
+            declarations: [ProfileComponent, MatIcon],
             providers: [{ provide: ActivatedRoute, useValue: { snapshot: { url: [{ path: '' }] } } }],
         }).compileComponents();
     }));

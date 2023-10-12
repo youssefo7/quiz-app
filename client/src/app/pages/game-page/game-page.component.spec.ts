@@ -1,7 +1,7 @@
 import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
+import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { CountdownComponent } from '@app/components/countdown/countdown.component';
@@ -44,8 +44,8 @@ describe('GamePageComponent in test game route', () => {
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [GamePageComponent, TopBarComponent, CountdownComponent, QuestionZoneComponent, ProfileComponent, ChatComponent],
-            imports: [MatIconModule, MatDialogModule, HttpClientModule],
+            declarations: [GamePageComponent, TopBarComponent, CountdownComponent, QuestionZoneComponent, ProfileComponent, ChatComponent, MatIcon],
+            imports: [MatDialogModule, HttpClientModule],
             providers: [
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'test' }] } } },
                 { provide: MatDialog, useValue: mockDialog },
@@ -122,8 +122,8 @@ describe('GamePageComponent in regular game route', () => {
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [GamePageComponent, TopBarComponent, ProfileComponent, ChatComponent, QuestionZoneComponent, CountdownComponent],
-            imports: [MatIconModule, RouterModule, HttpClientModule, MatDialogModule],
+            declarations: [GamePageComponent, TopBarComponent, ProfileComponent, ChatComponent, QuestionZoneComponent, CountdownComponent, MatIcon],
+            imports: [RouterModule, HttpClientModule, MatDialogModule],
             providers: [{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: '' }] } } }],
         }).compileComponents();
 

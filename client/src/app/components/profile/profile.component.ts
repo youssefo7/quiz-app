@@ -10,7 +10,7 @@ export class ProfileComponent implements OnInit {
     @Input() points: number;
     name: string;
 
-    constructor(private route: ActivatedRoute) {
+    constructor(private readonly route: ActivatedRoute) {
         this.name = '';
     }
 

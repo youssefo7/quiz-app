@@ -18,12 +18,12 @@ export class CountdownComponent implements OnInit {
     // eslint-disable-next-line max-params
     constructor(
         private readonly timeService: TimeService,
-        private route: ActivatedRoute,
-        private router: Router,
-        private gameService: GameService,
+        private readonly route: ActivatedRoute,
+        private readonly router: Router,
+        private readonly gameService: GameService,
     ) {}
 
-    get time(): number {
+    get time() {
         return this.timeService.time;
     }
 
