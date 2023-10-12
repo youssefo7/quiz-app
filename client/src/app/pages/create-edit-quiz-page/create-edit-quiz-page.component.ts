@@ -37,7 +37,7 @@ export class CreateEditQuizPageComponent implements OnInit {
     async loadQuiz(): Promise<void> {
         const id = this.route.snapshot.paramMap.get('id');
         const modifiedQuiz = await this.quizManagerService.fetchQuiz(id);
-        this.newQuiz = modifiedQuiz ?? blankQuiz;
+        this.newQuiz = modifiedQuiz ?? JSON.parse(JSON.stringify(blankQuiz));
         this.pageTitle = this.newQuiz.id ? 'Modifier un jeu questionnaire' : 'Créer un jeu questionnaire';
     }
 
