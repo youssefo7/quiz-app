@@ -81,4 +81,30 @@ form {
     #save-button {
         grid-row: 4/5;
     }
+
+    .mat-mdc-slide-toggle.mat-primary {
+        --mdc-switch-selected-focus-state-layer-color: #2f8832;
+        --mdc-switch-selected-handle-color: #2f8832;
+        --mdc-switch-selected-hover-state-layer-color: #2f8832;
+        --mdc-switch-selected-pressed-state-layer-color: #2f8832;
+        --mdc-switch-selected-focus-handle-color: #388E3C;
+        --mdc-switch-selected-hover-handle-color: #388E3C;
+        --mdc-switch-selected-pressed-handle-color: #388E3C;
+        --mdc-switch-selected-focus-track-color: #A5D6A7;
+        --mdc-switch-selected-hover-track-color: #A5D6A7;
+        --mdc-switch-selected-pressed-track-color: #A5D6A7;
+        --mdc-switch-selected-track-color: #A5D6A7;
+
+        --mdc-switch-unselected-focus-state-layer-color: #D32F2F;
+        --mdc-switch-unselected-pressed-state-layer-color: #D32F2F;
+        --mdc-switch-unselected-hover-state-layer-color: #D32F2F;
+        --mdc-switch-unselected-focus-track-color: #FFCDD2;
+        --mdc-switch-unselected-hover-track-color: #FFCDD2;
+        --mdc-switch-unselected-pressed-track-color: #FFCDD2;
+        --mdc-switch-unselected-track-color: #FFCDD2;
+        --mdc-switch-unselected-focus-handle-color: #B71C1C;
+        --mdc-switch-unselected-hover-handle-color: #B71C1C;
+        --mdc-switch-unselected-pressed-handle-color: #B71C1C;
+        --mdc-switch-unselected-handle-color: #C62828;
+    }
 }
