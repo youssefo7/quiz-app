@@ -1,7 +1,6 @@
-import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatIcon } from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { CountdownComponent } from '@app/components/countdown/countdown.component';
@@ -12,7 +11,6 @@ import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
-import { of } from 'rxjs';
 import { GamePageComponent } from './game-page.component';
 import SpyObj = jasmine.SpyObj;
 
@@ -37,19 +35,19 @@ describe('GamePageComponent in test game route', () => {
 
     beforeEach(() => {
         communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
-        communicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
         mockDialog = jasmine.createSpyObj('mockDialog', ['open']);
         mockDialogRef = jasmine.createSpyObj('mockDialogRef', ['componentInstance']);
     });
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [GamePageComponent, TopBarComponent, CountdownComponent, QuestionZoneComponent, ProfileComponent, ChatComponent, MatIcon],
-            imports: [MatDialogModule, HttpClientModule],
+            declarations: [GamePageComponent, TopBarComponent, CountdownComponent, QuestionZoneComponent, ProfileComponent, ChatComponent],
+            imports: [MatIconModule, MatDialogModule],
             providers: [
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'test' }] } } },
                 { provide: MatDialog, useValue: mockDialog },
                 { provide: MatDialogRef, useValue: mockDialogRef },
+                { provide: CommunicationService, useValue: communicationServiceMock },
             ],
         }).compileComponents();
 
@@ -119,12 +117,20 @@ describe('GamePageComponent in regular game route', () => {
     let component: GamePageComponent;
     let fixture: ComponentFixture<GamePageComponent>;
     let router: Router;
+    let communicationServiceMock: jasmine.SpyObj<CommunicationService>;
+
+    beforeEach(() => {
+        communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
+    });
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [GamePageComponent, TopBarComponent, ProfileComponent, ChatComponent, QuestionZoneComponent, CountdownComponent, MatIcon],
-            imports: [RouterModule, HttpClientModule, MatDialogModule],
-            providers: [{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: '' }] } } }],
+            declarations: [GamePageComponent, TopBarComponent, ProfileComponent, ChatComponent, QuestionZoneComponent, CountdownComponent],
+            imports: [MatIconModule, RouterModule, MatDialogModule],
+            providers: [
+                { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: '' }] } } },
+                { provide: CommunicationService, useValue: communicationServiceMock },
+            ],
         }).compileComponents();
 
         router = TestBed.inject(Router);

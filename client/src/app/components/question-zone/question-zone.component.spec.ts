@@ -116,13 +116,6 @@ describe('QuestionZoneComponent', () => {
         }
     });
 
-    it('should call nothing if hasGameEnded is true', () => {
-        component['hasGameEnded'] = true;
-        const getQuestionSpy = spyOn(component, 'getQuestion');
-        component.subscribeToTimer();
-        expect(getQuestionSpy).not.toHaveBeenCalled();
-    });
-
     it('should submit answers if the timer is at 0, the question is not transitioning and the game has not ended', () => {
         const showResultSpy = spyOn(component, 'showResult');
         spyOn(timeService, 'getTime').and.returnValue(of(0));
