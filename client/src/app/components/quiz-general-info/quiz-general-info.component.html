@@ -1,12 +1,11 @@
 <h2>Informations générales</h2>
-<form id="general-info" [formGroup]="generalInfoForm" (ngSubmit)="onSubmit()">
+<form id="general-info" [formGroup]="generalInfoForm">
     <div id="title-div">
         <label class="textarea-label" for="newTitle">Titre :</label>
         <div class="flex-input" [ngClass]="{ infoPadding: isTitleValid }">
             <input
                 (input)="adjustPadding()"
                 (blur)="adjustPadding()"
-                [attr.disabled]="disableForm ? '' : null"
                 type="text"
                 name="newTitle"
                 id="newTitle"
@@ -35,7 +34,6 @@
             <input
                 (input)="adjustPadding()"
                 (blur)="adjustPadding()"
-                [attr.disabled]="disableForm ? '' : null"
                 type="text"
                 name="newDescription"
                 id="newDescription"
@@ -64,7 +62,6 @@
         <div [ngClass]="{ infoPadding: isDurationValid }">
             <input
                 (input)="adjustPadding()"
-                [attr.disabled]="disableForm ? '' : null"
                 type="number"
                 name="newDuration"
                 id="newDuration"
@@ -78,5 +75,4 @@
         </div>
         <p id="verify-duration" class="error" *ngIf="generalInfoForm.controls.duration.invalid">La durée allouée doit être entre 10 et 60 secondes</p>
     </div>
-    <button id="submit-button" (click)="toggleButtonTextAndName()" [disabled]="generalInfoForm.invalid">{{ buttonText }}</button>
 </form>

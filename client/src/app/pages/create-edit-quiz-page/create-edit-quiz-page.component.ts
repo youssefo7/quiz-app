@@ -5,7 +5,6 @@ import { ConfirmationPopupComponent } from '@app/components/confirmation-popup/c
 import { QuizQuestionInfoComponent } from '@app/components/quiz-question-info/quiz-question-info.component';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
-import { Constants } from '@common/constants';
 import { blankQuiz } from './utils';
 
 @Component({
@@ -20,14 +19,14 @@ export class CreateEditQuizPageComponent implements OnInit {
     quizId: string;
     pageTitle: string;
     resetQuiz: Quiz;
-    shouldDisableForm: boolean;
+    isGeneralInfoFormValid: boolean;
 
     constructor(
         private quizManagerService: QuizManagerService,
         private confirmationDialogReference: MatDialog,
         private route: ActivatedRoute,
     ) {
-        this.shouldDisableForm = false;
+        this.isGeneralInfoFormValid = false;
     }
 
     ngOnInit(): void {
@@ -45,33 +44,20 @@ export class CreateEditQuizPageComponent implements OnInit {
         this.quizQuestionInfo.loadQuestionInformation(selectedQuestion, selectedIndex);
     }
 
-    onGeneralInfoChange(shouldDisableForm: boolean): void {
-        this.shouldDisableForm = shouldDisableForm;
+    setIsGeneralInfoFormValid(shouldBlockSubmit: boolean): void {
+        this.isGeneralInfoFormValid = !shouldBlockSubmit;
     }
 
     isQuizFormValid(): boolean {
-        if (
-            this.newQuiz &&
-            this.newQuiz.questions.length > 0 &&
-            this.newQuiz.questions.every((question) => this.isQuestionValid(question)) &&
-            this.newQuiz.title.trim().length > 0 &&
-            this.newQuiz.description.trim().length > 0 &&
-            this.newQuiz.duration >= Constants.MIN_DURATION &&
-            !this.shouldDisableForm
-        ) {
-            return true;
+        if (this.newQuiz.questions.length > 0 && this.isGeneralInfoFormValid) {
+            if (this.newQuiz.id !== '') {
+                return this.quizManagerService.hasQuizBeenModified(this.newQuiz);
+            } else {
+                return true;
+            }
         }
-        return false;
-    }
 
-    isQuestionValid(question: Question): boolean {
-        return (
-            question.text.trim().length > 0 &&
-            question.type.trim().length > 0 &&
-            question.choices.length >= Constants.MIN_CHOICES &&
-            question.choices.some((choice) => choice.text.trim().length > 0) &&
-            question.choices.some((choice) => choice.isCorrect)
-        );
+        return false;
     }
 
     deleteQuestion(index: number): void {

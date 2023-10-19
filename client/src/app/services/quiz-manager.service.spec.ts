@@ -1,6 +1,5 @@
-import { TestBed } from '@angular/core/testing';
-
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Question, Quiz } from '@app/interfaces/quiz';
@@ -31,10 +30,10 @@ describe('QuizManagerService', () => {
             $schema: 'quiz-schema.json',
             id: '01',
             title: 'Quiz1',
+            description: 'first quiz of the list',
             duration: 60,
             lastModification: '2018-11-13T20:20:39+00:00',
             visibility: true,
-            description: 'first quiz of the list',
             questions: [
                 {
                     type: 'QCM',
@@ -51,10 +50,10 @@ describe('QuizManagerService', () => {
             $schema: 'quiz-schema.json',
             id: '02',
             title: 'Quiz2',
+            description: 'second quiz of the list',
             duration: 60,
             lastModification: '2018-11-13T20:20:39+00:00',
             visibility: false,
-            description: 'second quiz of the list',
             questions: [
                 {
                     type: 'QCM',
@@ -92,10 +91,10 @@ describe('QuizManagerService', () => {
             $schema: 'quiz-schema.json',
             id: '1',
             title: 'test',
+            description: 'dummy description',
             duration: 60,
             lastModification: '2018-11-13T20:20:39+00:00',
             visibility: true,
-            description: 'dummy description',
             questions: [
                 {
                     type: 'QCM',
@@ -108,6 +107,8 @@ describe('QuizManagerService', () => {
                 },
             ],
         };
+
+        service.quizToModify = quizToEditMock;
     });
 
     it('should be created', () => {
@@ -271,5 +272,61 @@ describe('QuizManagerService', () => {
         expect(quizToEditMock.title).toEqual('new title');
         expect(quizToEditMock.description).toEqual('dummy description edited');
         expect(quizToEditMock.duration).toEqual(newQuizDuration);
+    });
+
+    it('should return true if quiz form is valid and either the title, description, or duration is modified (when newQuiz.id is not empty)', () => {
+        const result = service.hasQuizBeenModified({ ...quizToEditMock, title: 'Modified title' });
+        expect(result).toBe(true);
+    });
+
+    it('should return true if quiz form is valid and there are a different amount of questions (when newQuiz.id is not empty)', () => {
+        const result = service.hasQuizBeenModified({
+            ...quizToEditMock,
+            questions: [
+                ...quizToEditMock.questions,
+                {
+                    type: 'QCM',
+                    text: 'Modified Question 2',
+                    points: 10,
+                    choices: [
+                        { text: 'Modified Choice 1', isCorrect: true },
+                        { text: 'Modified Choice 2', isCorrect: false },
+                    ],
+                },
+            ],
+        });
+
+        expect(result).toBe(true);
+    });
+
+    it('should return true if quiz form is valid and the amount of choices of a question has been modified (when newQuiz.id is not empty)', () => {
+        const modifiedQuestions = [...quizToEditMock.questions];
+        modifiedQuestions[0] = {
+            ...modifiedQuestions[0],
+            choices: [...modifiedQuestions[0].choices, { text: 'Choice 3', isCorrect: true }],
+        };
+        const result = service.hasQuizBeenModified({ ...quizToEditMock, questions: modifiedQuestions });
+        expect(result).toBe(true);
+    });
+
+    it('should return true if quiz form is valid and the information of a question choice was modified (when newQuiz.id is not empty)', () => {
+        const modifiedQuestions = [...quizToEditMock.questions];
+        modifiedQuestions[0] = {
+            ...modifiedQuestions[0],
+            choices: [
+                {
+                    ...modifiedQuestions[0].choices[0],
+                    text: 'Modified Choice 1',
+                },
+                ...modifiedQuestions[0].choices.slice(1),
+            ],
+        };
+        const result = service.hasQuizBeenModified({ ...quizToEditMock, questions: modifiedQuestions });
+        expect(result).toBe(true);
+    });
+
+    it('should return false if quiz form is not modified (when newQuiz.id is not empty)', () => {
+        const result = service.hasQuizBeenModified(quizToEditMock);
+        expect(result).toBe(false);
     });
 });

@@ -14,8 +14,6 @@ export class QuizGeneralInfoComponent implements OnInit, AfterViewInit {
     @Output() blockSubmit: EventEmitter<boolean>;
 
     generalInfoForm: FormGroup;
-    disableForm: boolean;
-    buttonText: string;
     titleValue: string;
     descriptionValue: string;
     maxLengthTitle: number;
@@ -35,8 +33,6 @@ export class QuizGeneralInfoComponent implements OnInit, AfterViewInit {
         this.isTitleValid = true;
         this.isDescriptionValid = true;
         this.isDurationValid = true;
-        this.disableForm = false;
-        this.buttonText = 'Sauvegarder';
         this.blockSubmit = new EventEmitter<boolean>();
     }
 
@@ -54,7 +50,7 @@ export class QuizGeneralInfoComponent implements OnInit, AfterViewInit {
                 duration: [this.newQuiz.duration, [Validators.min(Constants.MIN_DURATION), Validators.max(Constants.MAX_DURATION)]],
             });
 
-            this.blockSubmit.emit(true);
+            this.blockSubmit.emit(false);
         }
 
         this.titleValue = this.generalInfoForm.controls.title.value;
@@ -63,11 +59,14 @@ export class QuizGeneralInfoComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit(): void {
-        if (this.newQuiz.id !== '') {
-            setTimeout(() => {
-                this.toggleButtonTextAndName();
-            });
-        }
+        this.generalInfoForm.valueChanges.subscribe(() => {
+            if (this.generalInfoForm.valid) {
+                this.blockSubmit.emit(false);
+                this.quizManagerService.updateGeneralInfo(this.newQuiz, this.generalInfoForm);
+            } else {
+                this.blockSubmit.emit(true);
+            }
+        });
     }
 
     initCounters() {
@@ -89,12 +88,6 @@ export class QuizGeneralInfoComponent implements OnInit, AfterViewInit {
         };
     }
 
-    toggleButtonTextAndName(): void {
-        this.disableForm = !this.disableForm;
-        this.buttonText = this.disableForm ? 'Modifier' : 'Sauvegarder';
-        this.blockSubmit.emit(!this.disableForm);
-    }
-
     getQuizList() {
         return this.quizManagerService.quizzes;
     }
@@ -109,10 +102,6 @@ export class QuizGeneralInfoComponent implements OnInit, AfterViewInit {
         const inputValue = (event.target as HTMLInputElement).value;
         this.descriptionLength = inputValue.length;
         this.counterDescription = `${this.descriptionLength} / ${this.maxLengthDescription}`;
-    }
-
-    onSubmit() {
-        this.quizManagerService.updateGeneralInfo(this.newQuiz, this.generalInfoForm);
     }
 
     adjustPadding() {

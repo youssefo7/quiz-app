@@ -1,528 +1,528 @@
 [
-  {
-    "$schema": "quiz-schema.json",
-    "id": "546",
-    "title": "Connaissez-vous bien le JavaScript ?",
-    "duration": 10,
-    "lastModification": "2023-09-30T18:47:03.037Z",
-    "visibility": false,
-    "description": "Le quiz parfait pour les débutants en Javascript",
-    "questions": [
-      {
-        "type": "QCM",
-        "text": "Parmi les mots suivants, lesquels sont des mots clés réservés en JS?",
-        "points": 40,
-        "choices": [
-          {
-            "text": "var",
-            "isCorrect": true
-          },
-          {
-            "text": "self",
-            "isCorrect": false
-          },
-          {
-            "text": "this",
-            "isCorrect": true
-          },
-          {
-            "text": "int",
-            "isCorrect": false
-          }
+    {
+        "$schema": "quiz-schema.json",
+        "id": "546",
+        "title": "Connaissez-vous bien le JavaScript ?",
+        "duration": 10,
+        "lastModification": "2023-09-30T18:47:03.037Z",
+        "visibility": false,
+        "description": "Le quiz parfait pour les débutants en Javascript",
+        "questions": [
+            {
+                "type": "QCM",
+                "text": "Parmi les mots suivants, lesquels sont des mots clés réservés en JS?",
+                "points": 40,
+                "choices": [
+                    {
+                        "text": "var",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "self",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "this",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "int",
+                        "isCorrect": false
+                    }
+                ]
+            },
+            {
+                "type": "QCM",
+                "text": "En quelle année Javascript fut créé? ",
+                "points": 60,
+                "choices": [
+                    {
+                        "text": "1995",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "2001",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "1998",
+                        "isCorrect": false
+                    }
+                ]
+            },
+            {
+                "type": "QCM",
+                "text": "Est-ce qu'on le code suivant lance une erreur : const a = 1/NaN; ? ",
+                "points": 20,
+                "choices": [
+                    {
+                        "text": "Non",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "Oui",
+                        "isCorrect": false
+                    }
+                ]
+            }
         ]
-      },
-      {
-        "type": "QCM",
-        "text": "En quelle année Javascript fut créé? ",
-        "points": 60,
-        "choices": [
-          {
-            "text": "1995",
-            "isCorrect": true
-          },
-          {
-            "text": "2001",
-            "isCorrect": false
-          },
-          {
-            "text": "1998",
-            "isCorrect": false
-          }
+    },
+    {
+        "$schema": "quiz-schema.json",
+        "id": "986",
+        "title": "Histoire et culture generale",
+        "duration": 15,
+        "lastModification": "2023-09-30T18:47:04.060Z",
+        "visibility": false,
+        "description": "Montrez que vous êtes incollable sur l'histoire et la culture générale",
+        "questions": [
+            {
+                "type": "QCM",
+                "text": "Quel événement a marqué le début de la Première Guerre mondiale en 1914 ?",
+                "points": 40,
+                "choices": [
+                    {
+                        "text": "L'assassinat de l'archiduc François-Ferdinand d'Autriche",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "Le krach boursier de 1929",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "La révolution russe",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "La guerre de Sécession",
+                        "isCorrect": false
+                    }
+                ]
+            },
+            {
+                "type": "QCM",
+                "text": "Quel événement a marqué la fin de la Guerre Froide en 1989 ?",
+                "points": 30,
+                "choices": [
+                    {
+                        "text": "La chute du mur de Berlin",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "La création de l'OTAN",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Le lancement de Spoutnik",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "La guerre de Corée",
+                        "isCorrect": false
+                    }
+                ]
+            },
+            {
+                "type": "QCM",
+                "text": "Parmi les villes suivantes, lesquelles sont des capitales?",
+                "points": 40,
+                "choices": [
+                    {
+                        "text": "Paris",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "Londres",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "Berlin",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "Barcelone",
+                        "isCorrect": false
+                    }
+                ]
+            }
         ]
-      },
-      {
-        "type": "QCM",
-        "text": "Est-ce qu'on le code suivant lance une erreur : const a = 1/NaN; ? ",
-        "points": 20,
-        "choices": [
-          {
-            "text": "Non",
-            "isCorrect": true
-          },
-          {
-            "text": "Oui",
-            "isCorrect": false
-          }
+    },
+    {
+        "$schema": "quiz-schema.json",
+        "id": "1125",
+        "title": "Les grands auteurs français",
+        "duration": 15,
+        "lastModification": "2023-09-30T18:47:04.935Z",
+        "visibility": false,
+        "description": "Testez vos connaissances sur les grands écrivains français.",
+        "questions": [
+            {
+                "type": "QCM",
+                "text": "Qui a écrit 'Les Misérables'?",
+                "points": 40,
+                "choices": [
+                    {
+                        "text": "Émile Zola",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Victor Hugo",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "Marcel Proust",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Albert Camus",
+                        "isCorrect": false
+                    }
+                ]
+            },
+            {
+                "type": "QCM",
+                "text": "Quel auteur est célèbre pour 'À la recherche du temps perdu'?",
+                "points": 40,
+                "choices": [
+                    {
+                        "text": "Molière",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Marcel Proust",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "André Gide",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Jean-Paul Sartre",
+                        "isCorrect": false
+                    }
+                ]
+            },
+            {
+                "type": "QCM",
+                "text": "Quel écrivain a reçu le prix Nobel de littérature en 1957?",
+                "points": 40,
+                "choices": [
+                    {
+                        "text": "Albert Camus",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "André Malraux",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "François Mauriac",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Jean Cocteau",
+                        "isCorrect": false
+                    }
+                ]
+            },
+            {
+                "type": "QCM",
+                "text": "Qui est l'auteur de 'Candide'?",
+                "points": 40,
+                "choices": [
+                    {
+                        "text": "Jean-Jacques Rousseau",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Denis Diderot",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "François Rabelais",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Voltaire",
+                        "isCorrect": true
+                    }
+                ]
+            },
+            {
+                "type": "QCM",
+                "text": "Qui a écrit 'Germinal'?",
+                "points": 40,
+                "choices": [
+                    {
+                        "text": "Émile Zola",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "Balzac",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Paul Valéry",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Charles Baudelaire",
+                        "isCorrect": false
+                    }
+                ]
+            }
         ]
-      }
-    ]
-  },
-  {
-    "$schema": "quiz-schema.json",
-    "id": "986",
-    "title": "Histoire et culture generale",
-    "duration": 15,
-    "lastModification": "2023-09-30T18:47:04.060Z",
-    "visibility": false,
-    "description": "Montrez que vous êtes incollable sur l'histoire et la culture générale",
-    "questions": [
-      {
-        "type": "QCM",
-        "text": "Quel événement a marqué le début de la Première Guerre mondiale en 1914 ?",
-        "points": 40,
-        "choices": [
-          {
-            "text": "L'assassinat de l'archiduc François-Ferdinand d'Autriche",
-            "isCorrect": true
-          },
-          {
-            "text": "Le krach boursier de 1929",
-            "isCorrect": false
-          },
-          {
-            "text": "La révolution russe",
-            "isCorrect": false
-          },
-          {
-            "text": "La guerre de Sécession",
-            "isCorrect": false
-          }
+    },
+    {
+        "$schema": "quiz-schema.json",
+        "id": "1129",
+        "title": "Géographie mondiale",
+        "duration": 15,
+        "lastModification": "2023-09-30T18:47:05.918Z",
+        "visibility": false,
+        "description": "Testez vos connaissances en géographie mondiale.",
+        "questions": [
+            {
+                "type": "QCM",
+                "text": "Quelle est la capitale du Brésil?",
+                "points": 40,
+                "choices": [
+                    {
+                        "text": "Rio de Janeiro",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "São Paulo",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Brasília",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "Salvador",
+                        "isCorrect": false
+                    }
+                ]
+            },
+            {
+                "type": "QCM",
+                "text": "Quel pays possède la plus grande superficie?",
+                "points": 40,
+                "choices": [
+                    {
+                        "text": "Canada",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "États-Unis",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Chine",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Russie",
+                        "isCorrect": true
+                    }
+                ]
+            },
+            {
+                "type": "QCM",
+                "text": "Quelle montagne est la plus haute du monde?",
+                "points": 40,
+                "choices": [
+                    {
+                        "text": "Kilimandjaro",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Mont Blanc",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Everest",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "K2",
+                        "isCorrect": false
+                    }
+                ]
+            },
+            {
+                "type": "QCM",
+                "text": "Quel est le plus grand désert du monde?",
+                "points": 40,
+                "choices": [
+                    {
+                        "text": "Sahara",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "Atacama",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Kalahari",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Gobi",
+                        "isCorrect": false
+                    }
+                ]
+            },
+            {
+                "type": "QCM",
+                "text": "Quelle est la plus longue rivière du monde?",
+                "points": 40,
+                "choices": [
+                    {
+                        "text": "Le Nil",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "L'Amazone",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Le Mississippi",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Le Yangtsé",
+                        "isCorrect": false
+                    }
+                ]
+            }
         ]
-      },
-      {
-        "type": "QCM",
-        "text": "Quel événement a marqué la fin de la Guerre Froide en 1989 ?",
-        "points": 30,
-        "choices": [
-          {
-            "text": "La chute du mur de Berlin",
-            "isCorrect": true
-          },
-          {
-            "text": "La création de l'OTAN",
-            "isCorrect": false
-          },
-          {
-            "text": "Le lancement de Spoutnik",
-            "isCorrect": false
-          },
-          {
-            "text": "La guerre de Corée",
-            "isCorrect": false
-          }
+    },
+    {
+        "$schema": "quiz-schema.json",
+        "id": "1130",
+        "title": "Physique élémentaire",
+        "duration": 20,
+        "lastModification": "2023-09-30T18:47:06.920Z",
+        "visibility": false,
+        "description": "Mettez à l'épreuve vos connaissances en physique.",
+        "questions": [
+            {
+                "type": "QCM",
+                "text": "Quelle force attire un objet vers le centre de la Terre?",
+                "points": 40,
+                "choices": [
+                    {
+                        "text": "Force centripète",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Force électromagnétique",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Force de gravité",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "Force nucléaire",
+                        "isCorrect": false
+                    }
+                ]
+            },
+            {
+                "type": "QCM",
+                "text": "Quel est l'état de la matière qui n'a ni forme fixe ni volume fixe?",
+                "points": 40,
+                "choices": [
+                    {
+                        "text": "Solide",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Liquide",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Gaz",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "Plasma",
+                        "isCorrect": false
+                    }
+                ]
+            },
+            {
+                "type": "QCM",
+                "text": "Quelle est la vitesse de la lumière dans le vide?",
+                "points": 40,
+                "choices": [
+                    {
+                        "text": "300 000 km/s",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "150 000 km/s",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "1 000 000 km/s",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "500 000 km/s",
+                        "isCorrect": false
+                    }
+                ]
+            },
+            {
+                "type": "QCM",
+                "text": "Dans quelle unité mesure-t-on la puissance électrique?",
+                "points": 40,
+                "choices": [
+                    {
+                        "text": "Ampère",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Ohm",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Joule",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Watt",
+                        "isCorrect": true
+                    }
+                ]
+            },
+            {
+                "type": "QCM",
+                "text": "Qui est considéré comme le père de la théorie de la relativité?",
+                "points": 40,
+                "choices": [
+                    {
+                        "text": "Isaac Newton",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Niels Bohr",
+                        "isCorrect": false
+                    },
+                    {
+                        "text": "Albert Einstein",
+                        "isCorrect": true
+                    },
+                    {
+                        "text": "Galilée",
+                        "isCorrect": false
+                    }
+                ]
+            }
         ]
-      },
-      {
-        "type": "QCM",
-        "text": "Parmi les villes suivantes, lesquelles sont des capitales?",
-        "points": 40,
-        "choices": [
-          {
-            "text": "Paris",
-            "isCorrect": true
-          },
-          {
-            "text": "Londres",
-            "isCorrect": true
-          },
-          {
-            "text": "Berlin",
-            "isCorrect": true
-          },
-          {
-            "text": "Barcelone",
-            "isCorrect": false
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "$schema": "quiz-schema.json",
-    "id": "1125",
-    "title": "Les grands auteurs français",
-    "duration": 15,
-    "lastModification": "2023-09-30T18:47:04.935Z",
-    "visibility": false,
-    "description": "Testez vos connaissances sur les grands écrivains français.",
-    "questions": [
-      {
-        "type": "QCM",
-        "text": "Qui a écrit 'Les Misérables'?",
-        "points": 40,
-        "choices": [
-          {
-            "text": "Émile Zola",
-            "isCorrect": false
-          },
-          {
-            "text": "Victor Hugo",
-            "isCorrect": true
-          },
-          {
-            "text": "Marcel Proust",
-            "isCorrect": false
-          },
-          {
-            "text": "Albert Camus",
-            "isCorrect": false
-          }
-        ]
-      },
-      {
-        "type": "QCM",
-        "text": "Quel auteur est célèbre pour 'À la recherche du temps perdu'?",
-        "points": 40,
-        "choices": [
-          {
-            "text": "Molière",
-            "isCorrect": false
-          },
-          {
-            "text": "Marcel Proust",
-            "isCorrect": true
-          },
-          {
-            "text": "André Gide",
-            "isCorrect": false
-          },
-          {
-            "text": "Jean-Paul Sartre",
-            "isCorrect": false
-          }
-        ]
-      },
-      {
-        "type": "QCM",
-        "text": "Quel écrivain a reçu le prix Nobel de littérature en 1957?",
-        "points": 40,
-        "choices": [
-          {
-            "text": "Albert Camus",
-            "isCorrect": true
-          },
-          {
-            "text": "André Malraux",
-            "isCorrect": false
-          },
-          {
-            "text": "François Mauriac",
-            "isCorrect": false
-          },
-          {
-            "text": "Jean Cocteau",
-            "isCorrect": false
-          }
-        ]
-      },
-      {
-        "type": "QCM",
-        "text": "Qui est l'auteur de 'Candide'?",
-        "points": 40,
-        "choices": [
-          {
-            "text": "Jean-Jacques Rousseau",
-            "isCorrect": false
-          },
-          {
-            "text": "Denis Diderot",
-            "isCorrect": false
-          },
-          {
-            "text": "François Rabelais",
-            "isCorrect": false
-          },
-          {
-            "text": "Voltaire",
-            "isCorrect": true
-          }
-        ]
-      },
-      {
-        "type": "QCM",
-        "text": "Qui a écrit 'Germinal'?",
-        "points": 40,
-        "choices": [
-          {
-            "text": "Émile Zola",
-            "isCorrect": true
-          },
-          {
-            "text": "Balzac",
-            "isCorrect": false
-          },
-          {
-            "text": "Paul Valéry",
-            "isCorrect": false
-          },
-          {
-            "text": "Charles Baudelaire",
-            "isCorrect": false
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "$schema": "quiz-schema.json",
-    "id": "1129",
-    "title": "Géographie mondiale",
-    "duration": 15,
-    "lastModification": "2023-09-30T18:47:05.918Z",
-    "visibility": false,
-    "description": "Testez vos connaissances en géographie mondiale.",
-    "questions": [
-      {
-        "type": "QCM",
-        "text": "Quelle est la capitale du Brésil?",
-        "points": 40,
-        "choices": [
-          {
-            "text": "Rio de Janeiro",
-            "isCorrect": false
-          },
-          {
-            "text": "São Paulo",
-            "isCorrect": false
-          },
-          {
-            "text": "Brasília",
-            "isCorrect": true
-          },
-          {
-            "text": "Salvador",
-            "isCorrect": false
-          }
-        ]
-      },
-      {
-        "type": "QCM",
-        "text": "Quel pays possède la plus grande superficie?",
-        "points": 40,
-        "choices": [
-          {
-            "text": "Canada",
-            "isCorrect": false
-          },
-          {
-            "text": "États-Unis",
-            "isCorrect": false
-          },
-          {
-            "text": "Chine",
-            "isCorrect": false
-          },
-          {
-            "text": "Russie",
-            "isCorrect": true
-          }
-        ]
-      },
-      {
-        "type": "QCM",
-        "text": "Quelle montagne est la plus haute du monde?",
-        "points": 40,
-        "choices": [
-          {
-            "text": "Kilimandjaro",
-            "isCorrect": false
-          },
-          {
-            "text": "Mont Blanc",
-            "isCorrect": false
-          },
-          {
-            "text": "Everest",
-            "isCorrect": true
-          },
-          {
-            "text": "K2",
-            "isCorrect": false
-          }
-        ]
-      },
-      {
-        "type": "QCM",
-        "text": "Quel est le plus grand désert du monde?",
-        "points": 40,
-        "choices": [
-          {
-            "text": "Sahara",
-            "isCorrect": true
-          },
-          {
-            "text": "Atacama",
-            "isCorrect": false
-          },
-          {
-            "text": "Kalahari",
-            "isCorrect": false
-          },
-          {
-            "text": "Gobi",
-            "isCorrect": false
-          }
-        ]
-      },
-      {
-        "type": "QCM",
-        "text": "Quelle est la plus longue rivière du monde?",
-        "points": 40,
-        "choices": [
-          {
-            "text": "Le Nil",
-            "isCorrect": true
-          },
-          {
-            "text": "L'Amazone",
-            "isCorrect": false
-          },
-          {
-            "text": "Le Mississippi",
-            "isCorrect": false
-          },
-          {
-            "text": "Le Yangtsé",
-            "isCorrect": false
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "$schema": "quiz-schema.json",
-    "id": "1130",
-    "title": "Physique élémentaire",
-    "duration": 20,
-    "lastModification": "2023-09-30T18:47:06.920Z",
-    "visibility": false,
-    "description": "Mettez à l'épreuve vos connaissances en physique.",
-    "questions": [
-      {
-        "type": "QCM",
-        "text": "Quelle force attire un objet vers le centre de la Terre?",
-        "points": 40,
-        "choices": [
-          {
-            "text": "Force centripète",
-            "isCorrect": false
-          },
-          {
-            "text": "Force électromagnétique",
-            "isCorrect": false
-          },
-          {
-            "text": "Force de gravité",
-            "isCorrect": true
-          },
-          {
-            "text": "Force nucléaire",
-            "isCorrect": false
-          }
-        ]
-      },
-      {
-        "type": "QCM",
-        "text": "Quel est l'état de la matière qui n'a ni forme fixe ni volume fixe?",
-        "points": 40,
-        "choices": [
-          {
-            "text": "Solide",
-            "isCorrect": false
-          },
-          {
-            "text": "Liquide",
-            "isCorrect": false
-          },
-          {
-            "text": "Gaz",
-            "isCorrect": true
-          },
-          {
-            "text": "Plasma",
-            "isCorrect": false
-          }
-        ]
-      },
-      {
-        "type": "QCM",
-        "text": "Quelle est la vitesse de la lumière dans le vide?",
-        "points": 40,
-        "choices": [
-          {
-            "text": "300 000 km/s",
-            "isCorrect": true
-          },
-          {
-            "text": "150 000 km/s",
-            "isCorrect": false
-          },
-          {
-            "text": "1 000 000 km/s",
-            "isCorrect": false
-          },
-          {
-            "text": "500 000 km/s",
-            "isCorrect": false
-          }
-        ]
-      },
-      {
-        "type": "QCM",
-        "text": "Dans quelle unité mesure-t-on la puissance électrique?",
-        "points": 40,
-        "choices": [
-          {
-            "text": "Ampère",
-            "isCorrect": false
-          },
-          {
-            "text": "Ohm",
-            "isCorrect": false
-          },
-          {
-            "text": "Joule",
-            "isCorrect": false
-          },
-          {
-            "text": "Watt",
-            "isCorrect": true
-          }
-        ]
-      },
-      {
-        "type": "QCM",
-        "text": "Qui est considéré comme le père de la théorie de la relativité?",
-        "points": 40,
-        "choices": [
-          {
-            "text": "Isaac Newton",
-            "isCorrect": false
-          },
-          {
-            "text": "Niels Bohr",
-            "isCorrect": false
-          },
-          {
-            "text": "Albert Einstein",
-            "isCorrect": true
-          },
-          {
-            "text": "Galilée",
-            "isCorrect": false
-          }
-        ]
-      }
-    ]
-  }
+    }
 ]

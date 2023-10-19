@@ -29,6 +29,7 @@ describe('CreateEditQuizPageComponent', () => {
             'moveQuestionUp',
             'moveQuestionDown',
             'saveQuiz',
+            'hasQuizBeenModified',
         ]);
         quizQuestionInfoSpy = jasmine.createSpyObj('QuizQuestionInfoComponent', ['loadQuestionInformation', 'resetForm']);
         dialogRefSpyObj = jasmine.createSpyObj<MatDialogRef<ConfirmationPopupComponent>>('MatDialogRef', ['afterClosed'], {
@@ -57,6 +58,10 @@ describe('CreateEditQuizPageComponent', () => {
 
     beforeEach(() => {
         mockQuiz = {
+            id: 'abc',
+            title: 'TEST',
+            description: 'DESCRIPTION',
+            duration: 20,
             questions: [
                 {
                     type: 'QCM',
@@ -64,7 +69,7 @@ describe('CreateEditQuizPageComponent', () => {
                     points: 20,
                     choices: [
                         {
-                            text: 'choice',
+                            text: 'choice 1',
                             isCorrect: true,
                         },
                         {
@@ -74,10 +79,6 @@ describe('CreateEditQuizPageComponent', () => {
                     ],
                 },
             ],
-            title: 'TEST',
-            description: 'DESCRIPTION',
-            duration: 20,
-            id: 'abc',
         } as unknown as Quiz;
         fixture = TestBed.createComponent(CreateEditQuizPageComponent);
         component = fixture.componentInstance;
@@ -113,98 +114,17 @@ describe('CreateEditQuizPageComponent', () => {
         };
         component.quizQuestionInfo = quizQuestionInfoSpy;
         component.modifyQuestion(mockQuestion, 2);
-
         expect(quizQuestionInfoSpy.loadQuestionInformation).toHaveBeenCalledWith(mockQuestion, 2);
     });
 
-    it('should disable form on general info change', () => {
-        let disableForm = true;
+    it('should change isGeneralInfoFormValid correctly', () => {
+        let shouldBlockSubmit = true;
+        component.setIsGeneralInfoFormValid(shouldBlockSubmit);
+        expect(component.isGeneralInfoFormValid).toEqual(!shouldBlockSubmit);
 
-        component.onGeneralInfoChange(disableForm);
-        expect(component.shouldDisableForm).toEqual(disableForm);
-
-        disableForm = false;
-
-        component.onGeneralInfoChange(disableForm);
-        expect(component.shouldDisableForm).toEqual(disableForm);
-    });
-
-    it('should return true if the question is valid', () => {
-        const mockValidQuestion: Question = {
-            type: 'QCM',
-            text: 'TEST',
-            points: 20,
-            choices: [
-                {
-                    text: 'choice',
-                    isCorrect: true,
-                },
-                {
-                    text: 'choice 2',
-                    isCorrect: false,
-                },
-            ],
-        };
-
-        const isValidQuestion = component.isQuestionValid(mockValidQuestion);
-        expect(isValidQuestion).toBeTruthy();
-    });
-
-    it('should return false if the question is invalid', () => {
-        const mockInvalidQuestion: Question = {
-            type: 'QCM',
-            text: 'TEST',
-            points: 20,
-            choices: [
-                {
-                    text: 'choice',
-                    isCorrect: true,
-                },
-            ],
-        };
-
-        const isValidQuestion = component.isQuestionValid(mockInvalidQuestion);
-        expect(isValidQuestion).not.toBeTruthy();
-    });
-
-    it('should return true if the quiz form is valid', () => {
-        component.newQuiz = {
-            questions: [
-                {
-                    type: 'QCM',
-                    text: 'TEST',
-                    points: 20,
-                    choices: [
-                        {
-                            text: 'choice',
-                            isCorrect: true,
-                        },
-                        {
-                            text: 'choice 2',
-                            isCorrect: false,
-                        },
-                    ],
-                },
-            ],
-            title: 'TEST',
-            description: 'DESCRIPTION',
-            duration: 20,
-        } as unknown as Quiz;
-
-        const validQuizForm = component.isQuizFormValid();
-        expect(validQuizForm).toBeTruthy();
-    });
-
-    it('should return false if the quiz form is invalid', () => {
-        component.newQuiz = {
-            questions: [],
-            title: 'TEST',
-            description: 'DESCRIPTION',
-            duration: 20,
-        } as unknown as Quiz;
-
-        const validQuizForm = component.isQuizFormValid();
-        expect(validQuizForm).not.toBeTruthy();
+        shouldBlockSubmit = false;
+        component.setIsGeneralInfoFormValid(shouldBlockSubmit);
+        expect(component.isGeneralInfoFormValid).toEqual(!shouldBlockSubmit);
     });
 
     it('should delete a question', () => {
@@ -261,7 +181,6 @@ describe('CreateEditQuizPageComponent', () => {
         matDialogSpy.open.and.returnValue(dialogRefSpyObj);
 
         component.openQuizConfirmation();
-
         expect(matDialogSpy.open).toHaveBeenCalledWith(ConfirmationPopupComponent);
         expect(dialogRefSpyObj.componentInstance.setConfirmationText).toHaveBeenCalledWith('Sauvegarder ce quiz?');
         expect(dialogRefSpyObj.afterClosed).toHaveBeenCalled();
@@ -274,7 +193,6 @@ describe('CreateEditQuizPageComponent', () => {
         matDialogSpy.open.and.returnValue(dialogRefSpyObj);
 
         component.openQuizConfirmation();
-
         expect(matDialogSpy.open).toHaveBeenCalledWith(ConfirmationPopupComponent);
         expect(dialogRefSpyObj.componentInstance.setConfirmationText).toHaveBeenCalledWith('Sauvegarder ce quiz?');
         expect(dialogRefSpyObj.afterClosed).toHaveBeenCalled();
@@ -289,5 +207,28 @@ describe('CreateEditQuizPageComponent', () => {
 
         expect(quizQuestionInfoSpy.resetForm).toHaveBeenCalled();
         expect(quizManagerServiceSpy.isModifiedQuestion).toBeFalsy();
+    });
+
+    it('should return false if newQuiz has no questions', () => {
+        component.newQuiz = { ...mockQuiz, questions: [] };
+        component.isGeneralInfoFormValid = true;
+        expect(component.isQuizFormValid()).toBeFalse();
+    });
+
+    it('should return true if all conditions are met for a modified quiz', () => {
+        component.newQuiz = mockQuiz;
+        component.isGeneralInfoFormValid = true;
+        quizManagerServiceSpy.hasQuizBeenModified.and.returnValue(true);
+
+        component.isQuizFormValid();
+        expect(quizManagerServiceSpy.hasQuizBeenModified).toHaveBeenCalledWith(component.newQuiz);
+        expect(component.isQuizFormValid()).toBeTrue();
+    });
+
+    it('should not check modifications for a new quiz', () => {
+        component.newQuiz = { ...mockQuiz, id: '' };
+        component.isGeneralInfoFormValid = true;
+        expect(quizManagerServiceSpy.hasQuizBeenModified).not.toHaveBeenCalled();
+        expect(component.isQuizFormValid()).toBeTrue();
     });
 });
