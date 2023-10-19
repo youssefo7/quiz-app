@@ -3,7 +3,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
 import { TimeService } from '@app/services/time.service';
-// import { of } from 'rxjs';
 import { of } from 'rxjs';
 import { CountdownComponent } from './countdown.component';
 import SpyObj = jasmine.SpyObj;
@@ -41,13 +40,10 @@ describe('CountdownComponent', () => {
     };
 
     beforeEach(() => {
-        // Cause problème avec le test (difficulté avec le mock de getTime) pourtant dans le fichier question zone les test fonctiones
         timeServiceMock = jasmine.createSpyObj('TimeService', ['startTimer', 'stopTimer', 'getTime']);
+        timeServiceMock.getTime.and.returnValue(of(0));
         routerMock = jasmine.createSpyObj('Router', ['navigateByUrl']);
         gameServiceMock = jasmine.createSpyObj('GameService', ['setGameEndState', 'getQuizById']);
-
-        // Cause problème avec le test
-        timeServiceMock.getTime.and.returnValue(of(0));
     });
 
     beforeEach(waitForAsync(() => {

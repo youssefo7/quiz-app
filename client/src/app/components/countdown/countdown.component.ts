@@ -35,7 +35,9 @@ export class CountdownComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.timerSubscription.unsubscribe();
+        if (this.timerSubscription) {
+            this.timerSubscription.unsubscribe();
+        }
     }
 
     async loadTimer() {
