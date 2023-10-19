@@ -11,6 +11,7 @@ export class QuizManagerService {
     quizzes: Quiz[];
     isModifiedQuestion: boolean;
     modifiedIndex: number;
+    quizToModify: Quiz;
 
     constructor(
         private readonly communicationService: CommunicationService,
@@ -52,6 +53,7 @@ export class QuizManagerService {
             return new Promise<Quiz | undefined>((resolve) => {
                 this.communicationService.getQuiz(id).subscribe({
                     next: (quiz) => {
+                        this.quizToModify = JSON.parse(JSON.stringify(quiz));
                         resolve(quiz);
                     },
                 });
@@ -105,5 +107,40 @@ export class QuizManagerService {
         quiz.title = generalInfoForm.value.title;
         quiz.description = generalInfoForm.value.description;
         quiz.duration = generalInfoForm.value.duration;
+    }
+
+    hasQuizBeenModified(quiz: Quiz): boolean {
+        if (
+            this.quizToModify.title.trim() !== quiz.title.trim() ||
+            this.quizToModify.description.trim() !== quiz.description.trim() ||
+            this.quizToModify.duration !== quiz.duration
+        ) {
+            return true;
+        }
+
+        if (this.quizToModify.questions.length !== quiz.questions.length) {
+            return true;
+        }
+
+        for (let i = 0; i < this.quizToModify.questions.length; i++) {
+            if (
+                this.quizToModify.questions[i].type !== quiz.questions[i].type ||
+                this.quizToModify.questions[i].text.trim() !== quiz.questions[i].text.trim() ||
+                this.quizToModify.questions[i].points !== quiz.questions[i].points ||
+                this.quizToModify.questions[i].choices.length !== quiz.questions[i].choices.length
+            ) {
+                return true;
+            }
+
+            for (let j = 0; j < this.quizToModify.questions[i].choices.length; j++) {
+                if (
+                    this.quizToModify.questions[i].choices[j].text.trim() !== quiz.questions[i].choices[j].text.trim() ||
+                    this.quizToModify.questions[i].choices[j].isCorrect !== quiz.questions[i].choices[j].isCorrect
+                ) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

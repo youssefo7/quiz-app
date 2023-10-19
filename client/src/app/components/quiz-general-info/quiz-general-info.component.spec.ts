@@ -29,10 +29,10 @@ describe('QuizGeneralInfoComponent', () => {
         $schema: 'quiz-schema.json',
         id: '',
         title: '',
+        description: '',
         duration: 10,
         lastModification: '',
         visibility: false,
-        description: '',
         questions: [],
     };
 
@@ -66,10 +66,10 @@ describe('QuizGeneralInfoComponent', () => {
             $schema: 'quiz-schema.json',
             id: '1',
             title: 'test',
+            description: 'test',
             duration: 30,
             lastModification: '',
             visibility: false,
-            description: 'test',
             questions: [],
         };
 
@@ -93,6 +93,42 @@ describe('QuizGeneralInfoComponent', () => {
         expect(component.generalInfoForm.get('title')?.value).toBe('test');
         expect(component.generalInfoForm.get('description')?.value).toBe('test');
         expect(component.generalInfoForm.get('duration')?.value).toBe(component.newQuiz.duration);
+    });
+
+    it('should emit false for the event emitter when the generalInfoForm is valid', () => {
+        const blockSubmitSpy = spyOn(component.blockSubmit, 'emit');
+
+        component.generalInfoForm.markAsDirty();
+        component.generalInfoForm.setErrors(null);
+
+        component.ngAfterViewInit();
+
+        component.generalInfoForm.setValue({
+            title: 'Test Title',
+            description: 'Test Description',
+            duration: 15,
+        });
+
+        expect(blockSubmitSpy).toHaveBeenCalledWith(false);
+        expect(mockQuizManagerService.updateGeneralInfo).toHaveBeenCalledWith(component.newQuiz, component.generalInfoForm);
+    });
+
+    it('should emit true for the event emitter when the generalInfoForm is invalid', () => {
+        const blockSubmitSpy = spyOn(component.blockSubmit, 'emit');
+
+        component.generalInfoForm.setErrors({ someError: true });
+        component.generalInfoForm.markAsDirty();
+
+        component.ngAfterViewInit();
+
+        component.generalInfoForm.setValue({
+            title: '',
+            description: 'Test Description',
+            duration: 10,
+        });
+
+        expect(blockSubmitSpy).toHaveBeenCalledWith(true);
+        expect(mockQuizManagerService.updateGeneralInfo).not.toHaveBeenCalledWith(component.newQuiz, component.generalInfoForm);
     });
 
     it('should initialize max lengths correctly', () => {
@@ -144,15 +180,6 @@ describe('QuizGeneralInfoComponent', () => {
         expect(validationResult).toBeNull();
     });
 
-    it('should toggle button text', () => {
-        component.toggleButtonTextAndName();
-        expect(component.disableForm).toBe(true);
-        expect(component.buttonText).toBe('Modifier');
-        component.toggleButtonTextAndName();
-        expect(component.disableForm).toBe(false);
-        expect(component.buttonText).toBe('Sauvegarder');
-    });
-
     it('should update title length and counter on character change', () => {
         component.maxLengthTitle = 100;
         component.onCharacterChangeTitle(mockEvent);
@@ -165,11 +192,6 @@ describe('QuizGeneralInfoComponent', () => {
         component.onCharacterChangeDescription(mockEvent);
         expect(component.descriptionLength).toEqual(stringLength);
         expect(component.counterDescription).toBe(`${stringLength} / ${component.maxLengthDescription}`);
-    });
-
-    it('should call updateGeneralInfo method of quizManagerService on submit', () => {
-        component.onSubmit();
-        expect(mockQuizManagerService.updateGeneralInfo).toHaveBeenCalledWith(component.newQuiz, component.generalInfoForm);
     });
 
     it('should adjust padding and set isTitleValid to false if title is invalid and dirty', () => {
