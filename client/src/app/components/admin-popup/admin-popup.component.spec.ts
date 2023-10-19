@@ -2,7 +2,8 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { FormsModule } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AdminGuardService } from '@app/services/admin-guard.service';
 import { AdminPopupComponent } from './admin-popup.component';
@@ -23,7 +24,7 @@ describe('AdminPopupComponent', () => {
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            imports: [FormsModule, HttpClientTestingModule],
+            imports: [FormsModule, HttpClientTestingModule, MatDialogModule, MatCheckboxModule],
             declarations: [AdminPopupComponent],
             providers: [
                 { provide: MatDialogRef, useValue: matDialogRefSpy },

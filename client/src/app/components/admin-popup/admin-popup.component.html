@@ -1,18 +1,20 @@
 <div class="container">
-    <p><strong>Veuillez entrer le mot de passe pour accéder à la page d'administration.</strong></p>
+    <mat-dialog-content>Veuillez entrer le mot de passe pour accéder à la page d'administration.</mat-dialog-content>
+    
+    <mat-dialog-content *ngIf="showErrorMessage" class="error">
+        Mot de passe incorrect. Veuillez réessayer.
+    </mat-dialog-content>
 
-    <p *ngIf="showErrorMessage" class="error">Mot de passe incorrect. Veuillez réessayer.</p>
-
-    <div class="password-container">
-        <input [type]="passwordInputType" [(ngModel)]="givenPassword" />
+    <mat-dialog-actions class="password-container">
+        <input matInput [type]="passwordInputType" [(ngModel)]="givenPassword" />
         <div>
             <label for="show-hide">Afficher</label>
-            <input type="checkbox" id="show-hide" (click)="togglePasswordVisibility()" />
+            <mat-checkbox id="show-hide" (click)="togglePasswordVisibility()" color="primary"/>
         </div>
-    </div>
+    </mat-dialog-actions>
 
-    <div class="button-container">
-        <button id="cancel" type="button" (click)="closeAdminPopup()">Annuler</button>
-        <button id="submit" type="submit" (click)="submitPassword($event)">Accéder</button>
-    </div>
+    <mat-dialog-actions class="button-container">
+        <button mat-button id="cancel" type="button" (click)="closeAdminPopup()">Annuler</button>
+        <button mat-button id="submit" type="submit" (click)="submitPassword($event)">Accéder</button>
+    </mat-dialog-actions>
 </div>
