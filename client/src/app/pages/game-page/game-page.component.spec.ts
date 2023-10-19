@@ -38,8 +38,8 @@ describe('GamePageComponent in test game route', () => {
     beforeEach(() => {
         communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
         communicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
-        mockDialog = jasmine.createSpyObj('mockDialog', ['open']);
-        mockDialogRef = jasmine.createSpyObj('mockDialogRef', ['componentInstance']);
+        mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
+        mockDialogRef = jasmine.createSpyObj('MatDialogRef<PopupMessageComponent>', ['componentInstance']);
     });
 
     beforeEach(waitForAsync(() => {
