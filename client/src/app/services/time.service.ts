@@ -12,7 +12,7 @@ export class TimeService {
     private counter = 0;
     private isButtonPressed: boolean;
 
-    constructor(private gameService: GameService) {
+    constructor(private readonly gameService: GameService) {
         this.timer = new Subject<number>();
         this.isButtonPressed = false;
         this.subscribeToGameService();
@@ -29,7 +29,7 @@ export class TimeService {
         return this.timer.asObservable();
     }
 
-    async startTimer(startValue: number) {
+    async startTimer(startValue: number): Promise<void | Observable<number | undefined>> {
         if (this.interval) return new Observable<number | undefined>();
 
         this.time = startValue;
@@ -54,7 +54,7 @@ export class TimeService {
         this.isButtonPressed = false;
     }
 
-    subscribeToGameService() {
+    private subscribeToGameService() {
         this.gameService.isButtonPressed.subscribe((isPressed: boolean) => {
             this.isButtonPressed = isPressed;
         });

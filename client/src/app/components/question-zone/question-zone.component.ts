@@ -25,16 +25,16 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     isSubmitDisabled: boolean;
     isChoiceButtonDisabled: boolean;
     doesDisplayPoints: boolean;
-    hasGameEnded: boolean;
+    private hasGameEnded: boolean;
     private timerSubscription: Subscription;
     private gameServiceSubscription: Subscription;
 
     // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
     constructor(
-        private route: ActivatedRoute,
-        private elementRef: ElementRef,
         private gameService: GameService,
+        private readonly route: ActivatedRoute,
+        private readonly elementRef: ElementRef,
         private readonly timeService: TimeService,
     ) {
         this.pointsEarned = new EventEmitter<number>();
@@ -103,7 +103,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
                 const timerTime = time;
                 if (timerTime === 0) {
                     if (!this.isQuestionTransitioning) {
-                        this.submitAnswerOnCountdownEvent();
+                        this.showResult();
                         this.isQuestionTransitioning = true;
                     } else {
                         this.isQuestionTransitioning = false;
@@ -166,14 +166,10 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.isChoiceButtonDisabled = true;
     }
 
-    async submitAnswerOnClickEvent() {
+    submitAnswerOnClickEvent() {
         this.gameService.setButtonPressState = true;
         this.showResult();
         this.isQuestionTransitioning = true;
-    }
-
-    async submitAnswerOnCountdownEvent() {
-        this.showResult();
     }
 
     isAnswerGood() {
@@ -189,13 +185,13 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     givePoints() {
-        if (!this.isAnswerGood()) {
-            this.points = 0;
-            this.bonusMessage = '';
-        } else {
+        if (this.isAnswerGood()) {
             const bonus = 1.2;
             this.points = this.question.points * bonus;
             this.bonusMessage = '(20% bonus Woohoo!)';
+        } else {
+            this.points = 0;
+            this.bonusMessage = '';
         }
         this.pointsEarned.emit(this.points);
     }
