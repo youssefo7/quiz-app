@@ -1,7 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
-import { ConfirmationPopupComponent } from '@app/components/confirmation-popup/confirmation-popup.component';
 import { Choice, Question, Quiz } from '@app/interfaces/quiz';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
 import { Constants } from '@common/constants';
@@ -23,7 +21,6 @@ export class QuizQuestionInfoComponent implements OnInit {
     constructor(
         private quizManagerService: QuizManagerService,
         private fb: FormBuilder,
-        private confirmationDialogReference: MatDialog,
     ) {
         this.maxChoices = Constants.MAX_CHOICES;
         this.defaultPoints = Constants.MIN_POINTS;
@@ -54,7 +51,7 @@ export class QuizQuestionInfoComponent implements OnInit {
     }
 
     loadQuestionInformation(question: Question, index: number) {
-        this.questionInfoForm.reset();
+        this.resetForm();
         this.quizManagerService.modifiedIndex = index;
         const resetChoices = this.choices;
 
@@ -105,16 +102,9 @@ export class QuizQuestionInfoComponent implements OnInit {
         }
     }
 
-    openQuestionConfirmation(): void {
-        const confirmationDialogReference = this.confirmationDialogReference.open(ConfirmationPopupComponent);
-        confirmationDialogReference.componentInstance.setConfirmationText('Sauvegarder cette question?');
-
-        confirmationDialogReference.afterClosed().subscribe((wantsToSave) => {
-            if (wantsToSave) {
-                this.manageQuestion();
-                this.resetForm();
-            }
-        });
+    onSubmit() {
+        this.manageQuestion();
+        this.resetForm();
     }
 
     manageQuestion() {

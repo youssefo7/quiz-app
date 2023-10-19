@@ -5,41 +5,28 @@ dans le bon état initial dépendamment du test */
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { ConfirmationPopupComponent } from '@app/components/confirmation-popup/confirmation-popup.component';
 import { RangeValidatorDirective } from '@app/directives/range-validator.directive';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
 import { Constants } from '@common/constants';
-import { of } from 'rxjs';
 import { QuizQuestionInfoComponent } from './quiz-question-info.component';
 import SpyObj = jasmine.SpyObj;
 
 describe('QuizQuestionInfoComponent', () => {
     let component: QuizQuestionInfoComponent;
     let fixture: ComponentFixture<QuizQuestionInfoComponent>;
-    let mockMatDialog: SpyObj<MatDialog>;
-    let mockMatDialogRef: SpyObj<MatDialogRef<ConfirmationPopupComponent>>;
     let mockQuizManagerService: SpyObj<QuizManagerService>;
 
     beforeEach(() => {
         mockQuizManagerService = jasmine.createSpyObj('QuizManagerService', ['modifyQuestion', 'addNewQuestion']);
-        mockMatDialog = jasmine.createSpyObj('MatDialog', ['open']);
-        mockMatDialogRef = jasmine.createSpyObj<MatDialogRef<ConfirmationPopupComponent>>('MatDialogRef', ['afterClosed'], {
-            componentInstance: jasmine.createSpyObj('ConfirmationPopupComponent', ['setConfirmationText']),
-        });
     });
 
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule, MatIconModule, MatSlideToggleModule, ReactiveFormsModule],
             declarations: [QuizQuestionInfoComponent, RangeValidatorDirective],
-            providers: [
-                { provide: QuizManagerService, useValue: mockQuizManagerService },
-                { provide: MatDialog, useValue: mockMatDialog },
-                { provide: MatDialogRef, useValue: mockMatDialogRef },
-            ],
+            providers: [{ provide: QuizManagerService, useValue: mockQuizManagerService }],
         }).compileComponents();
     });
 
@@ -53,17 +40,13 @@ describe('QuizQuestionInfoComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should open the confirmation dialog and call manageQuestion when wantsToSave is true', () => {
-        mockMatDialogRef.afterClosed.and.returnValue(of(true));
-        mockMatDialog.open.and.returnValue(mockMatDialogRef);
-
+    it('should add the question and reset the form', () => {
         spyOn(component, 'manageQuestion');
         spyOn(component, 'resetForm');
-        component.openQuestionConfirmation();
 
-        expect(mockMatDialog.open).toHaveBeenCalled();
-        expect(component.resetForm).toHaveBeenCalled();
+        component.onSubmit();
         expect(component.manageQuestion).toHaveBeenCalled();
+        expect(component.resetForm).toHaveBeenCalled();
     });
 
     it('should initialize the form and add choices when page is loaded', () => {
