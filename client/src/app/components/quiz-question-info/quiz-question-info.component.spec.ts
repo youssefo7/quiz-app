@@ -1,3 +1,7 @@
+/* Raison : on n'a besoin de beaucoup de lignes pour set le formulaire
+dans le bon état initial dépendamment du test */
+/* eslint-disable max-lines */
+
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -333,5 +337,39 @@ describe('QuizQuestionInfoComponent', () => {
         component.initializeForm();
         component.loadQuestionInformation(question, 0);
         expect(component.choices.length).toEqual(question.choices.length);
+    });
+
+    it('should adjust padding and set isTextValid to false if text is invalid and dirty', () => {
+        component.questionInfoForm.controls.text.setErrors({ invalid: true });
+        component.questionInfoForm.controls.text.markAsDirty();
+        component.adjustPadding();
+        expect(component.isTextValid).toBeFalse();
+    });
+
+    it('should adjust padding and set isTextValid to false if text is invalid and touched', () => {
+        component.questionInfoForm.controls.text.setErrors({ invalid: true });
+        component.questionInfoForm.controls.text.markAsTouched();
+        component.adjustPadding();
+        expect(component.isTextValid).toBeFalse();
+    });
+
+    it('should adjust padding and set isChoicesValid to false if choices are invalid and touched', () => {
+        component.questionInfoForm.controls.choices.setErrors({ invalid: true });
+        component.questionInfoForm.controls.choices.markAsTouched();
+        component.adjustPadding();
+        expect(component.isChoicesValid).toBeFalse();
+    });
+
+    it('should adjust padding and set isChoicesValid to false if choices are invalid and dirty', () => {
+        component.questionInfoForm.controls.choices.setErrors({ invalid: true });
+        component.questionInfoForm.controls.choices.markAsDirty();
+        component.adjustPadding();
+        expect(component.isChoicesValid).toBeFalse();
+    });
+
+    it('should adjust padding and set isPointsValid to false if points are invalid', () => {
+        component.questionInfoForm.controls.points.setErrors({ invalid: true });
+        component.adjustPadding();
+        expect(component.isPointsValid).toBeFalse();
     });
 });

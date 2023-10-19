@@ -1,8 +1,20 @@
 <h2>Ajout & modification de questions</h2>
 <form [formGroup]="questionInfoForm">
     <div id="question-container">
-        <label for="newQuestion">Question : </label>
-        <input class="overflow-input" type="text" formControlName="text" name="newQuestion" id="newQuestion" placeholder="Question" required />
+        <div [ngClass]="{ infoPadding: isTextValid }">
+            <label for="newQuestion">Question : </label>
+            <input
+                class="overflow-input"
+                type="text"
+                formControlName="text"
+                name="newQuestion"
+                id="newQuestion"
+                placeholder="Question"
+                (input)="adjustPadding()"
+                (blur)="adjustPadding()"
+                required
+            />
+        </div>
         <p
             class="error"
             *ngIf="questionInfoForm.controls.text.invalid && (questionInfoForm.controls.text.dirty || questionInfoForm.controls.text.touched)"
@@ -11,7 +23,7 @@
         </p>
     </div>
 
-    <div id="type-and-points">
+    <div id="type-and-points" [ngClass]="{ infoPadding: isPointsValid }">
         <div id="no-error-type-and-points">
             <div>
                 <label>Type de question : </label>
@@ -32,6 +44,7 @@
                     max="100"
                     [appRangeValidator]="{ min: 10, max: 100 }"
                     placeholder="Points"
+                    (input)="adjustPadding()"
                     (change)="questionInfoForm.controls.points.setValue(roundToNearest10())"
                     required
                 />
@@ -48,7 +61,7 @@
             <mat-icon [inline]="true">add</mat-icon>
         </button>
 
-        <ol formArrayName="choices">
+        <ol formArrayName="choices" [ngClass]="{ infoPadding: isChoicesValid }">
             <li *ngFor="let choice of choices.controls; let i = index">
                 <div class="choice" [formGroupName]="i">
                     <div class="choice-def">
@@ -58,9 +71,13 @@
                             formControlName="text"
                             minLength="1"
                             placeholder="Choix {{ i + 1 }}"
+                            (input)="adjustPadding()"
+                            (blur)="adjustPadding()"
                             [required]="i < 2"
                         />
-                        <mat-slide-toggle color="primary" formControlName="isCorrect"> {{ choice.get('isCorrect')?.value ? 'Bonne réponse' : 'Mauvaise réponse' }}</mat-slide-toggle>
+                        <mat-slide-toggle color="primary" formControlName="isCorrect" (change)="adjustPadding()">
+                            {{ choice.get('isCorrect')?.value ? 'Bonne réponse' : 'Mauvaise réponse' }}</mat-slide-toggle
+                        >
                     </div>
 
                     <div class="actions">
@@ -76,16 +93,15 @@
                     </div>
                 </div>
             </li>
-            <p
-                class="error"
-                *ngIf="
-                    questionInfoForm.controls.choices.invalid &&
-                    (questionInfoForm.controls.choices.dirty || questionInfoForm.controls.choices.touched)
-                "
-            >
-                Les choix doivent être distincts, et il doit y avoir au moins 2 choix de réponse, dont un bon et un mauvais
-            </p>
         </ol>
+        <p
+            class="error"
+            *ngIf="
+                questionInfoForm.controls.choices.invalid && (questionInfoForm.controls.choices.dirty || questionInfoForm.controls.choices.touched)
+            "
+        >
+            Les choix doivent être distincts, et il doit y avoir au moins 2 choix de réponse, dont un bon et un mauvais
+        </p>
     </div>
     <div id="save-button"><button (click)="openQuestionConfirmation()" [disabled]="questionInfoForm.invalid">Sauvegarder</button></div>
 </form>

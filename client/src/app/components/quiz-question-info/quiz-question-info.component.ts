@@ -16,6 +16,9 @@ export class QuizQuestionInfoComponent implements OnInit {
     questionInfoForm: FormGroup;
     maxChoices: number;
     defaultPoints: number;
+    isTextValid: boolean;
+    isPointsValid: boolean;
+    isChoicesValid: boolean;
 
     constructor(
         private quizManagerService: QuizManagerService,
@@ -24,6 +27,9 @@ export class QuizQuestionInfoComponent implements OnInit {
     ) {
         this.maxChoices = Constants.MAX_CHOICES;
         this.defaultPoints = Constants.MIN_POINTS;
+        this.isTextValid = true;
+        this.isPointsValid = true;
+        this.isChoicesValid = true;
     }
 
     get choices() {
@@ -183,5 +189,31 @@ export class QuizQuestionInfoComponent implements OnInit {
 
             return null;
         };
+    }
+
+    adjustPadding() {
+        if (
+            this.questionInfoForm.controls.text.invalid &&
+            (this.questionInfoForm.controls.text.dirty || this.questionInfoForm.controls.text.touched)
+        ) {
+            this.isTextValid = false;
+        } else {
+            this.isTextValid = true;
+        }
+
+        if (this.questionInfoForm.controls.points.invalid) {
+            this.isPointsValid = false;
+        } else {
+            this.isPointsValid = true;
+        }
+
+        if (
+            this.questionInfoForm.controls.choices.invalid &&
+            (this.questionInfoForm.controls.choices.dirty || this.questionInfoForm.controls.choices.touched)
+        ) {
+            this.isChoicesValid = false;
+        } else {
+            this.isChoicesValid = true;
+        }
     }
 }
