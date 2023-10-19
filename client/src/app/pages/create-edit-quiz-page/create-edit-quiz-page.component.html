@@ -37,8 +37,8 @@
                         <ul>
                             <li *ngFor="let choice of question.choices; let j = index">
                                 <span>Choix {{ j + 1 }} : {{ choice.text }}</span>
-                                <mat-icon *ngIf="choice.isCorrect" [inline]="true">check_circle</mat-icon>
-                                <mat-icon *ngIf="!choice.isCorrect" [inline]="true">cancel</mat-icon>
+                                <mat-icon *ngIf="choice.isCorrect" [style.color]="'#2f8832'" [inline]="true">check_circle</mat-icon>
+                                <mat-icon *ngIf="!choice.isCorrect" [style.color]="'#D32F2F'" [inline]="true">cancel</mat-icon>
                             </li>
                         </ul>
                     </div>
