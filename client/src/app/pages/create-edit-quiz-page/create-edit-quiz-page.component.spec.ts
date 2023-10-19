@@ -2,7 +2,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { ConfirmationPopupComponent } from '@app/components/confirmation-popup/confirmation-popup.component';
+import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { QuizGeneralInfoComponent } from '@app/components/quiz-general-info/quiz-general-info.component';
 import { QuizQuestionInfoComponent } from '@app/components/quiz-question-info/quiz-question-info.component';
 import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
@@ -15,14 +15,35 @@ import SpyObj = jasmine.SpyObj;
 describe('CreateEditQuizPageComponent', () => {
     let component: CreateEditQuizPageComponent;
     let fixture: ComponentFixture<CreateEditQuizPageComponent>;
-    let matDialogSpy: SpyObj<MatDialog>;
     let quizManagerServiceSpy: SpyObj<QuizManagerService>;
     let quizQuestionInfoSpy: QuizQuestionInfoComponent;
-    let mockQuiz: Quiz;
-    let dialogRefSpyObj: jasmine.SpyObj<MatDialogRef<ConfirmationPopupComponent>>;
+    let mockDialog: SpyObj<MatDialog>;
+    let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
+    const mockQuiz: Quiz = {
+        questions: [
+            {
+                type: 'QCM',
+                text: 'TEST',
+                points: 20,
+                choices: [
+                    {
+                        text: 'choice',
+                        isCorrect: true,
+                    },
+                    {
+                        text: 'choice 2',
+                        isCorrect: false,
+                    },
+                ],
+            },
+        ],
+        title: 'TEST',
+        description: 'DESCRIPTION',
+        duration: 20,
+        id: 'abc',
+    } as unknown as Quiz;
 
     beforeEach(() => {
-        matDialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         quizManagerServiceSpy = jasmine.createSpyObj('NewQuizManagerService', [
             'fetchQuiz',
             'deleteQuestion',
@@ -32,17 +53,15 @@ describe('CreateEditQuizPageComponent', () => {
             'hasQuizBeenModified',
         ]);
         quizQuestionInfoSpy = jasmine.createSpyObj('QuizQuestionInfoComponent', ['loadQuestionInformation', 'resetForm']);
-        dialogRefSpyObj = jasmine.createSpyObj<MatDialogRef<ConfirmationPopupComponent>>('MatDialogRef', ['afterClosed'], {
-            componentInstance: jasmine.createSpyObj('ConfirmationPopupComponent', ['setConfirmationText']),
-        });
+        mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
+        mockDialogRef = jasmine.createSpyObj('MatDialogRef<PopupMessageComponent>', ['componentInstance']);
     });
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [CreateEditQuizPageComponent, QuizGeneralInfoComponent, TopBarComponent],
+            declarations: [CreateEditQuizPageComponent, QuizGeneralInfoComponent, TopBarComponent, PopupMessageComponent],
             imports: [HttpClientTestingModule],
             providers: [
-                { provide: MatDialog, useValue: matDialogSpy },
                 { provide: QuizManagerService, useValue: quizManagerServiceSpy },
                 {
                     provide: ActivatedRoute,
@@ -52,36 +71,16 @@ describe('CreateEditQuizPageComponent', () => {
                         },
                     },
                 },
+                { provide: MatDialog, useValue: mockDialog },
+                { provide: MatDialogRef, useValue: mockDialogRef },
             ],
-        });
+        }).compileComponents();
     }));
 
     beforeEach(() => {
-        mockQuiz = {
-            id: 'abc',
-            title: 'TEST',
-            description: 'DESCRIPTION',
-            duration: 20,
-            questions: [
-                {
-                    type: 'QCM',
-                    text: 'TEST',
-                    points: 20,
-                    choices: [
-                        {
-                            text: 'choice 1',
-                            isCorrect: true,
-                        },
-                        {
-                            text: 'choice 2',
-                            isCorrect: false,
-                        },
-                    ],
-                },
-            ],
-        } as unknown as Quiz;
         fixture = TestBed.createComponent(CreateEditQuizPageComponent);
         component = fixture.componentInstance;
+        mockDialog.open.and.returnValue(mockDialogRef);
         fixture.detectChanges();
     });
 
@@ -175,28 +174,19 @@ describe('CreateEditQuizPageComponent', () => {
         expect(component.pageTitle).toEqual('Modifier un jeu questionnaire');
     }));
 
-    it('should open the confirmation dialog and call saveQuiz when wantsToSave is true', () => {
+    it('should popup a message when the user tries to save a valid quiz', () => {
         spyOn(component, 'saveQuiz');
-        dialogRefSpyObj.afterClosed.and.returnValue(of(true));
-        matDialogSpy.open.and.returnValue(dialogRefSpyObj);
-
         component.openQuizConfirmation();
-        expect(matDialogSpy.open).toHaveBeenCalledWith(ConfirmationPopupComponent);
-        expect(dialogRefSpyObj.componentInstance.setConfirmationText).toHaveBeenCalledWith('Sauvegarder ce quiz?');
-        expect(dialogRefSpyObj.afterClosed).toHaveBeenCalled();
+
+        const config = mockDialogRef.componentInstance.config;
+        expect(mockDialog.open).toHaveBeenCalled();
+        expect(config.message).toEqual('Sauvegarder ce quiz?');
+        expect(config.hasCancelButton).toEqual(true);
+        expect(config.okButtonText).toEqual('Oui');
+        expect(config.cancelButtonText).toEqual('Non');
+
+        config.okButtonFunction?.();
         expect(component.saveQuiz).toHaveBeenCalled();
-    });
-
-    it('should open the confirmation dialog and not call saveQuiz when wantsToSave is false', () => {
-        spyOn(component, 'saveQuiz');
-        dialogRefSpyObj.afterClosed.and.returnValue(of(false));
-        matDialogSpy.open.and.returnValue(dialogRefSpyObj);
-
-        component.openQuizConfirmation();
-        expect(matDialogSpy.open).toHaveBeenCalledWith(ConfirmationPopupComponent);
-        expect(dialogRefSpyObj.componentInstance.setConfirmationText).toHaveBeenCalledWith('Sauvegarder ce quiz?');
-        expect(dialogRefSpyObj.afterClosed).toHaveBeenCalled();
-        expect(component.saveQuiz).not.toHaveBeenCalled();
     });
 
     it('should reset form when deleting the question that is currently being edited', () => {

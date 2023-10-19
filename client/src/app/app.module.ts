@@ -11,7 +11,6 @@ import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { AdminPopupComponent } from './components/admin-popup/admin-popup.component';
 import { ChatComponent } from './components/chat/chat.component';
-import { ConfirmationPopupComponent } from './components/confirmation-popup/confirmation-popup.component';
 import { CountdownComponent } from './components/countdown/countdown.component';
 import { CreateGameListComponent } from './components/create-game-list/create-game-list.component';
 import { ImportPopupComponent } from './components/import-popup/import-popup.component';
@@ -53,7 +52,6 @@ import { WaitingPageComponent } from './pages/waiting-page/waiting-page.componen
         ImportPopupComponent,
         QuestionZoneComponent,
         WaitingPageComponent,
-        ConfirmationPopupComponent,
         QuizGeneralInfoComponent,
         QuizQuestionInfoComponent,
         RangeValidatorDirective,
