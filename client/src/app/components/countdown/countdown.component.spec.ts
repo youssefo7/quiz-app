@@ -14,7 +14,7 @@ describe('CountdownComponent', () => {
     let routerSpy: SpyObj<Router>;
     let gameServiceSpy: SpyObj<GameService>;
 
-    const quizzMock = {
+    const mockQuiz = {
         $schema: 'quiz-schema.json',
         id: '123',
         title: 'mock quiz',
@@ -70,7 +70,7 @@ describe('CountdownComponent', () => {
     it('should get the quiz ', waitForAsync(() => {
         const id = '123';
         component.getQuiz();
-        gameServiceSpy.getQuizById.and.returnValue(Promise.resolve(quizzMock));
+        gameServiceSpy.getQuizById.and.returnValue(Promise.resolve(mockQuiz));
         expect(gameServiceSpy.getQuizById).toHaveBeenCalledWith(id);
     }));
 
@@ -84,12 +84,12 @@ describe('CountdownComponent', () => {
     }));
 
     it('should display the question clock with the correct message and style', waitForAsync(() => {
-        component.quiz = quizzMock;
+        component.quiz = mockQuiz;
         component.questionClock();
 
         expect(component.message).toEqual('Temps Restant');
         expect(component.clockStyle).toEqual({ backgroundColor: 'lightblue' });
-        expect(timeServiceSpy.startTimer).toHaveBeenCalledWith(quizzMock.duration);
+        expect(timeServiceSpy.startTimer).toHaveBeenCalledWith(mockQuiz.duration);
     }));
 
     it('should display the leave Game clock with the correct message and style', waitForAsync(() => {
@@ -102,7 +102,7 @@ describe('CountdownComponent', () => {
     }));
 
     it('should display the game clock', waitForAsync(() => {
-        component.quiz = quizzMock;
+        component.quiz = mockQuiz;
         const questionClockSpy = spyOn(component, 'questionClock').and.returnValue(Promise.resolve());
         const transitionClockSpy = spyOn(component, 'transitionClock').and.returnValue(Promise.resolve());
         const leaveSpy = spyOn(component, 'leaveGame').and.callThrough();

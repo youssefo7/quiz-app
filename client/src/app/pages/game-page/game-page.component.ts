@@ -22,9 +22,9 @@ export class GamePageComponent implements OnInit {
     // eslint-disable-next-line max-params
     constructor(
         private gameService: GameService,
-        private route: ActivatedRoute,
         private popup: MatDialog,
-        private router: Router,
+        private readonly route: ActivatedRoute,
+        private readonly router: Router,
     ) {
         this.title = 'Partie';
         this.playerPoints = 0;
