@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
@@ -28,6 +28,11 @@ export class CreateEditQuizPageComponent implements OnInit {
         private route: ActivatedRoute,
     ) {
         this.isGeneralInfoFormValid = false;
+    }
+
+    @HostListener('window:beforeunload', ['$event'])
+    unloadNotification($event: Event): void {
+        $event.preventDefault();
     }
 
     ngOnInit(): void {

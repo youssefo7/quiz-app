@@ -19,6 +19,7 @@ describe('CreateEditQuizPageComponent', () => {
     let quizQuestionInfoSpy: QuizQuestionInfoComponent;
     let mockDialog: SpyObj<MatDialog>;
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
+    let mockEvent: SpyObj<Event>;
     const mockQuiz: Quiz = {
         questions: [
             {
@@ -55,6 +56,7 @@ describe('CreateEditQuizPageComponent', () => {
         quizQuestionInfoSpy = jasmine.createSpyObj('QuizQuestionInfoComponent', ['loadQuestionInformation', 'resetForm']);
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
         mockDialogRef = jasmine.createSpyObj('MatDialogRef<PopupMessageComponent>', ['componentInstance']);
+        mockEvent = jasmine.createSpyObj('event', ['preventDefault']);
     });
 
     beforeEach(waitForAsync(() => {
@@ -220,5 +222,10 @@ describe('CreateEditQuizPageComponent', () => {
         component.isGeneralInfoFormValid = true;
         expect(quizManagerServiceSpy.hasQuizBeenModified).not.toHaveBeenCalled();
         expect(component.isQuizFormValid()).toBeTrue();
+    });
+
+    it('should prevent default on beforeunload', () => {
+        component.unloadNotification(mockEvent);
+        expect(mockEvent.preventDefault).toHaveBeenCalled();
     });
 });
