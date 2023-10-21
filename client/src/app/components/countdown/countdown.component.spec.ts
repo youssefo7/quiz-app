@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
 import { TimeService } from '@app/services/time.service';
 import { of } from 'rxjs';
@@ -11,7 +10,6 @@ describe('CountdownComponent', () => {
     let component: CountdownComponent;
     let fixture: ComponentFixture<CountdownComponent>;
     let timeServiceMock: SpyObj<TimeService>;
-    let communicationServiceMock: jasmine.SpyObj<CommunicationService>;
     let routerMock: SpyObj<Router>;
     let gameServiceMock: SpyObj<GameService>;
 
@@ -52,7 +50,6 @@ describe('CountdownComponent', () => {
             providers: [
                 { provide: TimeService, useValue: timeServiceMock },
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'test' }] } } },
-                { provide: CommunicationService, useValue: communicationServiceMock },
                 { provide: Router, useValue: routerMock },
                 { provide: GameService, useValue: gameServiceMock },
             ],
