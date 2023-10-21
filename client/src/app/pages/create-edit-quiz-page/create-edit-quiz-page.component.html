@@ -7,7 +7,7 @@
         </form>
         <div id="save-button">
             <p *ngIf="newQuiz.questions.length === 0" style="color: brown">Veuillez ajouter au moins une question pour sauvegarder...</p>
-            <button (click)="openQuizConfirmation()" [disabled]="!isQuizFormValid()">Sauvegarder le quiz</button>
+            <button (click)="openQuizConfirmation()" [disabled]="!isQuizFormValid()">Sauvegarder le questionnaire</button>
         </div>
     </div>
     <div id="questions-container">

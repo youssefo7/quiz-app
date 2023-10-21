@@ -45,10 +45,6 @@ export class AdminGuardService {
         return this.canAccessAdmin;
     }
 
-    initializeAdminGuard(): void {
-        this.canAccessAdmin = sessionStorage.getItem(SessionKeys.CanAccessAdmin) ? true : false;
-    }
-
     pageRefreshState(): void {
         if (sessionStorage.getItem(SessionKeys.IsRefreshed)) {
             sessionStorage.setItem(SessionKeys.ShowPasswordPopup, 'true');
