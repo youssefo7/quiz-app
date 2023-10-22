@@ -1,11 +1,12 @@
 import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, CanDeactivateFn } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { QuizQuestionInfoComponent } from '@app/components/quiz-question-info/quiz-question-info.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
+import { firstValueFrom } from 'rxjs';
 import { blankQuiz } from './utils';
 
 @Component({
@@ -21,6 +22,7 @@ export class CreateEditQuizPageComponent implements OnInit {
     pageTitle: string;
     resetQuiz: Quiz;
     isGeneralInfoFormValid: boolean;
+    shouldExitCreateEditQuizPage: boolean;
 
     constructor(
         private quizManagerService: QuizManagerService,
@@ -28,6 +30,7 @@ export class CreateEditQuizPageComponent implements OnInit {
         private route: ActivatedRoute,
     ) {
         this.isGeneralInfoFormValid = false;
+        this.shouldExitCreateEditQuizPage = false;
     }
 
     @HostListener('window:beforeunload', ['$event'])
@@ -97,9 +100,31 @@ export class CreateEditQuizPageComponent implements OnInit {
         popupInstance.config = config;
     }
 
+    async openPageExitConfirmation(): Promise<boolean> {
+        const config: PopupMessageConfig = {
+            message: 'Quittez la page? Toutes les informations non enregistrées seront supprimées',
+            hasCancelButton: true,
+            cancelButtonText: 'Annuler',
+            okButtonText: 'Quitter',
+            okButtonFunction: () => {
+                this.shouldExitCreateEditQuizPage = true;
+            },
+        };
+        const dialogRef = this.confirmationDialogReference.open(PopupMessageComponent);
+        const popupInstance = dialogRef.componentInstance;
+        popupInstance.config = config;
+
+        await firstValueFrom(dialogRef.afterClosed());
+        return this.shouldExitCreateEditQuizPage;
+    }
+
     saveQuiz() {
         if (this.newQuiz) {
             this.quizManagerService.saveQuiz(this.newQuiz);
         }
     }
 }
+
+export const exitCreateEditQuizPageGuard: CanDeactivateFn<CreateEditQuizPageComponent> = async (component: CreateEditQuizPageComponent) => {
+    return await component.openPageExitConfirmation();
+};
