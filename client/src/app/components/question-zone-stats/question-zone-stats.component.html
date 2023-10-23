@@ -1,0 +1,10 @@
+<div id="flex-container">
+    <div *ngIf="quiz" class="question-points-zone">
+        <p id="question">{{ question.text }}</p>
+        <p id="points">({{ question.points }} Points)</p>
+    </div>
+    <div *ngIf="quiz" class="choices-zone">Histogramme</div>
+    <div id="submit-zone">
+        <button>Prochaine Question</button>
+    </div>
+</div>
