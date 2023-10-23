@@ -1,7 +1,7 @@
 // Raison: On est à des mockQuiz qui prennent beaucoup de place, mais on ne vaut pas les déplacer dans un fichier séparé
 /* eslint-disable max-lines */
 import { DebugElement } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
@@ -19,15 +19,12 @@ describe('QuestionZoneComponent', () => {
     let debugElement: DebugElement;
     let setButtonSpy: jasmine.Spy;
 
-    beforeEach(fakeAsync(() => {
+    beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
             declarations: [QuestionZoneComponent],
             providers: [
                 { provide: CommunicationService, useValue: communicationServiceMock },
-                {
-                    provide: ActivatedRoute,
-                    useValue: { snapshot: { paramMap: { get: () => '123' } } },
-                },
+                { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' } } } },
             ],
         }).compileComponents();
         gameService = TestBed.inject(GameService);

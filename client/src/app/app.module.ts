@@ -19,6 +19,7 @@ import { JoinGamePopupComponent } from './components/join-game-popup/join-game-p
 import { PlayerListComponent } from './components/player-list/player-list.component';
 import { PopupMessageComponent } from './components/popup-message/popup-message.component';
 import { ProfileComponent } from './components/profile/profile.component';
+import { QuestionZoneStatsComponent } from './components/question-zone-stats/question-zone-stats.component';
 import { QuestionZoneComponent } from './components/question-zone/question-zone.component';
 import { QuizGeneralInfoComponent } from './components/quiz-general-info/quiz-general-info.component';
 import { QuizListComponent } from './components/quiz-list/quiz-list.component';
@@ -65,6 +66,7 @@ import { WaitingPageComponent } from './pages/waiting-page/waiting-page.componen
         JoinGamePopupComponent,
         HostGamePageComponent,
         GamePlayersListComponent,
+        QuestionZoneStatsComponent,
     ],
     imports: [
         AppMaterialModule,
