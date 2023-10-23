@@ -28,6 +28,7 @@ import { CreateEditQuizPageComponent } from './pages/create-edit-quiz-page/creat
 import { CreateGamePageComponent } from './pages/create-game-page/create-game-page.component';
 import { WaitingPageComponent } from './pages/waiting-page/waiting-page.component';
 import { HostGamePageComponent } from './pages/host-game-page/host-game-page.component';
+import { QuestionZoneStatsComponent } from './components/question-zone-stats/question-zone-stats.component';
 
 /**
  * Main module that is used in main.ts.
@@ -59,6 +60,7 @@ import { HostGamePageComponent } from './pages/host-game-page/host-game-page.com
         TitleExistsDirective,
         CreateEditQuizPageComponent,
         HostGamePageComponent,
+        QuestionZoneStatsComponent,
     ],
     imports: [
         AppMaterialModule,

@@ -7,12 +7,7 @@
         <app-countdown [isHost]="true" id="countdown-container"></app-countdown>
         <div id="player-list-countainer"><p>Liste de joueur (Component)</p></div>
     </div>
-    <div id="questions-stats-grid">
-        <p>
-            Cette section sera un component séparé.<br />
-            Celui-ci va contenir le titre de la question, sa valeur en point et l'histogramme
-        </p>
-    </div>
+    <app-question-zone-stats id="questions-stats-grid"></app-question-zone-stats>
     <div id="chat-player-flex">
         <app-profile [isHost]="true" id="profile-container"></app-profile>
         <app-chat id="chat-container"></app-chat>
