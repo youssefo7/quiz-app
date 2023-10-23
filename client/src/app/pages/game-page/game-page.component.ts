@@ -13,7 +13,6 @@ import { GameService } from '@app/services/game.service';
 })
 export class GamePageComponent implements OnInit {
     title: string;
-    link: string;
     quiz: Quiz | null;
     playerPoints: number;
     private readonly isTestGame: boolean;
@@ -37,11 +36,7 @@ export class GamePageComponent implements OnInit {
     }
 
     async leaveGamePage() {
-        if (this.isTestGame) {
-            await this.router.navigateByUrl('/game/new');
-        } else {
-            await this.router.navigateByUrl('/home');
-        }
+        await this.router.navigateByUrl(this.isTestGame ? '/game/new' : '/home');
     }
 
     async getQuiz() {

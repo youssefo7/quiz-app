@@ -8,14 +8,28 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class ProfileComponent implements OnInit {
     @Input() points: number;
+    @Input() isHost: boolean;
     name: string;
 
     constructor(private readonly route: ActivatedRoute) {
         this.name = '';
+        this.isHost = false;
     }
 
     ngOnInit() {
+        this.name = this.getProfileName();
+    }
+
+    getProfileName() {
         const isTestGame = this.route.snapshot.url.some((segment: { path: string }) => segment.path === 'test');
-        this.name = isTestGame ? 'Testeur' : 'Joueur A';
+        let profileName = '';
+
+        if (isTestGame) {
+            profileName = 'Testeur';
+        } else if (this.isHost) {
+            profileName = 'Organisateur';
+        }
+
+        return profileName;
     }
 }

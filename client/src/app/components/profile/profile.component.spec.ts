@@ -25,6 +25,8 @@ describe('ProfileComponent in test game route', () => {
     });
 
     it('should display "Testeur" when the route contains "test"', () => {
+        expect(component.getProfileName()).toEqual('Testeur');
+        component.ngOnInit();
         expect(component.name).toEqual('Testeur');
     });
 
@@ -56,14 +58,50 @@ describe('ProfileComponent in regular game route', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should display "Joueur A" when the route doesn\'\t contain "test"', () => {
-        expect(component.name).toEqual('Joueur A');
+    it('should display nothing when the route doesn\'\t contain "test"', () => {
+        expect(component.getProfileName()).toBeFalsy();
+        component.ngOnInit();
+        expect(component.name).toEqual('');
     });
 
     it('should display points given as input', () => {
         component.points = 42;
         fixture.detectChanges();
-
         expect(fixture.nativeElement.querySelectorAll('span')[1].innerText).toEqual('42 points');
+    });
+});
+
+describe('ProfileComponent in host game route', () => {
+    let component: ProfileComponent;
+    let fixture: ComponentFixture<ProfileComponent>;
+
+    beforeEach(waitForAsync(() => {
+        TestBed.configureTestingModule({
+            declarations: [ProfileComponent, MatIcon],
+            providers: [{ provide: ActivatedRoute, useValue: { snapshot: { url: [{ path: 'host' }] } } }],
+        }).compileComponents();
+    }));
+
+    beforeEach(() => {
+        fixture = TestBed.createComponent(ProfileComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
+
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
+
+    it('should display "Organisateur" when the user is the host', () => {
+        component.isHost = true;
+        expect(component.getProfileName()).toEqual('Organisateur');
+        component.ngOnInit();
+        expect(component.name).toEqual('Organisateur');
+    });
+
+    it('should not display points if user is a host', () => {
+        component.isHost = true;
+        fixture.detectChanges();
+        expect(fixture.nativeElement.querySelectorAll('span')[1]).toBeUndefined();
     });
 });

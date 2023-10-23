@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
@@ -46,7 +47,7 @@ describe('CountdownComponent', () => {
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [CountdownComponent],
+            declarations: [CountdownComponent, MatIcon],
             providers: [
                 { provide: TimeService, useValue: timeServiceSpy },
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'test' }] } } },
@@ -136,4 +137,13 @@ describe('CountdownComponent', () => {
             expect(gameClockSpy).toHaveBeenCalled();
         });
     }));
+
+    it('should not display countdown host options depending of whether the user is the host or not', () => {
+        expect(component.isHost).toBeFalse();
+        expect(fixture.nativeElement.querySelector('#countdown-options')).toBeNull();
+
+        component.isHost = true;
+        fixture.detectChanges();
+        expect(fixture.nativeElement.querySelector('#countdown-options')).toBeTruthy();
+    });
 });
