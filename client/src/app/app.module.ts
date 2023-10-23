@@ -13,8 +13,10 @@ import { AdminPopupComponent } from './components/admin-popup/admin-popup.compon
 import { ChatComponent } from './components/chat/chat.component';
 import { CountdownComponent } from './components/countdown/countdown.component';
 import { CreateGameListComponent } from './components/create-game-list/create-game-list.component';
+import { GamePlayersListComponent } from './components/game-players-list/game-players-list.component';
 import { ImportPopupComponent } from './components/import-popup/import-popup.component';
 import { JoinGamePopupComponent } from './components/join-game-popup/join-game-popup.component';
+import { PlayerListComponent } from './components/player-list/player-list.component';
 import { PopupMessageComponent } from './components/popup-message/popup-message.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { QuestionZoneComponent } from './components/question-zone/question-zone.component';
@@ -29,8 +31,6 @@ import { CreateEditQuizPageComponent } from './pages/create-edit-quiz-page/creat
 import { CreateGamePageComponent } from './pages/create-game-page/create-game-page.component';
 import { HostGamePageComponent } from './pages/host-game-page/host-game-page.component';
 import { WaitingPageComponent } from './pages/waiting-page/waiting-page.component';
-import { PlayerListComponent } from './components/player-list/player-list.component';
-import { GamePlayersListComponent } from './components/game-players-list/game-players-list.component';
 
 /**
  * Main module that is used in main.ts.
