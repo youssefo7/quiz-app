@@ -14,6 +14,7 @@ import { ChatComponent } from './components/chat/chat.component';
 import { CountdownComponent } from './components/countdown/countdown.component';
 import { CreateGameListComponent } from './components/create-game-list/create-game-list.component';
 import { ImportPopupComponent } from './components/import-popup/import-popup.component';
+import { JoindrePartiePopupComponent } from './components/joindre-partie-popup/joindre-partie-popup.component';
 import { PopupMessageComponent } from './components/popup-message/popup-message.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { QuestionZoneComponent } from './components/question-zone/question-zone.component';
@@ -57,6 +58,7 @@ import { WaitingPageComponent } from './pages/waiting-page/waiting-page.componen
         RangeValidatorDirective,
         TitleExistsDirective,
         CreateEditQuizPageComponent,
+        JoindrePartiePopupComponent,
     ],
     imports: [
         AppMaterialModule,
