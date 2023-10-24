@@ -68,8 +68,8 @@ describe('GamePageComponent in test game route', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should set page title to "Partie - Test"', () => {
-        expect(component.title).toEqual('Partie - Test');
+    it('should set page title to "Partie - "quiz name" (Test)"', () => {
+        expect(component.title).toEqual('Partie - ' + mockedQuiz.title + ' (Test)');
     });
 
     it('clicking the exit icon should redirect to "game/new" page', () => {

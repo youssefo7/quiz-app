@@ -161,7 +161,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
 
     setButtonStateOnSubmit(index: number) {
         this.choiceButtonStyle[index] = {
-            backgroundColor: this.question.choices[index].isCorrect ? 'rgb(97, 207, 72)' : 'red',
+            backgroundColor: this.question.choices[index].isCorrect ? 'rgb(97, 207, 72)' : 'rgb(255, 105, 105)',
         };
         this.isChoiceButtonDisabled = true;
     }

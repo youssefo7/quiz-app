@@ -33,7 +33,6 @@ export class GamePageComponent implements OnInit {
 
     ngOnInit() {
         this.getQuiz();
-        this.title += this.isTestGame ? ' - Test' : '';
     }
 
     async leaveGamePage() {
@@ -47,6 +46,8 @@ export class GamePageComponent implements OnInit {
     async getQuiz() {
         const id = this.route.snapshot.paramMap.get('id');
         this.quiz = await this.gameService.getQuizById(id);
+        this.title += ' - ' + this.quiz?.title;
+        this.title += this.isTestGame ? ' (Test)' : '';
     }
 
     givePoints(points: number) {

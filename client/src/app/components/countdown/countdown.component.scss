@@ -1,13 +1,13 @@
 p {
     font-size: medium;
     text-align: center;
+    color: white;
 }
 
 #countdown-background {
-    background-color: lightblue;
     border-style: solid;
     border-radius: 50%;
-    border-color: black;
+    border-color: rgb(255, 255, 255);
     border-width: 3px;
     display: flex;
     justify-content: center;

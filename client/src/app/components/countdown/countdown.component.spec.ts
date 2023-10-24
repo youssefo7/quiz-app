@@ -88,7 +88,7 @@ describe('CountdownComponent', () => {
         component.questionClock();
 
         expect(component.message).toEqual('Temps Restant');
-        expect(component.clockStyle).toEqual({ backgroundColor: 'lightblue' });
+        expect(component.clockStyle).toEqual({ backgroundColor: 'blue' });
         expect(timeServiceSpy.startTimer).toHaveBeenCalledWith(quizzMock.duration);
     }));
 

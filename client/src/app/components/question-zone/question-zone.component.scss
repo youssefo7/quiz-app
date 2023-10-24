@@ -4,7 +4,9 @@
     display: grid;
     grid-template-rows: 25% 75%;
     grid-template-columns: 85% 15%;
-    background-color: lightcyan;
+    background-color: white;
+    border-radius: 30px;
+    box-shadow: rgba(151, 65, 252, 0.2) 0 15px 30px -5px;    
 
     .question-points-zone {
         grid-row: 1 / 2;
@@ -22,9 +24,8 @@
         }
 
         #question {
-            font-size: 1.5em;
+            font-size: 1.7em;
             text-align: center;
-            margin: 10px 10px;
             overflow: auto;
         }
 
@@ -49,39 +50,39 @@
         flex-direction: column;
         justify-content: space-evenly;
 
-        button {
-            position: relative;
-            left: 30%;
-            max-width: 60%;
-            width: 60%;
-            border-radius: 5%;
-            border-style: outset;
-            border-width: 10px;
-            border-color: white;
-            background-color: blueviolet;
-            font-size: 2em;
-            font-family: Arial, Helvetica, sans-serif;
-            overflow-wrap: break-word;
-            color: white;
-            padding: 15px 0;
+    button {
+        position: relative;
+        left: 30%;
+        max-width: 60%;
+        width: 60%;
 
-            &.active {
-                background-color: blue;
-                border-color: black;
-            }
-
-            &:hover {
-                cursor: pointer;
-                background-color: peru;
-            }
-
-            &:focus {
-                outline: none;
-            }
+        border-radius: 8px;
+        background-color:  rgb(45, 187, 235);
+        color: #fff;
+        font-size: 1.5em;
+        font-family: 'Arial', sans-serif;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+        border: none;
+        padding: 15px 0;
+      
+        &.active {
+          background-color:  rgb(11, 9, 96); /* Change color when active */
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add shadow when active */
         }
-    }
+      
+        &:hover {
+          background-color:  rgb(231, 122, 255); /* Change color on hover */
+        }
+      
+        &:focus {
+          outline: none;
+        }
+      }
+    } 
+      
 
-    #submit-zone {
+        #submit-zone {
         grid-row: 2 / 3;
         grid-column: 2 / 3;
         display: flex;
@@ -89,23 +90,18 @@
 
         button {
             width: 90%;
-            max-width: 90%;
+            border-radius: 8px;
             background-color: gray;
             color: aliceblue;
-            align-self: flex-start;
-            padding: 10% 0%;
-            font-size: 1.2vw;
+            font-size: 1.0em;
+            font-family: 'Arial', sans-serif;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            border: none;
+            padding: 15px 0;
             font-weight: bold;
             position: relative;
             top: 80%;
-
-            // box-shadow code from https://www.w3schools.com/css/css3_buttons.asp
-            &:hover {
-                cursor: pointer;
-                box-shadow:
-                    0 12px 16px 0 rgba(0, 0, 0, 0.24),
-                    0 17px 50px 0 rgba(0, 0, 0, 0.19);
-            }
         }
     }
 }

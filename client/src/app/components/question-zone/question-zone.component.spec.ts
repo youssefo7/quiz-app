@@ -276,7 +276,7 @@ describe('QuestionZoneComponent', () => {
         component.setButtonStateOnSubmit(secondButtonIndex);
         expect(component.isChoiceButtonDisabled).toBeTrue();
         expect(component.submitButtonStyle).toEqual({ backgroundColor: '' });
-        expect(component.choiceButtonStyle[firstButtonIndex]).toEqual({ backgroundColor: 'red' });
+        expect(component.choiceButtonStyle[firstButtonIndex]).toEqual({ backgroundColor: 'rgb(255, 105, 105)' });
         expect(component.choiceButtonStyle[secondButtonIndex]).toEqual({ backgroundColor: 'rgb(97, 207, 72)' });
     });
 

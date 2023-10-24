@@ -45,7 +45,7 @@ export class CountdownComponent implements OnInit {
 
     async questionClock() {
         this.message = 'Temps Restant';
-        this.clockStyle = { backgroundColor: 'lightblue' };
+        this.clockStyle = { backgroundColor: 'blue' };
         if (this.quiz) {
             await this.timeService.startTimer(this.quiz.duration);
         }

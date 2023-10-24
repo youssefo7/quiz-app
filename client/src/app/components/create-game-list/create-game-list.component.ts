@@ -9,7 +9,7 @@ import { CommunicationService } from '@app/services/communication.service';
 @Component({
     selector: 'app-create-game-list',
     templateUrl: './create-game-list.component.html',
-    styleUrls: ['./create-game-list.component.scss'],
+    styleUrls: ['./create-game-list.component.scss', '../../../assets/shared.scss'],
 })
 export class CreateGameListComponent implements OnInit {
     message: string;

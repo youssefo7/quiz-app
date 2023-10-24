@@ -17,14 +17,14 @@ describe('AdminGuardService', () => {
     });
 
     it('should grant access with right password', () => {
-        const correctPassword = 'ultimate!!!password';
+        const correctPassword = '1';
         service.userPassword = correctPassword;
         expect(() => service.isAccessGranted(correctPassword)).not.toThrow();
     });
 
     it('should deny access with wrong password', () => {
         const incorrectPassword = 'wrong password';
-        service.userPassword = 'ultimate!!!password';
+        service.userPassword = '2';
         expect(() => service.isAccessGranted(incorrectPassword)).toThrowError('access is not granted');
     });
 });

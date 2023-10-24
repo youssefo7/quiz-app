@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AdminGuardService {
-    private privateUserPassword = 'ultimate!!!password';
+    private privateUserPassword = '1';
 
     set userPassword(value: string) {
         this.privateUserPassword = value;

@@ -25,10 +25,10 @@ describe('AdminGuardService', () => {
     });
 
     it('should grant access and activate /admin route only when given the right password', fakeAsync(() => {
-        service.isAccessGranted('ultimate!!!password');
+        service.isAccessGranted('1');
         let req = httpMock.expectOne(`${environment.serverUrl}/admin/login`);
         expect(req.request.method).toBe('POST');
-        expect(req.request.body).toEqual({ password: 'ultimate!!!password' });
+        expect(req.request.body).toEqual({ password: '1' });
         req.flush(null, { status: 200, statusText: 'Ok' });
         tick();
         expect(service.canActivate()).toBeTrue();
