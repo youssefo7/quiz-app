@@ -26,6 +26,7 @@ export class SocketManagerService {
                     isLocked: false,
                     bannedNames: [],
                     abandonnedPlayers: [],
+                    nbPlayersInit: 0,
                 });
                 callback(roomId);
             });
@@ -66,6 +67,12 @@ export class SocketManagerService {
                 callback(!nameExists && !bannedName ? true : false);
             });
 
+            // allows game to begin
+            socket.on('startGame', (roomId: string, callback: (hasGameStarted: boolean) => void) => {
+                const room = this.findRoom(roomId);
+                callback(room.isLocked);
+            });
+
             socket.on('getPlayerNames', (roomId: string, callback: (playerNames: string[]) => void) => {
                 const room = this.findRoom(roomId);
                 const playerNames = room.players.map((player) => player.name);
@@ -86,12 +93,14 @@ export class SocketManagerService {
                 this.removeUser(room, user.name);
             });
 
-            socket.on('organizerLeaveGame', async () => {
+            // Use this function at the end of the game in order to kick everyone from game and delete it
+            // case for : 1 ) Organizer leaves game, 2 ) End game button
+            socket.on('endGame', async () => {
                 const oganizer = this.findUser(socket.id);
                 const room = this.findUserRoom(oganizer);
                 const sockets = await this.sio.sockets.fetchSockets();
 
-                socket.to(room.id).emit('organizerLeft');
+                socket.to(room.id).emit('gameEnded');
                 sockets.forEach((playerSocket) => playerSocket.leave(room.id));
                 this.deleteRoom(room);
             });
@@ -106,10 +115,12 @@ export class SocketManagerService {
                 this.sio.to(roomId).emit('roomMessage', `${user.name} (${timeString}) : ${message}`);
             });
 
-            // socket.on('disconnect', (reason) => {
-            //     console.log(`Deconnexion par l'utilisateur avec id : ${socket.id}`);
-            //     console.log(`Raison de deconnexion : ${reason}`);
+            // socket.on('roomData', (roomId: string, callback: (roomData: Room) => void) => {
+            //     const room = this.findRoom(roomId);
+            //     callback(room);
             // });
+
+            // socket.on('disconnect', () => {});
         });
     }
 
