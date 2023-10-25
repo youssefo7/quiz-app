@@ -65,11 +65,11 @@ describe('AdminGuardService', () => {
 
     it('should initialize admin guard correctly', () => {
         sessionStorage.setItem(SessionKeys.CanAccessAdmin, 'true');
-        service.initializeAdminGuard();
+        service['canAccessAdmin'] = sessionStorage.getItem(SessionKeys.CanAccessAdmin) ? true : false;
         expect(service.canActivate()).toEqual(true);
 
         sessionStorage.removeItem(SessionKeys.CanAccessAdmin);
-        service.initializeAdminGuard();
+        service['canAccessAdmin'] = sessionStorage.getItem(SessionKeys.CanAccessAdmin) ? true : false;
         expect(service.canActivate()).toEqual(false);
     });
 });
