@@ -1,5 +1,6 @@
 import { AdminGuardController } from '@app/controllers/admin-guard/admin-guard.controller';
 import { QuizzesController } from '@app/controllers/quizzes/quizzes.controller';
+import { Quiz, quizSchema } from '@app/model/database/quiz';
 import { AdminGuardService } from '@app/services/admin-guard/admin-guard.service';
 import { QuizzesService } from '@app/services/quizzes/quizzes.service';
 import { Logger, Module } from '@nestjs/common';
@@ -16,7 +17,7 @@ import { MongooseModule } from '@nestjs/mongoose';
                 uri: config.get<string>('DATABASE_CONNECTION_STRING'), // Loaded from .env
             }),
         }),
-        // MongooseModule.forFeature([{ name: Course.name, schema: courseSchema }]),
+        MongooseModule.forFeature([{ name: Quiz.name, schema: quizSchema }]),
     ],
     controllers: [QuizzesController, AdminGuardController],
     providers: [Logger, AdminGuardService, QuizzesService],

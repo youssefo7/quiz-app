@@ -1,15 +1,15 @@
-import { ChoiceType, QuestionType, Quiz } from '@app/model/database/quiz';
-import { Constants } from '@common/constants';
+import { ChoiceType, QuestionType, Quiz, QuizDocument } from '@app/model/database/quiz';
+import { Logger } from '@nestjs/common';
+import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { promises as fs } from 'fs';
+import { Model } from 'mongoose';
 import { QuizzesService } from './quizzes.service';
 
 describe('QuizzesService', () => {
     let service: QuizzesService;
-    let mockQuizzes: Quiz[];
-    const defaultMockQuizzes: Quiz[] = [
+    let quizModel: Model<QuizDocument>;
+    const mockQuizzes: Quiz[] = [
         {
-            $schema: 'quiz-schema.json',
             id: '1',
             title: 'Questionnaire sur le JS',
             duration: 60,
@@ -44,18 +44,33 @@ describe('QuizzesService', () => {
         },
     ];
 
-    const mockFilePath = 'mockFilePath.json';
+    beforeEach(() => {
+        quizModel = {
+            find: jest.fn(),
+            findOne: jest.fn(),
+            findOneAndUpdate: jest.fn(),
+            findOneAndDelete: jest.fn(),
+            findById: jest.fn(),
+            insertMany: jest.fn(),
+            countDocuments: jest.fn(),
+            create: jest.fn(),
+            exists: jest.fn(),
+        } as unknown as Model<QuizDocument>;
+    });
 
     beforeEach(async () => {
-        mockQuizzes = JSON.parse(JSON.stringify(defaultMockQuizzes));
         const module: TestingModule = await Test.createTestingModule({
-            providers: [QuizzesService],
+            providers: [
+                QuizzesService,
+                Logger,
+                {
+                    provide: getModelToken(Quiz.name),
+                    useValue: quizModel,
+                },
+            ],
         }).compile();
 
         service = module.get<QuizzesService>(QuizzesService);
-
-        jest.spyOn(service, 'getQuizzes').mockResolvedValue(mockQuizzes);
-        jest.spyOn(fs, 'writeFile').mockResolvedValue();
     });
 
     it('should be defined', () => {
@@ -66,81 +81,86 @@ describe('QuizzesService', () => {
         jest.restoreAllMocks();
     });
 
-    it('should get Quizzes', async () => {
-        jest.restoreAllMocks();
-        jest.spyOn(fs, 'readFile').mockResolvedValue(JSON.stringify(mockQuizzes));
-        jest.spyOn(service, 'quizzesPath', 'get').mockReturnValue(mockFilePath);
-        const quizzes = await service.getQuizzes();
-        expect(quizzes).toEqual(mockQuizzes);
+    it('should populate DB if no documents exist', async () => {
+        jest.spyOn(quizModel, 'countDocuments').mockResolvedValue(0);
+        const populateDBSpy = jest.spyOn(service, 'populateDB').mockImplementation(async () => Promise.resolve());
+        await service.start();
+        expect(populateDBSpy).toHaveBeenCalled();
     });
 
-    it('should send error if getQuizzes fails', async () => {
-        jest.restoreAllMocks();
-        jest.spyOn(fs, 'readFile').mockRejectedValue(new Error('Failed to get Quizzes'));
-        jest.spyOn(service, 'quizzesPath', 'get').mockReturnValue(mockFilePath);
-        await expect(service.getQuizzes()).rejects.toEqual(new Error('Failed to get Quizzes'));
+    it('should insert quizzes and log message when populating DB', async () => {
+        const insertManySpy = jest.spyOn(quizModel, 'insertMany').mockResolvedValue([]);
+        const logSpy = jest.spyOn(service['logger'], 'log').mockImplementation();
+        await service.populateDB();
+        expect(insertManySpy).toHaveBeenCalledWith([]);
+        expect(logSpy).toHaveBeenCalledWith('DB populated');
+    });
+
+    it('should get quizzes', async () => {
+        const result = mockQuizzes;
+        jest.spyOn(quizModel, 'find').mockResolvedValue(result);
+        expect(await service.getQuizzes()).toEqual(result);
     });
 
     it('should get a Quiz by id', async () => {
-        const quiz = await service.getQuiz('1');
-        expect(quiz).toEqual(mockQuizzes[0]);
+        const result = mockQuizzes[0];
+        jest.spyOn(quizModel, 'findOne').mockResolvedValue(result);
+        expect(await service.getQuiz('1')).toEqual(result);
     });
 
     it('should send error if id does not exist when getting Quiz', async () => {
+        jest.spyOn(quizModel, 'findOne').mockResolvedValue(null);
         await expect(service.getQuiz('3')).rejects.toEqual(new Error('Quiz 3 not found'));
     });
 
     it('should add a Quiz', async () => {
-        const newQuiz = { ...mockQuizzes[0], id: '2' };
-        await expect(service.addQuiz(newQuiz)).resolves.toEqual(newQuiz);
-        expect(mockQuizzes.length).toBe(2);
-        expect(mockQuizzes[1]).toEqual(newQuiz);
-    });
+        const createdId = 'createdId';
+        const dateModificationSpy = jest.spyOn(Date.prototype, 'toISOString');
 
-    it('should send error if adding quiz fails', async () => {
-        const newQuiz = { ...mockQuizzes[0], id: '2' };
-        jest.spyOn(service, 'getQuizzes').mockRejectedValue(new Error('Failed to get Quizzes'));
-        await expect(service.addQuiz(newQuiz)).rejects.toEqual(new Error('Failed to get Quizzes'));
+        const newQuiz: Quiz = {
+            ...mockQuizzes[0],
+        };
+        const createdQuiz = {
+            ...mockQuizzes[0],
+            _id: createdId,
+        };
+        (quizModel.create as jest.Mock).mockResolvedValueOnce({
+            ...createdQuiz,
+            save: jest.fn().mockResolvedValueOnce(createdQuiz),
+        });
+
+        const addedQuiz = await service.addQuiz(newQuiz);
+        expect(dateModificationSpy).toHaveBeenCalled();
+        expect(quizModel.create).toHaveBeenCalledWith(newQuiz);
+        expect(addedQuiz.id).toEqual(createdId);
+        dateModificationSpy.mockRestore();
     });
 
     it('should update a Quiz', async () => {
-        const newDuration = 120;
-        const updatedQuiz = mockQuizzes[0];
-        updatedQuiz.duration = newDuration;
-        await expect(service.updateQuiz('1', updatedQuiz)).resolves.toEqual(updatedQuiz);
-        expect(mockQuizzes[0]).toEqual(updatedQuiz);
+        const newDuration = 60;
+        const updatedQuiz = { ...mockQuizzes[0], duration: newDuration };
+        const dateModificationSpy = jest.spyOn(Date.prototype, 'toISOString');
+        jest.spyOn(quizModel, 'findOneAndUpdate').mockResolvedValue(updatedQuiz);
+        const result = await service.updateQuiz('1', updatedQuiz);
+        expect(result).toEqual(updatedQuiz);
+        expect(dateModificationSpy).toHaveBeenCalled();
+        dateModificationSpy.mockRestore();
     });
 
     it('should send error if id does not exist when updating', async () => {
-        await expect(service.updateQuiz('2', mockQuizzes[0])).rejects.toEqual(new Error('Quiz 2 not found'));
-    });
-
-    it('should delete a Quiz and return [] if one object left', async () => {
-        expect(await service.deleteQuiz('1')).toEqual([]);
+        jest.spyOn(quizModel, 'findOneAndUpdate').mockResolvedValue(null);
+        await expect(service.updateQuiz('nonexistentId', mockQuizzes[0])).rejects.toEqual(new Error('Quiz nonexistentId not found'));
     });
 
     it('should delete a Quiz', async () => {
-        const newMockQuizzes = JSON.parse(JSON.stringify(defaultMockQuizzes));
-        jest.spyOn(service, 'getQuizzes').mockResolvedValue(newMockQuizzes);
-        newMockQuizzes.push({ ...mockQuizzes[0], id: '2' });
-        expect(await service.deleteQuiz('2')).toEqual(mockQuizzes);
+        const quizToDelete = mockQuizzes[0];
+        jest.spyOn(quizModel, 'findOneAndDelete').mockResolvedValue(quizToDelete);
+        await expect(service.deleteQuiz('1')).resolves.not.toThrow();
     });
 
     it('should throw error if id does not exist when deleting', async () => {
-        try {
-            await service.deleteQuiz('3');
-        } catch (error) {
-            expect(error.message).toBe('Quiz 3 not found');
-        }
-    });
-
-    it('should throw error if delete fails', async () => {
-        jest.spyOn(service, 'getQuizzes').mockRejectedValue(new Error('test'));
-        try {
-            await service.deleteQuiz('testID123');
-        } catch (error) {
-            expect(error.message).toBe('test');
-        }
+        jest.spyOn(quizModel, 'findOneAndDelete').mockResolvedValue(null);
+        await expect(service.deleteQuiz('nonexistentId')).rejects.toEqual(new Error('Quiz nonexistentId not found'));
     });
 
     it('should verify a valid quiz successfully', async () => {
@@ -148,25 +168,15 @@ describe('QuizzesService', () => {
         await expect(service.verifyQuiz(quiz)).resolves.toBeUndefined();
     });
 
-    it('should create a new 6-character-long ID correctly', async () => {
-        expect(await service.createID()).toHaveLength(Constants.RANDOM_STRING_LENGTH);
-    });
-
-    it('should create unique IDs', async () => {
-        jest.spyOn(service, 'checkIdAvailability').mockResolvedValueOnce(false).mockResolvedValueOnce(true);
-        const id = await service.createID();
-        expect(service.checkIdAvailability).toHaveBeenCalledTimes(2);
-        expect(id).toBeDefined();
-    });
-
     it('should check quiz availability correctly', async () => {
-        jest.spyOn(service, 'checkIdAvailability').mockResolvedValue(false);
-        expect(await service.checkQuizAvailability('1')).toBe(true);
+        jest.spyOn(service.quizModel, 'findOne').mockResolvedValue(true);
+        const result = await service.checkQuizAvailability('validId');
+        expect(result).toBe(true);
     });
 
     it('should send error if checkQuizAvailability fails', async () => {
-        jest.spyOn(service, 'checkIdAvailability').mockRejectedValue(new Error('Failed to check quiz availability'));
-        await expect(service.checkQuizAvailability('1')).rejects.toThrow('Failed to check quiz availability');
+        jest.spyOn(service.quizModel, 'findOne').mockRejectedValue(new Error('error'));
+        await expect(service.checkQuizAvailability('invalidId')).rejects.toThrow('error');
     });
 
     it('should import a quiz successfully', async () => {
@@ -282,18 +292,34 @@ describe('QuizzesService', () => {
         expect(errors).toContain('Texte du choix 1 de la question 1 invalide ou manquant');
     });
 
-    it('should check for a missing or invalid isCorrect property', () => {
+    it('should check for a non boolean isCorrect property', () => {
         const errors = [];
         const mockChoice = {
             text: 'test',
+            isCorrect: 'string' as unknown as boolean,
         } as ChoiceType;
 
         service.verifyChoices([mockChoice], 0, errors);
-        expect(errors).toContain('La propriété "isCorrect" du choix 1 de la question 1 est invalide ou manquante');
+        expect(mockChoice.isCorrect).toBe(false);
     });
 
-    it('should throw error if there is a write failure', async () => {
-        jest.spyOn(fs, 'writeFile').mockRejectedValueOnce(new Error('test'));
-        await expect(service.saveQuizzes(mockQuizzes)).rejects.toThrow('Error saving quizzes: test');
+    it('should set isCorrect to false when it is null', () => {
+        const errors = [];
+        const mockChoice = {
+            text: 'test',
+            isCorrect: null,
+        } as ChoiceType;
+        service.verifyChoices([mockChoice], 0, errors);
+        expect(mockChoice.isCorrect).toBe(false);
+    });
+
+    it('should set isCorrect to false when it is undefined', () => {
+        const errors = [];
+        const mockChoice = {
+            text: 'test',
+            isCorrect: undefined,
+        } as ChoiceType;
+        service.verifyChoices([mockChoice], 0, errors);
+        expect(mockChoice.isCorrect).toBe(false);
     });
 });

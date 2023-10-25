@@ -18,11 +18,7 @@ export type ChoiceType = {
 @Schema()
 export class Quiz {
     @ApiProperty()
-    @Prop({ required: true })
-    $schema: string;
-
-    @ApiProperty()
-    @Prop({ required: true })
+    @Prop()
     id: string;
 
     @ApiProperty()
