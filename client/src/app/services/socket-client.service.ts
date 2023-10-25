@@ -17,6 +17,7 @@ export class SocketClientService {
     }
 
     disconnect() {
+        // TODO : Check if the connections have to be managed when closing tabs for players and organizers
         this.socket.disconnect();
     }
 
@@ -24,7 +25,9 @@ export class SocketClientService {
         this.socket.on(event, action);
     }
 
-    // send<T>(event: string, data?: T, callback?: Function): void {
-    //     this.socket.emit(event, ...[data, callback].filter((x) => x));
-    // }
+    // On ne sait pas le type de la fonction préalablement à son appel
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    send<T>(event: string, data?: T, callback?: Function): void {
+        this.socket.emit(event, ...[data, callback].filter((x) => x));
+    }
 }

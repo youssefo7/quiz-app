@@ -1,11 +1,12 @@
 export interface Room {
     id: string;
-    organizer: Organizer;
-    players: Player[];
+    quizId: string;
+    organizer: User;
+    players: User[];
     isLocked: boolean;
     bannedNames: string[];
     abandonnedPlayers: string[];
-    nbPlayersInit: number;
+    answerTimes: AnswerTime[];
 }
 
 export interface User {
@@ -13,8 +14,7 @@ export interface User {
     name: string;
 }
 
-export interface Organizer extends User {}
-
-export interface Player extends User {
-    points: number;
+export interface AnswerTime {
+    userId: string;
+    timeStamp: number;
 }
