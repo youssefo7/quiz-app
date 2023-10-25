@@ -1,4 +1,3 @@
-import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -45,11 +44,12 @@ describe('GamePageComponent in test game route', () => {
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
             declarations: [GamePageComponent, TopBarComponent, CountdownComponent, QuestionZoneComponent, ProfileComponent, ChatComponent],
-            imports: [MatIconModule, MatDialogModule, HttpClientModule],
+            imports: [MatIconModule, MatDialogModule],
             providers: [
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'test' }] } } },
                 { provide: MatDialog, useValue: mockDialog },
                 { provide: MatDialogRef, useValue: mockDialogRef },
+                { provide: CommunicationService, useValue: communicationServiceMock },
             ],
         }).compileComponents();
 
@@ -119,12 +119,20 @@ describe('GamePageComponent in regular game route', () => {
     let component: GamePageComponent;
     let fixture: ComponentFixture<GamePageComponent>;
     let router: Router;
+    let communicationServiceMock: jasmine.SpyObj<CommunicationService>;
+
+    beforeEach(() => {
+        communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
+    });
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
             declarations: [GamePageComponent, TopBarComponent, ProfileComponent, ChatComponent, QuestionZoneComponent, CountdownComponent],
-            imports: [MatIconModule, RouterModule, HttpClientModule, MatDialogModule],
-            providers: [{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: '' }] } } }],
+            imports: [MatIconModule, RouterModule, MatDialogModule],
+            providers: [
+                { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: '' }] } } },
+                { provide: CommunicationService, useValue: communicationServiceMock },
+            ],
         }).compileComponents();
 
         router = TestBed.inject(Router);

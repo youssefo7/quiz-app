@@ -1,8 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
-import { ConfirmationPopupComponent } from '@app/components/confirmation-popup/confirmation-popup.component';
+import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { QuizQuestionInfoComponent } from '@app/components/quiz-question-info/quiz-question-info.component';
+import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
 import { blankQuiz } from './utils';
@@ -76,15 +77,19 @@ export class CreateEditQuizPageComponent implements OnInit {
         this.quizManagerService.moveQuestionDown(index, this.newQuiz);
     }
 
-    openQuizConfirmation(): void {
-        const quizConfirmationDialogReference = this.confirmationDialogReference.open(ConfirmationPopupComponent);
-        quizConfirmationDialogReference.componentInstance.setConfirmationText('Sauvegarder ce quiz?');
-
-        quizConfirmationDialogReference.afterClosed().subscribe((wantsToSave) => {
-            if (wantsToSave) {
+    openQuizConfirmation() {
+        const config: PopupMessageConfig = {
+            message: 'Sauvegarder ce quiz?',
+            hasCancelButton: true,
+            cancelButtonText: 'Non',
+            okButtonText: 'Oui',
+            okButtonFunction: () => {
                 this.saveQuiz();
-            }
-        });
+            },
+        };
+        const dialogRef = this.confirmationDialogReference.open(PopupMessageComponent);
+        const popupInstance = dialogRef.componentInstance;
+        popupInstance.config = config;
     }
 
     saveQuiz() {

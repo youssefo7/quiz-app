@@ -9,7 +9,7 @@
                 type="text"
                 name="newTitle"
                 id="newTitle"
-                placeholder="Titre quiz"
+                placeholder="Titre du questionnaire"
                 [value]="titleValue"
                 [maxlength]="maxLengthTitle"
                 (input)="onCharacterChangeTitle($event)"
@@ -37,7 +37,7 @@
                 type="text"
                 name="newDescription"
                 id="newDescription"
-                placeholder="Description quiz"
+                placeholder="Description du questionnaire"
                 [value]="descriptionValue"
                 [maxlength]="maxLengthDescription"
                 (input)="onCharacterChangeDescription($event)"
@@ -58,7 +58,7 @@
     </div>
 
     <div id="duration-div">
-        <label id="duration-label" for="newDuration">Durée (en secondes) :</label>
+        <label id="duration-label" for="newDuration">Temps alloué par question QCM (en sec) :</label>
         <div [ngClass]="{ infoPadding: isDurationValid }">
             <input
                 (input)="adjustPadding()"

@@ -116,34 +116,27 @@ describe('QuestionZoneComponent', () => {
         }
     });
 
-    it('should call nothing if hasGameEnded is true', () => {
-        component.hasGameEnded = true;
-        const getQuestionSpy = spyOn(component, 'getQuestion');
-        component.subscribeToTimer();
-        expect(getQuestionSpy).not.toHaveBeenCalled();
-    });
-
     it('should submit answers if the timer is at 0, the question is not transitioning and the game has not ended', () => {
-        const submitAnswerOnCountdownEventSpy = spyOn(component, 'submitAnswerOnCountdownEvent');
+        const showResultSpy = spyOn(component, 'showResult');
         spyOn(timeService, 'getTime').and.returnValue(of(0));
-        component.hasGameEnded = false;
+        component['hasGameEnded'] = false;
         component.isQuestionTransitioning = false;
         component.subscribeToTimer();
 
-        expect(submitAnswerOnCountdownEventSpy).toHaveBeenCalled();
+        expect(showResultSpy).toHaveBeenCalled();
         expect(component.isQuestionTransitioning).toBeTrue();
     });
 
     it('should go to the next question if the timer is at 0, the question is transitioning and the game has not ended', () => {
         const getQuestionSpy = spyOn(component, 'getQuestion');
-        const submitAnswerOnCountdownEventSpy = spyOn(component, 'submitAnswerOnCountdownEvent');
+        const showResultSpy = spyOn(component, 'showResult');
         spyOn(timeService, 'getTime').and.returnValue(of(0));
-        component.hasGameEnded = false;
+        component['hasGameEnded'] = false;
         component.isQuestionTransitioning = true;
         const currentIndex = component.currentQuestionIndex;
         component.subscribeToTimer();
 
-        expect(submitAnswerOnCountdownEventSpy).not.toHaveBeenCalled();
+        expect(showResultSpy).not.toHaveBeenCalled();
         expect(component.currentQuestionIndex).toEqual(currentIndex + 1);
         expect(getQuestionSpy).toHaveBeenCalledWith(currentIndex + 1);
         expect(component.isQuestionTransitioning).toBeFalse();
@@ -151,14 +144,14 @@ describe('QuestionZoneComponent', () => {
 
     it('should do nothing if the timer is at 0 and the game has ended', () => {
         const getQuestionSpy = spyOn(component, 'getQuestion');
-        const submitAnswerOnCountdownEventSpy = spyOn(component, 'submitAnswerOnCountdownEvent');
+        const showResultSpy = spyOn(component, 'showResult');
         spyOn(timeService, 'getTime').and.returnValue(of(0));
-        component.hasGameEnded = true;
+        component['hasGameEnded'] = true;
         component.isQuestionTransitioning = true;
         const currentIndex = component.currentQuestionIndex;
         component.subscribeToTimer();
 
-        expect(submitAnswerOnCountdownEventSpy).not.toHaveBeenCalled();
+        expect(showResultSpy).not.toHaveBeenCalled();
         expect(component.currentQuestionIndex).toEqual(currentIndex);
         expect(getQuestionSpy).not.toHaveBeenCalled();
         expect(component.isQuestionTransitioning).toBeTrue();
@@ -166,14 +159,14 @@ describe('QuestionZoneComponent', () => {
 
     it('should do nothing if the timer is not at 0 and the game has not ended', () => {
         const getQuestionSpy = spyOn(component, 'getQuestion');
-        const submitAnswerOnCountdownEventSpy = spyOn(component, 'submitAnswerOnCountdownEvent');
+        const showResultSpy = spyOn(component, 'showResult');
         spyOn(timeService, 'getTime').and.returnValue(of(1));
-        component.hasGameEnded = false;
+        component['hasGameEnded'] = false;
         component.isQuestionTransitioning = true;
         const currentIndex = component.currentQuestionIndex;
         component.subscribeToTimer();
 
-        expect(submitAnswerOnCountdownEventSpy).not.toHaveBeenCalled();
+        expect(showResultSpy).not.toHaveBeenCalled();
         expect(component.currentQuestionIndex).toEqual(currentIndex);
         expect(getQuestionSpy).not.toHaveBeenCalled();
         expect(component.isQuestionTransitioning).toBeTrue();
@@ -182,7 +175,7 @@ describe('QuestionZoneComponent', () => {
     it('should set hasGameEnded if gameService.hasGameEndedObservable is true', () => {
         spyOnProperty(gameService, 'hasGameEndedObservable').and.returnValue(of(true));
         component.subscribeToGameService();
-        expect(component.hasGameEnded).toBeTrue();
+        expect(component['hasGameEnded']).toBeTrue();
     });
 
     it('should create an array of choice to false if the question index id valid', () => {
@@ -285,12 +278,6 @@ describe('QuestionZoneComponent', () => {
         component.submitAnswerOnClickEvent();
         expect(setButtonSpy).toHaveBeenCalledWith(true);
         expect(component.isQuestionTransitioning).toBeTrue();
-        expect(component.showResult).toHaveBeenCalled();
-    });
-
-    it('should submit answer on countdown event', () => {
-        spyOn(component, 'showResult');
-        component.submitAnswerOnCountdownEvent();
         expect(component.showResult).toHaveBeenCalled();
     });
 
