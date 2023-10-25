@@ -75,9 +75,8 @@ export class SocketManagerService {
             });
 
             // allows game to begin
-            socket.on('startGame', (roomId: string, callback: (hasGameStarted: boolean) => void) => {
-                const room = this.findRoom(roomId);
-                callback(room.isLocked);
+            socket.on('startGame', (roomId: string) => {
+                this.sio.to(roomId).emit('gameStarted');
             });
 
             socket.on('getPlayerNames', (roomId: string, callback: (playerNames: string[]) => void) => {
@@ -176,8 +175,6 @@ export class SocketManagerService {
             //     socket.leave(room.id);
             //     this.removeUser(room, user.name);
             // });
-
-            // socket.on('disconnect', () => {});
         });
     }
 
@@ -214,7 +211,7 @@ export class SocketManagerService {
     }
 
     private findUser(id: string): User {
-        let organizers: Organizer[];
+        let organizers: User[];
 
         for (let i = 0; i < this.rooms.length; i++) {
             organizers.push(this.rooms[i].organizer);
@@ -252,5 +249,20 @@ export class SocketManagerService {
                 this.rooms.splice(i, 1);
             }
         }
+    }
+
+    private getQuickestTime(room: Room): AnswerTime | null {
+        const player = room.answerTimes.reduce((fastestPlayer, currentPlayer) => {
+            if (currentPlayer.timeStamp < fastestPlayer.timeStamp) {
+                return (fastestPlayer = currentPlayer);
+            }
+        }, room.answerTimes[0]);
+
+        const copyAnswerTimes = { ...room.answerTimes }.filter((newPlayer) => newPlayer.timeStamp === player.timeStamp);
+        if (copyAnswerTimes.length > 1) {
+            return null;
+        }
+
+        return player;
     }
 }
