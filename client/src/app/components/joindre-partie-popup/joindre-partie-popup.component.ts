@@ -75,8 +75,7 @@ export class JoindrePartiePopupComponent {
 
         if (this.givenAccess) {
             this.closeAdminPopup();
-            console.log('accessed');
-            this.router.navigateByUrl('/partie');
+            this.router.navigateByUrl('/waiting');
         }
     }
 
