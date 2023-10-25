@@ -3,24 +3,28 @@ import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root',
 })
 export class SocketClientService {
-  socket: Socket;
+    socket: Socket;
 
-  doesSocketExist() {
-      return this.socket && this.socket.connected;
-  }
+    doesSocketExist() {
+        return this.socket && this.socket.connected;
+    }
 
-  connect() {
-    this.socket = io(environment.serverUrl, { transports: ['websocket'], upgrade: false }); 
-  }
+    connect() {
+        this.socket = io(environment.serverUrl, { transports: ['websocket'], upgrade: false });
+    }
 
-  disconnect() {
-    this.socket.disconnect();
-  }
+    disconnect() {
+        this.socket.disconnect();
+    }
 
-  on<T>(event: string, action: (data: T) => void): void {
-    this.socket.on(event, action);
-  }
+    on<T>(event: string, action: (data: T) => void): void {
+        this.socket.on(event, action);
+    }
+
+    // send<T>(event: string, data?: T, callback?: Function): void {
+    //     this.socket.emit(event, ...[data, callback].filter((x) => x));
+    // }
 }

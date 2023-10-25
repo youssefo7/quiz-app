@@ -22,14 +22,13 @@ export class MainPageComponent {
     }
 
     get socketId() {
-        return this.socketClientService.socket.id ? this.socketClientService.socket.id : "";
-      }
+        return this.socketClientService.socket.id ? this.socketClientService.socket.id : '';
+    }
 
     connect() {
-        if(!this.socketClientService.doesSocketExist()) {
+        if (!this.socketClientService.doesSocketExist()) {
             this.socketClientService.connect();
             this.configureSocketFeatures();
-            console.log("Socket has been connected");
         }
     }
 
@@ -40,8 +39,8 @@ export class MainPageComponent {
     }
 
     configureSocketFeatures() {
-        this.socketClientService.on("connect", () => {
-            console.log(`Connexion par WebSocket sur le socket ${this.socketId}`);
+        this.socketClientService.on('connect', () => {
+            // console.log(`Connexion par WebSocket sur le socket ${this.socketId}`);
         });
     }
 
