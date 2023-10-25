@@ -52,17 +52,17 @@ export class SocketManagerService {
                 }
             });
 
-            socket.on('enterName', (name: string, callback: (validName: boolean) => void) => {
-                let newPlayer: User;
+            socket.on('chooseName', (name: string, callback: (validName: boolean) => void) => {
+                let wantedPlayer: User;
                 const playerRoom = this.rooms.find((room) => {
-                    newPlayer = room.players.find((player) => player.socketId === socket.id);
-                    return newPlayer ? true : false;
+                    wantedPlayer = room.players.find((player) => player.socketId === socket.id);
+                    return wantedPlayer ? true : false;
                 });
 
                 const nameExists = this.checkName(playerRoom, name);
                 const bannedName = this.isBannedName(playerRoom, name);
                 if (!nameExists && !bannedName) {
-                    newPlayer.name = name;
+                    wantedPlayer.name = name;
                 }
                 callback(!nameExists && !bannedName ? true : false);
             });
@@ -84,20 +84,21 @@ export class SocketManagerService {
                 this.removeUser(room, data.user.name);
             });
 
-            socket.on('playerLeaveGame', () => {
+            socket.on('playerLeaveGame', (data: { roomId: string; gameHasStarted: boolean }) => {
                 const user = this.findUser(socket.id);
-                const room = this.findUserRoom(user);
+                const room = this.findRoom(data.roomId);
 
-                room.abandonnedPlayers.push(user.name);
+                if (data.gameHasStarted) {
+                    room.abandonnedPlayers.push(user.name);
+                }
+                this.removeUser(room, user.socketId);
                 socket.leave(room.id);
-                this.removeUser(room, user.name);
             });
 
             // Use this function at the end of the game in order to kick everyone from game and delete it
             // case for : 1 ) Organizer leaves game, 2 ) End game button
-            socket.on('endGame', async () => {
-                const oganizer = this.findUser(socket.id);
-                const room = this.findUserRoom(oganizer);
+            socket.on('endGame', async (roomId: string) => {
+                const room = this.findRoom(roomId);
                 const sockets = await this.sio.sockets.fetchSockets();
 
                 socket.to(room.id).emit('gameEnded');
@@ -178,16 +179,6 @@ export class SocketManagerService {
         return this.rooms.find((room) => room.id === roomId);
     }
 
-    private findUserRoom(user: User) {
-        for (let i = 0; i < this.rooms.length; i++) {
-            for (let j = 0; i < this.rooms[i].players.length; j++) {
-                if (this.rooms[i].players[j].socketId === user.socketId) {
-                    return this.rooms[i];
-                }
-            }
-        }
-    }
-
     private findUser(id: string): User {
         let organizers: User[];
 
@@ -205,6 +196,9 @@ export class SocketManagerService {
 
     private checkName(room: Room, name: string) {
         const nameExists = room.players.find((player) => player.name.toLowerCase() === name.toLowerCase());
+        if (name.toLowerCase() === 'organisateur') {
+            return true;
+        }
         return nameExists ? true : false;
     }
 
@@ -213,9 +207,9 @@ export class SocketManagerService {
         return isBanned ? true : false;
     }
 
-    private removeUser(room: Room, name: string) {
+    private removeUser(room: Room, userId: string) {
         for (let i = 0; i < room.players.length; i++) {
-            if (room.players[i].name === name) {
+            if (room.players[i].socketId === userId) {
                 room.players.splice(i, 1);
             }
         }
