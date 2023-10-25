@@ -74,6 +74,12 @@ export class SocketManagerService {
                 this.sio.to(roomId).emit('gameStarted');
             });
 
+            // allows game to begin
+            socket.on('startGame', (roomId: string, callback: (hasGameStarted: boolean) => void) => {
+                const room = this.findRoom(roomId);
+                callback(room.isLocked);
+            });
+
             socket.on('getPlayerNames', (roomId: string, callback: (playerNames: string[]) => void) => {
                 const room = this.roomManager.findRoom(roomId);
                 const playerNames = room.players.map((player) => player.name);
@@ -170,6 +176,8 @@ export class SocketManagerService {
             //     socket.leave(room.id);
             //     this.removeUser(room, user.name);
             // });
+
+            // socket.on('disconnect', () => {});
         });
     }
 
