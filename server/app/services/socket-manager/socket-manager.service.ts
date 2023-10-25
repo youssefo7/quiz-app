@@ -200,16 +200,6 @@ export class SocketManagerService {
         return this.rooms.find((room) => room.id === roomId);
     }
 
-    private findUserRoom(user: User) {
-        for (let i = 0; i < this.rooms.length; i++) {
-            for (let j = 0; i < this.rooms[i].players.length; j++) {
-                if (this.rooms[i].players[j].socketId === user.socketId) {
-                    return this.rooms[i];
-                }
-            }
-        }
-    }
-
     private findUser(id: string): User {
         let organizers: User[];
 
@@ -227,6 +217,9 @@ export class SocketManagerService {
 
     private checkName(room: Room, name: string) {
         const nameExists = room.players.find((player) => player.name.toLowerCase() === name.toLowerCase());
+        if (name.toLowerCase() === 'organisateur') {
+            return true;
+        }
         return nameExists ? true : false;
     }
 
@@ -235,9 +228,9 @@ export class SocketManagerService {
         return isBanned ? true : false;
     }
 
-    private removeUser(room: Room, name: string) {
+    private removeUser(room: Room, userId: string) {
         for (let i = 0; i < room.players.length; i++) {
-            if (room.players[i].name === name) {
+            if (room.players[i].socketId === userId) {
                 room.players.splice(i, 1);
             }
         }
