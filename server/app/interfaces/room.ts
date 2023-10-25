@@ -5,6 +5,7 @@ export interface Room {
     isLocked: boolean;
     bannedNames: string[];
     abandonnedPlayers: string[];
+    nbPlayersInit: number;
 }
 
 export interface User {
