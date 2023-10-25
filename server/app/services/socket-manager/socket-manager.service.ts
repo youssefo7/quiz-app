@@ -2,6 +2,7 @@ import { Player, Room, User } from '@app/interfaces/room';
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
 import { Injectable } from '@nestjs/common';
 import * as http from 'http';
+import * as randomstring from 'randomstring';
 import * as io from 'socket.io';
 
 @Injectable()
@@ -170,5 +171,78 @@ export class SocketManagerService {
             //     this.removeUser(room, user.name);
             // });
         });
+    }
+
+    /// ///////////////////////////////////////////////////////////////
+    // ADDITIONAL SUPPORT FUNCTIONS
+    /// ///////////////////////////////////////////////////////////////
+    private createRoomId() {
+        let roomId = '';
+        let roomExists: Room;
+
+        do {
+            roomId = randomstring.generate({
+                charset: 'numeric',
+                length: 4,
+            });
+            roomExists = this.findRoom(roomId);
+        } while (roomExists);
+
+        return roomId;
+    }
+
+    private findRoom(roomId: string): Room {
+        return this.rooms.find((room) => room.id === roomId);
+    }
+
+    private findUserRoom(user: User) {
+        for (let i = 0; i < this.rooms.length; i++) {
+            for (let j = 0; i < this.rooms[i].players.length; j++) {
+                if (this.rooms[i].players[j].socketId === user.socketId) {
+                    return this.rooms[i];
+                }
+            }
+        }
+    }
+
+    private findUser(id: string): User {
+        let organizers: Organizer[];
+
+        for (let i = 0; i < this.rooms.length; i++) {
+            organizers.push(this.rooms[i].organizer);
+            for (let j = 0; i < this.rooms[i].players.length; j++) {
+                if (this.rooms[i].players[j].socketId === id) {
+                    return this.rooms[i].players[j];
+                }
+            }
+        }
+
+        return organizers.find((organizer) => organizer.socketId === id);
+    }
+
+    private checkName(room: Room, name: string) {
+        const nameExists = room.players.find((player) => player.name.toLowerCase() === name.toLowerCase());
+        return nameExists ? true : false;
+    }
+
+    private isBannedName(room: Room, name: string) {
+        const isBanned = room.bannedNames.find((bannedName) => bannedName === name);
+        return isBanned ? true : false;
+    }
+
+    private removeUser(room: Room, name: string) {
+        for (let i = 0; i < room.players.length; i++) {
+            if (room.players[i].name === name) {
+                room.players.splice(i, 1);
+            }
+        }
+    }
+
+    private deleteRoom(room: Room) {
+        for (let i = 0; i < this.rooms.length; i++) {
+            if (this.rooms[i].id === room.id) {
+                this.rooms.splice(i, 1);
+            }
+        }
     }
 }
