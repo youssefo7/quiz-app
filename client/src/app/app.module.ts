@@ -9,11 +9,13 @@ import { AppMaterialModule } from '@app/modules/material.module';
 import { AppComponent } from '@app/pages/app/app.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
+import { NgChartsModule } from 'ng2-charts';
 import { AdminPopupComponent } from './components/admin-popup/admin-popup.component';
 import { ChatComponent } from './components/chat/chat.component';
 import { CountdownComponent } from './components/countdown/countdown.component';
 import { CreateGameListComponent } from './components/create-game-list/create-game-list.component';
 import { GamePlayersListComponent } from './components/game-players-list/game-players-list.component';
+import { HistogramComponent } from './components/histogram/histogram.component';
 import { ImportPopupComponent } from './components/import-popup/import-popup.component';
 import { JoinGamePopupComponent } from './components/join-game-popup/join-game-popup.component';
 import { PlayerListComponent } from './components/player-list/player-list.component';
@@ -67,6 +69,7 @@ import { WaitingPageComponent } from './pages/waiting-page/waiting-page.componen
         HostGamePageComponent,
         GamePlayersListComponent,
         QuestionZoneStatsComponent,
+        HistogramComponent,
     ],
     imports: [
         AppMaterialModule,
@@ -77,6 +80,7 @@ import { WaitingPageComponent } from './pages/waiting-page/waiting-page.componen
         HttpClientModule,
         ReactiveFormsModule,
         MatDialogModule,
+        NgChartsModule,
     ],
     providers: [],
     bootstrap: [AppComponent],
