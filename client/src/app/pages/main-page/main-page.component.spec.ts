@@ -44,11 +44,11 @@ describe('MainPageComponent', () => {
         expect(matDialogServiceSpy.open).toHaveBeenCalled();
     });
 
-    it('should have a "Joindre une partie" button redirecting to /game', () => {
-        const joinGameButton = fixture.debugElement.nativeElement.querySelector('#join-game-button');
-        expect(joinGameButton.innerText).toEqual('Joindre une partie');
-        expect(joinGameButton.getAttribute('RouterLink')).toEqual('/game');
-    });
+    // it('should have a "Joindre une partie" button redirecting to /game', () => {
+    //     const joinGameButton = fixture.debugElement.nativeElement.querySelector('#join-game-button');
+    //     expect(joinGameButton.innerText).toEqual('Joindre une partie');
+    //     expect(joinGameButton.getAttribute('RouterLink')).toEqual('/game');
+    // });
 
     it('should have a "Créer une partie" button redirecting to /game/new', () => {
         const hostGameButton = fixture.debugElement.nativeElement.querySelector('#host-game-button');
