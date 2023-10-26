@@ -1,18 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
 import { TimeService } from '@app/services/time.service';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-countdown',
     templateUrl: './countdown.component.html',
     styleUrls: ['./countdown.component.scss'],
 })
-export class CountdownComponent implements OnInit {
+export class CountdownComponent implements OnInit, OnDestroy {
     quiz: Quiz | null;
     message: string;
     clockStyle: { backgroundColor: string };
+    private timerSubscription: Subscription;
+    private isQuestionTransitioning: boolean;
 
     // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
@@ -31,19 +34,42 @@ export class CountdownComponent implements OnInit {
         this.loadTimer();
     }
 
+    ngOnDestroy() {
+        if (this.timerSubscription) {
+            this.timerSubscription.unsubscribe();
+        }
+    }
+
+    async loadTimer() {
+        await this.getQuiz();
+        this.switchColorToRedOnThreeSeconds();
+        this.gameClock();
+    }
+
     async getQuiz() {
         const id = this.route.snapshot.paramMap.get('id');
         this.quiz = await this.gameService.getQuizById(id);
     }
 
+    switchColorToRedOnThreeSeconds() {
+        const switchColorTime = 4;
+        this.timerSubscription = this.timeService.getTime().subscribe((time: number) => {
+            if (!this.isQuestionTransitioning && time <= switchColorTime) {
+                this.clockStyle = { backgroundColor: '#FF4D4D' };
+            }
+        });
+    }
+
     async transitionClock() {
         const transitionTime = 3;
+        this.isQuestionTransitioning = true;
         this.message = 'Préparez-vous!';
         this.clockStyle = { backgroundColor: '#E5E562' };
         await this.timeService.startTimer(transitionTime);
     }
 
     async questionClock() {
+        this.isQuestionTransitioning = false;
         this.message = 'Temps Restant';
         this.clockStyle = { backgroundColor: 'lightblue' };
         if (this.quiz) {
@@ -81,10 +107,5 @@ export class CountdownComponent implements OnInit {
             await this.leaveGameClock();
             await this.router.navigateByUrl('/game/new');
         }
-    }
-
-    async loadTimer() {
-        await this.getQuiz();
-        this.gameClock();
     }
 }
