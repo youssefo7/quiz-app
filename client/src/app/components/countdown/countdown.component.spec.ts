@@ -1,18 +1,17 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
 import { TimeService } from '@app/services/time.service';
+import { of } from 'rxjs';
 import { CountdownComponent } from './countdown.component';
 import SpyObj = jasmine.SpyObj;
 
 describe('CountdownComponent', () => {
     let component: CountdownComponent;
     let fixture: ComponentFixture<CountdownComponent>;
-    let timeServiceSpy: SpyObj<TimeService>;
-    let communicationServiceSpy: jasmine.SpyObj<CommunicationService>;
-    let routerSpy: SpyObj<Router>;
-    let gameServiceSpy: SpyObj<GameService>;
+    let timeServiceMock: SpyObj<TimeService>;
+    let routerMock: SpyObj<Router>;
+    let gameServiceMock: SpyObj<GameService>;
 
     const mockQuiz = {
         $schema: 'quiz-schema.json',
@@ -39,20 +38,20 @@ describe('CountdownComponent', () => {
     };
 
     beforeEach(() => {
-        timeServiceSpy = jasmine.createSpyObj('TimeService', ['startTimer', 'stopTimer']);
-        routerSpy = jasmine.createSpyObj('Router', ['navigateByUrl']);
-        gameServiceSpy = jasmine.createSpyObj('GameService', ['setGameEndState', 'getQuizById']);
+        timeServiceMock = jasmine.createSpyObj('TimeService', ['startTimer', 'stopTimer', 'getTime']);
+        timeServiceMock.getTime.and.returnValue(of(0));
+        routerMock = jasmine.createSpyObj('Router', ['navigateByUrl']);
+        gameServiceMock = jasmine.createSpyObj('GameService', ['setGameEndState', 'getQuizById']);
     });
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
             declarations: [CountdownComponent],
             providers: [
-                { provide: TimeService, useValue: timeServiceSpy },
+                { provide: TimeService, useValue: timeServiceMock },
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'test' }] } } },
-                { provide: CommunicationService, useValue: communicationServiceSpy },
-                { provide: Router, useValue: routerSpy },
-                { provide: GameService, useValue: gameServiceSpy },
+                { provide: Router, useValue: routerMock },
+                { provide: GameService, useValue: gameServiceMock },
             ],
         }).compileComponents();
     }));
@@ -70,8 +69,8 @@ describe('CountdownComponent', () => {
     it('should get the quiz ', waitForAsync(() => {
         const id = '123';
         component.getQuiz();
-        gameServiceSpy.getQuizById.and.returnValue(Promise.resolve(mockQuiz));
-        expect(gameServiceSpy.getQuizById).toHaveBeenCalledWith(id);
+        gameServiceMock.getQuizById.and.returnValue(Promise.resolve(mockQuiz));
+        expect(gameServiceMock.getQuizById).toHaveBeenCalledWith(id);
     }));
 
     it('should display the transition clock with the correct message and style', waitForAsync(() => {
@@ -80,7 +79,7 @@ describe('CountdownComponent', () => {
 
         expect(component.message).toEqual('Préparez-vous!');
         expect(component.clockStyle).toEqual({ backgroundColor: '#E5E562' });
-        expect(timeServiceSpy.startTimer).toHaveBeenCalledWith(transitionTime);
+        expect(timeServiceMock.startTimer).toHaveBeenCalledWith(transitionTime);
     }));
 
     it('should display the question clock with the correct message and style', waitForAsync(() => {
@@ -89,7 +88,13 @@ describe('CountdownComponent', () => {
 
         expect(component.message).toEqual('Temps Restant');
         expect(component.clockStyle).toEqual({ backgroundColor: 'lightblue' });
-        expect(timeServiceSpy.startTimer).toHaveBeenCalledWith(mockQuiz.duration);
+        expect(timeServiceMock.startTimer).toHaveBeenCalledWith(mockQuiz.duration);
+    }));
+
+    it('should switch the clock color to red on three seconds', waitForAsync(() => {
+        component.switchColorToRedOnThreeSeconds();
+        expect(timeServiceMock.getTime).toHaveBeenCalled();
+        expect(component.clockStyle).toEqual({ backgroundColor: '#FF4D4D' });
     }));
 
     it('should display the leave Game clock with the correct message and style', waitForAsync(() => {
@@ -98,7 +103,7 @@ describe('CountdownComponent', () => {
 
         expect(component.message).toEqual('Redirection vers «Créer une Partie»');
         expect(component.clockStyle).toEqual({ backgroundColor: 'white' });
-        expect(timeServiceSpy.startTimer).toHaveBeenCalledWith(exitTime);
+        expect(timeServiceMock.startTimer).toHaveBeenCalledWith(exitTime);
     }));
 
     it('should display the game clock', waitForAsync(() => {
@@ -120,9 +125,9 @@ describe('CountdownComponent', () => {
         component.leaveGame();
 
         fixture.whenStable().then(() => {
-            expect(gameServiceSpy.setGameEndState).toBe(true);
+            expect(gameServiceMock.setGameEndState).toBe(true);
             expect(leaveClockSpy).toHaveBeenCalled();
-            expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/game/new');
+            expect(routerMock.navigateByUrl).toHaveBeenCalledWith('/game/new');
         });
     }));
 
