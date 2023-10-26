@@ -27,6 +27,7 @@ import { AdminPageComponent } from './pages/admin-page/admin-page.component';
 import { CreateEditQuizPageComponent } from './pages/create-edit-quiz-page/create-edit-quiz-page.component';
 import { CreateGamePageComponent } from './pages/create-game-page/create-game-page.component';
 import { WaitingPageComponent } from './pages/waiting-page/waiting-page.component';
+import { GamePlayersListComponent } from './components/game-players-list/game-players-list.component';
 
 /**
  * Main module that is used in main.ts.
@@ -57,6 +58,7 @@ import { WaitingPageComponent } from './pages/waiting-page/waiting-page.componen
         RangeValidatorDirective,
         TitleExistsDirective,
         CreateEditQuizPageComponent,
+        GamePlayersListComponent,
     ],
     imports: [
         AppMaterialModule,
