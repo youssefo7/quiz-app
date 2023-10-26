@@ -1,18 +1,35 @@
 <div class="waitingRoom">
-    <ol class="playersList">
-        <li class="player" *ngFor="let player of players">
-            <mat-icon id="account">account_circle</mat-icon> <span>{{ player }}</span>
-            <button *ngIf="isHost" id="banButton" (click)="removePlayer(player)">
-                <mat-icon id="banIcon">block</mat-icon>
-            </button>
-        </li>
-    </ol>
-    <div class="hostOptions">
-        <button *ngIf="isHost" id="unlockGame" (click)="unlockGame()" [disabled]="!isLocked">
+    <div class="waitingRoomOptions">
+        <mat-icon (click)="quitPopUp()" title="Quitter la Partie" inline="true">exit_to_app</mat-icon>
+        <h1 id="roomId">Room Id</h1>
+        <h2 *ngIf="isHost" id="bannedList">Joueur(s) bani(s)</h2>
+    </div>
+    <div class="lists">
+        <div class="listComponent">
+            <ol class="playersList">
+                <li class="player" *ngFor="let player of players">
+                    <mat-icon id="account">account_circle</mat-icon> <span>{{ player }}</span>
+                    <button *ngIf="isHost" id="banButton" (click)="removePlayer(player)">
+                        <mat-icon id="banIcon">block</mat-icon>
+                    </button>
+                </li>
+            </ol>
+        </div>
+        <div *ngIf="isHost" class="bannedPlayersList">
+            <ol>
+                <li class="player" *ngFor="let player of bannedPlayers">
+                    <mat-icon id="account">account_circle</mat-icon> <span>{{ player }}</span>
+                </li>
+            </ol>
+        </div>
+    </div>
+    <div *ngIf="isHost" class="hostRoomOptions">
+        <button id="unlockButton" (click)="unlockGame()" title="Déverrouiller la partie" [disabled]="!isLocked">
             <mat-icon>lock_open</mat-icon>
         </button>
-        <button *ngIf="isHost" id="lockGame" (click)="lockGame()" [disabled]="isLocked">
+        <button id="lockButton" (click)="lockGame()" title="Vérrouiller la partie" [disabled]="isLocked">
             <mat-icon>lock</mat-icon>
         </button>
+        <button title="Vérrouiller la partie pour commencer" id="startGameButton" (click)="startGame()" [disabled]="!isLocked">Commencer</button>
     </div>
 </div>
