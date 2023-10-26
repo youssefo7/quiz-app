@@ -83,7 +83,7 @@ describe('AdminPopupComponent', () => {
     }));
 
     it('should make password visible when "Afficher" checkbox is checked', waitForAsync(() => {
-        const visibilityCheckbox = fixture.debugElement.nativeElement.querySelector('#show-hide');
+        const visibilityCheckbox = fixture.debugElement.nativeElement.querySelector('mat-checkbox input');
         expect(component.passwordInputType).toEqual('password');
         const togglePasswordVisibilitySpy = spyOn(component, 'togglePasswordVisibility').and.callThrough();
         visibilityCheckbox.click();
@@ -96,7 +96,7 @@ describe('AdminPopupComponent', () => {
     }));
 
     it('should make password invisible when "Afficher" checkbox is unchecked', waitForAsync(() => {
-        const visibilityCheckbox = fixture.debugElement.nativeElement.querySelector('#show-hide');
+        const visibilityCheckbox = fixture.debugElement.nativeElement.querySelector('mat-checkbox input');
         component.passwordInputType = 'text';
         const togglePasswordVisibilitySpy = spyOn(component, 'togglePasswordVisibility').and.callThrough();
         visibilityCheckbox.click();
