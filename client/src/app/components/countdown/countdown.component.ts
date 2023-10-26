@@ -17,6 +17,12 @@ export class CountdownComponent implements OnInit, OnDestroy {
     clockStyle: { backgroundColor: string };
     private timerSubscription: Subscription;
     private isQuestionTransitioning: boolean;
+    private isNextQuestionPressed: boolean;
+    private currentQuestionIndex: number;
+    private lastQuestionIndex: number;
+    private hasGameStarted: boolean;
+    private readonly isTestGame: boolean;
+    private gameServiceSubscription: Subscription;
 
     // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
@@ -27,6 +33,10 @@ export class CountdownComponent implements OnInit, OnDestroy {
         private readonly gameService: GameService,
     ) {
         this.isHost = false;
+        this.isNextQuestionPressed = false;
+        this.currentQuestionIndex = 0;
+        this.hasGameStarted = false;
+        this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
     }
 
     get time() {
@@ -38,15 +48,23 @@ export class CountdownComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        if (this.timerSubscription) {
-            this.timerSubscription.unsubscribe();
-        }
+        if (this.timerSubscription) this.timerSubscription.unsubscribe();
+        if (this.gameServiceSubscription) this.gameServiceSubscription.unsubscribe();
     }
 
     async loadTimer() {
         await this.getQuiz();
         this.switchColorToRedOnThreeSeconds();
         this.gameClock();
+        if (this.quiz) {
+            this.lastQuestionIndex = this.quiz.questions.length - 1;
+        }
+        if (this.isTestGame) {
+            this.testGameClock();
+        } else {
+            this.detectWhenNextQuestionPress();
+            this.gameClock();
+        }
     }
 
     async getQuiz() {
@@ -87,28 +105,45 @@ export class CountdownComponent implements OnInit, OnDestroy {
         await this.timeService.startTimer(exitTransitionTime);
     }
 
-    async gameClock() {
-        if (this.quiz) {
-            const lastQuestionIndex = this.quiz.questions.length - 1;
-            let currentQuestionIndex = 0;
-
-            while (currentQuestionIndex <= lastQuestionIndex) {
-                await this.questionClock();
-                if (currentQuestionIndex !== lastQuestionIndex) {
-                    await this.transitionClock();
-                }
-                currentQuestionIndex++;
+    async testGameClock() {
+        while (this.currentQuestionIndex <= this.lastQuestionIndex) {
+            await this.questionClock();
+            if (this.currentQuestionIndex !== this.lastQuestionIndex) {
+                await this.transitionClock();
+                this.currentQuestionIndex++;
             }
+        }
+        this.leaveGame();
+    }
+
+    async gameClock() {
+        if (this.currentQuestionIndex <= this.lastQuestionIndex) {
+            if (!this.hasGameStarted) {
+                await this.questionClock();
+                this.hasGameStarted = true;
+                this.currentQuestionIndex++;
+            }
+            if (this.isNextQuestionPressed) {
+                await this.transitionClock();
+                await this.questionClock();
+                this.currentQuestionIndex++;
+            }
+        } else {
+            // TODO: Changer cette fonction pour rediriger vers la page de résultat
             this.leaveGame();
         }
     }
 
     async leaveGame() {
-        const isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
-        if (isTestGame) {
-            this.gameService.setGameEndState = true;
-            await this.leaveGameClock();
-            await this.router.navigateByUrl('/game/new');
-        }
+        this.gameService.setGameEndState = true;
+        await this.leaveGameClock();
+        await this.router.navigateByUrl('/game/new');
+    }
+
+    detectWhenNextQuestionPress() {
+        this.gameServiceSubscription = this.gameService.isNextQuestionPressed.subscribe((isPressed) => {
+            this.isNextQuestionPressed = isPressed;
+            this.gameClock();
+        });
     }
 }
