@@ -1,10 +1,12 @@
 <div id="flex-container">
     <div *ngIf="quiz" class="question-points-zone">
-        <p id="question">{{ question.text }}</p>
-        <p id="points">({{ question.points }} Points)</p>
+        <p id="question" *ngIf="question">{{ question.text }}</p>
+        <p id="points" *ngIf="question">({{ question.points }} Points)</p>
     </div>
     <div *ngIf="quiz" class="choices-zone">Histogramme</div>
     <div id="submit-zone">
-        <button>Prochaine Question</button>
+        <button (click)="goToNextQuestion()" [ngStyle]="nextQuestionButtonStyle" [disabled]="isNextQuestionButtonDisable">
+            {{ nextQuestionButtonText }}
+        </button>
     </div>
 </div>

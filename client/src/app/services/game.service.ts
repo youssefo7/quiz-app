@@ -7,12 +7,14 @@ import { CommunicationService } from './communication.service';
     providedIn: 'root',
 })
 export class GameService {
+    isNextQuestionPressed: Subject<boolean>;
     private isSubmitPressed: Subject<boolean>;
     private hasGameEnded: Subject<boolean>;
 
     constructor(private readonly communicationService: CommunicationService) {
         this.isSubmitPressed = new Subject<boolean>();
         this.hasGameEnded = new Subject<boolean>();
+        this.isNextQuestionPressed = new Subject<boolean>();
     }
 
     get isButtonPressed(): Observable<boolean> {
