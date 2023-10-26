@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { AdminPopupComponent } from '@app/components/admin-popup/admin-popup.component';
-import { JoindrePartiePopupComponent } from '@app/components/joindre-partie-popup/joindre-partie-popup.component';
+import { JoinGamePopupComponent } from '@app/components/join-game-popup/join-game-popup.component';
 import { AdminGuardService } from '@app/services/admin-guard.service';
 
 @Component({
@@ -12,7 +12,7 @@ import { AdminGuardService } from '@app/services/admin-guard.service';
 export class MainPageComponent {
     constructor(
         private adminPopup: MatDialog,
-        private joindrePartiePopup: MatDialog,
+        private joinGamePopup: MatDialog,
         private adminGuardService: AdminGuardService,
     ) {
         this.initializeComponent();
@@ -30,9 +30,9 @@ export class MainPageComponent {
         this.adminPopup.open(AdminPopupComponent, adminPopupConfig);
     }
 
-    openJoindrePartiePopup() {
-        const joindrePartiePopupConfig = new MatDialogConfig();
-        joindrePartiePopupConfig.autoFocus = true;
-        this.joindrePartiePopup.open(JoindrePartiePopupComponent, joindrePartiePopupConfig);
+    openJoinGamePopup() {
+        const joinGamePopupConfig = new MatDialogConfig();
+        joinGamePopupConfig.autoFocus = true;
+        this.joinGamePopup.open(JoinGamePopupComponent, joinGamePopupConfig);
     }
 }

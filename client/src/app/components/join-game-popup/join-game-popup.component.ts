@@ -5,11 +5,11 @@ import { Router } from '@angular/router';
 const codeLength = 4;
 
 @Component({
-    selector: 'app-joindre-partie-popup',
-    templateUrl: './joindre-partie-popup.component.html',
-    styleUrls: ['./joindre-partie-popup.component.scss'],
+    selector: 'app-join-game-popup',
+    templateUrl: './join-game-popup.component.html',
+    styleUrls: ['./join-game-popup.component.scss'],
 })
-export class JoindrePartiePopupComponent {
+export class JoinGamePopupComponent {
     givenCode: string;
     givenUsername: string;
     givenAccess: boolean = true;
@@ -20,7 +20,7 @@ export class JoindrePartiePopupComponent {
     isCodeValidated: boolean;
 
     constructor(
-        private joindrePartiePopupRef: MatDialogRef<JoindrePartiePopupComponent>,
+        private joinGamePopupRef: MatDialogRef<JoinGamePopupComponent>,
         private router: Router,
     ) {
         this.givenCode = '';
@@ -80,7 +80,7 @@ export class JoindrePartiePopupComponent {
     }
 
     closeAdminPopup(): void {
-        this.joindrePartiePopupRef.close();
+        this.joinGamePopupRef.close();
     }
 
     allowNumbersOnly(event: KeyboardEvent): void {
