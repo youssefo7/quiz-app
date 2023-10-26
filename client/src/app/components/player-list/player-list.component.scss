@@ -1,32 +1,94 @@
-.waitingRoom {
+.waitingRoomOptions {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    text-align:center;
+    padding: 1%;
+    padding-bottom: 0%;
+
+    .mat-icon {
+        transform: rotate(180deg);
+        font-size: 3em;
+    }
+
+    .mat-icon:hover {
+        color: red;
+        cursor: pointer;
+    }
+
+    #roomId {
+        text-align: center;
+        width: 87%;
+    }
+
+    #bannedList {
+        text-align: center;
+        width: 24%;
+    }
+}
+
+.lists {
+    display: flex;
+    flex-direction: row;
+    height: 70vh;
+    overflow: hidden;
+    justify-content: center;
+}
+
+.listComponent {
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 85vh;
-    overflow: hidden;
+    width: 75%;
 }
 
-.waitingRoom .playersList {
+.playersList {
     border-radius: 7px;
     width: 80%;
     background: rgb(131, 193, 255);
     padding: 3%;
-    margin: 7%;
     list-style-position: inside;
     overflow-y: auto;
-}
-
-.waitingRoom .playersList {
     margin-bottom: 0%;
 }
 
-.waitingRoom .player {
-    border-radius: 9px;
-    margin: 15px 12px;
+.bannedPlayersList{
+    list-style-position: inside;
+    flex-direction: row;
+    width: 20%;
+    overflow-y: auto;
+
+    ol {
+        padding-left: 0%;
+    }
+
+    li {
+        border-radius: 9px;
+        margin: 10px 10px;
+        border-style: solid;
+        border-color: red;
+        padding: 5px 10px;
+    }
 }
 
+.hostRoomOptions {
+    color: lightgray;
+    width: 60%;
+    padding-left: 10%;
+    padding-top: 1px;
+}
 
-.player {
+#unlockButton #lockButton {
+    pointer-events: auto;
+}
+
+#unlockButton:disabled, #lockButton:disabled {
+    pointer-events: none;
+}
+
+.playersList li {
+    border-radius: 9px;
+    margin: 15px 12px;
     background: rgb(169, 213, 255);
     align-content: center;
     padding: 15px 20px;
@@ -43,12 +105,23 @@
 }
 
 #banButton {
-    border-radius: 5px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
     float: right;
-    height: 30px;
-    width: 40px;
+   
+    #banIcon {
+        color: red;
+    }
 }
 
-#banButton #banIcon {
-    color: red;
+#startGameButton {
+    float: right;
+    margin-top: 6px;
+    pointer-events: none;
+    align-items: center;
+}
+
+#startGameButton:disabled {
+    pointer-events: auto;
 }
