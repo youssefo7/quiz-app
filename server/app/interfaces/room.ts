@@ -16,7 +16,7 @@ export interface User {
 
 export interface Player extends User {
     points: number;
-    hasAbandonned: boolean;
+    hasAbandoned: boolean;
 }
 
 export interface Organizer extends User {}

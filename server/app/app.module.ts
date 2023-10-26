@@ -6,6 +6,11 @@ import { QuizzesService } from '@app/services/quizzes/quizzes.service';
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ChatGateway } from './gateway/chat/chat.gateway';
+import { GameGateway } from './gateway/game/game.gateway';
+import { JoinGateway } from './gateway/join/join.gateway';
+import { WaitingGateway } from './gateway/waiting/waiting.gateway';
+import { RoomManagerService } from './services/room-manager/room-manager.service';
 
 @Module({
     imports: [
@@ -20,6 +25,6 @@ import { MongooseModule } from '@nestjs/mongoose';
         MongooseModule.forFeature([{ name: Quiz.name, schema: quizSchema }]),
     ],
     controllers: [QuizzesController, AdminGuardController],
-    providers: [Logger, AdminGuardService, QuizzesService],
+    providers: [Logger, AdminGuardService, QuizzesService, RoomManagerService, GameGateway, ChatGateway, WaitingGateway, JoinGateway],
 })
 export class AppModule {}

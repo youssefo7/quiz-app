@@ -39,7 +39,7 @@ export class RoomManagerService {
     }
 
     addPlayerToRoom(room: Room, playerId: string) {
-        room.players.push({ socketId: playerId, name: '', points: 0, hasAbandonned: false });
+        room.players.push({ socketId: playerId, name: '', points: 0, hasAbandoned: false });
     }
 
     addBannedNameToRoom(room: Room, name: string) {
