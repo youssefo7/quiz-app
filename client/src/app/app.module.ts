@@ -29,6 +29,7 @@ import { CreateEditQuizPageComponent } from './pages/create-edit-quiz-page/creat
 import { CreateGamePageComponent } from './pages/create-game-page/create-game-page.component';
 import { HostGamePageComponent } from './pages/host-game-page/host-game-page.component';
 import { WaitingPageComponent } from './pages/waiting-page/waiting-page.component';
+import { PlayerListComponent } from './components/player-list/player-list.component';
 
 /**
  * Main module that is used in main.ts.
@@ -59,6 +60,7 @@ import { WaitingPageComponent } from './pages/waiting-page/waiting-page.componen
         RangeValidatorDirective,
         TitleExistsDirective,
         CreateEditQuizPageComponent,
+        PlayerListComponent,
         JoinGamePopupComponent,
         HostGamePageComponent,
     ],

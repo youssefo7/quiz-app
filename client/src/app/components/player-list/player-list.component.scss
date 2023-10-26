@@ -1,0 +1,54 @@
+.waitingRoom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 85vh;
+    overflow: hidden;
+}
+
+.waitingRoom .playersList {
+    border-radius: 7px;
+    width: 80%;
+    background: rgb(131, 193, 255);
+    padding: 3%;
+    margin: 7%;
+    list-style-position: inside;
+    overflow-y: auto;
+}
+
+.waitingRoom .playersList {
+    margin-bottom: 0%;
+}
+
+.waitingRoom .player {
+    border-radius: 9px;
+    margin: 15px 12px;
+}
+
+
+.player {
+    background: rgb(169, 213, 255);
+    align-content: center;
+    padding: 15px 20px;
+}
+
+.player span {
+    padding: 1%;
+    align-items: center; 
+}
+
+#account {
+   vertical-align: middle;
+   padding: 2px;
+}
+
+#banButton {
+    border-radius: 5px;
+    float: right;
+    height: 30px;
+    width: 40px;
+}
+
+#banButton #banIcon {
+    color: red;
+}
