@@ -6,6 +6,7 @@ export interface Room {
     isLocked: boolean;
     bannedNames: string[];
     answerTimes: AnswerTime[];
+    bonusCount: number;
 }
 
 export interface User {
