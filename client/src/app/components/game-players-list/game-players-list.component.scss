@@ -1,0 +1,28 @@
+#player-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+#player-entry {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+#player-name.abandoned {
+  text-decoration: line-through;
+  color: red; /* You can choose the color for abandoned players */
+}
+
+#player-name {
+  font-weight: bold;
+}
+
+#player-score {
+  margin-left: 10px;
+}
+
+#abandoned-indicator {
+  color: red; /* You can choose the color for abandoned players */
+  font-style: italic;
+}

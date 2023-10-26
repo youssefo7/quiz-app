@@ -1,0 +1,7 @@
+<div id="player-list">
+  <div *ngFor="let player of playersList" id="player-entry" [ngClass]="{ 'abandoned': player.hasAbandoned }">
+      <span id="player-name" [ngStyle]="{ 'text-decoration': player.hasAbandoned ? 'line-through' : 'none' }">{{ player.name }}</span>
+      <span id="player-score">{{ player.score }} points</span>
+      <span id="abandoned-indicator" *ngIf="player.hasAbandoned"> (Abandoned)</span>
+  </div>
+</div>
