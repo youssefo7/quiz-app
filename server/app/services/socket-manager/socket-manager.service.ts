@@ -54,7 +54,7 @@ export class SocketManagerService {
                     return wantedPlayer ? true : false;
                 });
 
-                const nameExists = this.roomManager.checkName(playerRoom, name);
+                const nameExists = this.roomManager.isNameTaken(playerRoom, name);
                 const bannedName = this.roomManager.isBannedName(playerRoom, name);
                 if (!nameExists && !bannedName) {
                     wantedPlayer.name = name;
@@ -142,9 +142,9 @@ export class SocketManagerService {
 
             socket.on('giveBonus', (roomId: string) => {
                 const quickestPlayer = this.roomManager.getQuickestTime(this.roomManager.findRoom(roomId));
-                const room = this.roomManager.findRoom(roomId);
+                // const room = this.roomManager.findRoom(roomId);
                 if (quickestPlayer) {
-                    room.bonusCount++;
+                    // room.bonusCount++;
                     this.sio.to(quickestPlayer.userId).emit('bonus');
                 }
             });

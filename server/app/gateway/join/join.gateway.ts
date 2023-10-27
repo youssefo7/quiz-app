@@ -1,6 +1,6 @@
-import { Room, User } from '@app/interfaces/room';
+import { Player, Room } from '@app/interfaces/room';
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { JoinEvents } from './join.gateway.events';
@@ -11,10 +11,7 @@ export class JoinGateway {
     @WebSocketServer() private server: Server;
     private rooms: Room[];
 
-    constructor(
-        private readonly logger: Logger,
-        private roomManager: RoomManagerService,
-    ) {
+    constructor(private roomManager: RoomManagerService) {
         this.rooms = roomManager.rooms;
     }
 
@@ -42,24 +39,26 @@ export class JoinGateway {
 
     @SubscribeMessage(JoinEvents.ChooseName)
     handleChooseName(socket: Socket, name: string) {
-        let wantedPlayer: User;
+        let wantedPlayer: Player;
         const playerRoom = this.rooms.find((room) => {
             wantedPlayer = room.players.find((player) => player.socketId === socket.id);
             return wantedPlayer ? true : false;
         });
 
-        const nameExists = this.roomManager.checkName(playerRoom, name);
-        const bannedName = this.roomManager.isBannedName(playerRoom, name);
-        if (!nameExists && !bannedName) {
+        const nameExists = this.roomManager.isNameTaken(playerRoom, name);
+        const isBannedName = this.roomManager.isBannedName(playerRoom, name);
+        const isNameValid = !nameExists && !isBannedName;
+
+        if (isNameValid) {
             wantedPlayer.name = name;
         }
 
-        return !nameExists && !bannedName;
+        return isNameValid;
     }
 
     @SubscribeMessage(JoinEvents.SuccessfulJoin)
-    handleSuccessfulJoin(socket: Socket, data: { roomId: string; name: string }) {
+    handleSuccessfulJoin(_: Socket, data: { roomId: string; name: string }) {
         const room = this.roomManager.findRoom(data.roomId);
-        socket.to(room.id).emit('playerHasJoined', data.name);
+        this.server.to(room.id).emit('playerHasJoined', data.name);
     }
 }

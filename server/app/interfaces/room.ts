@@ -6,7 +6,6 @@ export interface Room {
     isLocked: boolean;
     bannedNames: string[];
     answerTimes: AnswerTime[];
-    bonusCount: number;
 }
 
 export interface User {
@@ -14,9 +13,11 @@ export interface User {
     name: string;
 }
 
+// TODO : voir s'il y a un risque d'envoyer des événements à un joueur qui a abandonné
 export interface Player extends User {
     points: number;
     hasAbandoned: boolean;
+    bonusCount: number;
 }
 
 export interface Organizer extends User {}

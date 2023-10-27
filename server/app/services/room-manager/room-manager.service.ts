@@ -32,23 +32,21 @@ export class RoomManagerService {
             bannedNames: [],
             // abandonnedPlayers: [],
             answerTimes: [],
-            bonusCount: 0,
         });
 
         return roomId;
     }
 
     addPlayerToRoom(room: Room, playerId: string) {
-        room.players.push({ socketId: playerId, name: '', points: 0, hasAbandoned: false });
+        room.players.push({ socketId: playerId, name: '', points: 0, hasAbandoned: false, bonusCount: 0 });
     }
 
     addBannedNameToRoom(room: Room, name: string) {
         room.bannedNames.push(name);
     }
 
-    addPointsToPlayer(roomId: string, name: string, points: number) {
-        const room = this.findRoom(roomId);
-        const player = this.findPlayerByName(room, name);
+    addPointsToPlayer(playerId: string, points: number) {
+        const player = this.findUser(playerId) as Player;
         player.points += points;
     }
 
@@ -75,12 +73,12 @@ export class RoomManagerService {
         return room.players.find((user) => user.name === name);
     }
 
-    checkName(room: Room, name: string) {
-        const nameExists = room.players.find((player) => player.name.toLowerCase() === name.toLowerCase());
-
+    isNameTaken(room: Room, name: string) {
         if (name.toLowerCase() === 'organisateur') {
             return true;
         }
+
+        const nameExists = room.players.find((player) => player.name.toLowerCase() === name.toLowerCase());
         return nameExists ? true : false;
     }
 
@@ -121,6 +119,6 @@ export class RoomManagerService {
     }
 
     resetTimes(room: Room) {
-        room.answerTimes.splice(0, room.answerTimes.length);
+        room.answerTimes = [];
     }
 }

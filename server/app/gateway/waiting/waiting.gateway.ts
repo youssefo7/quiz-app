@@ -1,6 +1,5 @@
-import { Room } from '@app/interfaces/room';
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { WaitingEvents } from './waiting.gateway.events';
@@ -9,30 +8,25 @@ import { WaitingEvents } from './waiting.gateway.events';
 @Injectable()
 export class WaitingGateway {
     @WebSocketServer() private server: Server;
-    private rooms: Room[];
 
-    constructor(
-        private readonly logger: Logger,
-        private roomManager: RoomManagerService,
-    ) {
-        this.rooms = roomManager.rooms;
-    }
+    constructor(private roomManager: RoomManagerService) {}
 
     @SubscribeMessage(WaitingEvents.ToggleLockRoom)
-    handleToggleLockRoom(socket: Socket, roomId: string) {
+    handleToggleLockRoom(_: Socket, roomId: string) {
         const room = this.roomManager.findRoom(roomId);
         room.isLocked = !room.isLocked;
     }
 
     @SubscribeMessage(WaitingEvents.GetPlayerNames)
-    handleGetPlayerNames(socket: Socket, roomId: string) {
+    handleGetPlayerNames(_: Socket, roomId: string) {
         const room = this.roomManager.findRoom(roomId);
         const playerNames = room.players.map((player) => player.name);
         return playerNames;
     }
 
+    // TODO : il faut déconnecter l'utilisateur qu'on vient de bannir! (frontend?)
     @SubscribeMessage(WaitingEvents.BanName)
-    handleBanName(socket: Socket, data: { roomId: string; name: string }) {
+    handleBanName(_: Socket, data: { roomId: string; name: string }) {
         const room = this.roomManager.findRoom(data.roomId);
         this.roomManager.addBannedNameToRoom(room, data.name);
         const player = this.roomManager.findPlayerByName(room, data.name);
