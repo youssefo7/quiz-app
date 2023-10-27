@@ -31,6 +31,12 @@ export class WaitingGateway {
         this.roomManager.addBannedNameToRoom(room, data.name);
         const player = this.roomManager.findPlayerByName(room, data.name);
         this.roomManager.removeUser(room, player.socketId);
+        const playerSocket = this.server.sockets.sockets.get(player.socketId);
+        if (playerSocket) {
+            playerSocket.emit('banNotification');
+            playerSocket.leave(data.roomId);
+            playerSocket.disconnect();
+        }
         this.server.emit(WaitingEvents.BanName, data.name);
     }
 }

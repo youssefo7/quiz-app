@@ -31,6 +31,7 @@ export class GameGateway {
         }
         this.roomManager.removeUser(room, user.socketId);
         socket.leave(room.id);
+        socket.disconnect();
     }
 
     // TODO : faire le disconnect ici aussi
@@ -39,8 +40,11 @@ export class GameGateway {
         const room = this.roomManager.findRoom(roomId);
         const sockets = await this.server.sockets.fetchSockets();
 
-        socket.to(room.id).emit('gameEnded');
-        sockets.forEach((playerSocket) => playerSocket.leave(room.id));
+        socket.to(room.id).emit(GameEvents.EndGame);
+        sockets.forEach((playerSocket) => {
+            playerSocket.leave(room.id);
+            playerSocket.disconnect();
+        });
         this.roomManager.deleteRoom(room);
     }
 
