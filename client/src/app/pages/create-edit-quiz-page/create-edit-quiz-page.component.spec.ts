@@ -19,7 +19,6 @@ describe('CreateEditQuizPageComponent', () => {
     let quizQuestionInfoSpy: QuizQuestionInfoComponent;
     let mockDialog: SpyObj<MatDialog>;
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
-    let mockEvent: SpyObj<Event>;
     const mockQuiz: Quiz = {
         questions: [
             {
@@ -44,9 +43,6 @@ describe('CreateEditQuizPageComponent', () => {
         id: 'abc',
     } as unknown as Quiz;
 
-    const mockCurrentRoute: ActivatedRouteSnapshot = {} as unknown as ActivatedRouteSnapshot;
-    const mockRouterState: RouterStateSnapshot = {} as unknown as RouterStateSnapshot;
-
     beforeEach(() => {
         quizManagerServiceSpy = jasmine.createSpyObj('NewQuizManagerService', [
             'fetchQuiz',
@@ -59,8 +55,6 @@ describe('CreateEditQuizPageComponent', () => {
         quizQuestionInfoSpy = jasmine.createSpyObj('QuizQuestionInfoComponent', ['loadQuestionInformation', 'resetForm']);
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
         mockDialogRef = jasmine.createSpyObj('MatDialogRef<PopupMessageComponent>', ['componentInstance', 'afterClosed']);
-        mockEvent = jasmine.createSpyObj('event', ['preventDefault']);
-
         mockDialogRef.afterClosed.and.returnValue(of(true));
     });
 
@@ -230,16 +224,18 @@ describe('CreateEditQuizPageComponent', () => {
     });
 
     it('should prevent default on beforeunload', () => {
-        component.unloadNotification(mockEvent);
-        expect(mockEvent.preventDefault).toHaveBeenCalled();
+        const event = new Event('beforeunload');
+        spyOn(event, 'preventDefault');
+        component.unloadNotification(event);
+        expect(event.preventDefault).toHaveBeenCalled();
     });
 
-    it('should show popup and allow page to exit if the "Quitter" option is chosen ', () => {
+    it('should show popup and allow page to exit if the "Quitter" option is chosen ', waitForAsync(() => {
         component.openPageExitConfirmation();
 
         const config = mockDialogRef.componentInstance.config;
         expect(mockDialog.open).toHaveBeenCalled();
-        expect(config.message).toEqual('Quittez la page? Toutes les informations non enregistrées seront supprimées');
+        expect(config.message).toEqual('Quitter la page? Toutes les informations non enregistrées seront supprimées');
         expect(config.hasCancelButton).toEqual(true);
         expect(config.okButtonText).toEqual('Quitter');
         expect(config.cancelButtonText).toEqual('Annuler');
@@ -247,11 +243,23 @@ describe('CreateEditQuizPageComponent', () => {
         config.okButtonFunction?.();
 
         expect(component.shouldExitCreateEditQuizPage).toBeTrue();
-    });
+    }));
 
     it('should show popup when user is trying to exit the page', () => {
+        const mockCurrentRoute: ActivatedRouteSnapshot = {} as unknown as ActivatedRouteSnapshot;
+        const mockRouterState: RouterStateSnapshot = {} as unknown as RouterStateSnapshot;
         spyOn(component, 'openPageExitConfirmation');
         exitCreateEditQuizPageGuard(component, mockCurrentRoute, mockRouterState, mockRouterState);
         expect(component.openPageExitConfirmation).toHaveBeenCalled();
+    });
+
+    it('should not show popup when the user saves the quiz', () => {
+        const mockCurrentRoute: ActivatedRouteSnapshot = {} as unknown as ActivatedRouteSnapshot;
+        const mockRouterState: RouterStateSnapshot = {} as unknown as RouterStateSnapshot;
+        spyOn(component, 'openPageExitConfirmation');
+        component.newQuiz = mockQuiz;
+        component.saveQuiz();
+        exitCreateEditQuizPageGuard(component, mockCurrentRoute, mockRouterState, mockRouterState);
+        expect(component.openPageExitConfirmation).not.toHaveBeenCalled();
     });
 });

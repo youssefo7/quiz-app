@@ -23,6 +23,7 @@ export class CreateEditQuizPageComponent implements OnInit {
     resetQuiz: Quiz;
     isGeneralInfoFormValid: boolean;
     shouldExitCreateEditQuizPage: boolean;
+    isQuizSaved: boolean;
 
     constructor(
         private quizManagerService: QuizManagerService,
@@ -31,14 +32,15 @@ export class CreateEditQuizPageComponent implements OnInit {
     ) {
         this.isGeneralInfoFormValid = false;
         this.shouldExitCreateEditQuizPage = false;
+        this.isQuizSaved = false;
     }
 
     @HostListener('window:beforeunload', ['$event'])
-    unloadNotification($event: Event): void {
+    unloadNotification($event: Event) {
         $event.preventDefault();
     }
 
-    ngOnInit(): void {
+    ngOnInit() {
         this.loadQuiz();
     }
 
@@ -53,11 +55,11 @@ export class CreateEditQuizPageComponent implements OnInit {
         this.quizQuestionInfo.loadQuestionInformation(selectedQuestion, selectedIndex);
     }
 
-    setIsGeneralInfoFormValid(shouldBlockSubmit: boolean): void {
+    setIsGeneralInfoFormValid(shouldBlockSubmit: boolean) {
         this.isGeneralInfoFormValid = !shouldBlockSubmit;
     }
 
-    isQuizFormValid(): boolean {
+    isQuizFormValid() {
         if (this.newQuiz.questions.length > 0 && this.isGeneralInfoFormValid) {
             if (this.newQuiz.id !== '') {
                 return this.quizManagerService.hasQuizBeenModified(this.newQuiz);
@@ -65,11 +67,10 @@ export class CreateEditQuizPageComponent implements OnInit {
                 return true;
             }
         }
-
         return false;
     }
 
-    deleteQuestion(index: number): void {
+    deleteQuestion(index: number) {
         this.quizManagerService.deleteQuestion(index, this.newQuiz);
         if (this.quizManagerService.modifiedIndex === index && this.quizManagerService.isModifiedQuestion) {
             this.quizQuestionInfo.resetForm();
@@ -102,7 +103,7 @@ export class CreateEditQuizPageComponent implements OnInit {
 
     async openPageExitConfirmation(): Promise<boolean> {
         const config: PopupMessageConfig = {
-            message: 'Quittez la page? Toutes les informations non enregistrées seront supprimées',
+            message: 'Quitter la page? Toutes les informations non enregistrées seront supprimées',
             hasCancelButton: true,
             cancelButtonText: 'Annuler',
             okButtonText: 'Quitter',
@@ -120,11 +121,13 @@ export class CreateEditQuizPageComponent implements OnInit {
 
     saveQuiz() {
         if (this.newQuiz) {
+            this.isQuizSaved = true;
             this.quizManagerService.saveQuiz(this.newQuiz);
         }
     }
 }
 
 export const exitCreateEditQuizPageGuard: CanDeactivateFn<CreateEditQuizPageComponent> = async (component: CreateEditQuizPageComponent) => {
+    if (component.isQuizSaved) return true;
     return await component.openPageExitConfirmation();
 };
