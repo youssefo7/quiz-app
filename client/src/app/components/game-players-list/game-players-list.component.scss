@@ -1,0 +1,26 @@
+#player-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+#player-entry {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 1em;
+  width: 100%; 
+}
+
+#player-name.abandoned {
+  text-decoration: line-through;
+  color: red;
+}
+
+#player-name {
+  font-weight: bold;
+}
+
+#player-score {
+  margin-left: 10px;
+}
