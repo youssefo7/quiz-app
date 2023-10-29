@@ -1,0 +1,6 @@
+<div id="player-list">
+  <div *ngFor="let player of playersList" id="player-entry">
+    <span id="player-name" [ngClass]="{ 'abandoned': player.hasAbandoned }">{{ player.name }}</span>
+    <span id="player-score">{{ player.score }} points</span>
+  </div>
+</div>
