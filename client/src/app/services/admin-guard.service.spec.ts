@@ -7,7 +7,6 @@ import { AdminGuardService, SessionKeys } from './admin-guard.service';
 describe('AdminGuardService', () => {
     let service: AdminGuardService;
     let httpMock: HttpTestingController;
-    let router: Router;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -17,7 +16,6 @@ describe('AdminGuardService', () => {
         });
         service = TestBed.inject(AdminGuardService);
         httpMock = TestBed.inject(HttpTestingController);
-        router = TestBed.inject(Router);
     });
 
     it('should be created', () => {
@@ -42,34 +40,41 @@ describe('AdminGuardService', () => {
         expect(service.canActivate()).toBeFalse();
     }));
 
-    it('should set ShowPasswordPopup in sessionStorage and navigate to /home if page was refreshed', () => {
-        sessionStorage.removeItem(SessionKeys.IsRefreshed);
-        service.pageRefreshState();
-        expect(sessionStorage.getItem(SessionKeys.IsRefreshed)).toEqual('true');
-
+    it('should show admin popup if isRefreshed exists in sessionStorage', () => {
         sessionStorage.setItem(SessionKeys.IsRefreshed, 'true');
-        service.pageRefreshState();
-        expect(sessionStorage.getItem(SessionKeys.ShowPasswordPopup)).toEqual('true');
-        expect(router.navigateByUrl).toHaveBeenCalledWith('/home');
-    });
-
-    it('should show admin popup if ShowPasswordPopup is set in sessionStorage', () => {
-        sessionStorage.setItem(SessionKeys.ShowPasswordPopup, 'true');
         const shouldShow = service.showAdminPopup();
         expect(shouldShow).toEqual(true);
         expect(sessionStorage.getItem(SessionKeys.ShowPasswordPopup)).toBeNull();
 
+        sessionStorage.removeItem(SessionKeys.IsRefreshed);
         const shouldNotShow = service.showAdminPopup();
         expect(shouldNotShow).toEqual(false);
     });
 
-    it('should initialize admin guard correctly', () => {
+    it('should initialize admin guard correctly', fakeAsync(() => {
         sessionStorage.setItem(SessionKeys.CanAccessAdmin, 'true');
-        service['canAccessAdmin'] = sessionStorage.getItem(SessionKeys.CanAccessAdmin) ? true : false;
+        service.isAccessGranted('ultimate!!!password');
+        const req = httpMock.expectOne(`${environment.serverUrl}/admin/login`);
+        req.flush(null, { status: 200, statusText: 'Ok' });
+        tick();
         expect(service.canActivate()).toEqual(true);
-
         sessionStorage.removeItem(SessionKeys.CanAccessAdmin);
-        service['canAccessAdmin'] = sessionStorage.getItem(SessionKeys.CanAccessAdmin) ? true : false;
+        service.isAccessGranted('bad password');
+        const req2 = httpMock.expectOne(`${environment.serverUrl}/admin/login`);
+        req2.flush(null, { status: 403, statusText: 'Forbidden' });
+        tick();
         expect(service.canActivate()).toEqual(false);
+    }));
+
+    it('should set IsRefreshed to true and accessViaPopup to false if IsRefreshed is not in sessionStorage', () => {
+        service.pageRefreshState();
+        expect(sessionStorage.getItem(SessionKeys.IsRefreshed)).toEqual('true');
+        expect(service['accessViaPopup']).toEqual(false);
+    });
+
+    it('should not change any value if IsRefreshed is already in sessionStorage', () => {
+        sessionStorage.setItem(SessionKeys.IsRefreshed, 'true');
+        service.pageRefreshState();
+        expect(sessionStorage.getItem(SessionKeys.IsRefreshed)).toEqual('true');
     });
 });

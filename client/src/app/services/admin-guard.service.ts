@@ -15,8 +15,8 @@ export enum SessionKeys {
 })
 export class AdminGuardService {
     private canAccessAdmin: boolean;
-    private readonly baseUrl: string;
     private accessViaPopup: boolean = false;
+    private readonly baseUrl: string;
 
     constructor(
         private http: HttpClient,
@@ -59,7 +59,7 @@ export class AdminGuardService {
     }
 
     showAdminPopup(): boolean {
-        const shouldShow = sessionStorage.getItem(SessionKeys.ShowPasswordPopup);
+        const shouldShow = sessionStorage.getItem(SessionKeys.IsRefreshed);
         if (shouldShow) {
             sessionStorage.removeItem(SessionKeys.ShowPasswordPopup);
             return true;

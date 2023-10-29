@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
+import { NavigationEnd, Router } from '@angular/router';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { AdminGuardService } from '@app/services/admin-guard.service';
+import { of } from 'rxjs';
 
 import SpyObj = jasmine.SpyObj;
 
@@ -10,6 +12,10 @@ describe('MainPageComponent', () => {
     let fixture: ComponentFixture<MainPageComponent>;
     let matDialogServiceSpy: SpyObj<MatDialog>;
     let adminGuardServiceMock: SpyObj<AdminGuardService>;
+
+    const routerMock = {
+        events: of(new NavigationEnd(0, 'testURL', 'testURL_after_redirect')),
+    };
 
     beforeEach(() => {
         matDialogServiceSpy = jasmine.createSpyObj('MatDialog', ['open']);
@@ -22,6 +28,7 @@ describe('MainPageComponent', () => {
             providers: [
                 { provide: MatDialog, useValue: matDialogServiceSpy },
                 { provide: AdminGuardService, useValue: adminGuardServiceMock },
+                { provide: Router, useValue: routerMock },
             ],
         }).compileComponents();
     }));
@@ -81,6 +88,34 @@ describe('MainPageComponent', () => {
     });
 
     it('should not open the admin popup if admin page was not refreshed', () => {
+        adminGuardServiceMock.showAdminPopup.and.returnValue(false);
+        spyOn(component, 'openAdminPopup');
+        component.initializeComponent();
+        expect(component.openAdminPopup).not.toHaveBeenCalled();
+    });
+
+    it('should remove adminAccessViaPopup from session storage on NavigationEnd event if URL is not /admin', () => {
+        spyOn(sessionStorage, 'removeItem');
+        routerMock.events = of(new NavigationEnd(0, '/notAdmin', '/notAdmin_after_redirect'));
+        component.initializeComponent();
+        expect(sessionStorage.removeItem).toHaveBeenCalledWith('adminAccessViaPopup');
+    });
+
+    it('should not remove adminAccessViaPopup from session storage on NavigationEnd event if URL is /admin', () => {
+        spyOn(sessionStorage, 'removeItem');
+        routerMock.events = of(new NavigationEnd(0, '/admin', '/admin_after_redirect'));
+        component.initializeComponent();
+        expect(sessionStorage.removeItem).not.toHaveBeenCalledWith('adminAccessViaPopup');
+    });
+
+    it('should call openAdminPopup if adminGuardService.showAdminPopup is true', () => {
+        adminGuardServiceMock.showAdminPopup.and.returnValue(true);
+        spyOn(component, 'openAdminPopup');
+        component.initializeComponent();
+        expect(component.openAdminPopup).toHaveBeenCalled();
+    });
+
+    it('should not call openAdminPopup if adminGuardService.showAdminPopup is false', () => {
         adminGuardServiceMock.showAdminPopup.and.returnValue(false);
         spyOn(component, 'openAdminPopup');
         component.initializeComponent();
