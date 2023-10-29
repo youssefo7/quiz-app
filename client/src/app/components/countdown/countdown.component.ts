@@ -66,14 +66,12 @@ export class CountdownComponent implements OnInit, OnDestroy {
     async transitionClock() {
         const transitionTime = 3;
         this.isQuestionTransitioning = true;
-        this.isQuestionTransitioning = true;
         this.message = 'Préparez-vous!';
         this.clockStyle = { backgroundColor: '#E5E562' };
         await this.timeService.startTimer(transitionTime);
     }
 
     async questionClock() {
-        this.isQuestionTransitioning = false;
         this.isQuestionTransitioning = false;
         this.message = 'Temps Restant';
         this.clockStyle = { backgroundColor: 'lightblue' };
