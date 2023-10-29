@@ -4,6 +4,7 @@ import { Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
 import { TimeService } from '@app/services/time.service';
 import { Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-countdown',
@@ -15,6 +16,8 @@ export class CountdownComponent implements OnInit, OnDestroy {
     quiz: Quiz | null;
     message: string;
     clockStyle: { backgroundColor: string };
+    private timerSubscription: Subscription;
+    private isQuestionTransitioning: boolean;
     private timerSubscription: Subscription;
     private isQuestionTransitioning: boolean;
 
@@ -49,6 +52,18 @@ export class CountdownComponent implements OnInit, OnDestroy {
         this.gameClock();
     }
 
+    ngOnDestroy() {
+        if (this.timerSubscription) {
+            this.timerSubscription.unsubscribe();
+        }
+    }
+
+    async loadTimer() {
+        await this.getQuiz();
+        this.switchColorToRedOnThreeSeconds();
+        this.gameClock();
+    }
+
     async getQuiz() {
         const id = this.route.snapshot.paramMap.get('id');
         this.quiz = await this.gameService.getQuizById(id);
@@ -63,8 +78,18 @@ export class CountdownComponent implements OnInit, OnDestroy {
         });
     }
 
+    switchColorToRedOnThreeSeconds() {
+        const switchColorTime = 4;
+        this.timerSubscription = this.timeService.getTime().subscribe((time: number) => {
+            if (!this.isQuestionTransitioning && time <= switchColorTime) {
+                this.clockStyle = { backgroundColor: '#FF4D4D' };
+            }
+        });
+    }
+
     async transitionClock() {
         const transitionTime = 3;
+        this.isQuestionTransitioning = true;
         this.isQuestionTransitioning = true;
         this.message = 'Préparez-vous!';
         this.clockStyle = { backgroundColor: '#E5E562' };
@@ -72,6 +97,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
     }
 
     async questionClock() {
+        this.isQuestionTransitioning = false;
         this.isQuestionTransitioning = false;
         this.message = 'Temps Restant';
         this.clockStyle = { backgroundColor: 'lightblue' };
