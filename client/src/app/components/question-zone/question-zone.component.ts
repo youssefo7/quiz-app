@@ -122,7 +122,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     getQuestion(index: number) {
-        if (this.quiz && index <= this.quiz.questions.length) {
+        if (this.quiz && index < this.quiz.questions.length) {
             this.question = this.quiz.questions[index];
             this.chosenChoices = new Array(this.question.choices.length).fill(false);
             this.question.choices.forEach((choice, buttonIndex) => {

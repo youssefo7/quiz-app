@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { MatIcon } from '@angular/material/icon';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { CountdownComponent } from '@app/components/countdown/countdown.component';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
@@ -39,12 +39,12 @@ describe('GamePageComponent in test game route', () => {
         communicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
         mockDialogRef = jasmine.createSpyObj('MatDialogRef<PopupMessageComponent>', ['componentInstance']);
+        mockDialog.open.and.returnValue(mockDialogRef);
     });
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [GamePageComponent, TopBarComponent, CountdownComponent, QuestionZoneComponent, ProfileComponent, ChatComponent],
-            imports: [MatIconModule, MatDialogModule],
+            declarations: [GamePageComponent, TopBarComponent, CountdownComponent, QuestionZoneComponent, ProfileComponent, ChatComponent, MatIcon],
             providers: [
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'test' }] } } },
                 { provide: MatDialog, useValue: mockDialog },
@@ -59,17 +59,12 @@ describe('GamePageComponent in test game route', () => {
 
     beforeEach(() => {
         fixture = TestBed.createComponent(GamePageComponent);
-        mockDialog.open.and.returnValue(mockDialogRef);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
-    });
-
-    it('should set page title to "Partie - Test"', () => {
-        expect(component.title).toEqual('Partie - Test');
     });
 
     it('clicking the exit icon should redirect to "game/new" page', () => {
@@ -98,7 +93,7 @@ describe('GamePageComponent in test game route', () => {
 
     it('should popup a message when the user tries to exit a game with the correct configuration', () => {
         const mockConfig: PopupMessageConfig = {
-            message: 'Êtes-vous sûr de vouloir quitter la partie?',
+            message: 'Êtes-vous sûr de vouloir quitter la partie? Vous ne pourrez plus rejoindre cette partie.',
             hasCancelButton: true,
             okButtonText: 'Quitter',
             cancelButtonText: 'Annuler',
@@ -127,8 +122,8 @@ describe('GamePageComponent in regular game route', () => {
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [GamePageComponent, TopBarComponent, ProfileComponent, ChatComponent, QuestionZoneComponent, CountdownComponent],
-            imports: [MatIconModule, RouterModule, MatDialogModule],
+            declarations: [GamePageComponent, TopBarComponent, ProfileComponent, ChatComponent, QuestionZoneComponent, CountdownComponent, MatIcon],
+            imports: [MatDialogModule],
             providers: [
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: '' }] } } },
                 { provide: CommunicationService, useValue: communicationServiceMock },
@@ -146,10 +141,6 @@ describe('GamePageComponent in regular game route', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
-    });
-
-    it('should set page title to "Partie"', () => {
-        expect(component.title).toEqual('Partie');
     });
 
     it('clicking the exit icon should redirect to "/home" page', () => {

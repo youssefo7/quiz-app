@@ -7,15 +7,13 @@ import { Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
 
 @Component({
-    selector: 'app-game-page',
-    templateUrl: './game-page.component.html',
-    styleUrls: ['./game-page.component.scss', '../../../assets/shared.scss'],
+    selector: 'app-host-game-page',
+    templateUrl: './host-game-page.component.html',
+    styleUrls: ['./host-game-page.component.scss'],
 })
-export class GamePageComponent implements OnInit {
-    title: string;
+export class HostGamePageComponent implements OnInit {
     quiz: Quiz | null;
-    playerPoints: number;
-    private readonly isTestGame: boolean;
+    title: string;
 
     // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
@@ -27,8 +25,6 @@ export class GamePageComponent implements OnInit {
         private readonly elementRef: ElementRef,
     ) {
         this.title = 'Partie: ';
-        this.playerPoints = 0;
-        this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
     }
 
     ngOnInit() {
@@ -48,22 +44,18 @@ export class GamePageComponent implements OnInit {
     getQuizTitle() {
         if (this.quiz) {
             this.title += this.quiz.title;
-            this.title += this.isTestGame ? ' (Test)' : '';
+            this.title += ' (Organisateur)';
             this.elementRef.nativeElement.setAttribute('title', this.title);
         }
     }
 
     async leaveGamePage() {
-        await this.router.navigateByUrl(this.isTestGame ? '/game/new' : '/home');
-    }
-
-    givePoints(points: number) {
-        this.playerPoints += points;
+        await this.router.navigateByUrl('/game/new');
     }
 
     openQuitPopUp() {
         const config: PopupMessageConfig = {
-            message: 'Êtes-vous sûr de vouloir quitter la partie? Vous ne pourrez plus rejoindre cette partie.',
+            message: 'Êtes-vous sûr de vouloir quitter la partie? La partie sera terminée pour tous les joueurs.',
             hasCancelButton: true,
             okButtonText: 'Quitter',
             okButtonFunction: () => {

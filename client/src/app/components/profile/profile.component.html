@@ -2,6 +2,6 @@
     <mat-icon inline="true">person</mat-icon>
     <div id="player-info">
         <span>{{ name }}</span>
-        <span>{{ points }} points</span>
+        <span *ngIf="!isHost">{{ points }} points</span>
     </div>
 </div>

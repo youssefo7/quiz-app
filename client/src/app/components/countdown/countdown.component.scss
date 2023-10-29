@@ -1,6 +1,7 @@
 p {
     font-size: small;
     text-align: center;
+    margin: unset;
 }
 
 #countdown-background {
@@ -14,11 +15,22 @@ p {
     align-items: center;
     width: 70px;
     height: 70px;
+    margin: 10px 0;
 
     #countdown {
         font-size: x-large;
         font-weight: bold;
         max-width: 100%;
         max-height: 90%;
+    }
+}
+
+#countdown-options {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    button {
+        font-size: large;
     }
 }

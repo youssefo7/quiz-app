@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
@@ -11,6 +11,7 @@ import { Subscription } from 'rxjs';
     styleUrls: ['./countdown.component.scss'],
 })
 export class CountdownComponent implements OnInit, OnDestroy {
+    @Input() isHost: boolean;
     quiz: Quiz | null;
     message: string;
     clockStyle: { backgroundColor: string };
@@ -24,7 +25,9 @@ export class CountdownComponent implements OnInit, OnDestroy {
         private readonly route: ActivatedRoute,
         private readonly router: Router,
         private readonly gameService: GameService,
-    ) {}
+    ) {
+        this.isHost = false;
+    }
 
     get time() {
         return this.timeService.time;
