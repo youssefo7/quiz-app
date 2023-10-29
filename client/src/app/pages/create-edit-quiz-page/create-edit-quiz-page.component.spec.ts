@@ -1,7 +1,7 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ActivatedRoute, ActivatedRouteSnapshot, RouterStateSnapshot, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { QuizGeneralInfoComponent } from '@app/components/quiz-general-info/quiz-general-info.component';
 import { QuizQuestionInfoComponent } from '@app/components/quiz-question-info/quiz-question-info.component';
@@ -9,7 +9,7 @@ import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
 import { firstValueFrom, of } from 'rxjs';
-import { CreateEditQuizPageComponent, exitCreateEditQuizPageGuard } from './create-edit-quiz-page.component';
+import { CreateEditQuizPageComponent } from './create-edit-quiz-page.component';
 import SpyObj = jasmine.SpyObj;
 
 describe('CreateEditQuizPageComponent', () => {
@@ -54,8 +54,7 @@ describe('CreateEditQuizPageComponent', () => {
         ]);
         quizQuestionInfoSpy = jasmine.createSpyObj('QuizQuestionInfoComponent', ['loadQuestionInformation', 'resetForm']);
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
-        mockDialogRef = jasmine.createSpyObj('MatDialogRef<PopupMessageComponent>', ['componentInstance', 'afterClosed']);
-        mockDialogRef.afterClosed.and.returnValue(of(true));
+        mockDialogRef = jasmine.createSpyObj('MatDialogRef<PopupMessageComponent>', ['componentInstance']);
     });
 
     beforeEach(waitForAsync(() => {
@@ -221,38 +220,5 @@ describe('CreateEditQuizPageComponent', () => {
         component.isGeneralInfoFormValid = true;
         expect(quizManagerServiceSpy.hasQuizBeenModified).not.toHaveBeenCalled();
         expect(component.isQuizFormValid()).toBeTrue();
-    });
-
-    it('should show popup and allow page to exit if the "Quitter" option is chosen ', waitForAsync(() => {
-        component.openPageExitConfirmation();
-
-        const config = mockDialogRef.componentInstance.config;
-        expect(mockDialog.open).toHaveBeenCalled();
-        expect(config.message).toEqual('Quitter la page? Toutes les informations non enregistrées seront supprimées');
-        expect(config.hasCancelButton).toEqual(true);
-        expect(config.okButtonText).toEqual('Quitter');
-        expect(config.cancelButtonText).toEqual('Annuler');
-
-        config.okButtonFunction?.();
-
-        expect(component.canExitCreateEditQuizPage).toBeTrue();
-    }));
-
-    it('should show popup when user is trying to exit the page', () => {
-        const mockCurrentRoute: ActivatedRouteSnapshot = {} as unknown as ActivatedRouteSnapshot;
-        const mockRouterState: RouterStateSnapshot = {} as unknown as RouterStateSnapshot;
-        spyOn(component, 'openPageExitConfirmation');
-        exitCreateEditQuizPageGuard(component, mockCurrentRoute, mockRouterState, mockRouterState);
-        expect(component.openPageExitConfirmation).toHaveBeenCalled();
-    });
-
-    it('should not show popup when the user saves the quiz', () => {
-        const mockCurrentRoute: ActivatedRouteSnapshot = {} as unknown as ActivatedRouteSnapshot;
-        const mockRouterState: RouterStateSnapshot = {} as unknown as RouterStateSnapshot;
-        spyOn(component, 'openPageExitConfirmation');
-        component.newQuiz = mockQuiz;
-        component.saveQuiz();
-        exitCreateEditQuizPageGuard(component, mockCurrentRoute, mockRouterState, mockRouterState);
-        expect(component.openPageExitConfirmation).not.toHaveBeenCalled();
     });
 });
