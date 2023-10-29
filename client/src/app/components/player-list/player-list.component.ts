@@ -58,10 +58,10 @@ export class PlayerListComponent {
     startGame(): void {
         if (!this.isHost) {
             // naviguer vers: /game/:quizId/room/:roomId/
-            this.router.navigate([]);
+            // this.router.navigate(['game/', quiz.id, 'room/', room.id]);
         } else {
             // naviguer vers: /game/:quizId/room/:roomId/host
-            this.router.navigate([]);
+            // this.router.navigate(['game/', quiz.id, 'room/', room.id, 'host/']);
         }
     }
 

@@ -1,5 +1,5 @@
 <div class="waitingRoom">
-    <div class="waitingRoomOptions">
+    <div class="headers">
         <mat-icon (click)="quitPopUp()" title="Quitter la Partie" inline="true">exit_to_app</mat-icon>
         <h1 id="roomId">Room Id</h1>
         <h2 *ngIf="isHost" id="bannedList">Joueur(s) bani(s)</h2>
@@ -24,12 +24,16 @@
         </div>
     </div>
     <div *ngIf="isHost" class="hostRoomOptions">
-        <button id="unlockButton" (click)="unlockGame()" title="Déverrouiller la partie" [disabled]="!isLocked">
-            <mat-icon>lock_open</mat-icon>
-        </button>
-        <button id="lockButton" (click)="lockGame()" title="Vérrouiller la partie" [disabled]="isLocked">
-            <mat-icon>lock</mat-icon>
-        </button>
-        <button title="Vérrouiller la partie pour commencer" id="startGameButton" (click)="startGame()" [disabled]="!isLocked">Commencer</button>
+        <div id="locksButtons">
+            <button id="unlockButton" (click)="unlockGame()" title="Déverrouiller la partie" [disabled]="!isLocked">
+                <mat-icon>lock_open</mat-icon>
+            </button>
+            <button id="lockButton" (click)="lockGame()" title="Vérrouiller la partie" [disabled]="isLocked">
+                <mat-icon>lock</mat-icon>
+            </button>
+        </div>
+        <div id="startGameButton">
+            <button title="Vérrouiller la partie pour commencer" (click)="startGame()" [disabled]="!isLocked">Commencer</button>
+        </div>
     </div>
 </div>
