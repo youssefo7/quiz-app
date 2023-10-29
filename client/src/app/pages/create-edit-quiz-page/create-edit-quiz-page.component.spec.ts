@@ -223,13 +223,6 @@ describe('CreateEditQuizPageComponent', () => {
         expect(component.isQuizFormValid()).toBeTrue();
     });
 
-    it('should prevent default on beforeunload', () => {
-        const event = new Event('beforeunload');
-        spyOn(event, 'preventDefault');
-        component.unloadNotification(event);
-        expect(event.preventDefault).toHaveBeenCalled();
-    });
-
     it('should show popup and allow page to exit if the "Quitter" option is chosen ', waitForAsync(() => {
         component.openPageExitConfirmation();
 
