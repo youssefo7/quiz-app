@@ -5,7 +5,9 @@
     </div>
     <div id="countdown-player-list-grid">
         <app-countdown [isHost]="true" id="countdown-container"></app-countdown>
-        <div id="player-list-countainer"><p>Liste de joueur (Component)</p></div>
+        <div id="player-list-countainer">
+            <app-game-players-list></app-game-players-list>
+        </div>
     </div>
     <div id="questions-stats-grid">
         <p>
