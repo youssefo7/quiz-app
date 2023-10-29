@@ -9,5 +9,5 @@ import { PlayerInfo } from '@app/interfaces/player-info';
 export class GamePlayersListComponent {
     playersList: PlayerInfo[];
 
-    // TODO: ngOnInit should fetch the list of players to be used in the html
+    // TODO: ngOnInit should fetch the list of players to be used in the html (maybe given through Input)
 }
