@@ -18,7 +18,7 @@ describe('CreateGameListComponent', () => {
     let mockDialog: SpyObj<MatDialog>;
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
 
-    const visibleQuizzMock: Quiz[] = [
+    const visibleQuizMock: Quiz[] = [
         {
             $schema: 'quiz-schema.json',
             id: '1',
@@ -38,7 +38,7 @@ describe('CreateGameListComponent', () => {
         },
     ];
 
-    const hiddenQuizzMock: Quiz[] = [
+    const hiddenQuizMock: Quiz[] = [
         {
             $schema: 'quiz-schema.json',
             id: '2',
@@ -90,7 +90,7 @@ describe('CreateGameListComponent', () => {
     });
 
     it('should not display a message if 1 or more games are available', () => {
-        communicationServiceSpy.getQuizzes.and.returnValue(of(visibleQuizzMock));
+        communicationServiceSpy.getQuizzes.and.returnValue(of(visibleQuizMock));
         component.getVisibleQuizListFromServer();
         fixture.detectChanges();
 
@@ -101,14 +101,14 @@ describe('CreateGameListComponent', () => {
     });
 
     it('should show visible games', () => {
-        communicationServiceSpy.getQuizzes.and.returnValue(of(hiddenQuizzMock));
+        communicationServiceSpy.getQuizzes.and.returnValue(of(hiddenQuizMock));
         component.getVisibleQuizListFromServer();
 
         expect(component.visibleQuizList).toEqual([]);
     });
 
     it('should show toggle button when the quiz is visible', () => {
-        communicationServiceSpy.getQuizzes.and.returnValue(of(visibleQuizzMock));
+        communicationServiceSpy.getQuizzes.and.returnValue(of(visibleQuizMock));
         component.getVisibleQuizListFromServer();
         fixture.detectChanges();
 
@@ -129,12 +129,12 @@ describe('CreateGameListComponent', () => {
     });
 
     it('should toggle the quiz details when the toggle button is clicked', () => {
-        communicationServiceSpy.getQuizzes.and.returnValue(of(visibleQuizzMock));
+        communicationServiceSpy.getQuizzes.and.returnValue(of(visibleQuizMock));
         component.getVisibleQuizListFromServer();
         fixture.detectChanges();
 
         const toggleButton = fixture.nativeElement.querySelector('.toggleButton');
-        component.selectedQuizId = visibleQuizzMock[0].id;
+        component.selectedQuizId = visibleQuizMock[0].id;
         fixture.detectChanges();
 
         const quizDetails = fixture.nativeElement.querySelectorAll('quizDetails');
@@ -142,13 +142,13 @@ describe('CreateGameListComponent', () => {
 
         expect(toggleButton.classList.contains('active')).toBeTruthy();
         expect(quizDetails).toBeTruthy();
-        expect(questions.length).toEqual(visibleQuizzMock[0].questions.length);
+        expect(questions.length).toEqual(visibleQuizMock[0].questions.length);
     });
 
     it('should navigate to create game page if quiz is available and visible', () => {
         communicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
         communicationServiceSpy.checkQuizVisibility.and.returnValue(of(true));
-        component.checkCanProceed(visibleQuizzMock[0]);
+        component.checkCanProceed(visibleQuizMock[0]);
 
         expect(communicationServiceSpy.checkQuizAvailability).toHaveBeenCalled();
         expect(communicationServiceSpy.checkQuizVisibility).toHaveBeenCalled();
@@ -158,18 +158,18 @@ describe('CreateGameListComponent', () => {
     it('should navigate to test game page if quiz is available and visible', () => {
         communicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
         communicationServiceSpy.checkQuizVisibility.and.returnValue(of(true));
-        component.checkCanProceed(visibleQuizzMock[0], true);
+        component.checkCanProceed(visibleQuizMock[0], true);
 
         expect(communicationServiceSpy.checkQuizAvailability).toHaveBeenCalled();
         expect(communicationServiceSpy.checkQuizVisibility).toHaveBeenCalled();
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['game/', visibleQuizzMock[0].id, 'test']);
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['game/', visibleQuizMock[0].id, 'test']);
     });
 
     it('should display popup if quiz is hidden', () => {
         communicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
         communicationServiceSpy.checkQuizVisibility.and.returnValue(of(false));
         const hiddenPopUpSpy = spyOn(component, 'openHiddenPopUp').and.callThrough();
-        component.checkCanProceed(hiddenQuizzMock[0]);
+        component.checkCanProceed(hiddenQuizMock[0]);
 
         expect(communicationServiceSpy.checkQuizAvailability).toHaveBeenCalled();
         expect(communicationServiceSpy.checkQuizVisibility).toHaveBeenCalled();
@@ -180,7 +180,7 @@ describe('CreateGameListComponent', () => {
         communicationServiceSpy.checkQuizAvailability.and.returnValue(of(false));
         communicationServiceSpy.checkQuizVisibility.and.returnValue(of(false));
         const isUnavailableSpy = spyOn(component, 'openUnavailablePopUp').and.callThrough();
-        component.checkCanProceed(hiddenQuizzMock[0]);
+        component.checkCanProceed(hiddenQuizMock[0]);
 
         expect(communicationServiceSpy.checkQuizAvailability).toHaveBeenCalled();
         expect(communicationServiceSpy.checkQuizVisibility).not.toHaveBeenCalled();

@@ -27,6 +27,7 @@ import { TitleExistsDirective } from './directives/title-exists.directive';
 import { AdminPageComponent } from './pages/admin-page/admin-page.component';
 import { CreateEditQuizPageComponent } from './pages/create-edit-quiz-page/create-edit-quiz-page.component';
 import { CreateGamePageComponent } from './pages/create-game-page/create-game-page.component';
+import { HostGamePageComponent } from './pages/host-game-page/host-game-page.component';
 import { WaitingPageComponent } from './pages/waiting-page/waiting-page.component';
 
 /**
@@ -59,6 +60,7 @@ import { WaitingPageComponent } from './pages/waiting-page/waiting-page.componen
         TitleExistsDirective,
         CreateEditQuizPageComponent,
         JoinGamePopupComponent,
+        HostGamePageComponent,
     ],
     imports: [
         AppMaterialModule,

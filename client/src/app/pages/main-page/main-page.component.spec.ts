@@ -51,7 +51,7 @@ describe('MainPageComponent', () => {
     // });
 
     it('should have a "Créer une partie" button redirecting to /game/new', () => {
-        const hostGameButton = fixture.debugElement.nativeElement.querySelector('#host-game-button');
+        const hostGameButton = fixture.debugElement.nativeElement.querySelector('#create-game-button');
         expect(hostGameButton.innerText).toEqual('Créer une partie');
         expect(hostGameButton.getAttribute('RouterLink')).toEqual('/game/new');
     });
