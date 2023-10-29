@@ -14,7 +14,7 @@ export enum SessionKeys {
     providedIn: 'root',
 })
 export class AdminGuardService {
-    private canAccessAdmin: boolean;
+    canAccessAdmin: boolean;
     private readonly baseUrl: string;
 
     constructor(
@@ -30,9 +30,11 @@ export class AdminGuardService {
             await this.submitPassword(userPassword);
             this.canAccessAdmin = true;
             sessionStorage.setItem(SessionKeys.CanAccessAdmin, 'true');
+            console.log('Access granted.');
             return this.canAccessAdmin;
         } catch (error) {
             this.canAccessAdmin = false;
+            console.log('Access denied:', error);
             return this.canAccessAdmin;
         }
     }
@@ -41,8 +43,30 @@ export class AdminGuardService {
         await firstValueFrom(this.http.post(`${this.baseUrl}/admin/login`, { password: userPassword }));
     }
 
-    canActivate() {
-        return this.canAccessAdmin;
+    canActivate(): boolean {
+        const navigation = this.router.getCurrentNavigation();
+        let prevUrl: string | null = null;
+
+        if (navigation && navigation.trigger === 'imperative') {
+            const previousNavigation = this.router.getCurrentNavigation()?.previousNavigation;
+            if (previousNavigation) {
+                prevUrl = previousNavigation.extractedUrl.toString();
+            }
+        }
+
+        console.log('Previous URL:', prevUrl);
+
+        if (this.canAccessAdmin) {
+            if (prevUrl === null || prevUrl === '/home' || prevUrl === '/quiz/new' || (prevUrl && /\/quiz\/\d+/.test(prevUrl))) {
+                return true;
+            }
+        }
+
+        console.log('Redirecting to /home');
+        this.canAccessAdmin = false;
+        sessionStorage.removeItem(SessionKeys.CanAccessAdmin);
+        this.router.navigate(['/home']);
+        return false;
     }
 
     pageRefreshState(): void {
@@ -52,14 +76,5 @@ export class AdminGuardService {
         } else {
             sessionStorage.setItem(SessionKeys.IsRefreshed, 'true');
         }
-    }
-
-    showAdminPopup(): boolean {
-        const shouldShow = sessionStorage.getItem(SessionKeys.ShowPasswordPopup);
-        if (shouldShow) {
-            sessionStorage.removeItem(SessionKeys.ShowPasswordPopup);
-            return true;
-        }
-        return false;
     }
 }
