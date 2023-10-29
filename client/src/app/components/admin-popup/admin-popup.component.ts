@@ -52,6 +52,7 @@ export class AdminPopupComponent {
             this.givenPassword = '';
             this.showErrorMessage = true;
         } else {
+            sessionStorage.setItem('adminAccessViaPopup', 'true');
             this.closeAdminPopup();
             await this.router.navigateByUrl('/admin');
         }

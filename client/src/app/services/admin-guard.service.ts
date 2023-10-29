@@ -16,6 +16,7 @@ export enum SessionKeys {
 export class AdminGuardService {
     private canAccessAdmin: boolean;
     private readonly baseUrl: string;
+    private accessViaPopup: boolean = false;
 
     constructor(
         private http: HttpClient,
@@ -29,10 +30,11 @@ export class AdminGuardService {
         try {
             await this.submitPassword(userPassword);
             this.canAccessAdmin = true;
-            sessionStorage.setItem(SessionKeys.CanAccessAdmin, 'true');
+            this.accessViaPopup = true;
             return this.canAccessAdmin;
         } catch (error) {
             this.canAccessAdmin = false;
+            this.accessViaPopup = false;
             return this.canAccessAdmin;
         }
     }
@@ -42,14 +44,16 @@ export class AdminGuardService {
     }
 
     canActivate() {
+        if (!this.accessViaPopup) {
+            this.router.navigateByUrl('/home');
+            return false;
+        }
         return this.canAccessAdmin;
     }
 
     pageRefreshState(): void {
-        if (sessionStorage.getItem(SessionKeys.IsRefreshed)) {
-            sessionStorage.setItem(SessionKeys.ShowPasswordPopup, 'true');
-            this.router.navigateByUrl('/home');
-        } else {
+        if (!sessionStorage.getItem(SessionKeys.IsRefreshed)) {
+            this.accessViaPopup = false;
             sessionStorage.setItem(SessionKeys.IsRefreshed, 'true');
         }
     }

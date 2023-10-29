@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { NavigationEnd, Router } from '@angular/router';
 import { AdminPopupComponent } from '@app/components/admin-popup/admin-popup.component';
 import { JoinGamePopupComponent } from '@app/components/join-game-popup/join-game-popup.component';
 import { AdminGuardService } from '@app/services/admin-guard.service';
@@ -12,6 +13,7 @@ import { AdminGuardService } from '@app/services/admin-guard.service';
 export class MainPageComponent {
     constructor(
         private adminPopup: MatDialog,
+        private router: Router,
         private joinGamePopup: MatDialog,
         private adminGuardService: AdminGuardService,
     ) {
@@ -19,6 +21,13 @@ export class MainPageComponent {
     }
 
     initializeComponent(): void {
+        this.router.events.subscribe((event) => {
+            if (event instanceof NavigationEnd) {
+                if (event.url !== '/admin') {
+                    sessionStorage.removeItem('adminAccessViaPopup');
+                }
+            }
+        });
         if (this.adminGuardService.showAdminPopup()) {
             this.openAdminPopup();
         }
