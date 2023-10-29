@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { mapToCanActivate, RouterModule, Routes } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { CreateEditQuizPageComponent } from '@app/pages/create-edit-quiz-page/create-edit-quiz-page.component';
 import { CreateGamePageComponent } from '@app/pages/create-game-page/create-game-page.component';
@@ -12,7 +12,7 @@ import { AdminGuardService } from '@app/services/admin-guard.service';
 const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
     { path: 'home', component: MainPageComponent },
-    { path: 'admin', component: AdminPageComponent, canActivate: mapToCanActivate([AdminGuardService]) },
+    { path: 'admin', component: AdminPageComponent, canActivate: [AdminGuardService] },
     { path: 'game/new', component: CreateGamePageComponent },
     { path: 'game/:id', component: GamePageComponent },
     { path: 'game/:id/test', component: GamePageComponent },

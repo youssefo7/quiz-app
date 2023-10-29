@@ -16,13 +16,19 @@ export class AdminPageComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        if (!this.adminGuardService.canActivate()) {
+            this.router.navigateByUrl('/home');
+        }
         this.adminGuardService.pageRefreshState();
     }
 
     handleAdminPageExit(): void {
         this.router.events.subscribe((event) => {
             if (event instanceof NavigationEnd && event.url !== '/admin') {
+                console.log('Leaving admin page.');
                 sessionStorage.removeItem('isRefreshed');
+                sessionStorage.removeItem('canAccessAdmin'); // Reset the canAccessAdmin flag when leaving admin page
+                this.adminGuardService.canAccessAdmin = false; // Also reset the service flag
             }
         });
     }
