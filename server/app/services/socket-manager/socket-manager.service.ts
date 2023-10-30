@@ -93,10 +93,10 @@ export class SocketManagerService {
                 const isPlayer = user.name !== room.organizer.name;
 
                 if (data.hasGameStarted && isPlayer) {
-                    (user as Player).hasAbandonned = true;
+                    (user as Player).hasAbandoned = true;
                 }
                 this.roomManager.removeUser(room, user.socketId);
-                socket.to(room.organizer.socketId).emit('AbandonnedGame', user.name);
+                socket.to(room.organizer.socketId).emit('AbandonedGame', user.name);
                 socket.leave(room.id);
             });
 
