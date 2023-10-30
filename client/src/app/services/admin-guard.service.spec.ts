@@ -35,6 +35,18 @@ describe('AdminGuardService', () => {
         expect(service).toBeTruthy();
     });
 
+    it('should initialize admin guard to true when sessionStorage has canAccessAdmin set to true', fakeAsync(() => {
+        sessionStorage.setItem(SessionKeys.CanAccessAdmin, 'true');
+        service['canAccessAdmin'] = sessionStorage.getItem(SessionKeys.CanAccessAdmin) === 'true';
+        expect(service.canAccessAdmin).toBeTrue();
+    }));
+
+    it('should initialize admin guard to false when sessionStorage has canAccessAdmin set to false', fakeAsync(() => {
+        sessionStorage.setItem(SessionKeys.CanAccessAdmin, 'false');
+        service['canAccessAdmin'] = sessionStorage.getItem(SessionKeys.CanAccessAdmin) === 'true';
+        expect(service.canAccessAdmin).toBeFalse();
+    }));
+
     it('should grant access and activate /admin route only when given the right password', fakeAsync(() => {
         service.isAccessGranted('ultimate!!!password');
         let req = httpMock.expectOne(`${environment.serverUrl}/admin/login`);
@@ -42,7 +54,7 @@ describe('AdminGuardService', () => {
         expect(req.request.body).toEqual({ password: 'ultimate!!!password' });
         req.flush(null, { status: 200, statusText: 'Ok' });
         tick();
-        expect(service.canActivate()).toBeTrue();
+        expect(service.canAccessAdmin).toBeTrue();
 
         service.isAccessGranted('Wrong Password');
         req = httpMock.expectOne(`${environment.serverUrl}/admin/login`);
@@ -50,7 +62,7 @@ describe('AdminGuardService', () => {
         expect(req.request.body).toEqual({ password: 'Wrong Password' });
         req.flush(null, { status: 403, statusText: 'Forbidden' });
         tick();
-        expect(service.canActivate()).toBeFalse();
+        expect(service.canAccessAdmin).toBeFalse();
     }));
 
     it('should set ShowPasswordPopup in sessionStorage and navigate to /home if page was refreshed', () => {
@@ -62,16 +74,6 @@ describe('AdminGuardService', () => {
         service.pageRefreshState();
         expect(sessionStorage.getItem(SessionKeys.ShowPasswordPopup)).toEqual('true');
         expect(router.navigateByUrl).toHaveBeenCalledWith('/home');
-    });
-
-    it('should initialize admin guard correctly', () => {
-        sessionStorage.setItem(SessionKeys.CanAccessAdmin, 'true');
-        service['canAccessAdmin'] = sessionStorage.getItem(SessionKeys.CanAccessAdmin) ? true : false;
-        expect(service.canActivate()).toEqual(true);
-
-        sessionStorage.removeItem(SessionKeys.CanAccessAdmin);
-        service['canAccessAdmin'] = sessionStorage.getItem(SessionKeys.CanAccessAdmin) ? true : false;
-        expect(service.canActivate()).toEqual(false);
     });
 
     it('should allow activation when canAccessAdmin is true and prevUrl is valid', () => {
