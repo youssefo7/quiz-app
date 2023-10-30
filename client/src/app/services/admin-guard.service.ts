@@ -30,11 +30,9 @@ export class AdminGuardService {
             await this.submitPassword(userPassword);
             this.canAccessAdmin = true;
             sessionStorage.setItem(SessionKeys.CanAccessAdmin, 'true');
-            console.log('Access granted.');
             return this.canAccessAdmin;
         } catch (error) {
             this.canAccessAdmin = false;
-            console.log('Access denied:', error);
             return this.canAccessAdmin;
         }
     }
@@ -54,18 +52,17 @@ export class AdminGuardService {
             }
         }
 
-        console.log('Previous URL:', prevUrl);
-
-        if (this.canAccessAdmin) {
-            if (prevUrl === null || prevUrl === '/home' || prevUrl === '/quiz/new' || (prevUrl && /\/quiz\/\d+/.test(prevUrl))) {
-                return true;
-            }
+        if (
+            this.canAccessAdmin &&
+            (prevUrl === '/quiz/new' || (prevUrl && /\/quiz\/\d+/.test(prevUrl)) || prevUrl === null || prevUrl === '/home' || prevUrl === '/')
+        ) {
+            return true;
         }
 
-        console.log('Redirecting to /home');
-        this.canAccessAdmin = false;
-        sessionStorage.removeItem(SessionKeys.CanAccessAdmin);
-        this.router.navigate(['/home']);
+        if (!prevUrl || (prevUrl !== '/quiz/new' && !/\/quiz\/\d+/.test(prevUrl))) {
+            this.router.navigate(['/home']);
+            return false;
+        }
         return false;
     }
 
@@ -76,5 +73,10 @@ export class AdminGuardService {
         } else {
             sessionStorage.setItem(SessionKeys.IsRefreshed, 'true');
         }
+    }
+
+    grantAccess(): void {
+        this.canAccessAdmin = true;
+        sessionStorage.setItem(SessionKeys.CanAccessAdmin, 'true');
     }
 }
