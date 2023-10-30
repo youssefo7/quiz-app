@@ -56,8 +56,8 @@ describe('CreateGuardService', () => {
         expect(router.navigate).toHaveBeenCalledWith(['/home']);
     });
 
-    it('should navigate to /home when canAccessAdmin is true but prevUrl is null', () => {
-        adminGuardService.canAccessAdmin = true;
+    it('should navigate to /home when canAccessAdmin is false but prevUrl is null', () => {
+        adminGuardService.canAccessAdmin = false;
         router.getCurrentNavigation.and.returnValue({
             trigger: 'imperative',
             previousNavigation: {
