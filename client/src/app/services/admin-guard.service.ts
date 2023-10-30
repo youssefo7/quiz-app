@@ -59,10 +59,7 @@ export class AdminGuardService {
             return true;
         }
 
-        if (!prevUrl || (prevUrl !== '/quiz/new' && !/\/quiz\/\d+/.test(prevUrl))) {
-            this.router.navigate(['/home']);
-            return false;
-        }
+        this.router.navigate(['/home']);
         return false;
     }
 
