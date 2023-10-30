@@ -25,10 +25,9 @@ export class AdminPageComponent implements OnInit {
     handleAdminPageExit(): void {
         this.router.events.subscribe((event) => {
             if (event instanceof NavigationEnd && event.url !== '/admin') {
-                console.log('Leaving admin page.');
                 sessionStorage.removeItem('isRefreshed');
-                sessionStorage.removeItem('canAccessAdmin'); // Reset the canAccessAdmin flag when leaving admin page
-                this.adminGuardService.canAccessAdmin = false; // Also reset the service flag
+                sessionStorage.removeItem('canAccessAdmin');
+                this.adminGuardService.canAccessAdmin = false;
             }
         });
     }

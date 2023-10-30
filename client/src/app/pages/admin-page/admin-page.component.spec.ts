@@ -11,9 +11,15 @@ import { AdminPageComponent } from './admin-page.component';
 describe('AdminPageComponent', () => {
     let component: AdminPageComponent;
     let fixture: ComponentFixture<AdminPageComponent>;
-    const adminGuardServiceMock = jasmine.createSpyObj('AdminGuardService', ['pageRefreshState']);
+    const adminGuardServiceMock = {
+        pageRefreshState: jasmine.createSpy('pageRefreshState'),
+        canActivate: jasmine.createSpy('canActivate').and.returnValue(true),
+        canAccessAdmin: true,
+    };
+
     const router = {
         events: of(new NavigationEnd(0, 'testURL', 'testURL_after_redirect')),
+        navigateByUrl: jasmine.createSpy('navigateByUrl'),
     };
 
     beforeEach(() => {
@@ -39,17 +45,26 @@ describe('AdminPageComponent', () => {
         expect(adminGuardServiceMock.pageRefreshState).toHaveBeenCalled();
     });
 
-    it('should remove isRefreshed from session storage on NavigationEnd event if URL is not /admin', () => {
+    it('should navigate to /home if canActivate returns false', () => {
+        adminGuardServiceMock.canActivate.and.returnValue(false);
+        component.ngOnInit();
+        expect(router.navigateByUrl).toHaveBeenCalledWith('/home');
+    });
+
+    it('should remove isRefreshed and canAccessAdmin from session storage on NavigationEnd event if URL is not /admin', () => {
         spyOn(sessionStorage, 'removeItem');
         router.events = of(new NavigationEnd(0, '/notAdmin', '/notAdmin_after_redirect'));
         component.handleAdminPageExit();
         expect(sessionStorage.removeItem).toHaveBeenCalledWith('isRefreshed');
+        expect(sessionStorage.removeItem).toHaveBeenCalledWith('canAccessAdmin');
+        expect(adminGuardServiceMock.canAccessAdmin).toBeFalse();
     });
 
-    it('should NOT remove isRefreshed from session storage on NavigationEnd event if URL is /admin', () => {
+    it('should not remove isRefreshed or canAccessAdmin from session storage on NavigationEnd event if URL is /admin', () => {
         spyOn(sessionStorage, 'removeItem');
         router.events = of(new NavigationEnd(0, '/admin', '/url_after_redirect'));
         component.handleAdminPageExit();
         expect(sessionStorage.removeItem).not.toHaveBeenCalledWith('isRefreshed');
+        expect(sessionStorage.removeItem).not.toHaveBeenCalledWith('canAccessAdmin');
     });
 });
