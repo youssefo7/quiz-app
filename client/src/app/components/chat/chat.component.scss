@@ -1,20 +1,22 @@
 #chat-container {
-    background-color: lightgray;
+    background-color: white;
     border-radius: 5%;
     height: 100%;
     width: 100%;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
 
     #message-box {
         background-color: white;
         width: 95%;
-        height: 90%;
+        height: 80%;
         margin-top: 10px;
         border-radius: 15px;
         border-style: inset;
         border-width: thin;
         align-self: center;
+        overflow-y: auto;
 
         p {
             text-align: center;
@@ -61,4 +63,42 @@
         margin-right: 5%;
         font-size: x-small;
     }
+}
+
+.chat-message {
+    background-color: lightblue;
+    display: flex;
+    margin: 4px;
+    max-width: 90%;
+    align-self: flex-start;
+    flex-direction: column;
+    padding: 4px;
+    border-radius: 10px;
+}
+
+.sent {
+    align-self: flex-end;
+    background-color: #007aff;
+    color: #fff;
+}
+
+.message-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sender-name {
+    font-weight: bold;
+    font-size: 12px;
+    margin-right: 10px;
+}
+
+.message-time {
+    font-size: 10px;
+}
+
+.message-text {
+    word-break: break-word;
+    font-size: 12px;
 }
