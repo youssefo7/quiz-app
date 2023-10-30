@@ -20,6 +20,10 @@ describe('ChatComponent', () => {
     let fixture: ComponentFixture<ChatComponent>;
 
     beforeEach(() => {
+        socketClientServiceMock = jasmine.createSpyObj('SocketClientService', ['connect', 'disconnect', 'send', 'on']);
+    });
+
+    beforeEach(() => {
         socketHelper = new SocketTestHelper();
         socketClientServiceMock = new SocketClientServiceMock();
         socketClientServiceMock.socket = socketHelper as unknown as Socket;
