@@ -8,6 +8,8 @@ import { HostGamePageComponent } from '@app/pages/host-game-page/host-game-page.
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { WaitingPageComponent } from '@app/pages/waiting-page/waiting-page.component';
 import { AdminGuardService } from '@app/services/admin-guard.service';
+import { QuizGuardService } from '@app/services/quiz-guard.service';
+
 const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
     { path: 'home', component: MainPageComponent },
@@ -16,10 +18,8 @@ const routes: Routes = [
     { path: 'game/:id', component: GamePageComponent },
     { path: 'game/:id/test', component: GamePageComponent },
     { path: 'game/:id/host', component: HostGamePageComponent },
-    { path: 'quiz/new', component: CreateEditQuizPageComponent },
-    { path: 'quiz/:id', component: CreateEditQuizPageComponent },
-    { path: 'quiz/new', component: CreateEditQuizPageComponent, canDeactivate: [exitCreateEditQuizPageGuard] },
-    { path: 'quiz/:id', component: CreateEditQuizPageComponent, canDeactivate: [exitCreateEditQuizPageGuard] },
+    { path: 'quiz/new', component: CreateEditQuizPageComponent, canDeactivate: [exitCreateEditQuizPageGuard], canActivate: [QuizGuardService] },
+    { path: 'quiz/:id', component: CreateEditQuizPageComponent, canDeactivate: [exitCreateEditQuizPageGuard], canActivate: [QuizGuardService] },
     { path: 'waiting', component: WaitingPageComponent },
     { path: '**', redirectTo: '/home' },
 ];
