@@ -1,8 +1,14 @@
 import { Component, HostListener } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { SocketClientService } from '@app/services/socket-client.service';
 
 const codeLength = 4;
+
+interface RoomJoinResponse {
+    roomState: 'OK' | 'INVALID' | 'IS_LOCKED';
+    quizId: string | null;
+}
 
 @Component({
     selector: 'app-join-game-popup',
@@ -12,8 +18,7 @@ const codeLength = 4;
 export class JoinGamePopupComponent {
     givenCode: string;
     givenUsername: string;
-    givenAccess: boolean = true;
-    usedUsernames: string[] = ['John', 'Doe'];
+    quizId: string;
     errorMessage: string;
     codeErrorMessage: string;
     showUsernameField: boolean;
@@ -22,8 +27,10 @@ export class JoinGamePopupComponent {
     constructor(
         private joinGamePopupRef: MatDialogRef<JoinGamePopupComponent>,
         private router: Router,
+        private socketClientService: SocketClientService,
     ) {
         this.givenCode = '';
+        this.quizId = '';
         this.givenUsername = '';
         this.showUsernameField = false;
         this.isCodeValidated = false;
@@ -41,29 +48,46 @@ export class JoinGamePopupComponent {
     }
 
     checkUsername(): void {
-        const usedNames = this.usedUsernames.map((name) => name.toLowerCase());
-        const lowerCaseInput = this.givenUsername.toLowerCase();
-
-        if (usedNames.includes(lowerCaseInput)) {
-            this.errorMessage = 'Ce nom de joueur est déjà pris!';
-            this.givenAccess = false;
-        } else if (lowerCaseInput === 'organisateur') {
-            this.errorMessage = `Le nom ${this.givenUsername} n'est pas autorisé!`;
-            this.givenAccess = false;
-        } else if (lowerCaseInput === '') {
-            this.errorMessage = 'Un nom de joueur est requis!';
-            this.givenAccess = false;
-        } else {
-            this.errorMessage = '';
-            this.givenAccess = true;
-        }
+        this.socketClientService.send('chooseName', this.givenUsername, (isNameValid: boolean) => {
+            if (!isNameValid) {
+                this.errorMessage = `Le nom ${this.givenUsername} n'est pas autorisé ou déjà pris!`;
+            } else {
+                this.errorMessage = '';
+                this.verifyAndAccess();
+            }
+        });
     }
 
     checkCode(): void {
         if (this.givenCode.length === codeLength) {
-            this.showUsernameField = true;
-            this.isCodeValidated = true;
-            this.codeErrorMessage = '';
+            this.socketClientService.send('joinRoom', this.givenCode, (response: RoomJoinResponse) => {
+                switch (response.roomState) {
+                    case 'OK': {
+                        this.showUsernameField = true;
+                        this.isCodeValidated = true;
+                        this.codeErrorMessage = '';
+                        if (response.quizId) {
+                            this.quizId = response.quizId;
+                        }
+                        break;
+                    }
+                    case 'IS_LOCKED': {
+                        this.codeErrorMessage = 'La partie est verrouillée.';
+                        this.showUsernameField = false;
+                        break;
+                    }
+                    case 'INVALID': {
+                        this.codeErrorMessage = 'Code invalide.';
+                        this.showUsernameField = false;
+                        break;
+                    }
+                    default: {
+                        this.codeErrorMessage = 'Une erreur est survenue.';
+                        this.showUsernameField = false;
+                        break;
+                    }
+                }
+            });
         } else {
             this.codeErrorMessage = 'Code à 4 chiffres requis.';
             this.showUsernameField = false;
@@ -71,11 +95,13 @@ export class JoinGamePopupComponent {
     }
 
     verifyAndAccess(): void {
-        this.checkUsername();
-
-        if (this.givenAccess) {
+        if (!this.errorMessage) {
+            this.socketClientService.send('successfulJoin', {
+                roomId: this.givenCode,
+                name: this.givenUsername,
+            });
             this.closeAdminPopup();
-            this.router.navigateByUrl('/waiting');
+            this.router.navigateByUrl(`/waiting/game/${this.quizId}/room/${this.givenCode}`);
         }
     }
 
