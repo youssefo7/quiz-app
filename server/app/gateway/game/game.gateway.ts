@@ -18,13 +18,11 @@ export class GameGateway {
     }
 
     @SubscribeMessage(GameEvents.PlayerLeaveGame)
-    handlePlayerLeaveGame(socket: Socket, data: { roomId: string; hasGameStarted: boolean }) {
-        const room = this.roomManager.findRoom(data.roomId);
+    handlePlayerLeaveGame(socket: Socket, roomId: string) {
+        const room = this.roomManager.findRoom(roomId);
         const player = this.roomManager.findUser(socket.id, room);
 
-        if (data.hasGameStarted) {
-            this.server.to(room.organizer.socketId).emit(GameEvents.PlayerAbandonedGame, player.name);
-        }
+        this.server.to(room.organizer.socketId).emit(GameEvents.PlayerAbandonedGame, player.name);
         this.roomManager.removePlayer(room, player.socketId);
         socket.leave(room.id);
         socket.disconnect();

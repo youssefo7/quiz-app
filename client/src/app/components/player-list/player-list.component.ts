@@ -1,15 +1,19 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
+import { GameEvents } from '@app/events/game.events';
+import { JoinEvents } from '@app/events/join.events';
+import { WaitingEvents } from '@app/events/waiting.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
+import { SocketClientService } from '@app/services/socket-client.service';
 
 @Component({
     selector: 'app-player-list',
     templateUrl: './player-list.component.html',
     styleUrls: ['./player-list.component.scss'],
 })
-export class PlayerListComponent {
+export class PlayerListComponent implements OnInit {
     // Juste pour tester l'affichage
     players: string[] = [
         'Joueur1',
@@ -29,43 +33,69 @@ export class PlayerListComponent {
 
     bannedPlayers: string[] = ['test1', 'test1', 'test1', 'test1', 'test1', 'test1', 'test1'];
 
-    isHost = true;
+    isHost: boolean;
     isLocked: boolean;
+    roomId: string | null;
 
     constructor(
+        private route: ActivatedRoute,
         private router: Router,
         private popUp: MatDialog,
-    ) {}
+        private socketClientService: SocketClientService,
+    ) {
+        this.isHost = this.route.snapshot.url.some((segment) => segment.path === 'host');
+        this.roomId = this.route.snapshot.paramMap.get('roomId');
+    }
+
+    listenToSocketEvents() {
+        this.socketClientService.on(JoinEvents.PlayerHasJoined, (name: string) => {
+            this.players.push(name);
+        });
+
+        this.socketClientService.on(WaitingEvents.BanName, (name: string) => {
+            this.bannedPlayers.push(name);
+            this.removePlayer(name);
+        });
+
+        this.socketClientService.on(GameEvents.PlayerAbandonedGame, (name: string) => {
+            this.removePlayer(name);
+        });
+
+        this.socketClientService.on(GameEvents.StartGame, () => {
+            this.startGame();
+        });
+    }
+
+    ngOnInit(): void {
+        this.listenToSocketEvents();
+    }
 
     lockGame() {
+        this.socketClientService.send(WaitingEvents.LockRoom);
         this.isLocked = true;
     }
 
     unlockGame() {
+        this.socketClientService.send(WaitingEvents.UnlockRoom);
         this.isLocked = false;
     }
 
-    // À enlever (juste pour tester)
-    removePlayer(bannedPlayer: string) {
-        this.players = this.players.reduce<string[]>((updatedList, player) => {
-            if (player !== bannedPlayer) {
-                updatedList.push(player);
-            }
-            return updatedList;
-        }, []);
+    removePlayer(name: string) {
+        const index = this.players.findIndex((player) => player === name);
+        this.players.splice(index, 1);
     }
 
     startGame(): void {
+        const quizId = this.route.snapshot.paramMap.get('quizId');
         if (!this.isHost) {
-            // naviguer vers: /game/:quizId/room/:roomId/
-            // this.router.navigate(['game/', quiz.id, 'room/', room.id]);
+            this.router.navigate(['game/', quizId, 'room/', this.roomId]);
         } else {
-            // naviguer vers: /game/:quizId/room/:roomId/host
-            // this.router.navigate(['game/', quiz.id, 'room/', room.id, 'host/']);
+            this.router.navigate(['game/', quizId, 'room/', this.roomId, 'host/']);
         }
     }
 
     quitPopUp(): void {
+        // TODO: Gérer le click sur la flèche de retour de page
         if (!this.isHost) {
             this.playerQuitPopup();
         } else {
@@ -79,6 +109,7 @@ export class PlayerListComponent {
             hasCancelButton: true,
             okButtonText: 'Quitter',
             okButtonFunction: () => {
+                this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: true });
                 this.router.navigate(['home/']);
             },
         };
@@ -93,6 +124,7 @@ export class PlayerListComponent {
             hasCancelButton: true,
             okButtonText: 'Quitter',
             okButtonFunction: () => {
+                this.socketClientService.send(GameEvents.PlayerLeaveGame, this.roomId);
                 this.router.navigate(['home/']);
             },
         };

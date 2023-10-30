@@ -1,7 +1,7 @@
 <div class="waitingRoom">
     <div class="headers">
         <mat-icon (click)="quitPopUp()" title="Quitter la Partie" inline="true">exit_to_app</mat-icon>
-        <h1 id="roomId">Room Id</h1>
+        <h1 id="roomId">Salle: {{ roomId }}</h1>
         <h2 *ngIf="isHost" id="bannedList">Joueur(s) bani(s)</h2>
     </div>
     <div class="lists">
@@ -33,7 +33,7 @@
             </button>
         </div>
         <div id="startGameButton">
-            <button title="Vérrouiller la partie pour commencer" (click)="startGame()" [disabled]="!isLocked">Commencer</button>
+            <button title="Vérrouiller la partie pour commencer" (click)="startGame()" [disabled]="!isLocked || players.length === 0">Commencer</button>
         </div>
     </div>
 </div>
