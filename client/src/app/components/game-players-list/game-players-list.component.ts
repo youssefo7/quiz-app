@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { PlayerInfo } from '@app/interfaces/player-info';
 import { SocketClientService } from './../../services/socket-client.service';
 
@@ -7,9 +7,14 @@ import { SocketClientService } from './../../services/socket-client.service';
     templateUrl: './game-players-list.component.html',
     styleUrls: ['./game-players-list.component.scss'],
 })
-export class GamePlayersListComponent {
+export class GamePlayersListComponent implements OnInit {
     @Input() playersList: PlayerInfo[];
-    socketService: SocketClientService;
+
+    constructor(public socketService: SocketClientService) {}
+
+    ngOnInit(): void {
+        this.configureBaseSocketFeatures();
+    }
 
     configureBaseSocketFeatures() {
         this.socketService.on('abandonedGame', (playerName) => {
