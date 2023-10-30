@@ -49,7 +49,10 @@ export class CreateGameListComponent implements OnInit {
                 this.communicationService.checkQuizVisibility(quiz.id).subscribe((isVisible) => {
                     if (isVisible) {
                         if (toTest) this.router.navigate(['game/', quiz.id, 'test']);
-                        else this.router.navigate(['waiting/']);
+                        else {
+                            // TODO: connect moi même et émettre aux autres
+                            this.router.navigate(['waiting/']);
+                        }
                     } else {
                         this.openHiddenPopUp();
                     }
