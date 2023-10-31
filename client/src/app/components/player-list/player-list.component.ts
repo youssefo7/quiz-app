@@ -14,29 +14,16 @@ import { SocketClientService } from '@app/services/socket-client.service';
     styleUrls: ['./player-list.component.scss'],
 })
 export class PlayerListComponent implements OnInit {
-    // Juste pour tester l'affichage
-    players: string[] = [
-        'Joueur1',
-        'Joueur2',
-        'Joueur3',
-        'joueur4',
-        'Joueur5',
-        'Joueur6',
-        'Joueur7',
-        'Joueur8',
-        'Joueur9',
-        'Joueur10',
-        'Joueur11',
-        'Joueur12',
-        'Joueur13',
-    ];
+    players: string[] = [];
 
-    bannedPlayers: string[] = ['test1', 'test1', 'test1', 'test1', 'test1', 'test1', 'test1'];
+    bannedPlayers: string[] = [];
 
     isHost: boolean;
     isLocked: boolean;
     roomId: string | null;
 
+    // Raison: J'injecte les services nécessaire dans mon constructeur
+    // eslint-disable-next-line max-params
     constructor(
         private route: ActivatedRoute,
         private router: Router,
@@ -47,7 +34,7 @@ export class PlayerListComponent implements OnInit {
         this.roomId = this.route.snapshot.paramMap.get('roomId');
     }
 
-    // TODO: ne fonctionne pas à corriger
+    // TODO: flèche de retour
     /* @HostListener('window:popstate')
     onPopState() {
         this.quitPopUp();
@@ -75,6 +62,10 @@ export class PlayerListComponent implements OnInit {
         this.socketClientService.on(GameEvents.StartGame, () => {
             this.startGame();
         });
+
+        this.socketClientService.on(GameEvents.GameAborted, () => {
+            this.gameEndPopup();
+        });
     }
 
     lockGame() {
@@ -93,7 +84,6 @@ export class PlayerListComponent implements OnInit {
     }
 
     startGame(): void {
-        // Est-ce c'est bon que je send startGame içi quand le host appuie sur commencer?
         const quizId = this.route.snapshot.paramMap.get('quizId');
         if (!this.isHost) {
             this.router.navigate(['game/', quizId, 'room/', this.roomId]);
@@ -113,11 +103,11 @@ export class PlayerListComponent implements OnInit {
 
     hostQuitPopup(): void {
         const config: PopupMessageConfig = {
-            message: 'Êtes-vous sur de vouloir quitter? Tous les joueurs seront exlus de la partie.',
+            message: 'Êtes-vous sur de vouloir quitter? Tous les joueurs seront exclus de la partie.',
             hasCancelButton: true,
             okButtonText: 'Quitter',
             okButtonFunction: () => {
-                this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: true });
+                this.socketClientService.send(GameEvents.GameAborted, { roomId: this.roomId, gameAborted: true });
                 this.router.navigate(['home/']);
             },
         };
@@ -133,6 +123,20 @@ export class PlayerListComponent implements OnInit {
             okButtonText: 'Quitter',
             okButtonFunction: () => {
                 this.socketClientService.send(GameEvents.PlayerLeaveGame, this.roomId);
+                this.router.navigate(['home/']);
+            },
+        };
+        const dialogRef = this.popUp.open(PopupMessageComponent);
+        const popupInstance = dialogRef.componentInstance;
+        popupInstance.config = config;
+    }
+
+    gameEndPopup(): void {
+        const config: PopupMessageConfig = {
+            message: "L'organisateur a quitté. La partie est terminée.",
+            hasCancelButton: false,
+            okButtonText: 'Quitter',
+            okButtonFunction: () => {
                 this.router.navigate(['home/']);
             },
         };

@@ -83,10 +83,6 @@ export class CreateGameListComponent implements OnInit {
 
     redirectHost(quizId: string): void {
         this.router.navigateByUrl(`/waiting/game/${quizId}/room/${this.roomId}/host`);
-        /* this.socketClientService.send('SuccessfulJoinHost', {
-            roomId: this.roomId,
-            name: 'Organisateur',
-        }); */
     }
 
     openUnavailablePopUp(): void {

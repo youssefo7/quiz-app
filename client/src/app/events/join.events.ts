@@ -4,4 +4,6 @@ export enum JoinEvents {
     ChooseName = 'chooseName',
     SuccessfulJoin = 'successfulJoin',
     PlayerHasJoined = 'playerHasJoined',
+    SuccessfulJoinHost = 'successfulJoinHost',
+    HostHasJoined = 'hostHasJoined',
 }
