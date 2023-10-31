@@ -24,7 +24,9 @@ export class ChatGateway {
         const time = new Date();
 
         const timeString = time.getHours() + ':' + time.getMinutes() + ':' + time.getSeconds();
-        socket.to(data.roomId).emit('newRoomMessage', { name: user.name, timeString, message: data.message, sentByUser: false });
-        socket.emit('sentByYou', { name: user.name, timeString, message: data.message, sentByYou: true });
+        if (socket.rooms.has(data.roomId)) {
+            socket.to(data.roomId).emit('newRoomMessage', { name: user.name, timeString, message: data.message, sentByUser: false });
+            socket.emit('sentByYou', { name: user.name, timeString, message: data.message, sentByYou: true });
+        }
     }
 }
