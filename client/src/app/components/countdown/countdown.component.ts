@@ -110,10 +110,8 @@ export class CountdownComponent implements OnInit, OnDestroy {
             await this.questionClock();
             if (this.currentQuestionIndex !== this.lastQuestionIndex) {
                 await this.transitionClock();
-                this.currentQuestionIndex++;
-            } else {
-                break;
             }
+            this.currentQuestionIndex++;
         }
         this.leaveGame();
     }

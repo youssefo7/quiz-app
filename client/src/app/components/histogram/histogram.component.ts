@@ -10,22 +10,22 @@ import { Chart } from 'chart.js';
     styleUrls: ['./histogram.component.scss'],
 })
 export class HistogramComponent implements OnInit, OnDestroy {
-    quiz: Quiz | null;
-    chart: Chart;
-    playersChoices: string[];
-    playerAnswerCounts: number[];
-    chartBorderColors: string[];
-    chartBackgroundColors: string[];
     question: Question;
-    currentQuestionIndex: number;
+    chart: Chart;
     goodBadChoices: boolean[];
+    private quiz: Quiz | null;
+    private playersChoices: string[];
+    private choicesSelectionCounts: number[];
+    private chartBorderColors: string[];
+    private chartBackgroundColors: string[];
+    private currentQuestionIndex: number;
 
     constructor(
         private readonly route: ActivatedRoute,
         private readonly gameService: GameService,
     ) {
         this.playersChoices = [];
-        this.playerAnswerCounts = [];
+        this.choicesSelectionCounts = [];
         this.chartBorderColors = [];
         this.chartBackgroundColors = [];
         this.goodBadChoices = [];
@@ -40,50 +40,57 @@ export class HistogramComponent implements OnInit, OnDestroy {
         this.chart.destroy();
     }
 
-    async loadChart() {
+    private async loadChart() {
         await this.getQuiz();
         this.getQuestion(this.currentQuestionIndex);
-        this.getPlayersAnswers();
         this.createPlayerAnswersChart();
     }
 
-    async getQuiz() {
+    private async getQuiz() {
         const id = this.route.snapshot.paramMap.get('id');
         this.quiz = await this.gameService.getQuizById(id);
     }
 
-    getQuestion(index: number) {
+    private getQuestion(index: number) {
         if (this.quiz && index < this.quiz.questions.length) {
             this.question = this.quiz.questions[index];
             for (let i = 0; i < this.question.choices.length; i++) {
-                this.playersChoices.push(`Choice ${i + 1}`);
-                this.playerAnswerCounts.push(0);
+                this.playersChoices.push(`Choix ${i + 1}`);
+                this.choicesSelectionCounts.push(0);
                 this.chartBorderColors.push('black');
                 this.setBackgroundColors(i);
             }
         }
     }
 
-    setBackgroundColors(choiceIndex: number) {
+    // TODO: Call this function when transitioning to the next question
+    // private resetArrays() {
+    //     this.playersChoices = [];
+    //     this.choicesSelectionCounts = [];
+    //     this.chartBorderColors = [];
+    //     this.chartBackgroundColors = [];
+    //     this.goodBadChoices = [];
+    // }
+
+    private setBackgroundColors(choiceIndex: number) {
         const choice = this.question.choices[choiceIndex];
         this.chartBackgroundColors.push(choice.isCorrect ? 'green' : 'red');
         this.goodBadChoices.push(choice.isCorrect);
     }
 
     // TODO: Get players answers dynamically from the server (use chart.update() to update the chart)
-    getPlayersAnswers() {
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        this.playerAnswerCounts = [3, 5, 2, 10]; // Chiffre aléatoire
-    }
+    // private getPlayersAnswers() {
+    //     this.choicesSelectionCounts = [3, 5, 2, 10];
+    // }
 
-    createPlayerAnswersChart() {
+    private createPlayerAnswersChart() {
         this.chart = new Chart('canvas', {
             type: 'bar',
             data: {
                 labels: this.playersChoices,
                 datasets: [
                     {
-                        data: this.playerAnswerCounts,
+                        data: this.choicesSelectionCounts,
                         borderWidth: 1,
                         backgroundColor: this.chartBackgroundColors,
                         borderColor: this.chartBorderColors,

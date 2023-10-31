@@ -13,12 +13,12 @@ import { Subscription } from 'rxjs';
 export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     quiz: Quiz | null;
     question: Question;
-    currentQuestionIndex: number;
     isNextQuestionButtonDisable: boolean;
     nextQuestionButtonText: string;
     nextQuestionButtonStyle: { backgroundColor: string };
+    private currentQuestionIndex: number;
     private isEndOfQuestionTime: boolean;
-    private timeServiceSubscription1: Subscription;
+    private timeServiceSubscription: Subscription;
 
     constructor(
         private gameService: GameService,
@@ -37,24 +37,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        if (this.timeServiceSubscription1) this.timeServiceSubscription1.unsubscribe();
-    }
-
-    async getQuiz() {
-        const id = this.route.snapshot.paramMap.get('id');
-        this.quiz = await this.gameService.getQuizById(id);
-    }
-
-    async loadQuiz() {
-        await this.getQuiz();
-        this.getQuestion(this.currentQuestionIndex);
-        this.enableNextQuestionButton();
-    }
-
-    getQuestion(index: number) {
-        if (this.quiz && index < this.quiz.questions.length) {
-            this.question = this.quiz.questions[index];
-        }
+        if (this.timeServiceSubscription) this.timeServiceSubscription.unsubscribe();
     }
 
     goToNextQuestion() {
@@ -64,8 +47,25 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         this.gameService.isNextQuestionPressed.next(true);
     }
 
-    enableNextQuestionButton() {
-        this.timeServiceSubscription1 = this.timeService.getTime().subscribe((time) => {
+    private async getQuiz() {
+        const id = this.route.snapshot.paramMap.get('id');
+        this.quiz = await this.gameService.getQuizById(id);
+    }
+
+    private async loadQuiz() {
+        await this.getQuiz();
+        this.getQuestion(this.currentQuestionIndex);
+        this.enableNextQuestionButton();
+    }
+
+    private getQuestion(index: number) {
+        if (this.quiz && index < this.quiz.questions.length) {
+            this.question = this.quiz.questions[index];
+        }
+    }
+
+    private enableNextQuestionButton() {
+        this.timeServiceSubscription = this.timeService.getTime().subscribe((time) => {
             if (time === 0) {
                 this.isEndOfQuestionTime = !this.isEndOfQuestionTime;
                 if (this.isEndOfQuestionTime) {
@@ -77,15 +77,13 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         });
     }
 
-    showNextQuestion() {
-        if (!this.isEndOfQuestionTime) {
-            if (this.quiz) {
-                const lastQuestionIndex = this.quiz.questions.length - 1;
-                this.currentQuestionIndex++;
-                this.getQuestion(this.currentQuestionIndex);
-                if (this.currentQuestionIndex === lastQuestionIndex) {
-                    this.nextQuestionButtonText = 'Voir les résultats';
-                }
+    private showNextQuestion() {
+        if (!this.isEndOfQuestionTime && this.quiz) {
+            const lastQuestionIndex = this.quiz.questions.length - 1;
+            this.currentQuestionIndex++;
+            this.getQuestion(this.currentQuestionIndex);
+            if (this.currentQuestionIndex === lastQuestionIndex) {
+                this.nextQuestionButtonText = 'Voir les résultats';
             }
         }
     }

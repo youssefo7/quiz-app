@@ -107,7 +107,7 @@ describe('CountdownComponent', () => {
         expect(timeServiceMock.startTimer).toHaveBeenCalledWith(exitTime);
     }));
 
-    it('should display the game clock', waitForAsync(() => {
+    it('should display the test game clock', waitForAsync(() => {
         component.quiz = mockQuiz;
         const questionClockSpy = spyOn(component, 'questionClock').and.returnValue(Promise.resolve());
         const transitionClockSpy = spyOn(component, 'transitionClock').and.returnValue(Promise.resolve());
@@ -134,7 +134,7 @@ describe('CountdownComponent', () => {
         });
     }));
 
-    it('should load the timer', waitForAsync(() => {
+    it('should load the timer for the test game', waitForAsync(() => {
         const getQuizSpy = spyOn(component, 'getQuiz').and.returnValue(Promise.resolve());
         const testGameClockSpy = spyOn(component, 'testGameClock').and.returnValue(Promise.resolve());
         component['isTestGame'] = true;

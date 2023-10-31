@@ -52,7 +52,7 @@ describe('QuestionZoneStatsComponent', () => {
     });
 
     it('should fetch the quiz ', () => {
-        component.getQuiz();
+        component['getQuiz']();
         expect(gameServiceMock.getQuizById).toHaveBeenCalledWith(mockedQuiz.id);
     });
 });
