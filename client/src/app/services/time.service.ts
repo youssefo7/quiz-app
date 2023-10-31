@@ -8,13 +8,15 @@ import { Observable, Subject } from 'rxjs';
 export class TimeService {
     private timer: Subject<number>;
     private interval: number | undefined;
-    private readonly tick = 1000;
-    private counter = 0;
+    private readonly tick: number;
+    private counter: number;
     private isButtonPressed: boolean;
 
     constructor(private readonly gameService: GameService) {
         this.timer = new Subject<number>();
         this.isButtonPressed = false;
+        this.tick = 1000;
+        this.counter = 0;
         this.subscribeToGameService();
     }
 
