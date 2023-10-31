@@ -47,6 +47,17 @@ export class PlayerListComponent implements OnInit {
         this.roomId = this.route.snapshot.paramMap.get('roomId');
     }
 
+    // TODO: ne fonctionne pas à corriger
+    /* @HostListener('window:popstate')
+    onPopState() {
+        this.quitPopUp();
+    } */
+
+    ngOnInit(): void {
+        this.socketClientService.connect();
+        this.listenToSocketEvents();
+    }
+
     listenToSocketEvents() {
         this.socketClientService.on(JoinEvents.PlayerHasJoined, (name: string) => {
             this.players.push(name);
@@ -66,10 +77,6 @@ export class PlayerListComponent implements OnInit {
         });
     }
 
-    ngOnInit(): void {
-        this.listenToSocketEvents();
-    }
-
     lockGame() {
         this.socketClientService.send(WaitingEvents.LockRoom);
         this.isLocked = true;
@@ -86,16 +93,17 @@ export class PlayerListComponent implements OnInit {
     }
 
     startGame(): void {
+        // Est-ce c'est bon que je send startGame içi quand le host appuie sur commencer?
         const quizId = this.route.snapshot.paramMap.get('quizId');
         if (!this.isHost) {
             this.router.navigate(['game/', quizId, 'room/', this.roomId]);
         } else {
             this.router.navigate(['game/', quizId, 'room/', this.roomId, 'host/']);
+            this.socketClientService.send(GameEvents.StartGame);
         }
     }
 
     quitPopUp(): void {
-        // TODO: Gérer le click sur la flèche de retour de page
         if (!this.isHost) {
             this.playerQuitPopup();
         } else {
@@ -105,7 +113,7 @@ export class PlayerListComponent implements OnInit {
 
     hostQuitPopup(): void {
         const config: PopupMessageConfig = {
-            message: 'Êtes-vous sur de vouloir annuler la partie?',
+            message: 'Êtes-vous sur de vouloir quitter? Tous les joueurs seront exlus de la partie.',
             hasCancelButton: true,
             okButtonText: 'Quitter',
             okButtonFunction: () => {
@@ -120,7 +128,7 @@ export class PlayerListComponent implements OnInit {
 
     playerQuitPopup(): void {
         const config: PopupMessageConfig = {
-            message: 'Êtes-vous sur de vouloir quitter?',
+            message: 'Êtes-vous sur de vouloir abandonner la partie?',
             hasCancelButton: true,
             okButtonText: 'Quitter',
             okButtonFunction: () => {
