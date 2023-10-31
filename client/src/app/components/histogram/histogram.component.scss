@@ -12,13 +12,13 @@
         .choices-item {
             margin: unset;
             margin-bottom: 5px;
-            flex: 1; /* Equal distribution of space */
-            min-width: 40%; /* Each item should take at least 50% of the container width */
+            flex: 1;
+            min-width: 40%;
             max-width: 45%;
-            box-sizing: border-box; /* Include padding and border in item's width */
-            padding: 10px; /* Optional: Add spacing between items */
-            text-align: center; /* Optional: Center content */
-            border: medium solid red; /* Optional: Add borders for visibility */
+            box-sizing: border-box;
+            padding: 10px;
+            text-align: center;
+            border: medium solid red;
 
             &.good {
                 border-color: green;
