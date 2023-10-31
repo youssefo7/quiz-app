@@ -51,12 +51,10 @@ export class QuizzesService {
 
         if (!question.text || typeof question.text !== 'string') errors.push(`Texte de la question ${index + 1} est invalide ou manquant`);
 
-        if (
-            typeof question.points !== 'number' ||
-            question.points < Constants.MIN_POINTS ||
-            question.points > Constants.MAX_DURATION ||
-            question.points % Constants.MIN_POINTS !== 0
-        )
+        const isPointsValid = question.points < Constants.MIN_POINTS || question.points % Constants.MIN_POINTS !== 0;
+        const isPointsDurationValid = isPointsValid || question.points > Constants.MAX_DURATION;
+
+        if (typeof question.points !== 'number' || isPointsDurationValid)
             errors.push(
                 `Les points de la question ${index + 1} sont manquants ou invalides (doivent être des multiples de 10 entre 10 et 100 inclusivement)`,
             );

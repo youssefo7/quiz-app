@@ -105,28 +105,12 @@ export class QuizGeneralInfoComponent implements OnInit, AfterViewInit {
     }
 
     adjustPadding() {
-        if (
-            this.generalInfoForm.controls.title.invalid &&
-            (this.generalInfoForm.controls.title.dirty || this.generalInfoForm.controls.title.touched)
-        ) {
-            this.isTitleValid = false;
-        } else {
-            this.isTitleValid = true;
-        }
+        const hasTitleBeenTouched = this.generalInfoForm.controls.title.dirty || this.generalInfoForm.controls.title.touched;
+        this.isTitleValid = this.generalInfoForm.controls.title.invalid && hasTitleBeenTouched ? false : true;
 
-        if (
-            this.generalInfoForm.controls.description.invalid &&
-            (this.generalInfoForm.controls.description.dirty || this.generalInfoForm.controls.description.touched)
-        ) {
-            this.isDescriptionValid = false;
-        } else {
-            this.isDescriptionValid = true;
-        }
+        const hasDescriptionBeenTouched = this.generalInfoForm.controls.description.dirty || this.generalInfoForm.controls.description.touched;
+        this.isDescriptionValid = this.generalInfoForm.controls.description.invalid && hasDescriptionBeenTouched ? false : true;
 
-        if (this.generalInfoForm.controls.duration.invalid) {
-            this.isDurationValid = false;
-        } else {
-            this.isDurationValid = true;
-        }
+        this.isDurationValid = this.generalInfoForm.controls.duration.invalid ? false : true;
     }
 }

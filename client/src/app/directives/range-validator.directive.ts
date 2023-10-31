@@ -17,7 +17,9 @@ export class RangeValidatorDirective implements Validator {
     validate(control: AbstractControl): ValidationErrors | null {
         const value = control.value;
 
-        if (isNaN(value) || value < this.range.min || value > this.range.max) {
+        const inRange = value < this.range.min || value > this.range.max;
+
+        if (isNaN(value) || inRange) {
             return { rangeError: true };
         }
         return null;

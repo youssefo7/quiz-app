@@ -31,7 +31,7 @@ export class CreateGameListComponent implements OnInit {
 
     getVisibleQuizListFromServer() {
         this.communicationService.getQuizzes().subscribe((quizzes: Quiz[]) => {
-            this.visibleQuizList = quizzes.filter((quiz) => quiz.visibility === true);
+            this.visibleQuizList = quizzes.filter((quiz) => quiz.visibility);
         });
     }
 
