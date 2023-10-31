@@ -1,21 +1,30 @@
+/* eslint-disable max-classes-per-file */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { Socket } from 'socket.io-client';
 import { ChatComponent } from './chat.component';
+
+class SocketClientServiceMock extends SocketClientService {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    override connect() {}
+}
 
 describe('ChatComponent', () => {
     let component: ChatComponent;
-    let socketClientServiceMock: jasmine.SpyObj<SocketClientService>;
+    let socketClientServiceMock: SocketClientServiceMock;
+    let socketHelper: SocketTestHelper;
     let fixture: ComponentFixture<ChatComponent>;
 
     beforeEach(() => {
-        socketClientServiceMock = jasmine.createSpyObj('SocketClientService', ['connect', 'disconnect', 'send', 'on']);
-    });
-
-    beforeEach(() => {
+        socketHelper = new SocketTestHelper();
+        socketClientServiceMock = new SocketClientServiceMock();
+        socketClientServiceMock.socket = socketHelper as unknown as Socket;
         TestBed.configureTestingModule({
             declarations: [ChatComponent, MatIcon],
+            imports: [FormsModule],
             providers: [
                 { provide: SocketClientService, useValue: socketClientServiceMock },
                 {
@@ -60,21 +69,60 @@ describe('ChatComponent', () => {
     });
 
     it('should send a message to a specific room on the server and reset roomMessage with a roomMessage event', () => {
+        const spy = spyOn(component.socketService, 'send');
         const event = 'roomMessage';
         const testRoomId = 'roomid';
         const message = 'Test Message';
         component.roomMessage = message;
         component.sendMessageToRoom();
-        expect(socketClientServiceMock.send).toHaveBeenCalledWith(event, { roomId: testRoomId, message });
+        expect(spy).toHaveBeenCalledWith(event, { roomId: testRoomId, message });
         expect(component.roomMessage).toEqual('');
-        expect(component.configureChatSocketFeatures()).toHaveBeenCalled();
     });
 
-    // it('should add a message to roomMessages array from server on roomMessage event', () => {
-    //     const dataInfo = { name: 'Test name', time: '11:12:13', message: 'Test Message', sentByYou: false };
-    //     const roomMessage = 'message 1';
-    //     socketHelper.peerSideEmit('newRoomMessage', (data: dataInfo));
-    //     expect(component.roomMessages.length).toBe(1);
-    //     expect(component.roomMessages).toContain(roomMessage);
-    // });
+    it('should add a message to roomMessages array from server on roomMessage event when user is not the sender', () => {
+        const chatMessage = { name: 'TestName', time: '10:23:56', message: 'Test Message', sentByYou: false };
+        socketHelper.peerSideEmit('newRoomMessage', chatMessage);
+        expect(component.roomMessages.length).toBe(1);
+        expect(component.roomMessages[0].message).toEqual(chatMessage.message);
+    });
+
+    it('should add a message to roomMessages array from server on roomMessage event when user is the sender', () => {
+        const chatMessage = { name: 'TestName', time: '10:23:56', message: 'Test Message', sentByYou: true };
+        socketHelper.peerSideEmit('sentByYou', chatMessage);
+        expect(component.roomMessages.length).toBe(1);
+        expect(component.roomMessages[0].message).toEqual(chatMessage.message);
+    });
 });
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+// eslint-disable-next-line @typescript-eslint/ban-types
+type CallbackSignature = (params: any) => {};
+
+export class SocketTestHelper {
+    on(event: string, callback: CallbackSignature): void {
+        if (!this.callbacks.has(event)) {
+            this.callbacks.set(event, []);
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.callbacks.get(event)!.push(callback);
+    }
+
+    disconnect(): void {
+        return;
+    }
+
+    peerSideEmit(event: string, params?: any) {
+        if (!this.callbacks.has(event)) {
+            return;
+        }
+
+        for (const callback of this.callbacks.get(event)!) {
+            callback(params);
+        }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/member-ordering
+    private callbacks = new Map<string, CallbackSignature[]>();
+}
