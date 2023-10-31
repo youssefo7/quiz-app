@@ -2,6 +2,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { JoinEvents } from '@app/events/join.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
@@ -9,13 +10,14 @@ import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { of } from 'rxjs';
+import { Socket } from 'socket.io-client';
 import { CreateGameListComponent } from './create-game-list.component';
 import SpyObj = jasmine.SpyObj;
 
-class MockSocketClientService {
-    connect() {}
-    on(event: string, callback: Function) {}
-    send(event: string, data?: unknown) {}
+class MockSocketClientService extends SocketClientService {
+    // On a disable ce qui est lié au fichier socket-test-helper puisque le code est fournit (approuvé par professeur)
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    override connect() {}
 }
 
 describe('CreateGameListComponent', () => {
@@ -26,6 +28,7 @@ describe('CreateGameListComponent', () => {
     let mockDialog: SpyObj<MatDialog>;
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
     let mockSocketClientService: MockSocketClientService;
+    let socketHelper: SocketTestHelper;
 
     const visibleQuizMock: Quiz[] = [
         {
@@ -70,6 +73,9 @@ describe('CreateGameListComponent', () => {
     });
 
     beforeEach(async () => {
+        socketHelper = new SocketTestHelper();
+        mockSocketClientService = new MockSocketClientService();
+        mockSocketClientService.socket = socketHelper as unknown as Socket;
         await TestBed.configureTestingModule({
             declarations: [CreateGameListComponent],
             imports: [HttpClientTestingModule],
@@ -77,7 +83,7 @@ describe('CreateGameListComponent', () => {
                 { provide: Router, useValue: routerSpy },
                 { provide: CommunicationService, useValue: communicationServiceSpy },
                 { provide: MatDialog, useValue: mockDialog },
-                { provide: SocketClientService, useClass: MockSocketClientService },
+                { provide: SocketClientService, useValue: mockSocketClientService },
             ],
         }).compileComponents();
     });
@@ -95,12 +101,8 @@ describe('CreateGameListComponent', () => {
     });
 
     it('should listen to socket events for room creation and navigate', () => {
-        spyOn(mockSocketClientService, 'on').and.callFake((event: string, callback: (data: string) => void) => {
-            if (event === JoinEvents.CreateRoom) {
-                callback('roomId');
-            }
-        });
-        component.listenToSocketEvents();
+        const roomIdTest = 'roomId';
+        socketHelper.peerSideEmit(JoinEvents.CreateRoom, roomIdTest);
         expect(component.roomId).toEqual('roomId');
     });
 

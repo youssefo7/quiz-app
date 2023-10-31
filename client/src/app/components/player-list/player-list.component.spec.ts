@@ -14,6 +14,7 @@ import { PlayerListComponent } from './player-list.component';
 import SpyObj = jasmine.SpyObj;
 
 class MockSocketClientService extends SocketClientService {
+    // On a disable ce qui est lié au fichier socket-test-helper puisque le code est fournit (approuvé par professeur)
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     override connect() {}
 }
@@ -72,7 +73,6 @@ describe('PlayerListComponent', () => {
     it('should add player when PlayerHasJoined event is received', () => {
         const playerTest = 'playerTest';
         socketHelper.peerSideEmit(JoinEvents.PlayerHasJoined, playerTest);
-        component.listenToSocketEvents();
         expect(component.players).toContain('playerTest');
     });
 
