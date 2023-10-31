@@ -4,8 +4,11 @@ import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { CountdownComponent } from '@app/components/countdown/countdown.component';
+import { GamePlayersListComponent } from '@app/components/game-players-list/game-players-list.component';
+import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { ProfileComponent } from '@app/components/profile/profile.component';
+import { QuestionZoneStatsComponent } from '@app/components/question-zone-stats/question-zone-stats.component';
 import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { CommunicationService } from '@app/services/communication.service';
@@ -43,7 +46,17 @@ describe('HostGamePageComponent', () => {
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [HostGamePageComponent, TopBarComponent, CountdownComponent, ProfileComponent, ChatComponent, MatIcon],
+            declarations: [
+                HostGamePageComponent,
+                QuestionZoneStatsComponent,
+                HistogramComponent,
+                GamePlayersListComponent,
+                TopBarComponent,
+                CountdownComponent,
+                ProfileComponent,
+                ChatComponent,
+                MatIcon,
+            ],
             providers: [
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'host' }] } } },
                 { provide: CommunicationService, useValue: communicationServiceMock },
@@ -68,7 +81,7 @@ describe('HostGamePageComponent', () => {
         expect(getQuizByIdSpy).toHaveBeenCalledWith(mockedQuiz.id);
     });
 
-    it('clicking the exit icon should redirect to "game/new" page', () => {
+    it('clicking the exit icon should redirect to "/game/new" page', () => {
         const navigateSpy = spyOn(router, 'navigateByUrl');
         component.leaveGamePage();
         expect(navigateSpy).toHaveBeenCalledWith('/game/new');

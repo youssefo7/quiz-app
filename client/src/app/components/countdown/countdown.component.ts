@@ -21,7 +21,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
     private currentQuestionIndex: number;
     private lastQuestionIndex: number;
     private hasGameStarted: boolean;
-    private readonly isTestGame: boolean;
+    private isTestGame: boolean;
     private gameServiceSubscription: Subscription;
 
     // Raison: J'injecte les services nécessaire dans mon constructeur
@@ -55,14 +55,13 @@ export class CountdownComponent implements OnInit, OnDestroy {
     async loadTimer() {
         await this.getQuiz();
         this.switchColorToRedOnThreeSeconds();
-        this.gameClock();
         if (this.quiz) {
             this.lastQuestionIndex = this.quiz.questions.length - 1;
         }
         if (this.isTestGame) {
             this.testGameClock();
         } else {
-            this.detectWhenNextQuestionPress();
+            // this.detectWhenNextQuestionPress();
             this.gameClock();
         }
     }
@@ -129,8 +128,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
                 this.currentQuestionIndex++;
             }
         } else {
-            // TODO: Changer cette fonction pour rediriger vers la page de résultat
-            this.leaveGame();
+            // TODO: Rediriger vers la page de résultat
         }
     }
 
@@ -139,11 +137,11 @@ export class CountdownComponent implements OnInit, OnDestroy {
         await this.leaveGameClock();
         await this.router.navigateByUrl('/game/new');
     }
-
-    detectWhenNextQuestionPress() {
-        this.gameServiceSubscription = this.gameService.isNextQuestionPressed.subscribe((isPressed) => {
-            this.isNextQuestionPressed = isPressed;
-            this.gameClock();
-        });
-    }
+    // Logique de detection du bouton "Next Question" (Doit être implémenter avec les sockets)
+    // detectWhenNextQuestionPress() {
+    //     this.gameServiceSubscription = this.gameService.isNextQuestionPressed.subscribe((isPressed) => {
+    //         this.isNextQuestionPressed = isPressed;
+    //         this.gameClock();
+    //     });
+    // }
 }

@@ -16,8 +16,6 @@ const routes: Routes = [
     { path: 'game/:id', component: GamePageComponent },
     { path: 'game/:id/test', component: GamePageComponent },
     { path: 'game/:id/host', component: HostGamePageComponent },
-    { path: 'quiz/new', component: CreateEditQuizPageComponent },
-    { path: 'quiz/:id', component: CreateEditQuizPageComponent },
     { path: 'quiz/new', component: CreateEditQuizPageComponent, canDeactivate: [exitCreateEditQuizPageGuard] },
     { path: 'quiz/:id', component: CreateEditQuizPageComponent, canDeactivate: [exitCreateEditQuizPageGuard] },
     { path: 'waiting', component: WaitingPageComponent },
