@@ -138,6 +138,7 @@ describe('CountdownComponent', () => {
     it('should load the timer', waitForAsync(() => {
         const getQuizSpy = spyOn(component, 'getQuiz').and.returnValue(Promise.resolve());
         const testGameClockSpy = spyOn(component, 'testGameClock').and.returnValue(Promise.resolve());
+        component['isTestGame'] = true;
         component.loadTimer();
 
         fixture.whenStable().then(() => {

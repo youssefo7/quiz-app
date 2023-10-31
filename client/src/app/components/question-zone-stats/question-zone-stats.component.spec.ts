@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
+import { GamePlayersListComponent } from '@app/components/game-players-list/game-players-list.component';
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { GameService } from '@app/services/game.service';
 import { TimeService } from '@app/services/time.service';
@@ -33,7 +34,7 @@ describe('QuestionZoneStatsComponent', () => {
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [QuestionZoneStatsComponent, HistogramComponent],
+            declarations: [QuestionZoneStatsComponent, HistogramComponent, GamePlayersListComponent],
             imports: [NgChartsModule],
             providers: [
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' } } } },
