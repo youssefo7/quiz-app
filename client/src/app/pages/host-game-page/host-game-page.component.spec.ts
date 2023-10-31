@@ -1,8 +1,8 @@
+import { Component } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ChatComponent } from '@app/components/chat/chat.component';
 import { CountdownComponent } from '@app/components/countdown/countdown.component';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { ProfileComponent } from '@app/components/profile/profile.component';
@@ -13,6 +13,13 @@ import { GameService } from '@app/services/game.service';
 import { of } from 'rxjs';
 import { HostGamePageComponent } from './host-game-page.component';
 import SpyObj = jasmine.SpyObj;
+
+@Component({
+    selector: 'app-chat',
+    template: '<p>Template Needed</p>',
+})
+// eslint-disable-next-line @angular-eslint/component-class-suffix
+export class ChatComponentStub {}
 
 describe('HostGamePageComponent', () => {
     let component: HostGamePageComponent;
@@ -43,7 +50,7 @@ describe('HostGamePageComponent', () => {
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [HostGamePageComponent, TopBarComponent, CountdownComponent, ProfileComponent, ChatComponent, MatIcon],
+            declarations: [HostGamePageComponent, TopBarComponent, CountdownComponent, ProfileComponent, ChatComponentStub, MatIcon],
             providers: [
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'host' }] } } },
                 { provide: CommunicationService, useValue: communicationServiceMock },
