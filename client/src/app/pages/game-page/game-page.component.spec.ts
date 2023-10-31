@@ -42,7 +42,7 @@ describe('GamePageComponent in test game route', () => {
         questions: [],
     };
 
-    beforeEach(async () => {
+    beforeEach(() => {
         communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
         communicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
@@ -83,7 +83,7 @@ describe('GamePageComponent in test game route', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should call leaveGameaPage when clicking okButton', () => {
+    it('should call leaveGamePage when clicking okButton', () => {
         spyOn(component, 'leaveGamePage');
         component.openQuitPopUp();
 

@@ -1,6 +1,6 @@
 <div id="chat-container">
     <div id="message-box">
-        <div id="message-container" *ngFor="let message of roomMessages">
+        <div class="message-container" *ngFor="let message of roomMessages">
             <div class="chat-message" [ngClass]="{ sent: message.sentByYou }">
                 <div class="message-info">
                     <div class="sender-name">{{ message.name }}</div>
