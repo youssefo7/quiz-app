@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
-import { CommunicationService } from '@app/services/communication.service';
+import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { GameService } from '@app/services/game.service';
+import { TimeService } from '@app/services/time.service';
+import { NgChartsModule } from 'ng2-charts';
 import { of } from 'rxjs';
 import { QuestionZoneStatsComponent } from './question-zone-stats.component';
 import SpyObj = jasmine.SpyObj;
@@ -9,8 +11,8 @@ import SpyObj = jasmine.SpyObj;
 describe('QuestionZoneStatsComponent', () => {
     let component: QuestionZoneStatsComponent;
     let fixture: ComponentFixture<QuestionZoneStatsComponent>;
-    let communicationServiceMock: SpyObj<CommunicationService>;
-    let gameService: GameService;
+    let gameServiceMock: SpyObj<GameService>;
+    let timeServiceMock: SpyObj<TimeService>;
     const mockedQuiz = {
         $schema: 'test.json',
         id: '123',
@@ -23,23 +25,25 @@ describe('QuestionZoneStatsComponent', () => {
     };
 
     beforeEach(() => {
-        communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
-        communicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
+        gameServiceMock = jasmine.createSpyObj('GameService', ['getQuizById']);
+        gameServiceMock.getQuizById.and.returnValue(Promise.resolve(mockedQuiz));
+        timeServiceMock = jasmine.createSpyObj('TimeService', ['subscribeToGameService', 'getTime']);
+        timeServiceMock.getTime.and.returnValue(of(0));
     });
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [QuestionZoneStatsComponent],
+            declarations: [QuestionZoneStatsComponent, HistogramComponent],
+            imports: [NgChartsModule],
             providers: [
-                { provide: CommunicationService, useValue: communicationServiceMock },
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' } } } },
+                { provide: GameService, useValue: gameServiceMock },
+                { provide: TimeService, useValue: timeServiceMock },
             ],
         }).compileComponents();
         fixture = TestBed.createComponent(QuestionZoneStatsComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
-
-        gameService = TestBed.inject(GameService);
     }));
 
     it('should create', () => {
@@ -47,9 +51,7 @@ describe('QuestionZoneStatsComponent', () => {
     });
 
     it('should fetch the quiz ', () => {
-        const id = '123';
-        const getQuizByIdSpy = spyOn(gameService, 'getQuizById');
         component.getQuiz();
-        expect(getQuizByIdSpy).toHaveBeenCalledWith(id);
+        expect(gameServiceMock.getQuizById).toHaveBeenCalledWith(mockedQuiz.id);
     });
 });
