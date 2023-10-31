@@ -107,22 +107,21 @@ describe('CountdownComponent', () => {
         expect(timeServiceMock.startTimer).toHaveBeenCalledWith(exitTime);
     }));
 
-    // Test à corriger (car il ne fonctionne pas)
-    // it('should display the game clock', waitForAsync(() => {
-    //     component.quiz = mockQuiz;
-    //     const questionClockSpy = spyOn(component, 'questionClock').and.returnValue(Promise.resolve());
-    //     const transitionClockSpy = spyOn(component, 'transitionClock').and.returnValue(Promise.resolve());
-    //     const leaveSpy = spyOn(component, 'leaveGame').and.callThrough();
-    //     // component['currentQuestionIndex'] = 0;
-    //     // component['lastQuestionIndex'] = 3;
-    //     // component.testGameClock();
+    it('should display the game clock', waitForAsync(() => {
+        component.quiz = mockQuiz;
+        const questionClockSpy = spyOn(component, 'questionClock').and.returnValue(Promise.resolve());
+        const transitionClockSpy = spyOn(component, 'transitionClock').and.returnValue(Promise.resolve());
+        const leaveSpy = spyOn(component, 'leaveGame');
 
-    //     fixture.whenStable().then(() => {
-    //         expect(questionClockSpy).toHaveBeenCalled();
-    //         expect(transitionClockSpy).toHaveBeenCalled();
-    //         expect(leaveSpy).toHaveBeenCalled();
-    //     });
-    // }));
+        component['lastQuestionIndex'] = 3;
+        component.testGameClock();
+
+        fixture.whenStable().then(() => {
+            expect(questionClockSpy).toHaveBeenCalled();
+            expect(transitionClockSpy).toHaveBeenCalled();
+            expect(leaveSpy).toHaveBeenCalled();
+        });
+    }));
 
     it('should display the leave game clock', waitForAsync(() => {
         const leaveClockSpy = spyOn(component, 'leaveGameClock').and.returnValue(Promise.resolve());

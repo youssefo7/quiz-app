@@ -99,6 +99,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
 
     async leaveGameClock() {
         const exitTransitionTime = 3;
+        this.isQuestionTransitioning = true;
         this.message = 'Redirection vers «Créer une Partie»';
         this.clockStyle = { backgroundColor: 'white' };
         await this.timeService.startTimer(exitTransitionTime);
@@ -110,6 +111,8 @@ export class CountdownComponent implements OnInit, OnDestroy {
             if (this.currentQuestionIndex !== this.lastQuestionIndex) {
                 await this.transitionClock();
                 this.currentQuestionIndex++;
+            } else {
+                break;
             }
         }
         this.leaveGame();
