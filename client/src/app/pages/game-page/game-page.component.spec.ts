@@ -11,6 +11,7 @@ import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
+import { SocketClientService } from '@app/services/socket-client.service';
 import { of } from 'rxjs';
 import { GamePageComponent } from './game-page.component';
 import SpyObj = jasmine.SpyObj;
@@ -31,6 +32,7 @@ describe('GamePageComponent in test game route', () => {
     let communicationServiceMock: jasmine.SpyObj<CommunicationService>;
     let mockDialog: SpyObj<MatDialog>;
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
+    let socketClientServiceMock: SocketClientServiceMock;
     let router: Router;
     let gameService: GameService;
     const mockedQuiz = {
@@ -44,7 +46,7 @@ describe('GamePageComponent in test game route', () => {
         questions: [],
     };
 
-    beforeEach(() => {
+    beforeEach(async () => {
         communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
         communicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
@@ -64,6 +66,7 @@ describe('GamePageComponent in test game route', () => {
                 MatIcon,
             ],
             providers: [
+                { provide: SocketClientService, useValue: socketClientServiceMock },
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'test' }] } } },
                 { provide: MatDialog, useValue: mockDialog },
                 { provide: MatDialogRef, useValue: mockDialogRef },
@@ -143,6 +146,7 @@ describe('GamePageComponent in regular game route', () => {
     let fixture: ComponentFixture<GamePageComponent>;
     let router: Router;
     let communicationServiceMock: jasmine.SpyObj<CommunicationService>;
+    let socketClientServiceMock: SocketClientServiceMock;
 
     beforeEach(() => {
         communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
@@ -161,6 +165,7 @@ describe('GamePageComponent in regular game route', () => {
             ],
             imports: [MatDialogModule],
             providers: [
+                { provide: SocketClientServiceMock, useValue: socketClientServiceMock },
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: '' }] } } },
                 { provide: CommunicationService, useValue: communicationServiceMock },
             ],
