@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
+import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { Socket } from 'socket.io-client';
 import { ChatComponent } from './chat.component';
@@ -93,36 +94,3 @@ describe('ChatComponent', () => {
         expect(component.roomMessages[0].message).toEqual(chatMessage.message);
     });
 });
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-// eslint-disable-next-line @typescript-eslint/ban-types
-type CallbackSignature = (params: any) => {};
-
-export class SocketTestHelper {
-    on(event: string, callback: CallbackSignature): void {
-        if (!this.callbacks.has(event)) {
-            this.callbacks.set(event, []);
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.callbacks.get(event)!.push(callback);
-    }
-
-    disconnect(): void {
-        return;
-    }
-
-    peerSideEmit(event: string, params?: any) {
-        if (!this.callbacks.has(event)) {
-            return;
-        }
-
-        for (const callback of this.callbacks.get(event)!) {
-            callback(params);
-        }
-    }
-
-    // eslint-disable-next-line @typescript-eslint/member-ordering
-    private callbacks = new Map<string, CallbackSignature[]>();
-}
