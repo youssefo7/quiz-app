@@ -61,8 +61,9 @@ describe('ChatGateway', () => {
     });
 
     it('handleRoomMessage() should not send message if socket not in the room', () => {
+        socket.disconnect();
         stub(socket, 'rooms').value(new Set());
         gateway.handleRoomMessage(socket, { roomId: 'testId', message: 'Test Message' });
-        expect(server.to.called).toBeFalsy();
+        expect(socket.emit.called).toBeFalsy();
     });
 });
