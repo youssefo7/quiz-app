@@ -13,7 +13,7 @@ describe('AdminPageComponent', () => {
     let fixture: ComponentFixture<AdminPageComponent>;
     const adminGuardServiceMock = {
         pageRefreshState: jasmine.createSpy('pageRefreshState'),
-        canActivate: jasmine.createSpy('canActivate').and.returnValue(true),
+        canActivate: jasmine.createSpy('canActivate'),
         canAccessAdmin: true,
     };
 

@@ -52,10 +52,10 @@ export class AdminGuardService {
             }
         }
 
-        if (
-            this.canAccessAdmin &&
-            (prevUrl === '/quiz/new' || (prevUrl && /\/quiz\/\d+/.test(prevUrl)) || prevUrl === null || prevUrl === '/home' || prevUrl === '/')
-        ) {
+        const validURL =
+            prevUrl === '/quiz/new' || (prevUrl && /\/quiz\/\d+/.test(prevUrl)) || prevUrl === null || prevUrl === '/home' || prevUrl === '/';
+
+        if (this.canAccessAdmin && validURL) {
             return true;
         }
 

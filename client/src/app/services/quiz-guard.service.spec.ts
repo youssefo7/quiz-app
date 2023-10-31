@@ -9,7 +9,7 @@ describe('CreateGuardService', () => {
     let adminGuardService: AdminGuardService;
     const router = {
         navigateByUrl: jasmine.createSpy('navigateByUrl'),
-        getCurrentNavigation: jasmine.createSpy('getCurrentNavigation').and.returnValue(null),
+        getCurrentNavigation: jasmine.createSpy('getCurrentNavigation'),
         navigate: jasmine.createSpy('navigate'),
     };
 

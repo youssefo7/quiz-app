@@ -16,7 +16,8 @@ export class AdminPageComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        if (!this.adminGuardService.canActivate()) {
+        const canActivate = !this.adminGuardService.canActivate();
+        if (canActivate) {
             this.router.navigateByUrl('/home');
         }
         this.adminGuardService.pageRefreshState();

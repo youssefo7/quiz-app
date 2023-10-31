@@ -22,7 +22,9 @@ export class QuizGuardService {
             }
         }
 
-        if (prevUrl === '/admin' || (prevUrl === null && this.adminGuardService.canAccessAdmin)) {
+        const canAccessQuiz = prevUrl === null && this.adminGuardService.canAccessAdmin;
+
+        if (prevUrl === '/admin' || canAccessQuiz) {
             return true;
         }
 
