@@ -2,9 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
+import { JoinEvents } from '@app/events/join.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
+import { SocketClientService } from '@app/services/socket-client.service';
 
 @Component({
     selector: 'app-create-game-list',
@@ -15,18 +17,34 @@ export class CreateGameListComponent implements OnInit {
     message: string;
     visibleQuizList: Quiz[];
     selectedQuizId: string | null;
+    roomId: string;
+    quizId: string;
 
+    // Raison: J'injecte les services nécessaire dans mon constructeur
+    // eslint-disable-next-line max-params
     constructor(
         private readonly communicationService: CommunicationService,
+        private socketClientService: SocketClientService,
         private router: Router,
         private popUp: MatDialog,
-    ) {}
-
-    ngOnInit(): void {
-        this.getVisibleQuizListFromServer();
+    ) {
         this.message = '';
         this.visibleQuizList = [];
         this.selectedQuizId = null;
+        this.roomId = '';
+    }
+
+    ngOnInit(): void {
+        this.getVisibleQuizListFromServer();
+        this.socketClientService.connect();
+        this.listenToSocketEvents();
+    }
+
+    listenToSocketEvents() {
+        this.socketClientService.on(JoinEvents.CreateRoom, (roomId: string) => {
+            this.roomId = roomId;
+            this.redirectHost(this.quizId);
+        });
     }
 
     getVisibleQuizListFromServer() {
@@ -50,8 +68,8 @@ export class CreateGameListComponent implements OnInit {
                     if (isVisible) {
                         if (toTest) this.router.navigate(['game/', quiz.id, 'test']);
                         else {
-                            // TODO: connect moi même et émettre aux autres
-                            this.router.navigate(['waiting/']);
+                            this.socketClientService.send('createRoom', quiz.id);
+                            this.quizId = quiz.id;
                         }
                     } else {
                         this.openHiddenPopUp();
@@ -61,6 +79,14 @@ export class CreateGameListComponent implements OnInit {
                 this.openUnavailablePopUp();
             }
         });
+    }
+
+    redirectHost(quizId: string): void {
+        this.router.navigateByUrl(`/waiting/game/${quizId}/room/${this.roomId}/host`);
+        /* this.socketClientService.send('SuccessfulJoinHost', {
+            roomId: this.roomId,
+            name: 'Organisateur',
+        }); */
     }
 
     openUnavailablePopUp(): void {

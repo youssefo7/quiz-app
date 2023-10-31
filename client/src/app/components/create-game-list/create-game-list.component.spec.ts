@@ -3,12 +3,20 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
+import { JoinEvents } from '@app/events/join.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
+import { SocketClientService } from '@app/services/socket-client.service';
 import { of } from 'rxjs';
 import { CreateGameListComponent } from './create-game-list.component';
 import SpyObj = jasmine.SpyObj;
+
+class MockSocketClientService {
+    connect() {}
+    on(event: string, callback: Function) {}
+    send(event: string, data?: unknown) {}
+}
 
 describe('CreateGameListComponent', () => {
     let component: CreateGameListComponent;
@@ -17,11 +25,12 @@ describe('CreateGameListComponent', () => {
     let communicationServiceSpy: SpyObj<CommunicationService>;
     let mockDialog: SpyObj<MatDialog>;
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
+    let mockSocketClientService: MockSocketClientService;
 
     const visibleQuizMock: Quiz[] = [
         {
             $schema: 'quiz-schema.json',
-            id: '1',
+            id: '123',
             title: 'mock1',
             duration: 60,
             lastModification: '2018-11-13T20:20:39+00:00',
@@ -41,7 +50,7 @@ describe('CreateGameListComponent', () => {
     const hiddenQuizMock: Quiz[] = [
         {
             $schema: 'quiz-schema.json',
-            id: '2',
+            id: '456',
             title: 'mock2',
             duration: 60,
             lastModification: '2018-11-13T20:20:39+00:00',
@@ -52,7 +61,7 @@ describe('CreateGameListComponent', () => {
     ];
 
     beforeEach(() => {
-        routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+        routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl']);
         communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getQuizzes']);
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
         mockDialogRef = jasmine.createSpyObj('mockDialogRef', ['componentInstance']);
@@ -60,14 +69,15 @@ describe('CreateGameListComponent', () => {
         communicationServiceSpy.getQuizzes.and.returnValue(of([]));
     });
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
             declarations: [CreateGameListComponent],
             imports: [HttpClientTestingModule],
             providers: [
                 { provide: Router, useValue: routerSpy },
                 { provide: CommunicationService, useValue: communicationServiceSpy },
                 { provide: MatDialog, useValue: mockDialog },
+                { provide: SocketClientService, useClass: MockSocketClientService },
             ],
         }).compileComponents();
     });
@@ -77,10 +87,21 @@ describe('CreateGameListComponent', () => {
         fixture = TestBed.createComponent(CreateGameListComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
+        mockSocketClientService = TestBed.inject(SocketClientService) as unknown as MockSocketClientService;
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should listen to socket events for room creation and navigate', () => {
+        spyOn(mockSocketClientService, 'on').and.callFake((event: string, callback: (data: string) => void) => {
+            if (event === JoinEvents.CreateRoom) {
+                callback('roomId');
+            }
+        });
+        component.listenToSocketEvents();
+        expect(component.roomId).toEqual('roomId');
     });
 
     it('should display a message if no games are available', () => {
@@ -145,14 +166,15 @@ describe('CreateGameListComponent', () => {
         expect(questions.length).toEqual(visibleQuizMock[0].questions.length);
     });
 
-    it('should navigate to create game page if quiz is available and visible', () => {
+    it('should navigate to the correct URL and call redirectHost', () => {
         communicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
         communicationServiceSpy.checkQuizVisibility.and.returnValue(of(true));
         component.checkCanProceed(visibleQuizMock[0]);
+        component.roomId = '123';
+        const quizId = visibleQuizMock[0].id;
 
-        expect(communicationServiceSpy.checkQuizAvailability).toHaveBeenCalled();
-        expect(communicationServiceSpy.checkQuizVisibility).toHaveBeenCalled();
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['waiting/']);
+        component.redirectHost(quizId);
+        expect(routerSpy.navigateByUrl).toHaveBeenCalledWith(`/waiting/game/${quizId}/room/${component.roomId}/host`);
     });
 
     it('should navigate to test game page if quiz is available and visible', () => {
