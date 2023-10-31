@@ -1,8 +1,9 @@
+/* eslint-disable max-classes-per-file */
+import { Component } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ChatComponent } from '@app/components/chat/chat.component';
 import { CountdownComponent } from '@app/components/countdown/countdown.component';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { ProfileComponent } from '@app/components/profile/profile.component';
@@ -11,9 +12,22 @@ import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
+import { SocketClientService } from '@app/services/socket-client.service';
 import { of } from 'rxjs';
 import { GamePageComponent } from './game-page.component';
 import SpyObj = jasmine.SpyObj;
+
+@Component({
+    selector: 'app-chat',
+    template: '<p>Template Needed</p>',
+})
+// eslint-disable-next-line @angular-eslint/component-class-suffix
+export class ChatComponentStub {}
+
+class SocketClientServiceMock extends SocketClientService {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    override connect() {}
+}
 
 describe('GamePageComponent in test game route', () => {
     let component: GamePageComponent;
@@ -21,6 +35,7 @@ describe('GamePageComponent in test game route', () => {
     let communicationServiceMock: jasmine.SpyObj<CommunicationService>;
     let mockDialog: SpyObj<MatDialog>;
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
+    let socketClientServiceMock: SocketClientServiceMock;
     let router: Router;
     let gameService: GameService;
     const mockedQuiz = {
@@ -34,7 +49,7 @@ describe('GamePageComponent in test game route', () => {
         questions: [],
     };
 
-    beforeEach(() => {
+    beforeEach(async () => {
         communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
         communicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
@@ -44,8 +59,17 @@ describe('GamePageComponent in test game route', () => {
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [GamePageComponent, TopBarComponent, CountdownComponent, QuestionZoneComponent, ProfileComponent, ChatComponent, MatIcon],
+            declarations: [
+                GamePageComponent,
+                TopBarComponent,
+                CountdownComponent,
+                QuestionZoneComponent,
+                ProfileComponent,
+                ChatComponentStub,
+                MatIcon,
+            ],
             providers: [
+                { provide: SocketClientService, useValue: socketClientServiceMock },
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'test' }] } } },
                 { provide: MatDialog, useValue: mockDialog },
                 { provide: MatDialogRef, useValue: mockDialogRef },
@@ -115,6 +139,7 @@ describe('GamePageComponent in regular game route', () => {
     let fixture: ComponentFixture<GamePageComponent>;
     let router: Router;
     let communicationServiceMock: jasmine.SpyObj<CommunicationService>;
+    let socketClientServiceMock: SocketClientServiceMock;
 
     beforeEach(() => {
         communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
@@ -122,9 +147,18 @@ describe('GamePageComponent in regular game route', () => {
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [GamePageComponent, TopBarComponent, ProfileComponent, ChatComponent, QuestionZoneComponent, CountdownComponent, MatIcon],
+            declarations: [
+                GamePageComponent,
+                TopBarComponent,
+                ProfileComponent,
+                ChatComponentStub,
+                QuestionZoneComponent,
+                CountdownComponent,
+                MatIcon,
+            ],
             imports: [MatDialogModule],
             providers: [
+                { provide: SocketClientServiceMock, useValue: socketClientServiceMock },
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: '' }] } } },
                 { provide: CommunicationService, useValue: communicationServiceMock },
             ],
