@@ -31,21 +31,19 @@ export class ChatComponent implements OnInit {
         this.roomId = '';
     }
 
-    ngOnInit(): void {
+    ngOnInit() {
         this.roomId = this.route.snapshot.paramMap.get('room') as string;
         this.configureChatSocketFeatures();
     }
 
     configureChatSocketFeatures() {
-        this.socketService.on('newRoomMessage', (data: { name: string; timeString: string; message: string; sentByYou: boolean }) => {
+        const addMessage = (data: { name: string; timeString: string; message: string; sentByYou: boolean }) => {
             const chatMessage: ChatMessage = { name: data.name, time: data.timeString, message: data.message, sentByYou: data.sentByYou };
             this.roomMessages.push(chatMessage);
-        });
+        };
 
-        this.socketService.on('sentByYou', (data: { name: string; timeString: string; message: string; sentByYou: boolean }) => {
-            const chatMessage: ChatMessage = { name: data.name, time: data.timeString, message: data.message, sentByYou: data.sentByYou };
-            this.roomMessages.push(chatMessage);
-        });
+        this.socketService.on('newRoomMessage', addMessage);
+        this.socketService.on('sentByYou', addMessage);
     }
 
     expandTextArea(event: Event) {
