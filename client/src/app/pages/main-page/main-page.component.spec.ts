@@ -72,18 +72,4 @@ describe('MainPageComponent', () => {
         expect(teammates.children[4].innerHTML).toBe('Rima Al-Zawahra');
         expect(teammates.children[5].innerHTML).toBe('Youssef Ouarad');
     });
-
-    it('should open the admin popup if admin page is refreshed', () => {
-        adminGuardServiceMock.showAdminPopup.and.returnValue(true);
-        spyOn(component, 'openAdminPopup');
-        component.initializeComponent();
-        expect(component.openAdminPopup).toHaveBeenCalled();
-    });
-
-    it('should not open the admin popup if admin page was not refreshed', () => {
-        adminGuardServiceMock.showAdminPopup.and.returnValue(false);
-        spyOn(component, 'openAdminPopup');
-        component.initializeComponent();
-        expect(component.openAdminPopup).not.toHaveBeenCalled();
-    });
 });

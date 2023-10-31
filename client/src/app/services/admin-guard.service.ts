@@ -14,7 +14,7 @@ export enum SessionKeys {
     providedIn: 'root',
 })
 export class AdminGuardService {
-    private canAccessAdmin: boolean;
+    canAccessAdmin: boolean;
     private readonly baseUrl: string;
 
     constructor(
@@ -41,8 +41,26 @@ export class AdminGuardService {
         await firstValueFrom(this.http.post(`${this.baseUrl}/admin/login`, { password: userPassword }));
     }
 
-    canActivate() {
-        return this.canAccessAdmin;
+    canActivate(): boolean {
+        const navigation = this.router.getCurrentNavigation();
+        let prevUrl: string | null = null;
+
+        if (navigation && navigation.trigger === 'imperative') {
+            const previousNavigation = this.router.getCurrentNavigation()?.previousNavigation;
+            if (previousNavigation) {
+                prevUrl = previousNavigation.extractedUrl.toString();
+            }
+        }
+
+        const validURL =
+            prevUrl === '/quiz/new' || (prevUrl && /\/quiz\/\d+/.test(prevUrl)) || prevUrl === null || prevUrl === '/home' || prevUrl === '/';
+
+        if (this.canAccessAdmin && validURL) {
+            return true;
+        }
+
+        this.router.navigate(['/home']);
+        return false;
     }
 
     pageRefreshState(): void {
@@ -54,12 +72,8 @@ export class AdminGuardService {
         }
     }
 
-    showAdminPopup(): boolean {
-        const shouldShow = sessionStorage.getItem(SessionKeys.ShowPasswordPopup);
-        if (shouldShow) {
-            sessionStorage.removeItem(SessionKeys.ShowPasswordPopup);
-            return true;
-        }
-        return false;
+    grantAccess(): void {
+        this.canAccessAdmin = true;
+        sessionStorage.setItem(SessionKeys.CanAccessAdmin, 'true');
     }
 }

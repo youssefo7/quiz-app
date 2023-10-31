@@ -5,6 +5,7 @@ import { PopupMessageComponent } from '@app/components/popup-message/popup-messa
 import { QuizQuestionInfoComponent } from '@app/components/quiz-question-info/quiz-question-info.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Question, Quiz } from '@app/interfaces/quiz';
+import { AdminGuardService } from '@app/services/admin-guard.service';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
 import { firstValueFrom } from 'rxjs';
 import { blankQuiz } from './utils';
@@ -25,10 +26,13 @@ export class CreateEditQuizPageComponent implements OnInit {
     canExitCreateEditQuizPage: boolean;
     isQuizSaved: boolean;
 
+    // 4 paramètres sont nécessaires pour le constructeur
+    // eslint-disable-next-line max-params
     constructor(
         private quizManagerService: QuizManagerService,
         private confirmationDialogReference: MatDialog,
         private route: ActivatedRoute,
+        private adminGuardService: AdminGuardService,
     ) {
         this.isGeneralInfoFormValid = false;
         this.canExitCreateEditQuizPage = false;
@@ -37,6 +41,7 @@ export class CreateEditQuizPageComponent implements OnInit {
 
     ngOnInit() {
         this.loadQuiz();
+        this.adminGuardService.grantAccess();
     }
 
     async loadQuiz(): Promise<void> {

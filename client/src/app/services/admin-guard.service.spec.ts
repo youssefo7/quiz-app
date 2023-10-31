@@ -7,22 +7,45 @@ import { AdminGuardService, SessionKeys } from './admin-guard.service';
 describe('AdminGuardService', () => {
     let service: AdminGuardService;
     let httpMock: HttpTestingController;
-    let router: Router;
+    const router = {
+        navigateByUrl: jasmine.createSpy('navigateByUrl'),
+        getCurrentNavigation: jasmine.createSpy('getCurrentNavigation'),
+        navigate: jasmine.createSpy('navigate'),
+    };
 
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
 
-            providers: [{ provide: Router, useValue: { navigateByUrl: jasmine.createSpy('navigateByUrl') } }],
+            providers: [{ provide: Router, useValue: router }],
         });
         service = TestBed.inject(AdminGuardService);
         httpMock = TestBed.inject(HttpTestingController);
-        router = TestBed.inject(Router);
+    });
+
+    beforeEach(() => {
+        sessionStorage.clear();
+    });
+
+    afterEach(() => {
+        httpMock.verify();
     });
 
     it('should be created', () => {
         expect(service).toBeTruthy();
     });
+
+    it('should initialize admin guard to true when sessionStorage has canAccessAdmin set to true', fakeAsync(() => {
+        sessionStorage.setItem(SessionKeys.CanAccessAdmin, 'true');
+        service['canAccessAdmin'] = sessionStorage.getItem(SessionKeys.CanAccessAdmin) === 'true';
+        expect(service.canAccessAdmin).toBeTrue();
+    }));
+
+    it('should initialize admin guard to false when sessionStorage has canAccessAdmin set to false', fakeAsync(() => {
+        sessionStorage.setItem(SessionKeys.CanAccessAdmin, 'false');
+        service['canAccessAdmin'] = sessionStorage.getItem(SessionKeys.CanAccessAdmin) === 'true';
+        expect(service.canAccessAdmin).toBeFalse();
+    }));
 
     it('should grant access and activate /admin route only when given the right password', fakeAsync(() => {
         service.isAccessGranted('ultimate!!!password');
@@ -31,7 +54,7 @@ describe('AdminGuardService', () => {
         expect(req.request.body).toEqual({ password: 'ultimate!!!password' });
         req.flush(null, { status: 200, statusText: 'Ok' });
         tick();
-        expect(service.canActivate()).toBeTrue();
+        expect(service.canAccessAdmin).toBeTrue();
 
         service.isAccessGranted('Wrong Password');
         req = httpMock.expectOne(`${environment.serverUrl}/admin/login`);
@@ -39,7 +62,7 @@ describe('AdminGuardService', () => {
         expect(req.request.body).toEqual({ password: 'Wrong Password' });
         req.flush(null, { status: 403, statusText: 'Forbidden' });
         tick();
-        expect(service.canActivate()).toBeFalse();
+        expect(service.canAccessAdmin).toBeFalse();
     }));
 
     it('should set ShowPasswordPopup in sessionStorage and navigate to /home if page was refreshed', () => {
@@ -53,23 +76,47 @@ describe('AdminGuardService', () => {
         expect(router.navigateByUrl).toHaveBeenCalledWith('/home');
     });
 
-    it('should show admin popup if ShowPasswordPopup is set in sessionStorage', () => {
-        sessionStorage.setItem(SessionKeys.ShowPasswordPopup, 'true');
-        const shouldShow = service.showAdminPopup();
-        expect(shouldShow).toEqual(true);
-        expect(sessionStorage.getItem(SessionKeys.ShowPasswordPopup)).toBeNull();
+    it('should allow activation when canAccessAdmin is true and prevUrl is valid', () => {
+        service.canAccessAdmin = true;
+        router.getCurrentNavigation.and.returnValue({
+            trigger: 'imperative',
+            previousNavigation: {
+                extractedUrl: {
+                    toString: () => '/quiz/new',
+                },
+            },
+        });
 
-        const shouldNotShow = service.showAdminPopup();
-        expect(shouldNotShow).toEqual(false);
+        expect(service.canActivate()).toBeTrue();
     });
 
-    it('should initialize admin guard correctly', () => {
-        sessionStorage.setItem(SessionKeys.CanAccessAdmin, 'true');
-        service['canAccessAdmin'] = sessionStorage.getItem(SessionKeys.CanAccessAdmin) ? true : false;
-        expect(service.canActivate()).toEqual(true);
+    it('should navigate to /home when canAccessAdmin is true but prevUrl is invalid', () => {
+        service.canAccessAdmin = true;
+        router.getCurrentNavigation.and.returnValue({
+            trigger: 'imperative',
+            previousNavigation: {
+                extractedUrl: {
+                    toString: () => '/invalidUrl',
+                },
+            },
+        });
 
-        sessionStorage.removeItem(SessionKeys.CanAccessAdmin);
-        service['canAccessAdmin'] = sessionStorage.getItem(SessionKeys.CanAccessAdmin) ? true : false;
-        expect(service.canActivate()).toEqual(false);
+        expect(service.canActivate()).toBeFalse();
+        expect(router.navigate).toHaveBeenCalledWith(['/home']);
+    });
+
+    it('should navigate to /home when canAccessAdmin is false', () => {
+        service.canAccessAdmin = false;
+        router.getCurrentNavigation.and.returnValue({
+            trigger: 'imperative',
+            previousNavigation: {
+                extractedUrl: {
+                    toString: () => '/quiz/new',
+                },
+            },
+        });
+
+        expect(service.canActivate()).toBeFalse();
+        expect(router.navigate).toHaveBeenCalledWith(['/home']);
     });
 });
