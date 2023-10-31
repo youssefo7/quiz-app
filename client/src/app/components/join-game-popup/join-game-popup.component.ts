@@ -107,6 +107,7 @@ export class JoinGamePopupComponent {
 
     closeAdminPopup(): void {
         this.joinGamePopupRef.close();
+        this.socketClientService.disconnect();
     }
 
     allowNumbersOnly(event: KeyboardEvent): void {
