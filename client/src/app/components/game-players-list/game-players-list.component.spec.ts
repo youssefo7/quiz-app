@@ -13,6 +13,11 @@ describe('GamePlayersListComponent', () => {
         { name: 'Liam', hasAbandoned: false, score: 0 },
     ];
 
+    const response = {
+        pointsToAdd: 10,
+        name: 'Marc',
+    };
+
     beforeEach(() => {
         clientSocketService = jasmine.createSpyObj('SocketClientService', ['on']);
         TestBed.configureTestingModule({
@@ -26,6 +31,7 @@ describe('GamePlayersListComponent', () => {
         });
         fixture = TestBed.createComponent(GamePlayersListComponent);
         component = fixture.componentInstance;
+        component.playersList = playersList;
         fixture.detectChanges();
     });
 
@@ -33,10 +39,17 @@ describe('GamePlayersListComponent', () => {
         expect(component).toBeTruthy();
     });
 
+    it('should call "updatePlayerScore" when "addPointsToPlayer" event is received', () => {
+        const updatePayerScoreSpy = spyOn(component, 'updatePayerScore');
+
+        const updateScoreCallback = clientSocketService.on.calls.mostRecent().args[1];
+        updateScoreCallback(response);
+
+        expect(updatePayerScoreSpy).toHaveBeenCalledWith(response);
+    });
+
     it('should update player status when abandonedGame event is received', () => {
         const playerName = 'Marc';
-
-        component.playersList = playersList;
 
         clientSocketService.on.and.callFake((eventName) => {
             if (eventName === 'abandonedGame') {
@@ -52,14 +65,8 @@ describe('GamePlayersListComponent', () => {
     });
 
     it('should update player status when abandonedGame event is received', () => {
-        const response = {
-            pointsToAdd: 10,
-            name: 'Marc',
-        };
         const newScore = 10;
         const oldScore = 0;
-
-        component.playersList = playersList;
 
         clientSocketService.on.and.callFake((eventName) => {
             if (eventName === 'addPointsToPlayer') {
