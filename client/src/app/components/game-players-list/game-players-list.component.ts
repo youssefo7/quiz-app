@@ -1,5 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { PlayerInfo } from '@app/interfaces/player-info';
+import { GameEvents } from './../../../../../server/app/gateway/game/game.gateway.events';
 import { SocketClientService } from './../../services/socket-client.service';
 
 interface AddPointsResponse {
@@ -13,21 +14,22 @@ interface AddPointsResponse {
     styleUrls: ['./game-players-list.component.scss'],
 })
 export class GamePlayersListComponent implements OnInit {
-    @Input() playersList: PlayerInfo[];
+    playersList: PlayerInfo[];
 
     constructor(public socketService: SocketClientService) {}
 
-    ngOnInit(): void {
+    ngOnInit() {
         this.listenToSocketEvents();
+        // TODO : fetch player list from back end
     }
 
     listenToSocketEvents() {
-        this.socketService.on('abandonedGame', (playerName: string) => {
+        this.socketService.on(GameEvents.PlayerAbandonedGame, (playerName: string) => {
             this.updatePlayerStatus(playerName);
         });
 
-        this.socketService.on('addPointsToPlayer', (response: AddPointsResponse) => {
-            this.updatePayerScore(response);
+        this.socketService.on(GameEvents.AddPointsToPlayer, (response: AddPointsResponse) => {
+            this.updatePlayerScore(response);
         });
     }
 
@@ -38,7 +40,7 @@ export class GamePlayersListComponent implements OnInit {
         }
     }
 
-    updatePayerScore(response: AddPointsResponse) {
+    updatePlayerScore(response: AddPointsResponse) {
         const playerToUpdate = this.playersList.find((player) => player.name === response.name);
         if (playerToUpdate) {
             playerToUpdate.score += response.pointsToAdd;
