@@ -63,11 +63,15 @@ export class PlayerListComponent implements OnInit {
         });
 
         this.socketClientService.on(GameEvents.StartGame, () => {
-            this.gameBeginsRedirections();
+            this.gameBeginsRedirection();
         });
 
         this.socketClientService.on(GameEvents.GameAborted, () => {
             this.gameEndPopup();
+        });
+
+        this.socketClientService.on(GameEvents.BanNotification, () => {
+            this.banPopup();
         });
     }
 
@@ -82,15 +86,15 @@ export class PlayerListComponent implements OnInit {
     }
 
     removePlayer(name: string) {
-        const index = this.players.findIndex((player) => player === name);
-        this.players.splice(index, 1);
+        this.players = this.players.filter((player) => player !== name);
+        this.socketClientService.send(WaitingEvents.BanName, { roomId: this.roomId, name });
     }
 
     startGame() {
         this.socketClientService.send(GameEvents.StartGame, this.roomId);
     }
 
-    gameBeginsRedirections() {
+    gameBeginsRedirection() {
         const quizId = this.route.snapshot.paramMap.get('quizId');
         if (!this.isHost) {
             this.router.navigateByUrl(`game/${quizId}/room/${this.roomId}`);
@@ -140,6 +144,20 @@ export class PlayerListComponent implements OnInit {
     gameEndPopup() {
         const config: PopupMessageConfig = {
             message: "L'organisateur a quitté. La partie est terminée.",
+            hasCancelButton: false,
+            okButtonText: 'Quitter',
+            okButtonFunction: () => {
+                this.router.navigateByUrl('home/');
+            },
+        };
+        const dialogRef = this.popUp.open(PopupMessageComponent);
+        const popupInstance = dialogRef.componentInstance;
+        popupInstance.config = config;
+    }
+
+    banPopup() {
+        const config: PopupMessageConfig = {
+            message: 'Vous avez été banni de la partie.',
             hasCancelButton: false,
             okButtonText: 'Quitter',
             okButtonFunction: () => {

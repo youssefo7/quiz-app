@@ -53,20 +53,21 @@ export class JoinGamePopupComponent {
         }
     }
 
-    checkUsername(): void {
+    checkUsername(): boolean {
         const trimmedUsername = this.givenUsername.trim();
         if (trimmedUsername.length === 0) {
             this.nameErrorMessage = 'Veuillez entrer un nom d’utilisateur valide.';
-            return;
+        } else {
+            this.socketClientService.send('chooseName', { name: trimmedUsername, roomId: this.givenRoomCode }, (isNameValid: boolean) => {
+                if (!isNameValid) {
+                    this.nameErrorMessage = `Le nom ${trimmedUsername} n'est pas autorisé ou déjà pris!`;
+                } else {
+                    this.nameErrorMessage = '';
+                }
+            });
         }
-        this.socketClientService.send('chooseName', trimmedUsername, (isNameValid: boolean) => {
-            if (!isNameValid) {
-                this.nameErrorMessage = `Le nom ${trimmedUsername} n'est pas autorisé ou déjà pris!`;
-            } else {
-                this.nameErrorMessage = '';
-                this.verifyAndAccess();
-            }
-        });
+
+        return this.nameErrorMessage === '';
     }
 
     checkCode(): void {
@@ -105,13 +106,13 @@ export class JoinGamePopupComponent {
         }
     }
 
-    verifyAndAccess(): void {
-        if (!this.nameErrorMessage) {
+    verifyAndAccess() {
+        if (this.checkUsername()) {
             this.socketClientService.send('successfulJoin', {
                 roomId: this.givenRoomCode,
                 name: this.givenUsername,
             });
-            this.closeAdminPopup();
+            this.joinGamePopupRef.close();
             this.router.navigateByUrl(`/waiting/game/${this.quizId}/room/${this.givenRoomCode}`);
         }
     }

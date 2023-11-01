@@ -31,8 +31,6 @@
             <mat-icon>lock</mat-icon>
         </button>
     </div>
-    <div id="startGameButton">
         <button title="Verrouiller la partie pour commencer" (click)="startGame()" [disabled]="!isLocked || players.length === 0">Commencer</button>
-    </div>
 </div>
 

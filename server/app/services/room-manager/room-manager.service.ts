@@ -54,7 +54,9 @@ export class RoomManagerService {
     }
 
     findRoom(roomId: string): Room {
-        return this.rooms.find((room) => room.id === roomId);
+        return this.rooms.find((room) => {
+            return room.id === roomId;
+        });
     }
 
     findUser(id: string, room: Room): Player | Organizer {
@@ -75,8 +77,10 @@ export class RoomManagerService {
             return true;
         }
 
-        const nameExists = room.players.find((player) => player.name.toLowerCase() === name.toLowerCase());
-        return Boolean(nameExists);
+        const nameExists = room.players.find((player) => {
+            return player.name.toLowerCase() === name.toLowerCase();
+        });
+        return !!nameExists;
     }
 
     isBannedName(room: Room, name: string) {

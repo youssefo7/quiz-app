@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
-import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { GameEvents } from '@app/events/game.events';
@@ -96,7 +96,7 @@ describe('PlayerListComponent', () => {
     });
 
     it('should redirect users when StartGame event is received', () => {
-        const redirectUsersSpy = spyOn(component, 'gameBeginsRedirections');
+        const redirectUsersSpy = spyOn(component, 'gameBeginsRedirection');
         socketHelper.peerSideEmit(GameEvents.StartGame);
         expect(redirectUsersSpy).toHaveBeenCalled();
     });
@@ -129,7 +129,7 @@ describe('PlayerListComponent', () => {
 
     it('should navigate to the game room as player when not Host', () => {
         component.isHost = false;
-        component.gameBeginsRedirections();
+        component.gameBeginsRedirection();
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('game/123/room/456');
     });
 
@@ -143,7 +143,7 @@ describe('PlayerListComponent', () => {
     it('should navigate to the host game room and send StartGame event when Host', () => {
         spyOn(mockSocketClientService, 'send');
         component.isHost = true;
-        component.gameBeginsRedirections();
+        component.gameBeginsRedirection();
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('game/123/room/456/host');
     });
 
