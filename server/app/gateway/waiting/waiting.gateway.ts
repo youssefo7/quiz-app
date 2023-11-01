@@ -12,7 +12,7 @@ export class WaitingGateway {
     constructor(private roomManager: RoomManagerService) {}
 
     @SubscribeMessage(WaitingEvents.ToggleLockRoom)
-    handleToggleLockRoom(socket: Socket, roomId: string) {
+    handleToggleLockRoom(_: Socket, roomId: string) {
         const room = this.roomManager.findRoom(roomId);
         room.isLocked = !room.isLocked;
     }

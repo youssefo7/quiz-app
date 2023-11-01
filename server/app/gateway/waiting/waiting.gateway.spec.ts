@@ -49,7 +49,7 @@ describe('WaitingGateway', () => {
         expect(gateway).toBeDefined();
     });
 
-    it('should lock the room when button clicked by organizer', () => {
+    it('handleToggleLockRoom() should lock the room when unlockButton clicked by organizer', () => {
         const roomId = 'testId';
         const room = roomManagerServiceMock.rooms[0];
 
@@ -58,7 +58,7 @@ describe('WaitingGateway', () => {
         expect(room.isLocked).toBe(true);
     });
 
-    it('should unlock the room when button clicked by organizer', () => {
+    it('handleToggleLockRoom() should unlock the room when unlockButton clicked by organizer', () => {
         const roomId = 'testId';
         const room = roomManagerServiceMock.rooms[0];
         stub(socket, 'rooms').value(new Set([roomId]));
@@ -68,7 +68,7 @@ describe('WaitingGateway', () => {
         expect(room.isLocked).toBe(false);
     });
 
-    it('should return player names in the room', () => {
+    it('handleGetPlayerNames() should return all player names in the room', () => {
         const roomId = 'testId';
         const expectedPlayerNames = ['name1', 'name2'];
 
@@ -77,7 +77,7 @@ describe('WaitingGateway', () => {
         expect(result).toEqual(expectedPlayerNames);
     });
 
-    it('should add a banned name to the room and remove a player with that name', async () => {
+    it('handleBanName() should add a banned name to the room and remove a player with that name', async () => {
         const roomId = 'testId';
         const room = roomManagerServiceMock.rooms[0];
         const playerNameToBan = 'name1';
@@ -101,7 +101,7 @@ describe('WaitingGateway', () => {
         expect(socket.disconnect.called).toBeTruthy();
     });
 
-    it('should not add a banned name and should not remove a player if the player name is not found', () => {
+    it('handleBanName() should not add a banned name and should not remove a player if the player name is not found', () => {
         const roomId = 'testId';
         const room = roomManagerServiceMock.rooms[0];
         const playerNameToBan = 'nonexistentName';
