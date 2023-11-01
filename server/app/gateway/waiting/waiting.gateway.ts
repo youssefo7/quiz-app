@@ -12,7 +12,7 @@ export class WaitingGateway {
     constructor(private roomManager: RoomManagerService) {}
 
     @SubscribeMessage(WaitingEvents.ToggleLockRoom)
-    handleToggleLockRoom(_: Socket, roomId: string) {
+    handleToggleLockRoom(socket: Socket, roomId: string) {
         const room = this.roomManager.findRoom(roomId);
         room.isLocked = !room.isLocked;
     }
@@ -25,18 +25,18 @@ export class WaitingGateway {
     }
 
     @SubscribeMessage(WaitingEvents.BanName)
-    handleBanName(_: Socket, data: { roomId: string; name: string }) {
+    handleBanName(socket: Socket, data: { roomId: string; name: string }) {
         const room = this.roomManager.findRoom(data.roomId);
-        this.roomManager.addBannedNameToRoom(room, data.name);
         const player = this.roomManager.findPlayerByName(room, data.name);
 
         if (player) {
+            this.roomManager.addBannedNameToRoom(room, data.name);
             this.roomManager.removePlayer(room, player.socketId);
-            const playerSocket = this.server.sockets.sockets.get(player.socketId);
-            if (playerSocket) {
-                playerSocket.emit('banNotification');
-                playerSocket.leave(data.roomId);
-                playerSocket.disconnect();
+            // const playerSocket = this.server.sockets.sockets.get(player.socketId);
+            if (socket) {
+                socket.emit('banNotification');
+                socket.leave(data.roomId);
+                socket.disconnect();
             }
             this.server.emit(WaitingEvents.BanName, data.name);
         }
