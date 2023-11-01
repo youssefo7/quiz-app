@@ -11,10 +11,16 @@ export class WaitingGateway {
 
     constructor(private roomManager: RoomManagerService) {}
 
-    @SubscribeMessage(WaitingEvents.ToggleLockRoom)
-    handleToggleLockRoom(_: Socket, roomId: string) {
+    @SubscribeMessage(WaitingEvents.LockRoom)
+    handleLockRoom(_: Socket, roomId: string) {
         const room = this.roomManager.findRoom(roomId);
-        room.isLocked = !room.isLocked;
+        room.isLocked = true;
+    }
+
+    @SubscribeMessage(WaitingEvents.UnlockRoom)
+    handleUnlockRoom(_: Socket, roomId: string) {
+        const room = this.roomManager.findRoom(roomId);
+        room.isLocked = false;
     }
 
     @SubscribeMessage(WaitingEvents.GetPlayerNames)

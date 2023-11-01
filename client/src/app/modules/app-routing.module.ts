@@ -20,7 +20,8 @@ const routes: Routes = [
     { path: 'game/:id/host', component: HostGamePageComponent },
     { path: 'quiz/new', component: CreateEditQuizPageComponent, canDeactivate: [exitCreateEditQuizPageGuard], canActivate: [QuizGuardService] },
     { path: 'quiz/:id', component: CreateEditQuizPageComponent, canDeactivate: [exitCreateEditQuizPageGuard], canActivate: [QuizGuardService] },
-    { path: 'waiting', component: WaitingPageComponent },
+    { path: 'waiting/game/:quizId/room/:roomId/host', component: WaitingPageComponent },
+    { path: 'waiting/game/:quizId/room/:roomId', component: WaitingPageComponent },
     { path: '**', redirectTo: '/home' },
 ];
 

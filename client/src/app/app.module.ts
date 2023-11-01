@@ -29,6 +29,7 @@ import { CreateEditQuizPageComponent } from './pages/create-edit-quiz-page/creat
 import { CreateGamePageComponent } from './pages/create-game-page/create-game-page.component';
 import { HostGamePageComponent } from './pages/host-game-page/host-game-page.component';
 import { WaitingPageComponent } from './pages/waiting-page/waiting-page.component';
+import { PlayerListComponent } from './components/player-list/player-list.component';
 import { GamePlayersListComponent } from './components/game-players-list/game-players-list.component';
 
 /**
@@ -60,6 +61,7 @@ import { GamePlayersListComponent } from './components/game-players-list/game-pl
         RangeValidatorDirective,
         TitleExistsDirective,
         CreateEditQuizPageComponent,
+        PlayerListComponent,
         JoinGamePopupComponent,
         HostGamePageComponent,
         GamePlayersListComponent,
