@@ -1,16 +1,16 @@
 <div id="container">
     <mat-dialog-content>Veuillez entrer un code d'accès.</mat-dialog-content>
     <mat-dialog-actions class="code-container">
-        <input matInput id="code-input" [(ngModel)]="givenCode" type="text" maxLength="4" [readonly]="isCodeValidated" (keydown)="allowNumbersOnly($event)"/>
+        <input matInput id="code-input" [(ngModel)]="givenRoomCode" type="text" maxLength="4" [readonly]="isCodeValidated" (keydown)="allowNumbersOnly($event)"/>
         <button mat-button type="button" (click)="checkCode()" *ngIf="!isCodeValidated">Entrer le code</button>
     </mat-dialog-actions>
-    <div *ngIf="codeErrorMessage" class="error-message">{{ codeErrorMessage }}</div>
+    <div *ngIf="roomCodeErrorMessage" class="error-message">{{ roomCodeErrorMessage }}</div>
     
     <mat-dialog-content *ngIf="showUsernameField">Veuillez entrer un nom de joueur.</mat-dialog-content>
     <mat-dialog-actions class="code-container" *ngIf="showUsernameField">
         <input matInput [(ngModel)]="givenUsername" (ngModelChange)="checkUsername()" maxLength="30" />
     </mat-dialog-actions>
-    <div *ngIf="errorMessage && showUsernameField" class="error-message">{{ errorMessage }}</div>
+    <div *ngIf="nameErrorMessage && showUsernameField" class="error-message">{{ nameErrorMessage }}</div>
     
     <mat-dialog-actions id="button-container">
         <button mat-button id="cancel" type="button" (click)="closeAdminPopup()">Annuler</button>

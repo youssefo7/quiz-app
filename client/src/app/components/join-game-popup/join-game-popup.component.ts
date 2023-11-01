@@ -1,8 +1,20 @@
 import { Component, HostListener } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { SocketClientService } from '@app/services/socket-client.service';
 
-const codeLength = 4;
+const CODE_LENGTH = 4;
+
+enum RoomState {
+    OK = 'OK',
+    Invalid = 'INVALID',
+    IsLocked = 'IS_LOCKED',
+}
+
+interface JoinRoomResponse {
+    roomState: RoomState;
+    quizId: string | null;
+}
 
 @Component({
     selector: 'app-join-game-popup',
@@ -10,20 +22,21 @@ const codeLength = 4;
     styleUrls: ['./join-game-popup.component.scss'],
 })
 export class JoinGamePopupComponent {
-    givenCode: string;
+    givenRoomCode: string;
     givenUsername: string;
-    givenAccess: boolean = true;
-    usedUsernames: string[] = ['John', 'Doe'];
-    errorMessage: string;
-    codeErrorMessage: string;
+    nameErrorMessage: string;
+    roomCodeErrorMessage: string;
     showUsernameField: boolean;
     isCodeValidated: boolean;
+    private quizId: string;
 
     constructor(
         private joinGamePopupRef: MatDialogRef<JoinGamePopupComponent>,
         private router: Router,
+        private socketClientService: SocketClientService,
     ) {
-        this.givenCode = '';
+        this.givenRoomCode = '';
+        this.quizId = '';
         this.givenUsername = '';
         this.showUsernameField = false;
         this.isCodeValidated = false;
@@ -41,46 +54,71 @@ export class JoinGamePopupComponent {
     }
 
     checkUsername(): void {
-        const usedNames = this.usedUsernames.map((name) => name.toLowerCase());
-        const lowerCaseInput = this.givenUsername.toLowerCase();
-
-        if (usedNames.includes(lowerCaseInput)) {
-            this.errorMessage = 'Ce nom de joueur est déjà pris!';
-            this.givenAccess = false;
-        } else if (lowerCaseInput === 'organisateur') {
-            this.errorMessage = `Le nom ${this.givenUsername} n'est pas autorisé!`;
-            this.givenAccess = false;
-        } else if (lowerCaseInput === '') {
-            this.errorMessage = 'Un nom de joueur est requis!';
-            this.givenAccess = false;
-        } else {
-            this.errorMessage = '';
-            this.givenAccess = true;
+        const trimmedUsername = this.givenUsername.trim();
+        if (trimmedUsername.length === 0) {
+            this.nameErrorMessage = 'Veuillez entrer un nom d’utilisateur valide.';
+            return;
         }
+        this.socketClientService.send('chooseName', trimmedUsername, (isNameValid: boolean) => {
+            if (!isNameValid) {
+                this.nameErrorMessage = `Le nom ${trimmedUsername} n'est pas autorisé ou déjà pris!`;
+            } else {
+                this.nameErrorMessage = '';
+                this.verifyAndAccess();
+            }
+        });
     }
 
     checkCode(): void {
-        if (this.givenCode.length === codeLength) {
-            this.showUsernameField = true;
-            this.isCodeValidated = true;
-            this.codeErrorMessage = '';
+        if (this.givenRoomCode.length === CODE_LENGTH) {
+            this.socketClientService.send('joinRoom', this.givenRoomCode, (response: JoinRoomResponse) => {
+                switch (response.roomState) {
+                    case RoomState.OK: {
+                        this.showUsernameField = true;
+                        this.isCodeValidated = true;
+                        this.roomCodeErrorMessage = '';
+                        if (response.quizId) {
+                            this.quizId = response.quizId;
+                        }
+                        break;
+                    }
+                    case RoomState.IsLocked: {
+                        this.roomCodeErrorMessage = 'La partie est verrouillée.';
+                        this.showUsernameField = false;
+                        break;
+                    }
+                    case RoomState.Invalid: {
+                        this.roomCodeErrorMessage = 'Code invalide.';
+                        this.showUsernameField = false;
+                        break;
+                    }
+                    default: {
+                        this.roomCodeErrorMessage = 'Une erreur est survenue.';
+                        this.showUsernameField = false;
+                        break;
+                    }
+                }
+            });
         } else {
-            this.codeErrorMessage = 'Code à 4 chiffres requis.';
+            this.roomCodeErrorMessage = 'Code à 4 chiffres requis.';
             this.showUsernameField = false;
         }
     }
 
     verifyAndAccess(): void {
-        this.checkUsername();
-
-        if (this.givenAccess) {
+        if (!this.nameErrorMessage) {
+            this.socketClientService.send('successfulJoin', {
+                roomId: this.givenRoomCode,
+                name: this.givenUsername,
+            });
             this.closeAdminPopup();
-            this.router.navigateByUrl('/waiting');
+            this.router.navigateByUrl(`/waiting/game/${this.quizId}/room/${this.givenRoomCode}`);
         }
     }
 
     closeAdminPopup(): void {
         this.joinGamePopupRef.close();
+        this.socketClientService.send('playerLeaveGame', { roomId: this.givenRoomCode, isInGame: false });
     }
 
     allowNumbersOnly(event: KeyboardEvent): void {
