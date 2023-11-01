@@ -43,7 +43,7 @@ export class JoinGamePopupComponent {
     }
 
     @HostListener('keyup', ['$event'])
-    handleEnterPress(event: KeyboardEvent): void {
+    handleEnterPress(event: KeyboardEvent) {
         if (event.key === 'Enter') {
             if (!this.isCodeValidated) {
                 this.checkCode();
@@ -53,7 +53,7 @@ export class JoinGamePopupComponent {
         }
     }
 
-    checkUsername(): boolean {
+    isUsernameValid() {
         const trimmedUsername = this.givenUsername.trim();
         if (trimmedUsername.length === 0) {
             this.nameErrorMessage = 'Veuillez entrer un nom d’utilisateur valide.';
@@ -66,11 +66,11 @@ export class JoinGamePopupComponent {
                 }
             });
         }
-
+        console.log('checking name');
         return this.nameErrorMessage === '';
     }
 
-    checkCode(): void {
+    checkCode() {
         if (this.givenRoomCode.length === CODE_LENGTH) {
             this.socketClientService.send('joinRoom', this.givenRoomCode, (response: JoinRoomResponse) => {
                 switch (response.roomState) {
@@ -107,7 +107,9 @@ export class JoinGamePopupComponent {
     }
 
     verifyAndAccess() {
-        if (this.checkUsername()) {
+        const isUsernameValid = this.isUsernameValid();
+        if (isUsernameValid) {
+            console.log('sending successful join');
             this.socketClientService.send('successfulJoin', {
                 roomId: this.givenRoomCode,
                 name: this.givenUsername,
@@ -117,12 +119,12 @@ export class JoinGamePopupComponent {
         }
     }
 
-    closeAdminPopup(): void {
+    closeAdminPopup() {
         this.joinGamePopupRef.close();
         this.socketClientService.send('playerLeaveGame', { roomId: this.givenRoomCode, isInGame: false });
     }
 
-    allowNumbersOnly(event: KeyboardEvent): void {
+    allowNumbersOnly(event: KeyboardEvent) {
         const pattern = /[0-9]/;
         const allowedKeys = ['Backspace', 'ArrowLeft', 'ArrowRight', 'Delete', 'Tab'];
         if (!pattern.test(event.key) && !allowedKeys.includes(event.key)) {

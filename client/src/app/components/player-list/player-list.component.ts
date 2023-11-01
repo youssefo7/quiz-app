@@ -132,7 +132,7 @@ export class PlayerListComponent implements OnInit {
             hasCancelButton: true,
             okButtonText: 'Quitter',
             okButtonFunction: () => {
-                this.socketClientService.send(GameEvents.PlayerLeaveGame, this.roomId);
+                this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
                 this.router.navigateByUrl('home/');
             },
         };
