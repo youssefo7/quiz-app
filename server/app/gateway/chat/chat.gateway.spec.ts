@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, match, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { ChatGateway } from './chat.gateway';
+import { ChatEvents } from './chat.gateway.events';
 
 describe('ChatGateway', () => {
     let gateway: ChatGateway;
@@ -53,11 +54,11 @@ describe('ChatGateway', () => {
         stub(socket, 'rooms').value(new Set(['testId']));
         socket.to.returns({
             emit: (event: string) => {
-                expect(event).toEqual('newRoomMessage');
+                expect(event).toEqual(ChatEvents.NewRoomMessage);
             },
         } as BroadcastOperator<unknown, unknown>);
         gateway.handleRoomMessage(socket, { roomId: 'testId', message: 'Test Message' });
-        expect(socket.emit.calledWith('sentByYou', match.object)).toBeTruthy();
+        expect(socket.emit.calledWith(ChatEvents.SentByYou, match.object)).toBeTruthy();
     });
 
     it('handleRoomMessage() should not send message if socket not in the room', () => {
