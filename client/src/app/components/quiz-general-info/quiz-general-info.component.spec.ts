@@ -26,7 +26,6 @@ describe('QuizGeneralInfoComponent', () => {
     } as unknown as Event;
 
     const mockQuiz: Quiz = {
-        $schema: 'quiz-schema.json',
         id: '',
         title: '',
         description: '',
@@ -63,7 +62,6 @@ describe('QuizGeneralInfoComponent', () => {
         });
 
         component.newQuiz = {
-            $schema: 'quiz-schema.json',
             id: '1',
             title: 'test',
             description: 'test',
@@ -164,21 +162,6 @@ describe('QuizGeneralInfoComponent', () => {
         expect(component['descriptionLength']).toBe(0);
         expect(component.counterDescription).toBe(`0 / ${component.maxLengthDescription}`);
     });
-
-    // it('should validate character count', () => {
-    //     const control = { value: 'a'.repeat(maxTitleLength + 1) };
-    //     const validationResult = component.[characterCountValidator](maxTitleLength)(control as AbstractControl);
-    //     expect(validationResult?.characterCountExceeded).toBeTruthy();
-    //     control.value = 'a'.repeat(maxTitleLength - 1);
-    //     const validResult = component.characterCountValidator(maxTitleLength)(control as AbstractControl);
-    //     expect(validResult).toBeNull();
-    // });
-
-    // it('should validate null character value', () => {
-    //     const control = { value: null };
-    //     const validationResult = component.characterCountValidator(maxTitleLength)(control as AbstractControl);
-    //     expect(validationResult).toBeNull();
-    // });
 
     it('should update title length and counter on character change', () => {
         component.maxLengthTitle = 100;

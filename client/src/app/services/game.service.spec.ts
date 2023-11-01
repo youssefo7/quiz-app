@@ -1,5 +1,6 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { Quiz } from '@app/interfaces/quiz';
 import { of } from 'rxjs';
 import { CommunicationService } from './communication.service';
 import { GameService } from './game.service';
@@ -49,8 +50,7 @@ describe('GameService', () => {
     });
 });
 
-const mockedQuiz = {
-    $schema: 'test.json',
+const mockedQuiz: Quiz = {
     id: '123',
     title: 'Test quiz',
     description: 'Test quiz description',

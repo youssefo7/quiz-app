@@ -11,7 +11,6 @@ describe('TitleExistsDirective', () => {
 
     const testQuizzes: Quiz[] = [
         {
-            $schema: 'quiz-schema.json',
             id: '1',
             title: 'Quiz 1',
             description: '',

@@ -5,6 +5,7 @@
 import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
+import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
 import { TimeService } from '@app/services/time.service';
@@ -333,8 +334,7 @@ describe('QuestionZoneComponent', () => {
     });
 });
 
-const invalidMockedQuiz = {
-    $schema: 'test.json',
+const invalidMockedQuiz: Quiz = {
     id: '123',
     title: 'Test quiz',
     description: 'Test quiz description',
@@ -344,8 +344,7 @@ const invalidMockedQuiz = {
     questions: [],
 };
 
-const validMockQuiz = {
-    $schema: 'test.json',
+const validMockQuiz: Quiz = {
     id: '123',
     title: 'Test quiz',
     description: 'Test quiz description',

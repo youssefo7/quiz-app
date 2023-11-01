@@ -43,7 +43,7 @@ describe('CreateEditQuizPageComponent', () => {
         description: 'DESCRIPTION',
         duration: 20,
         id: 'abc',
-    } as unknown as Quiz;
+    } as Quiz;
 
     beforeEach(() => {
         quizManagerServiceSpy = jasmine.createSpyObj('NewQuizManagerService', [
