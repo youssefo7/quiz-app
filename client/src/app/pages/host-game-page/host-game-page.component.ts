@@ -15,7 +15,7 @@ export class HostGamePageComponent implements OnInit {
     quiz: Quiz | null;
     title: string;
 
-    // Raison: J'injecte les services nécessaire dans mon constructeur
+    // All these parameters are needed for the component to work properly
     // eslint-disable-next-line max-params
     constructor(
         private gameService: GameService,

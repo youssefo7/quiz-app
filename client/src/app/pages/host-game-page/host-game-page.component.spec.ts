@@ -13,6 +13,7 @@ import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
+import { NgChartsModule } from 'ng2-charts';
 import { of } from 'rxjs';
 import { HostGamePageComponent } from './host-game-page.component';
 import SpyObj = jasmine.SpyObj;
@@ -65,6 +66,7 @@ describe('HostGamePageComponent', () => {
                 ChatComponentStub,
                 MatIcon,
             ],
+            imports: [NgChartsModule],
             providers: [
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'host' }] } } },
                 { provide: CommunicationService, useValue: communicationServiceMock },

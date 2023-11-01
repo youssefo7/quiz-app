@@ -1,3 +1,5 @@
+// any is need to spy on private methods
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -69,14 +71,14 @@ describe('CountdownComponent', () => {
 
     it('should get the quiz ', waitForAsync(() => {
         const id = '123';
-        component.getQuiz();
+        component['getQuiz']();
         gameServiceMock.getQuizById.and.returnValue(Promise.resolve(mockQuiz));
         expect(gameServiceMock.getQuizById).toHaveBeenCalledWith(id);
     }));
 
     it('should display the transition clock with the correct message and style', waitForAsync(() => {
         const transitionTime = 3;
-        component.transitionClock();
+        component['transitionClock']();
 
         expect(component.message).toEqual('Préparez-vous!');
         expect(component.clockStyle).toEqual({ backgroundColor: '#E5E562' });
@@ -84,8 +86,8 @@ describe('CountdownComponent', () => {
     }));
 
     it('should display the question clock with the correct message and style', waitForAsync(() => {
-        component.quiz = mockQuiz;
-        component.questionClock();
+        component['quiz'] = mockQuiz;
+        component['questionClock']();
 
         expect(component.message).toEqual('Temps Restant');
         expect(component.clockStyle).toEqual({ backgroundColor: 'lightblue' });
@@ -93,14 +95,14 @@ describe('CountdownComponent', () => {
     }));
 
     it('should switch the clock color to red on three seconds', waitForAsync(() => {
-        component.switchColorToRedOnThreeSeconds();
+        component['switchColorToRedOnThreeSeconds']();
         expect(timeServiceMock.getTime).toHaveBeenCalled();
         expect(component.clockStyle).toEqual({ backgroundColor: '#FF4D4D' });
     }));
 
     it('should display the leave Game clock with the correct message and style', waitForAsync(() => {
         const exitTime = 3;
-        component.leaveGameClock();
+        component['leaveGameClock']();
 
         expect(component.message).toEqual('Redirection vers «Créer une Partie»');
         expect(component.clockStyle).toEqual({ backgroundColor: 'white' });
@@ -108,13 +110,13 @@ describe('CountdownComponent', () => {
     }));
 
     it('should display the test game clock', waitForAsync(() => {
-        component.quiz = mockQuiz;
-        const questionClockSpy = spyOn(component, 'questionClock').and.returnValue(Promise.resolve());
-        const transitionClockSpy = spyOn(component, 'transitionClock').and.returnValue(Promise.resolve());
-        const leaveSpy = spyOn(component, 'leaveGame');
+        component['quiz'] = mockQuiz;
+        const questionClockSpy = spyOn<any>(component, 'questionClock').and.returnValue(Promise.resolve());
+        const transitionClockSpy = spyOn<any>(component, 'transitionClock').and.returnValue(Promise.resolve());
+        const leaveSpy = spyOn<any>(component, 'leaveGame');
 
         component['lastQuestionIndex'] = 3;
-        component.testGameClock();
+        component['testGameClock']();
 
         fixture.whenStable().then(() => {
             expect(questionClockSpy).toHaveBeenCalled();
@@ -124,8 +126,8 @@ describe('CountdownComponent', () => {
     }));
 
     it('should display the leave game clock', waitForAsync(() => {
-        const leaveClockSpy = spyOn(component, 'leaveGameClock').and.returnValue(Promise.resolve());
-        component.leaveGame();
+        const leaveClockSpy = spyOn<any>(component, 'leaveGameClock').and.returnValue(Promise.resolve());
+        component['leaveGame']();
 
         fixture.whenStable().then(() => {
             expect(gameServiceMock.setGameEndState).toBe(true);
@@ -135,10 +137,10 @@ describe('CountdownComponent', () => {
     }));
 
     it('should load the timer for the test game', waitForAsync(() => {
-        const getQuizSpy = spyOn(component, 'getQuiz').and.returnValue(Promise.resolve());
-        const testGameClockSpy = spyOn(component, 'testGameClock').and.returnValue(Promise.resolve());
+        const getQuizSpy = spyOn<any>(component, 'getQuiz').and.returnValue(Promise.resolve());
+        const testGameClockSpy = spyOn<any>(component, 'testGameClock').and.returnValue(Promise.resolve());
         component['isTestGame'] = true;
-        component.loadTimer();
+        component['loadTimer']();
 
         fixture.whenStable().then(() => {
             expect(getQuizSpy).toHaveBeenCalled();

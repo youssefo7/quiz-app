@@ -12,9 +12,9 @@ import { Subscription } from 'rxjs';
 })
 export class CountdownComponent implements OnInit, OnDestroy {
     @Input() isHost: boolean;
-    quiz: Quiz | null;
     message: string;
     clockStyle: { backgroundColor: string };
+    private quiz: Quiz | null;
     private timerSubscription: Subscription;
     private isQuestionTransitioning: boolean;
     private isNextQuestionPressed: boolean;
@@ -24,7 +24,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
     private isTestGame: boolean;
     private gameServiceSubscription: Subscription;
 
-    // Raison: J'injecte les services nécessaire dans mon constructeur
+    // All these parameters are needed for the component to work properly
     // eslint-disable-next-line max-params
     constructor(
         private readonly timeService: TimeService,
@@ -52,7 +52,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
         if (this.gameServiceSubscription) this.gameServiceSubscription.unsubscribe();
     }
 
-    async loadTimer() {
+    private async loadTimer() {
         await this.getQuiz();
         this.switchColorToRedOnThreeSeconds();
         if (this.quiz) {
@@ -66,12 +66,12 @@ export class CountdownComponent implements OnInit, OnDestroy {
         }
     }
 
-    async getQuiz() {
+    private async getQuiz() {
         const id = this.route.snapshot.paramMap.get('id');
         this.quiz = await this.gameService.getQuizById(id);
     }
 
-    switchColorToRedOnThreeSeconds() {
+    private switchColorToRedOnThreeSeconds() {
         const switchColorTime = 4;
         this.timerSubscription = this.timeService.getTime().subscribe((time: number) => {
             if (!this.isQuestionTransitioning && time <= switchColorTime) {
@@ -80,7 +80,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
         });
     }
 
-    async transitionClock() {
+    private async transitionClock() {
         const transitionTime = 3;
         this.isQuestionTransitioning = true;
         this.message = 'Préparez-vous!';
@@ -88,7 +88,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
         await this.timeService.startTimer(transitionTime);
     }
 
-    async questionClock() {
+    private async questionClock() {
         this.isQuestionTransitioning = false;
         this.message = 'Temps Restant';
         this.clockStyle = { backgroundColor: 'lightblue' };
@@ -97,7 +97,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
         }
     }
 
-    async leaveGameClock() {
+    private async leaveGameClock() {
         const exitTransitionTime = 3;
         this.isQuestionTransitioning = true;
         this.message = 'Redirection vers «Créer une Partie»';
@@ -105,7 +105,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
         await this.timeService.startTimer(exitTransitionTime);
     }
 
-    async testGameClock() {
+    private async testGameClock() {
         while (this.currentQuestionIndex <= this.lastQuestionIndex) {
             await this.questionClock();
             if (this.currentQuestionIndex !== this.lastQuestionIndex) {
@@ -116,7 +116,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
         this.leaveGame();
     }
 
-    async gameClock() {
+    private async gameClock() {
         if (this.currentQuestionIndex <= this.lastQuestionIndex) {
             if (!this.hasGameStarted) {
                 await this.questionClock();
@@ -133,7 +133,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
         }
     }
 
-    async leaveGame() {
+    private async leaveGame() {
         this.gameService.setGameEndState = true;
         await this.leaveGameClock();
         await this.router.navigateByUrl('/game/new');
