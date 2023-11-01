@@ -65,7 +65,7 @@ describe('GamePlayersListComponent', () => {
         expect(component.playersList[1].hasAbandoned).toBe(false);
     });
 
-    it('should update player status when abandonedGame event is received', () => {
+    it('should update player score when addPlayerPoints event is received', () => {
         const newScore = 10;
         const oldScore = 0;
 
