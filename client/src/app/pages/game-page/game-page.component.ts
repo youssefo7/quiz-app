@@ -13,11 +13,11 @@ import { GameService } from '@app/services/game.service';
 })
 export class GamePageComponent implements OnInit {
     title: string;
-    quiz: Quiz | null;
     playerPoints: number;
+    private quiz: Quiz | null;
     private readonly isTestGame: boolean;
 
-    // Raison: J'injecte les services nécessaire dans mon constructeur
+    // We need all these parameters for the constructor to work
     // eslint-disable-next-line max-params
     constructor(
         private gameService: GameService,
@@ -33,28 +33,6 @@ export class GamePageComponent implements OnInit {
 
     ngOnInit() {
         this.loadQuiz();
-    }
-
-    async loadQuiz() {
-        await this.getQuiz();
-        this.getQuizTitle();
-    }
-
-    async getQuiz() {
-        const id = this.route.snapshot.paramMap.get('id');
-        this.quiz = await this.gameService.getQuizById(id);
-    }
-
-    getQuizTitle() {
-        if (this.quiz) {
-            this.title += this.quiz.title;
-            this.title += this.isTestGame ? ' (Test)' : '';
-            this.elementRef.nativeElement.setAttribute('title', this.title);
-        }
-    }
-
-    async leaveGamePage() {
-        await this.router.navigateByUrl(this.isTestGame ? '/game/new' : '/home');
     }
 
     givePoints(points: number) {
@@ -73,5 +51,27 @@ export class GamePageComponent implements OnInit {
         const dialogRef = this.popup.open(PopupMessageComponent);
         const popupInstance = dialogRef.componentInstance;
         popupInstance.config = config;
+    }
+
+    private async loadQuiz() {
+        await this.getQuiz();
+        this.getQuizTitle();
+    }
+
+    private async getQuiz() {
+        const id = this.route.snapshot.paramMap.get('id');
+        this.quiz = await this.gameService.getQuizById(id);
+    }
+
+    private getQuizTitle() {
+        if (this.quiz) {
+            this.title += this.quiz.title;
+            this.title += this.isTestGame ? ' (Test)' : '';
+            this.elementRef.nativeElement.setAttribute('title', this.title);
+        }
+    }
+
+    private async leaveGamePage() {
+        await this.router.navigateByUrl(this.isTestGame ? '/game/new' : '/home');
     }
 }

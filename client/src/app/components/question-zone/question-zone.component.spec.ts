@@ -1,4 +1,6 @@
-// Raison: On est à des mockQuiz qui prennent beaucoup de place, mais on ne vaut pas les déplacer dans un fichier séparé
+// any is needed to spy on private methods
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// We have a mock quizzes that take a lot of lines and we don't want to put them in a separate file
 /* eslint-disable max-lines */
 import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
@@ -91,14 +93,14 @@ describe('QuestionZoneComponent', () => {
     it('should fetch the quiz ', () => {
         const id = '123';
         const getQuizByIdSpy = spyOn(gameService, 'getQuizById');
-        component.getQuiz();
+        component['getQuiz']();
         expect(getQuizByIdSpy).toHaveBeenCalledWith(id);
     });
 
     it('should fetch the quiz and the first question', fakeAsync(() => {
-        const getQuizSpy = spyOn(component, 'getQuiz');
-        const getQuestionSpy = spyOn(component, 'getQuestion');
-        component.loadQuiz();
+        const getQuizSpy = spyOn<any>(component, 'getQuiz');
+        const getQuestionSpy = spyOn<any>(component, 'getQuestion');
+        component['loadQuiz']();
         tick();
         expect(getQuizSpy).toHaveBeenCalled();
         expect(getQuestionSpy).toHaveBeenCalled();
@@ -117,64 +119,64 @@ describe('QuestionZoneComponent', () => {
     });
 
     it('should submit answers if the timer is at 0, the question is not transitioning and the game has not ended', () => {
-        const showResultSpy = spyOn(component, 'showResult');
+        const showResultSpy = spyOn<any>(component, 'showResult');
         spyOn(timeService, 'getTime').and.returnValue(of(0));
         component['hasGameEnded'] = false;
-        component.isQuestionTransitioning = false;
-        component.subscribeToTimer();
+        component['isQuestionTransitioning'] = false;
+        component['subscribeToTimer']();
 
         expect(showResultSpy).toHaveBeenCalled();
-        expect(component.isQuestionTransitioning).toBeTrue();
+        expect(component['isQuestionTransitioning']).toBeTrue();
     });
 
     it('should go to the next question if the timer is at 0, the question is transitioning and the game has not ended', () => {
-        const getQuestionSpy = spyOn(component, 'getQuestion');
-        const showResultSpy = spyOn(component, 'showResult');
+        const getQuestionSpy = spyOn<any>(component, 'getQuestion');
+        const showResultSpy = spyOn<any>(component, 'showResult');
         spyOn(timeService, 'getTime').and.returnValue(of(0));
         component['hasGameEnded'] = false;
-        component.isQuestionTransitioning = true;
-        const currentIndex = component.currentQuestionIndex;
-        component.subscribeToTimer();
+        component['isQuestionTransitioning'] = true;
+        const currentIndex = component['currentQuestionIndex'];
+        component['subscribeToTimer']();
 
         expect(showResultSpy).not.toHaveBeenCalled();
-        expect(component.currentQuestionIndex).toEqual(currentIndex + 1);
+        expect(component['currentQuestionIndex']).toEqual(currentIndex + 1);
         expect(getQuestionSpy).toHaveBeenCalledWith(currentIndex + 1);
-        expect(component.isQuestionTransitioning).toBeFalse();
+        expect(component['isQuestionTransitioning']).toBeFalse();
     });
 
     it('should do nothing if the timer is at 0 and the game has ended', () => {
-        const getQuestionSpy = spyOn(component, 'getQuestion');
-        const showResultSpy = spyOn(component, 'showResult');
+        const getQuestionSpy = spyOn<any>(component, 'getQuestion');
+        const showResultSpy = spyOn<any>(component, 'showResult');
         spyOn(timeService, 'getTime').and.returnValue(of(0));
         component['hasGameEnded'] = true;
-        component.isQuestionTransitioning = true;
-        const currentIndex = component.currentQuestionIndex;
-        component.subscribeToTimer();
+        component['isQuestionTransitioning'] = true;
+        const currentIndex = component['currentQuestionIndex'];
+        component['subscribeToTimer']();
 
         expect(showResultSpy).not.toHaveBeenCalled();
-        expect(component.currentQuestionIndex).toEqual(currentIndex);
+        expect(component['currentQuestionIndex']).toEqual(currentIndex);
         expect(getQuestionSpy).not.toHaveBeenCalled();
-        expect(component.isQuestionTransitioning).toBeTrue();
+        expect(component['isQuestionTransitioning']).toBeTrue();
     });
 
     it('should do nothing if the timer is not at 0 and the game has not ended', () => {
-        const getQuestionSpy = spyOn(component, 'getQuestion');
-        const showResultSpy = spyOn(component, 'showResult');
+        const getQuestionSpy = spyOn<any>(component, 'getQuestion');
+        const showResultSpy = spyOn<any>(component, 'showResult');
         spyOn(timeService, 'getTime').and.returnValue(of(1));
         component['hasGameEnded'] = false;
-        component.isQuestionTransitioning = true;
-        const currentIndex = component.currentQuestionIndex;
-        component.subscribeToTimer();
+        component['isQuestionTransitioning'] = true;
+        const currentIndex = component['currentQuestionIndex'];
+        component['subscribeToTimer']();
 
         expect(showResultSpy).not.toHaveBeenCalled();
-        expect(component.currentQuestionIndex).toEqual(currentIndex);
+        expect(component['currentQuestionIndex']).toEqual(currentIndex);
         expect(getQuestionSpy).not.toHaveBeenCalled();
-        expect(component.isQuestionTransitioning).toBeTrue();
+        expect(component['isQuestionTransitioning']).toBeTrue();
     });
 
     it('should set hasGameEnded if gameService.hasGameEndedObservable is true', () => {
         spyOnProperty(gameService, 'hasGameEndedObservable').and.returnValue(of(true));
-        component.subscribeToGameService();
+        component['subscribeToGameService']();
         expect(component['hasGameEnded']).toBeTrue();
     });
 
@@ -182,15 +184,15 @@ describe('QuestionZoneComponent', () => {
         const firstQuestionIndex = 0;
         const expectChoiceArray = [false, false, false, false];
         component.quiz = validMockQuiz;
-        component.getQuestion(firstQuestionIndex);
+        component['getQuestion'](firstQuestionIndex);
         expect(component.chosenChoices).toEqual(expectChoiceArray);
     });
 
     it('should not create an array of choice if the question index is invalid', () => {
         const validIndex = 3;
-        const setButtonToInitStateSpy = spyOn(component, 'setButtonToInitState');
+        const setButtonToInitStateSpy = spyOn<any>(component, 'setButtonToInitState');
         component.quiz = invalidMockedQuiz;
-        component.getQuestion(validIndex);
+        component['getQuestion'](validIndex);
         expect(component.chosenChoices).toBeUndefined();
         expect(setButtonToInitStateSpy).not.toHaveBeenCalled();
     });
@@ -199,12 +201,12 @@ describe('QuestionZoneComponent', () => {
         const choiceArray = component.chosenChoices;
         const outOfRangeIndex = 10;
         component.quiz = validMockQuiz;
-        component.getQuestion(outOfRangeIndex);
+        component['getQuestion'](outOfRangeIndex);
         expect(choiceArray).toBeUndefined();
 
         const validIndex = 0;
         component.quiz = null;
-        component.getQuestion(validIndex);
+        component['getQuestion'](validIndex);
         expect(choiceArray).toBeUndefined();
     });
 
@@ -227,7 +229,7 @@ describe('QuestionZoneComponent', () => {
     it('should disable or enable the submit button if setSubmitButtonToDisabled is called', () => {
         component.isSubmitDisabled = false;
         component.submitButtonStyle = { backgroundColor: 'green' };
-        component.setSubmitButtonToDisabled(true, { backgroundColor: 'grey' });
+        component['setSubmitButtonToDisabled'](true, { backgroundColor: 'grey' });
         expect(component.isSubmitDisabled).toBeTrue();
         expect(component.submitButtonStyle).toEqual({ backgroundColor: 'grey' });
     });
@@ -252,7 +254,7 @@ describe('QuestionZoneComponent', () => {
         component.isChoiceButtonDisabled = true;
         component.submitButtonStyle = { backgroundColor: 'green' };
         component.doesDisplayPoints = true;
-        component.setButtonToInitState(buttonIndex);
+        component['setButtonToInitState'](buttonIndex);
         expect(component.isChoiceButtonDisabled).toBeFalse();
         expect(component.submitButtonStyle).toEqual({ backgroundColor: '' });
         expect(component.choiceButtonStyle[buttonIndex]).toEqual({ backgroundColor: '' });
@@ -265,8 +267,8 @@ describe('QuestionZoneComponent', () => {
         component.choiceButtonStyle[firstButtonIndex] = { backgroundColor: '' };
         component.choiceButtonStyle[secondButtonIndex] = { backgroundColor: '' };
         component.isChoiceButtonDisabled = false;
-        component.setButtonStateOnSubmit(firstButtonIndex);
-        component.setButtonStateOnSubmit(secondButtonIndex);
+        component['setButtonStateOnSubmit'](firstButtonIndex);
+        component['setButtonStateOnSubmit'](secondButtonIndex);
         expect(component.isChoiceButtonDisabled).toBeTrue();
         expect(component.submitButtonStyle).toEqual({ backgroundColor: '' });
         expect(component.choiceButtonStyle[firstButtonIndex]).toEqual({ backgroundColor: 'red' });
@@ -274,11 +276,11 @@ describe('QuestionZoneComponent', () => {
     });
 
     it('should submit answer on click event', () => {
-        spyOn(component, 'showResult');
+        spyOn<any>(component, 'showResult');
         component.submitAnswerOnClickEvent();
         expect(setButtonSpy).toHaveBeenCalledWith(true);
-        expect(component.isQuestionTransitioning).toBeTrue();
-        expect(component.showResult).toHaveBeenCalled();
+        expect(component['isQuestionTransitioning']).toBeTrue();
+        expect(component['showResult']).toHaveBeenCalled();
     });
 
     it('should identify a good answer', () => {
@@ -287,42 +289,42 @@ describe('QuestionZoneComponent', () => {
             { text: 'test2', isCorrect: false },
         ];
         component.chosenChoices = [true, false];
-        expect(component.isAnswerGood()).toBeTrue();
+        expect(component['isAnswerGood']()).toBeTrue();
         component.chosenChoices = [false, true];
-        expect(component.isAnswerGood()).toBeFalse();
+        expect(component['isAnswerGood']()).toBeFalse();
     });
 
     it('should display the correct answer', () => {
-        spyOn(component, 'setButtonStateOnSubmit');
-        component.displayCorrectAnswer();
-        expect(component.setButtonStateOnSubmit).toHaveBeenCalledTimes(2);
+        spyOn<any>(component, 'setButtonStateOnSubmit');
+        component['displayCorrectAnswer']();
+        expect(component['setButtonStateOnSubmit']).toHaveBeenCalledTimes(2);
         expect(component.doesDisplayPoints).toBeTrue();
     });
 
     it('should give bonus points for a correct answer', () => {
         const bonus = 1.2;
         component.question.points = 10;
-        spyOn(component, 'isAnswerGood').and.returnValue(true);
-        component.givePoints();
+        spyOn<any>(component, 'isAnswerGood').and.returnValue(true);
+        component['givePoints']();
         expect(component.points).toEqual(component.question.points * bonus);
         expect(component.bonusMessage).toEqual('(20% bonus Woohoo!)');
     });
 
     it('should not give points for an incorrect answer', () => {
-        spyOn(component, 'isAnswerGood').and.returnValue(false);
-        component.givePoints();
+        spyOn<any>(component, 'isAnswerGood').and.returnValue(false);
+        component['givePoints']();
         expect(component.points).toEqual(0);
         expect(component.bonusMessage).toEqual('');
     });
 
     it('should show results', () => {
-        spyOn(component, 'setSubmitButtonToDisabled');
-        spyOn(component, 'displayCorrectAnswer');
-        spyOn(component, 'givePoints');
-        component.showResult();
-        expect(component.setSubmitButtonToDisabled).toHaveBeenCalledWith(true, { backgroundColor: 'grey' });
-        expect(component.displayCorrectAnswer).toHaveBeenCalled();
-        expect(component.givePoints).toHaveBeenCalled();
+        spyOn<any>(component, 'setSubmitButtonToDisabled');
+        spyOn<any>(component, 'displayCorrectAnswer');
+        spyOn<any>(component, 'givePoints');
+        component['showResult']();
+        expect(component['setSubmitButtonToDisabled']).toHaveBeenCalledWith(true, { backgroundColor: 'grey' });
+        expect(component['displayCorrectAnswer']).toHaveBeenCalled();
+        expect(component['givePoints']).toHaveBeenCalled();
     });
 
     it('should focus on button', () => {

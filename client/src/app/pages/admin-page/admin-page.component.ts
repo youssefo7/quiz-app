@@ -23,7 +23,7 @@ export class AdminPageComponent implements OnInit {
         this.adminGuardService.pageRefreshState();
     }
 
-    handleAdminPageExit(): void {
+    private handleAdminPageExit(): void {
         this.router.events.subscribe((event) => {
             if (event instanceof NavigationEnd && event.url !== '/admin') {
                 sessionStorage.removeItem('isRefreshed');

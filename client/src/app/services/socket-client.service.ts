@@ -25,7 +25,7 @@ export class SocketClientService {
         this.socket.on(event, action);
     }
 
-    // On ne sait pas le type de la fonction préalablement à son appel
+    // We don't know the type of the function before its been called
     // eslint-disable-next-line @typescript-eslint/ban-types
     send<T>(event: string, data?: T, callback?: Function): void {
         this.socket.emit(event, ...[data, callback].filter((x) => x));

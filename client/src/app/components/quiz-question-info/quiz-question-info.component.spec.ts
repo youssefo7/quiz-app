@@ -1,5 +1,6 @@
-/* Raison : on n'a besoin de beaucoup de lignes pour set le formulaire
-dans le bon état initial dépendamment du test */
+// any is needed to spy on private methods
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// We need a lot of lines to set the forms in the right initial state depending on the test
 /* eslint-disable max-lines */
 
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -41,16 +42,16 @@ describe('QuizQuestionInfoComponent', () => {
     });
 
     it('should add the question and reset the form', () => {
-        spyOn(component, 'manageQuestion');
+        spyOn<any>(component, 'manageQuestion');
         spyOn(component, 'resetForm');
 
         component.onSubmit();
-        expect(component.manageQuestion).toHaveBeenCalled();
+        expect(component['manageQuestion']).toHaveBeenCalled();
         expect(component.resetForm).toHaveBeenCalled();
     });
 
     it('should initialize the form and add choices when page is loaded', () => {
-        component.initializeForm();
+        component['initializeForm']();
         expect(component.questionInfoForm.get('type')?.value).toEqual('');
         expect(component.questionInfoForm.get('text')?.value).toEqual('');
         expect(component.questionInfoForm.get('points')?.value).toEqual(Constants.MIN_POINTS);
@@ -73,7 +74,7 @@ describe('QuizQuestionInfoComponent', () => {
             ],
         };
 
-        component.initializeForm();
+        component['initializeForm']();
         component.loadQuestionInformation(question, 0);
         expect(mockQuizManagerService.isModifiedQuestion).toBeTrue();
         expect(component.questionInfoForm.get('type')?.value).toEqual(question.type);
@@ -137,8 +138,8 @@ describe('QuizQuestionInfoComponent', () => {
         component.addChoice();
         component.choices.at(2).get('text')?.setValue('Third Choice');
 
-        component.resetForm();
-        component.initializeForm();
+        component['resetForm']();
+        component['initializeForm']();
 
         expect(component.questionInfoForm.get('type')?.value).toEqual('');
         expect(component.questionInfoForm.get('text')?.value).toEqual('');
@@ -167,7 +168,7 @@ describe('QuizQuestionInfoComponent', () => {
         choice2.get('text')?.setValue('Choice 2');
         choice2.get('isCorrect')?.setValue(false);
 
-        component.manageQuestion();
+        component['manageQuestion']();
 
         const newQuestion = {
             type: questionType,
@@ -201,7 +202,7 @@ describe('QuizQuestionInfoComponent', () => {
         choice2.get('text')?.setValue('Modified Choice 2');
         choice2.get('isCorrect')?.setValue(false);
 
-        component.manageQuestion();
+        component['manageQuestion']();
 
         const modifiedQuestion = {
             type: questionType,
@@ -216,8 +217,8 @@ describe('QuizQuestionInfoComponent', () => {
     });
 
     it('should not validate the question form if choices are missing in the form', () => {
-        component.initializeForm();
-        const validator = component.questionChoicesValidator();
+        component['initializeForm']();
+        const validator = component['questionChoicesValidator']();
 
         const invalidChoicesArray = component.choices;
         invalidChoicesArray.push(
@@ -233,8 +234,8 @@ describe('QuizQuestionInfoComponent', () => {
     });
 
     it('should not validate the question form if there is not at least one correct and one incorrect choice', () => {
-        component.initializeForm();
-        const validator = component.questionChoicesValidator();
+        component['initializeForm']();
+        const validator = component['questionChoicesValidator']();
 
         const invalidChoicesArray = component.choices;
         invalidChoicesArray.push(
@@ -256,8 +257,8 @@ describe('QuizQuestionInfoComponent', () => {
     });
 
     it('should not validate the question form if there are choices with the same text', () => {
-        component.initializeForm();
-        const validator = component.questionChoicesValidator();
+        component['initializeForm']();
+        const validator = component['questionChoicesValidator']();
 
         const invalidChoicesArray = component.choices;
         invalidChoicesArray.push(
@@ -280,8 +281,8 @@ describe('QuizQuestionInfoComponent', () => {
     });
 
     it('should validate the question form if the choices for a new or modified question respect all conditions', () => {
-        component.initializeForm();
-        const validator = component.questionChoicesValidator();
+        component['initializeForm']();
+        const validator = component['questionChoicesValidator']();
 
         const validChoicesArray = component.choices;
         validChoicesArray.push(
@@ -317,7 +318,7 @@ describe('QuizQuestionInfoComponent', () => {
                 { text: 'Choice 3', isCorrect: true },
             ],
         };
-        component.initializeForm();
+        component['initializeForm']();
         component.loadQuestionInformation(question, 0);
         expect(component.choices.length).toEqual(question.choices.length);
     });

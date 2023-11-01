@@ -22,20 +22,14 @@ export class CreateGameListComponent implements OnInit {
         private popUp: MatDialog,
     ) {}
 
-    ngOnInit(): void {
+    ngOnInit() {
         this.getVisibleQuizListFromServer();
         this.message = '';
         this.visibleQuizList = [];
         this.selectedQuizId = null;
     }
 
-    getVisibleQuizListFromServer() {
-        this.communicationService.getQuizzes().subscribe((quizzes: Quiz[]) => {
-            this.visibleQuizList = quizzes.filter((quiz) => quiz.visibility);
-        });
-    }
-
-    toggleDetails(id: string): void {
+    toggleDetails(id: string) {
         if (this.selectedQuizId === id) {
             this.selectedQuizId = null;
         } else {
@@ -43,7 +37,7 @@ export class CreateGameListComponent implements OnInit {
         }
     }
 
-    checkCanProceed(quiz: Quiz, toTest: boolean = false): void {
+    checkCanProceed(quiz: Quiz, toTest: boolean = false) {
         this.communicationService.checkQuizAvailability(quiz.id).subscribe((isAvailable) => {
             if (isAvailable) {
                 this.communicationService.checkQuizVisibility(quiz.id).subscribe((isVisible) => {
@@ -60,7 +54,13 @@ export class CreateGameListComponent implements OnInit {
         });
     }
 
-    openUnavailablePopUp(): void {
+    private getVisibleQuizListFromServer() {
+        this.communicationService.getQuizzes().subscribe((quizzes: Quiz[]) => {
+            this.visibleQuizList = quizzes.filter((quiz) => quiz.visibility);
+        });
+    }
+
+    private openUnavailablePopUp() {
         const config: PopupMessageConfig = {
             message: 'Le jeu a été supprimé. Veuillez en choisir un autre dans la liste.',
             hasCancelButton: false,
@@ -73,7 +73,7 @@ export class CreateGameListComponent implements OnInit {
         popupInstance.config = config;
     }
 
-    openHiddenPopUp(): void {
+    private openHiddenPopUp() {
         const config: PopupMessageConfig = {
             message: "Le jeu n'est plus disponible. Veuillez en choisir un autre dans la liste.",
             hasCancelButton: false,

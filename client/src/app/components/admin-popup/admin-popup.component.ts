@@ -10,9 +10,9 @@ import { AdminGuardService } from '@app/services/admin-guard.service';
 })
 export class AdminPopupComponent {
     givenPassword: string;
-    isGivenPasswordValid: boolean;
     showErrorMessage: boolean;
     passwordInputType: string;
+    private isGivenPasswordValid: boolean;
 
     constructor(
         private adminPopupRef: MatDialogRef<AdminPopupComponent>,
@@ -45,7 +45,7 @@ export class AdminPopupComponent {
         await this.verifyAccess();
     }
 
-    async verifyAccess() {
+    private async verifyAccess() {
         this.isGivenPasswordValid = await this.adminGuard.isAccessGranted(this.givenPassword);
 
         if (!this.isGivenPasswordValid) {
