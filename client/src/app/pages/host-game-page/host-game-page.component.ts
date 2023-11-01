@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
@@ -25,6 +25,12 @@ export class HostGamePageComponent implements OnInit {
         private readonly elementRef: ElementRef,
     ) {
         this.title = 'Partie: ';
+    }
+
+    @HostListener('window:beforeunload', ['$event'])
+    unloadNotification($event: BeforeUnloadEvent): void {
+        $event.returnValue = false;
+        this.leaveGamePage();
     }
 
     ngOnInit() {

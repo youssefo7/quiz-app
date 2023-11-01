@@ -24,19 +24,8 @@ export class JoinGateway {
 
     @SubscribeMessage(JoinEvents.JoinRoom)
     handleJoinRoom(socket: Socket, roomId: string) {
-        const room = this.roomManager.findRoom(roomId);
-
-        if (!room) {
-            return { roomState: 'INVALID', quizId: null };
-        }
-
-        if (room.isLocked) {
-            return { roomState: 'IS_LOCKED', quizId: null };
-        }
-
-        this.roomManager.addPlayerToRoom(room, socket.id);
+        console.log('Joining room', roomId);
         socket.join(roomId);
-        return { roomState: 'OK', quizId: room.quizId };
     }
 
     @SubscribeMessage(JoinEvents.ChooseName)

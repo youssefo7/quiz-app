@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
@@ -40,6 +40,12 @@ export class PlayerListComponent implements OnInit {
     onPopState() {
         this.quitPopUp();
     } */
+
+    @HostListener('window:beforeunload', ['$event'])
+    unloadNotification($event: BeforeUnloadEvent): void {
+        $event.returnValue = false;
+        this.quitPopUp();
+    }
 
     ngOnInit() {
         this.listenToSocketEvents();
@@ -132,7 +138,7 @@ export class PlayerListComponent implements OnInit {
             hasCancelButton: true,
             okButtonText: 'Quitter',
             okButtonFunction: () => {
-                this.socketClientService.send(GameEvents.PlayerLeaveGame, this.roomId);
+                this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
                 this.router.navigateByUrl('home/');
             },
         };
