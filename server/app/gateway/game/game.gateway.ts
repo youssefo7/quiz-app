@@ -51,14 +51,14 @@ export class GameGateway {
 
     @SubscribeMessage(GameEvents.QuestionChoiceSelect)
     handleQuestionChoiceSelect(_: Socket, data: { roomId: string; questionChoiceIndex: number }) {
-        const organizer = this.roomManager.findRoom(data.roomId).organizer.socketId;
-        this.server.to(organizer).emit(GameEvents.QuestionChoiceSelect, data.questionChoiceIndex);
+        const organizerId = this.roomManager.findRoom(data.roomId).organizer.socketId;
+        this.server.to(organizerId).emit(GameEvents.QuestionChoiceSelect, data.questionChoiceIndex);
     }
 
     @SubscribeMessage(GameEvents.QuestionChoiceUnselect)
     handleQuestionChoiceUnselect(_: Socket, data: { roomId: string; questionChoiceIndex: number }) {
-        const organizer = this.roomManager.findRoom(data.roomId).organizer.socketId;
-        this.server.to(organizer).emit(GameEvents.QuestionChoiceUnselect, data.questionChoiceIndex);
+        const organizerId = this.roomManager.findRoom(data.roomId).organizer.socketId;
+        this.server.to(organizerId).emit(GameEvents.QuestionChoiceUnselect, data.questionChoiceIndex);
     }
 
     @SubscribeMessage(GameEvents.GiveBonus)
