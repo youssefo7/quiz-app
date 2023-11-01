@@ -30,11 +30,7 @@ export class CreateGameListComponent implements OnInit {
     }
 
     toggleDetails(id: string) {
-        if (this.selectedQuizId === id) {
-            this.selectedQuizId = null;
-        } else {
-            this.selectedQuizId = id;
-        }
+        this.selectedQuizId = this.selectedQuizId === id ? null : id;
     }
 
     checkCanProceed(quiz: Quiz, toTest: boolean = false) {

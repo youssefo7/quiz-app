@@ -200,6 +200,7 @@ export class QuizQuestionInfoComponent implements OnInit {
             choices: choicesArray,
         };
 
+        // Do we have to change this to ternary operator?
         if (this.quizManagerService.isModifiedQuestion) {
             this.quizManagerService.modifyQuestion(newQuestion, this.quizManagerService.modifiedIndex, this.newQuiz);
         } else {

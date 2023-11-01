@@ -68,13 +68,6 @@ export class QuizGeneralInfoComponent implements OnInit, AfterViewInit {
             }
         });
     }
-    // characterCountValidator(maxLength: number): ValidatorFn {
-    //     return (control: AbstractControl): ValidationErrors | null => {
-    //         const value: string = control.value || '';
-    //         const charCount = value.length;
-    //         return charCount <= maxLength ? null : { characterCountExceeded: true };
-    //     };
-    // }
 
     getQuizList() {
         return this.quizManagerService.quizzes;
