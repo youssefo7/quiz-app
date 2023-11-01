@@ -128,4 +128,33 @@ export class RoomManagerService {
     resetAnswerTimes(room: Room) {
         room.answerTimes = [];
     }
+
+    processUsername(data: { name: string; roomId: string; socketId: string }) {
+        const room = this.findRoom(data.roomId);
+        const wantedPlayer = this.findUser(data.socketId, room) as Player;
+        const nameExists = this.isNameTaken(room, data.name);
+        const isBannedName = this.isBannedName(room, data.name);
+        const isNameValid = !nameExists && !isBannedName;
+
+        if (isNameValid) {
+            wantedPlayer.name = data.name;
+        }
+
+        return isNameValid;
+    }
+
+    processJoinRoom(data: { socketId: string; roomId: string }) {
+        const room = this.findRoom(data.roomId);
+
+        if (!room) {
+            return { roomState: 'INVALID', quizId: null };
+        }
+
+        if (room.isLocked) {
+            return { roomState: 'IS_LOCKED', quizId: null };
+        }
+
+        this.addPlayerToRoom(room, data.socketId);
+        return { roomState: 'OK', quizId: room.quizId };
+    }
 }
