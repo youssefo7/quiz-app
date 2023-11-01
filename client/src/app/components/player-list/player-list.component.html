@@ -1,0 +1,38 @@
+<div id="headers">
+    <mat-icon (click)="quitPopUp()" title="Quitter la Partie" inline="true">exit_to_app</mat-icon>
+    <h1 id="roomId">Salle: {{ roomId }}</h1>
+    <h2 *ngIf="isHost" id="bannedList">Joueur(s) banni(s)</h2>
+</div>
+<div id="lists">
+    <div id="listComponent">
+        <ol id="playersList">
+            <li class="player" *ngFor="let player of players">
+                <mat-icon class="account">account_circle</mat-icon> <span>{{ player }}</span>
+                <button *ngIf="isHost" class="banButton" (click)="removePlayer(player)">
+                    <mat-icon class="banIcon">block</mat-icon>
+                </button>
+            </li>
+        </ol>
+    </div>
+    <div *ngIf="isHost" id="bannedPlayersList">
+        <ol>
+            <li class="player" *ngFor="let player of bannedPlayers">
+                <mat-icon class="account">account_circle</mat-icon> <span>{{ player }}</span>
+            </li>
+        </ol>
+    </div>
+</div>
+<div *ngIf="isHost" id="hostRoomOptions">
+    <div id="locksButtons">
+        <button id="unlockButton" (click)="unlockGame()" title="Déverrouiller la partie" [disabled]="!isLocked">
+            <mat-icon>lock_open</mat-icon>
+        </button>
+        <button id="lockButton" (click)="lockGame()" title="Verrouiller la partie" [disabled]="isLocked">
+            <mat-icon>lock</mat-icon>
+        </button>
+    </div>
+    <div id="startGameButton">
+        <button title="Verrouiller la partie pour commencer" (click)="startGame()" [disabled]="!isLocked || players.length === 0">Commencer</button>
+    </div>
+</div>
+

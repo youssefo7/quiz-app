@@ -2,9 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
+import { JoinEvents } from '@app/events/join.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
+import { SocketClientService } from '@app/services/socket-client.service';
 
 @Component({
     selector: 'app-create-game-list',
@@ -16,17 +18,21 @@ export class CreateGameListComponent implements OnInit {
     visibleQuizList: Quiz[];
     selectedQuizId: string | null;
 
+    // Raison: J'injecte les services nécessaires dans mon constructeur
+    // eslint-disable-next-line max-params
     constructor(
         private readonly communicationService: CommunicationService,
+        private socketClientService: SocketClientService,
         private router: Router,
         private popUp: MatDialog,
-    ) {}
-
-    ngOnInit(): void {
-        this.getVisibleQuizListFromServer();
+    ) {
         this.message = '';
         this.visibleQuizList = [];
         this.selectedQuizId = null;
+    }
+
+    ngOnInit() {
+        this.getVisibleQuizListFromServer();
     }
 
     getVisibleQuizListFromServer() {
@@ -35,7 +41,7 @@ export class CreateGameListComponent implements OnInit {
         });
     }
 
-    toggleDetails(id: string): void {
+    toggleDetails(id: string) {
         if (this.selectedQuizId === id) {
             this.selectedQuizId = null;
         } else {
@@ -43,13 +49,18 @@ export class CreateGameListComponent implements OnInit {
         }
     }
 
-    checkCanProceed(quiz: Quiz, toTest: boolean = false): void {
+    checkCanProceed(quiz: Quiz, toTest: boolean = false) {
         this.communicationService.checkQuizAvailability(quiz.id).subscribe((isAvailable) => {
             if (isAvailable) {
                 this.communicationService.checkQuizVisibility(quiz.id).subscribe((isVisible) => {
                     if (isVisible) {
-                        if (toTest) this.router.navigate(['game/', quiz.id, 'test']);
-                        else this.router.navigate(['waiting/']);
+                        if (toTest) this.router.navigateByUrl(`game/${quiz.id}/test`);
+                        else {
+                            this.socketClientService.connect();
+                            this.socketClientService.send(JoinEvents.CreateRoom, quiz.id, (roomId: string) => {
+                                this.router.navigateByUrl(`/waiting/game/${quiz.id}/room/${roomId}/host`);
+                            });
+                        }
                     } else {
                         this.openHiddenPopUp();
                     }
@@ -60,7 +71,7 @@ export class CreateGameListComponent implements OnInit {
         });
     }
 
-    openUnavailablePopUp(): void {
+    openUnavailablePopUp() {
         const config: PopupMessageConfig = {
             message: 'Le jeu a été supprimé. Veuillez en choisir un autre dans la liste.',
             hasCancelButton: false,
@@ -73,7 +84,7 @@ export class CreateGameListComponent implements OnInit {
         popupInstance.config = config;
     }
 
-    openHiddenPopUp(): void {
+    openHiddenPopUp() {
         const config: PopupMessageConfig = {
             message: "Le jeu n'est plus disponible. Veuillez en choisir un autre dans la liste.",
             hasCancelButton: false,

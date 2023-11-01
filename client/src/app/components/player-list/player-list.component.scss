@@ -1,0 +1,143 @@
+#headers {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    padding: 1%;
+    padding-bottom: 0%;
+
+    .mat-icon {
+        transform: rotate(180deg);
+        font-size: 3em;
+        display: flex;
+        justify-content: flex-end;
+        width: 6%;
+    }
+
+    .mat-icon:hover {
+        color: red;
+        cursor: pointer;
+    }
+
+    #roomId {
+        text-align: center;
+        width: 50%;
+        padding-right: 11%;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    #bannedList {
+        text-align: center;
+        width: 50%;
+        display: flex;
+        justify-content: flex-end;
+        padding-right: 3%;
+    }
+}
+
+#lists {
+    display: flex;
+    height: 70vh;
+    overflow: hidden;
+    justify-content: center;
+}
+
+#listComponent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 75%;
+    margin-left: 3%;
+}
+
+#playersList {
+    border-radius: 7px;
+    width: 85%;
+    background: rgb(131, 193, 255);
+    padding: 2%;
+    list-style-position: inside;
+    overflow-y: auto;
+    margin: 0%;
+    
+    li {
+        border-radius: 9px;
+        margin: 2%;
+        background: rgb(169, 213, 255);
+        padding: 2% 4%;
+    }
+}
+
+#bannedPlayersList{
+    border-radius: 7px;
+    background: rgb(184, 62, 62);
+    list-style-position: inside;
+    width: 25%;
+    overflow-y: auto;
+    margin-right: 2%;
+
+    ol {
+        padding-left: 0%;
+    }
+
+    li {
+        border-radius: 8px;
+        margin: 5% 6%;
+        background-color: rgb(249, 178, 178);
+        padding: 5px 15px;
+    }
+}
+
+#hostRoomOptions {
+    color: lightgray;
+    width: 72%;
+    padding-left: 2%;
+    display: flex;
+    justify-content: center;
+
+    #locksButtons {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        pointer-events: auto;
+    }
+
+    #unlockButton:disabled, #lockButton:disabled {
+        pointer-events: none;
+    }
+}
+
+.player span {
+    padding: 1%;
+    align-items: center; 
+}
+
+.account {
+   vertical-align: middle;
+   padding: 2px;
+}
+
+.banButton {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    float: right;
+   
+    .banIcon {
+        color: red;
+    }
+}
+
+#startGameButton {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding-left: 20%;
+    
+    button {
+        pointer-events: none;
+    }
+
+    button:disabled {
+        pointer-events: auto;
+    }
+}
