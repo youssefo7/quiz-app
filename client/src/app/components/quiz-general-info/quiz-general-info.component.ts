@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Quiz } from '@app/interfaces/quiz';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
 import { Constants } from '@common/constants';
@@ -18,13 +18,13 @@ export class QuizGeneralInfoComponent implements OnInit, AfterViewInit {
     descriptionValue: string;
     maxLengthTitle: number;
     maxLengthDescription: number;
-    titleLength: number;
-    descriptionLength: number;
     counterTitle: string;
     counterDescription: string;
     isTitleValid: boolean;
     isDescriptionValid: boolean;
     isDurationValid: boolean;
+    private titleLength: number;
+    private descriptionLength: number;
 
     constructor(
         private quizManagerService: QuizManagerService,
@@ -36,7 +36,7 @@ export class QuizGeneralInfoComponent implements OnInit, AfterViewInit {
         this.blockSubmit = new EventEmitter<boolean>();
     }
 
-    ngOnInit(): void {
+    ngOnInit() {
         if (this.newQuiz.id === '') {
             this.generalInfoForm = this.fb.group({
                 title: ['', [Validators.required, Validators.minLength(1)]],
@@ -58,7 +58,7 @@ export class QuizGeneralInfoComponent implements OnInit, AfterViewInit {
         this.initCounters();
     }
 
-    ngAfterViewInit(): void {
+    ngAfterViewInit() {
         this.generalInfoForm.valueChanges.subscribe(() => {
             if (this.generalInfoForm.valid) {
                 this.blockSubmit.emit(false);
@@ -68,25 +68,13 @@ export class QuizGeneralInfoComponent implements OnInit, AfterViewInit {
             }
         });
     }
-
-    initCounters() {
-        this.maxLengthTitle = 150;
-        this.maxLengthDescription = 300;
-
-        this.titleLength = this.titleValue ? this.titleValue.length : 0;
-        this.counterTitle = `${this.titleLength} / ${this.maxLengthTitle}`;
-
-        this.descriptionLength = this.descriptionValue ? this.descriptionValue.length : 0;
-        this.counterDescription = `${this.descriptionLength} / ${this.maxLengthDescription}`;
-    }
-
-    characterCountValidator(maxLength: number): ValidatorFn {
-        return (control: AbstractControl): ValidationErrors | null => {
-            const value: string = control.value || '';
-            const charCount = value.length;
-            return charCount <= maxLength ? null : { characterCountExceeded: true };
-        };
-    }
+    // characterCountValidator(maxLength: number): ValidatorFn {
+    //     return (control: AbstractControl): ValidationErrors | null => {
+    //         const value: string = control.value || '';
+    //         const charCount = value.length;
+    //         return charCount <= maxLength ? null : { characterCountExceeded: true };
+    //     };
+    // }
 
     getQuizList() {
         return this.quizManagerService.quizzes;
@@ -112,5 +100,16 @@ export class QuizGeneralInfoComponent implements OnInit, AfterViewInit {
         this.isDescriptionValid = this.generalInfoForm.controls.description.invalid && hasDescriptionBeenTouched ? false : true;
 
         this.isDurationValid = this.generalInfoForm.controls.duration.invalid ? false : true;
+    }
+
+    private initCounters() {
+        this.maxLengthTitle = 150;
+        this.maxLengthDescription = 300;
+
+        this.titleLength = this.titleValue ? this.titleValue.length : 0;
+        this.counterTitle = `${this.titleLength} / ${this.maxLengthTitle}`;
+
+        this.descriptionLength = this.descriptionValue ? this.descriptionValue.length : 0;
+        this.counterDescription = `${this.descriptionLength} / ${this.maxLengthDescription}`;
     }
 }

@@ -37,11 +37,7 @@ export class AdminGuardService {
         }
     }
 
-    async submitPassword(userPassword: string) {
-        await firstValueFrom(this.http.post(`${this.baseUrl}/admin/login`, { password: userPassword }));
-    }
-
-    canActivate(): boolean {
+    canActivate() {
         const navigation = this.router.getCurrentNavigation();
         let prevUrl: string | null = null;
 
@@ -63,7 +59,7 @@ export class AdminGuardService {
         return false;
     }
 
-    pageRefreshState(): void {
+    pageRefreshState() {
         if (sessionStorage.getItem(SessionKeys.IsRefreshed)) {
             sessionStorage.setItem(SessionKeys.ShowPasswordPopup, 'true');
             this.router.navigateByUrl('/home');
@@ -72,8 +68,12 @@ export class AdminGuardService {
         }
     }
 
-    grantAccess(): void {
+    grantAccess() {
         this.canAccessAdmin = true;
         sessionStorage.setItem(SessionKeys.CanAccessAdmin, 'true');
+    }
+
+    private async submitPassword(userPassword: string) {
+        await firstValueFrom(this.http.post(`${this.baseUrl}/admin/login`, { password: userPassword }));
     }
 }

@@ -13,11 +13,10 @@ export class ChatComponent implements OnInit {
     socket: Socket;
     chatMessage: ChatMessage;
     characterCounterDisplay: string;
-    currentInputLength: number;
-    maxInputLength: number;
     roomMessages: ChatMessage[];
     roomMessage: string;
     roomId: string;
+    private currentInputLength: number;
 
     constructor(
         public socketService: SocketClientService,
@@ -25,7 +24,7 @@ export class ChatComponent implements OnInit {
     ) {
         this.maxInputLength = 200;
         this.currentInputLength = 0;
-        this.characterCounterDisplay = `${this.currentInputLength} / ${this.maxInputLength}`;
+        this.characterCounterDisplay = `${this.currentInputLength} / 200`;
         this.roomMessages = [];
         this.roomMessage = '';
         this.roomId = '';
@@ -58,7 +57,7 @@ export class ChatComponent implements OnInit {
     detectCharacterLengthOnInput(event: Event) {
         const inputValue = (event.target as HTMLInputElement).value;
         this.currentInputLength = inputValue.length;
-        this.characterCounterDisplay = `${this.currentInputLength} / ${this.maxInputLength}`;
+        this.characterCounterDisplay = `${this.currentInputLength} / 200`;
     }
 
     sendMessageToRoom() {

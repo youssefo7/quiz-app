@@ -95,7 +95,7 @@ describe('GamePageComponent in test game route', () => {
 
     it('clicking the exit icon should redirect to "game/new" page', () => {
         const navigateSpy = spyOn(router, 'navigateByUrl');
-        component.leaveGamePage();
+        component['leaveGamePage']();
         expect(navigateSpy).toHaveBeenCalledWith('/game/new');
     });
 
@@ -110,11 +110,11 @@ describe('GamePageComponent in test game route', () => {
     it('should fetch the quiz ', fakeAsync(() => {
         const id = '123';
         spyOn(gameService, 'getQuizById').and.returnValue(Promise.resolve(mockedQuiz));
-        component.getQuiz();
+        component['getQuiz']();
         tick();
 
         expect(gameService.getQuizById).toHaveBeenCalledWith(id);
-        expect(component.quiz).toEqual(mockedQuiz);
+        expect(component['quiz']).toEqual(mockedQuiz);
     }));
 
     it('should popup a message when the user tries to exit a game with the correct configuration', () => {
@@ -179,7 +179,7 @@ describe('GamePageComponent in regular game route', () => {
 
     it('clicking the exit icon should redirect to "/home" page', () => {
         const navigateSpy = spyOn(router, 'navigateByUrl');
-        component.leaveGamePage();
+        component['leaveGamePage']();
         expect(navigateSpy).toHaveBeenCalledWith('/home');
     });
 });

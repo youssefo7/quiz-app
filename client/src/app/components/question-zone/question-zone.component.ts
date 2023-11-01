@@ -12,8 +12,6 @@ import { Subscription } from 'rxjs';
 })
 export class QuestionZoneComponent implements OnInit, OnDestroy {
     @Output() pointsEarned: EventEmitter<number>;
-    isQuestionTransitioning: boolean;
-    currentQuestionIndex: number;
     points: number;
     quiz: Quiz | null;
     question: Question;
@@ -28,8 +26,10 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     private hasGameEnded: boolean;
     private timerSubscription: Subscription;
     private gameServiceSubscription: Subscription;
+    private isQuestionTransitioning: boolean;
+    private currentQuestionIndex: number;
 
-    // Raison: J'injecte les services nécessaire dans mon constructeur
+    // We need all these parameters for the constructor to work
     // eslint-disable-next-line max-params
     constructor(
         private gameService: GameService,
@@ -83,21 +83,43 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.gameServiceSubscription.unsubscribe();
     }
 
-    async getQuiz() {
-        const id = this.route.snapshot.paramMap.get('id');
-        this.quiz = await this.gameService.getQuizById(id);
-    }
-
-    async loadQuiz() {
-        await this.getQuiz();
-        this.getQuestion(this.currentQuestionIndex);
-    }
-
     focusOnButton() {
         this.elementRef.nativeElement.querySelector('button')?.focus();
     }
 
-    subscribeToTimer() {
+    submitAnswerOnClickEvent() {
+        this.gameService.setButtonPressState = true;
+        this.showResult();
+        this.isQuestionTransitioning = true;
+    }
+
+    setSubmitButtonStateOnChoices() {
+        if (this.chosenChoices.some((choice) => choice === true)) {
+            this.isSubmitDisabled = false;
+            this.submitButtonStyle = { backgroundColor: 'green' };
+        } else {
+            this.isSubmitDisabled = true;
+            this.submitButtonStyle = { backgroundColor: 'grey' };
+        }
+    }
+
+    toggleChoice(index: number) {
+        if (!isNaN(index) && index >= 0 && index < this.chosenChoices.length) {
+            this.chosenChoices[index] = !this.chosenChoices[index];
+        }
+    }
+
+    private async getQuiz() {
+        const id = this.route.snapshot.paramMap.get('id');
+        this.quiz = await this.gameService.getQuizById(id);
+    }
+
+    private async loadQuiz() {
+        await this.getQuiz();
+        this.getQuestion(this.currentQuestionIndex);
+    }
+
+    private subscribeToTimer() {
         this.timerSubscription = this.timeService.getTime().subscribe((time: number) => {
             if (!this.hasGameEnded) {
                 const timerTime = time;
@@ -115,13 +137,13 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         });
     }
 
-    subscribeToGameService() {
+    private subscribeToGameService() {
         this.gameServiceSubscription = this.gameService.hasGameEndedObservable.subscribe((hasEnded: boolean) => {
             this.hasGameEnded = hasEnded;
         });
     }
 
-    getQuestion(index: number) {
+    private getQuestion(index: number) {
         if (this.quiz && index < this.quiz.questions.length) {
             this.question = this.quiz.questions[index];
             this.chosenChoices = new Array(this.question.choices.length).fill(false);
@@ -131,60 +153,37 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         }
     }
 
-    toggleChoice(index: number) {
-        if (!isNaN(index) && index >= 0 && index < this.chosenChoices.length) {
-            this.chosenChoices[index] = !this.chosenChoices[index];
-        }
-    }
-
-    setSubmitButtonToDisabled(isDisabled: boolean, backgroundColor: { backgroundColor: string }) {
+    private setSubmitButtonToDisabled(isDisabled: boolean, backgroundColor: { backgroundColor: string }) {
         this.isSubmitDisabled = isDisabled;
         this.submitButtonStyle = backgroundColor;
     }
-
-    setSubmitButtonStateOnChoices() {
-        if (this.chosenChoices.some((choice) => choice === true)) {
-            this.isSubmitDisabled = false;
-            this.submitButtonStyle = { backgroundColor: 'green' };
-        } else {
-            this.isSubmitDisabled = true;
-            this.submitButtonStyle = { backgroundColor: 'grey' };
-        }
-    }
-
-    setButtonToInitState(index: number) {
+    private setButtonToInitState(index: number) {
         this.choiceButtonStyle[index] = { backgroundColor: '' };
         this.isChoiceButtonDisabled = false;
         this.submitButtonStyle = { backgroundColor: '' };
         this.doesDisplayPoints = false;
     }
 
-    setButtonStateOnSubmit(index: number) {
+    private setButtonStateOnSubmit(index: number) {
         this.choiceButtonStyle[index] = {
             backgroundColor: this.question.choices[index].isCorrect ? 'rgb(97, 207, 72)' : 'red',
         };
         this.isChoiceButtonDisabled = true;
     }
 
-    submitAnswerOnClickEvent() {
-        this.gameService.setButtonPressState = true;
-        this.showResult();
-        this.isQuestionTransitioning = true;
-    }
-
-    isAnswerGood() {
+    private isAnswerGood() {
         const isAnswerGood = this.chosenChoices.every((answer, index) => answer === this.question.choices[index].isCorrect);
         return isAnswerGood;
     }
 
-    displayCorrectAnswer() {
+    private displayCorrectAnswer() {
         this.question.choices.forEach((choice, index) => {
             this.setButtonStateOnSubmit(index);
         });
         this.doesDisplayPoints = true;
     }
 
-    givePoints() {
+    private givePoints() {
         if (this.isAnswerGood()) {
             const bonus = 1.2;
             this.points = this.question.points * bonus;
@@ -196,7 +195,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.pointsEarned.emit(this.points);
     }
 
-    showResult() {
+    private showResult() {
         this.setSubmitButtonToDisabled(true, { backgroundColor: 'grey' });
         this.displayCorrectAnswer();
         this.givePoints();

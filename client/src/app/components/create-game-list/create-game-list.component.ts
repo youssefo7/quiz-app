@@ -38,13 +38,7 @@ export class CreateGameListComponent implements OnInit {
         this.getVisibleQuizListFromServer();
     }
 
-    getVisibleQuizListFromServer() {
-        this.communicationService.getQuizzes().subscribe((quizzes: Quiz[]) => {
-            this.visibleQuizList = quizzes.filter((quiz) => quiz.visibility);
-        });
-    }
-
-    toggleDetails(id: string) {
+    toggleDetails(id: string): void {
         if (this.selectedQuizId === id) {
             this.selectedQuizId = null;
         } else {
@@ -79,7 +73,13 @@ export class CreateGameListComponent implements OnInit {
         });
     }
 
-    openUnavailablePopUp() {
+    private getVisibleQuizListFromServer() {
+        this.communicationService.getQuizzes().subscribe((quizzes: Quiz[]) => {
+            this.visibleQuizList = quizzes.filter((quiz) => quiz.visibility);
+        });
+    }
+
+    private openUnavailablePopUp() {
         const config: PopupMessageConfig = {
             message: 'Le jeu a été supprimé. Veuillez en choisir un autre dans la liste.',
             hasCancelButton: false,
@@ -92,7 +92,7 @@ export class CreateGameListComponent implements OnInit {
         popupInstance.config = config;
     }
 
-    openHiddenPopUp() {
+    private openHiddenPopUp() {
         const config: PopupMessageConfig = {
             message: "Le jeu n'est plus disponible. Veuillez en choisir un autre dans la liste.",
             hasCancelButton: false,
