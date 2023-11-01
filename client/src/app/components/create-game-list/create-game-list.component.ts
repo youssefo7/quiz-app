@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
-import { JoinEvents } from '@app/events/join.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
@@ -17,34 +16,22 @@ export class CreateGameListComponent implements OnInit {
     message: string;
     visibleQuizList: Quiz[];
     selectedQuizId: string | null;
-    roomId: string;
-    quizId: string;
 
-    // Raison: J'injecte les services nécessaire dans mon constructeur
+    // Raison: J'injecte les services nécessaires dans mon constructeur
     // eslint-disable-next-line max-params
     constructor(
         private readonly communicationService: CommunicationService,
-        private socketClientService: SocketClientService,
+        public socketClientService: SocketClientService,
         private router: Router,
         private popUp: MatDialog,
     ) {
         this.message = '';
         this.visibleQuizList = [];
         this.selectedQuizId = null;
-        this.roomId = '';
     }
 
     ngOnInit(): void {
         this.getVisibleQuizListFromServer();
-        this.socketClientService.connect();
-        this.listenToSocketEvents();
-    }
-
-    listenToSocketEvents() {
-        this.socketClientService.on(JoinEvents.CreateRoom, (roomId: string) => {
-            this.roomId = roomId;
-            this.redirectHost(this.quizId);
-        });
     }
 
     getVisibleQuizListFromServer() {
@@ -66,10 +53,12 @@ export class CreateGameListComponent implements OnInit {
             if (isAvailable) {
                 this.communicationService.checkQuizVisibility(quiz.id).subscribe((isVisible) => {
                     if (isVisible) {
-                        if (toTest) this.router.navigate(['game/', quiz.id, 'test']);
+                        if (toTest) this.router.navigateByUrl(`game/${quiz.id}/test`);
                         else {
-                            this.socketClientService.send('createRoom', quiz.id);
-                            this.quizId = quiz.id;
+                            this.socketClientService.connect();
+                            this.socketClientService.send('createRoom', quiz.id, (roomId: string) => {
+                                this.router.navigateByUrl(`/waiting/game/${quiz.id}/room/${roomId}/host`);
+                            });
                         }
                     } else {
                         this.openHiddenPopUp();
@@ -79,10 +68,6 @@ export class CreateGameListComponent implements OnInit {
                 this.openUnavailablePopUp();
             }
         });
-    }
-
-    redirectHost(quizId: string): void {
-        this.router.navigateByUrl(`/waiting/game/${quizId}/room/${this.roomId}/host`);
     }
 
     openUnavailablePopUp(): void {

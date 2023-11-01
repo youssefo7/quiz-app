@@ -14,15 +14,13 @@ import { SocketClientService } from '@app/services/socket-client.service';
     styleUrls: ['./player-list.component.scss'],
 })
 export class PlayerListComponent implements OnInit {
-    players: string[] = [];
-
-    bannedPlayers: string[] = [];
-
+    players: string[];
+    bannedPlayers: string[];
     isHost: boolean;
     isLocked: boolean;
     roomId: string | null;
 
-    // Raison: J'injecte les services nécessaire dans mon constructeur
+    // Raison: J'injecte les services nécessaires dans mon constructeur
     // eslint-disable-next-line max-params
     constructor(
         private route: ActivatedRoute,
@@ -30,6 +28,9 @@ export class PlayerListComponent implements OnInit {
         private popUp: MatDialog,
         private socketClientService: SocketClientService,
     ) {
+        this.players = [];
+        this.bannedPlayers = [];
+        this.isLocked = false;
         this.isHost = this.route.snapshot.url.some((segment) => segment.path === 'host');
         this.roomId = this.route.snapshot.paramMap.get('roomId');
     }
@@ -41,8 +42,8 @@ export class PlayerListComponent implements OnInit {
     } */
 
     ngOnInit(): void {
-        this.socketClientService.connect();
         this.listenToSocketEvents();
+        this.socketClientService.send(WaitingEvents.GetPlayerNames);
     }
 
     listenToSocketEvents() {
@@ -60,7 +61,7 @@ export class PlayerListComponent implements OnInit {
         });
 
         this.socketClientService.on(GameEvents.StartGame, () => {
-            this.startGame();
+            this.gameBeginsRedirections();
         });
 
         this.socketClientService.on(GameEvents.GameAborted, () => {
@@ -84,12 +85,15 @@ export class PlayerListComponent implements OnInit {
     }
 
     startGame(): void {
+        this.socketClientService.send(GameEvents.StartGame);
+    }
+
+    gameBeginsRedirections(): void {
         const quizId = this.route.snapshot.paramMap.get('quizId');
         if (!this.isHost) {
             this.router.navigate(['game/', quizId, 'room/', this.roomId]);
         } else {
             this.router.navigate(['game/', quizId, 'room/', this.roomId, 'host/']);
-            this.socketClientService.send(GameEvents.StartGame);
         }
     }
 
@@ -118,7 +122,7 @@ export class PlayerListComponent implements OnInit {
 
     playerQuitPopup(): void {
         const config: PopupMessageConfig = {
-            message: 'Êtes-vous sur de vouloir abandonner la partie?',
+            message: 'Êtes-vous sûr de vouloir abandonner la partie?',
             hasCancelButton: true,
             okButtonText: 'Quitter',
             okButtonFunction: () => {

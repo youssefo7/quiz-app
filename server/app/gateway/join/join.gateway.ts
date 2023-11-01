@@ -19,7 +19,6 @@ export class JoinGateway {
     handleCreateRoom(socket: Socket, quizId: string) {
         const roomId = this.roomManager.createNewRoom(quizId, socket.id);
         socket.join(roomId);
-        socket.emit(JoinEvents.CreateRoom, roomId);
         return roomId;
     }
 

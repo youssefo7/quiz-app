@@ -1,4 +1,4 @@
-.headers {
+#headers {
     display: flex;
     align-items: center;
     flex-direction: row;
@@ -35,7 +35,7 @@
     }
 }
 
-.lists {
+#lists {
     display: flex;
     height: 70vh;
     overflow: hidden;
@@ -50,7 +50,7 @@
     margin-left: 3%;
 }
 
-.playersList {
+#playersList {
     border-radius: 7px;
     width: 85%;
     background: rgb(131, 193, 255);
@@ -87,7 +87,7 @@
     }
 }
 
-.hostRoomOptions {
+#hostRoomOptions {
     color: lightgray;
     width: 72%;
     padding-left: 2%;
@@ -111,18 +111,18 @@
     align-items: center; 
 }
 
-#account {
+.account {
    vertical-align: middle;
    padding: 2px;
 }
 
-#banButton {
+.banButton {
     background-color: transparent;
     border: none;
     cursor: pointer;
     float: right;
    
-    #banIcon {
+    .banIcon {
         color: red;
     }
 }
