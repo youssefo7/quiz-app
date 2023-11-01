@@ -8,8 +8,7 @@ import { ImportService } from './import.service';
 describe('ImportService', () => {
     let service: ImportService;
     let mockCommunicationService: jasmine.SpyObj<CommunicationService>;
-    const mockQuiz = {
-        $schema: '',
+    const mockQuiz: Quiz = {
         id: '',
         title: '',
         duration: 0,

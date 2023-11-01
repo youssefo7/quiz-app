@@ -1,7 +1,6 @@
 // TODO add seperate interface for QCM and QRL
 
 export interface Quiz {
-    $schema: string;
     id: string;
     title: string;
     duration: number;

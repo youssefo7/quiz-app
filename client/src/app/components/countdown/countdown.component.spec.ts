@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
 import { TimeService } from '@app/services/time.service';
 import { of } from 'rxjs';
@@ -14,8 +15,7 @@ describe('CountdownComponent', () => {
     let routerMock: SpyObj<Router>;
     let gameServiceMock: SpyObj<GameService>;
 
-    const mockQuiz = {
-        $schema: 'quiz-schema.json',
+    const mockQuiz: Quiz = {
         id: '123',
         title: 'mock quiz',
         duration: 60,

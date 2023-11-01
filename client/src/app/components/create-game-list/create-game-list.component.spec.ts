@@ -22,7 +22,6 @@ describe('CreateGameListComponent', () => {
 
     const visibleQuizMock: Quiz[] = [
         {
-            $schema: 'quiz-schema.json',
             id: '1',
             title: 'mock1',
             duration: 60,
@@ -42,7 +41,6 @@ describe('CreateGameListComponent', () => {
 
     const hiddenQuizMock: Quiz[] = [
         {
-            $schema: 'quiz-schema.json',
             id: '2',
             title: 'mock2',
             duration: 60,

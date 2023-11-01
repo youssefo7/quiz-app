@@ -9,6 +9,7 @@ import { ProfileComponent } from '@app/components/profile/profile.component';
 import { QuestionZoneComponent } from '@app/components/question-zone/question-zone.component';
 import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
+import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
 import { of } from 'rxjs';
@@ -23,8 +24,7 @@ describe('GamePageComponent in test game route', () => {
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
     let router: Router;
     let gameService: GameService;
-    const mockedQuiz = {
-        $schema: 'test.json',
+    const mockedQuiz: Quiz = {
         id: '123',
         title: 'Test quiz',
         description: 'Test quiz description',
