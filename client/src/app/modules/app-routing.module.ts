@@ -18,6 +18,8 @@ const routes: Routes = [
     { path: 'game/:id', component: GamePageComponent },
     { path: 'game/:id/test', component: GamePageComponent },
     { path: 'game/:id/host', component: HostGamePageComponent },
+    { path: 'game/:quizId/room/:roomId/host', component: HostGamePageComponent },
+    { path: 'game/:quizId/room/:roomId', component: GamePageComponent },
     { path: 'quiz/new', component: CreateEditQuizPageComponent, canDeactivate: [exitCreateEditQuizPageGuard], canActivate: [QuizGuardService] },
     { path: 'quiz/:id', component: CreateEditQuizPageComponent, canDeactivate: [exitCreateEditQuizPageGuard], canActivate: [QuizGuardService] },
     { path: 'waiting/game/:quizId/room/:roomId/host', component: WaitingPageComponent },

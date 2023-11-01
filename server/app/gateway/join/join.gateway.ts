@@ -40,19 +40,15 @@ export class JoinGateway {
     }
 
     @SubscribeMessage(JoinEvents.ChooseName)
-    handleChooseName(socket: Socket, name: string) {
-        let wantedPlayer: Player;
-        const playerRoom = this.rooms.find((room) => {
-            wantedPlayer = room.players.find((player) => player.socketId === socket.id);
-            return Boolean(wantedPlayer);
-        });
-
-        const nameExists = this.roomManager.isNameTaken(playerRoom, name);
-        const isBannedName = this.roomManager.isBannedName(playerRoom, name);
+    handleChooseName(socket: Socket, data: { name: string; roomId: string }) {
+        const room = this.roomManager.findRoom(data.roomId);
+        const wantedPlayer = this.roomManager.findUser(socket.id, room) as Player;
+        const nameExists = this.roomManager.isNameTaken(room, data.name);
+        const isBannedName = this.roomManager.isBannedName(room, data.name);
         const isNameValid = !nameExists && !isBannedName;
 
         if (isNameValid) {
-            wantedPlayer.name = name;
+            wantedPlayer.name = data.name;
         }
 
         return isNameValid;
