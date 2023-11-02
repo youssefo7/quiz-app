@@ -1,8 +1,8 @@
+import { Component } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ChatComponent } from '@app/components/chat/chat.component';
 import { CountdownComponent } from '@app/components/countdown/countdown.component';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { ProfileComponent } from '@app/components/profile/profile.component';
@@ -14,6 +14,14 @@ import { GameService } from '@app/services/game.service';
 import { of } from 'rxjs';
 import { GamePageComponent } from './game-page.component';
 import SpyObj = jasmine.SpyObj;
+
+// La raison du lint disable est que le code vient d'un exemple de stub du professeur et le connect est vide dans l'exemple qu'il utilise.
+@Component({
+    selector: 'app-chat',
+    template: '<p>Template Needed</p>',
+})
+// eslint-disable-next-line @angular-eslint/component-class-suffix
+export class ChatComponentStub {}
 
 describe('GamePageComponent in test game route', () => {
     let component: GamePageComponent;
@@ -34,7 +42,7 @@ describe('GamePageComponent in test game route', () => {
         questions: [],
     };
 
-    beforeEach(() => {
+    beforeEach(async () => {
         communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
         communicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
@@ -44,7 +52,15 @@ describe('GamePageComponent in test game route', () => {
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [GamePageComponent, TopBarComponent, CountdownComponent, QuestionZoneComponent, ProfileComponent, ChatComponent, MatIcon],
+            declarations: [
+                GamePageComponent,
+                TopBarComponent,
+                CountdownComponent,
+                QuestionZoneComponent,
+                ProfileComponent,
+                ChatComponentStub,
+                MatIcon,
+            ],
             providers: [
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'test' }] } } },
                 { provide: MatDialog, useValue: mockDialog },
@@ -65,6 +81,16 @@ describe('GamePageComponent in test game route', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should call leaveGameaPage when clicking okButton', () => {
+        spyOn(component, 'leaveGamePage');
+        component.openQuitPopUp();
+
+        const config = mockDialogRef.componentInstance.config;
+        expect(mockDialog.open).toHaveBeenCalled();
+        config.okButtonFunction?.();
+        expect(component.leaveGamePage).toHaveBeenCalled();
     });
 
     it('clicking the exit icon should redirect to "game/new" page', () => {
@@ -122,7 +148,15 @@ describe('GamePageComponent in regular game route', () => {
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [GamePageComponent, TopBarComponent, ProfileComponent, ChatComponent, QuestionZoneComponent, CountdownComponent, MatIcon],
+            declarations: [
+                GamePageComponent,
+                TopBarComponent,
+                ProfileComponent,
+                ChatComponentStub,
+                QuestionZoneComponent,
+                CountdownComponent,
+                MatIcon,
+            ],
             imports: [MatDialogModule],
             providers: [
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: '' }] } } },
