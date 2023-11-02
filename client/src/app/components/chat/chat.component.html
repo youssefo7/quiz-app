@@ -1,13 +1,11 @@
 <div id="chat-container">
-    <div id="message-box">
-        <div class="message-container" *ngFor="let message of roomMessages">
-            <div class="chat-message" [ngClass]="{ sent: message.sentByYou }">
-                <div class="message-info">
-                    <div class="sender-name">{{ message.authorName }}</div>
-                    <div class="message-time">{{ message.time }}</div>
-                </div>
-                <div class="message-text">{{ message.message }}</div>
+    <div class="message-box" *ngFor="let message of roomMessages">
+        <div class="chat-message" [ngClass]="{ sent: message.sentByYou }">
+            <div class="message-info">
+                <div class="sender-name">{{ message.authorName }}</div>
+                <div class="message-time">{{ message.time }}</div>
             </div>
+            <div class="message-text">{{ message.message }}</div>
         </div>
     </div>
     <div id="text-input">
