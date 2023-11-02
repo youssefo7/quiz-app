@@ -54,7 +54,7 @@ describe('WaitingGateway', () => {
         const room = roomManagerServiceMock.rooms[0];
 
         stub(socket, 'rooms').value(new Set([roomId]));
-        gateway.handleToggleLockRoom(socket, roomId);
+        gateway.handleLockRoom(socket, roomId);
         expect(room.isLocked).toBe(true);
     });
 
@@ -64,7 +64,7 @@ describe('WaitingGateway', () => {
         stub(socket, 'rooms').value(new Set([roomId]));
         room.isLocked = true;
 
-        gateway.handleToggleLockRoom(socket, roomId);
+        gateway.handleUnlockRoom(socket, roomId);
         expect(room.isLocked).toBe(false);
     });
 
