@@ -33,22 +33,14 @@ export class GameGateway {
     @SubscribeMessage(GameEvents.EndGame)
     async handleEndGame(socket: Socket, data: { roomId: string; gameAborted: boolean }) {
         const room = this.roomManager.findRoom(data.roomId);
-        const sockets = await this.server.in(data.roomId).fetchSockets();
+        const sockets = await this.server.sockets.fetchSockets();
 
-        if (socket.id === room.organizer.socketId) {
-            this.server.to(room.id).emit(data.gameAborted ? GameEvents.GameAborted : GameEvents.EndGame);
-            this.server.socketsLeave(data.roomId);
-            sockets.forEach((playerSocket) => {
-                playerSocket.disconnect(true);
-            });
-            // sockets.forEach((playerSocket) => {
-            //     if (playerSocket.rooms.has(data.roomId)) {
-            //         playerSocket.leave(room.id);
-            //         playerSocket.disconnect();
-            //     }
-            // });
-            this.roomManager.deleteRoom(room);
-        }
+        socket.to(room.id).emit(data.gameAborted ? GameEvents.GameAborted : GameEvents.EndGame);
+        sockets.forEach((playerSocket) => {
+            playerSocket.leave(room.id);
+            playerSocket.disconnect();
+        });
+        this.roomManager.deleteRoom(room);
     }
 
     @SubscribeMessage(GameEvents.GoodAnswer)
@@ -58,25 +50,25 @@ export class GameGateway {
     }
 
     @SubscribeMessage(GameEvents.QuestionChoiceSelect)
-    handleQuestionChoiceSelect(_: Socket, data: { roomId: string; questionChoiceIndex: number }) {
+    handleQuestionChoiceSelect(socket: Socket, data: { roomId: string; questionChoiceIndex: number }) {
         const organizerId = this.roomManager.findRoom(data.roomId).organizer.socketId;
-        this.server.to(organizerId).emit(GameEvents.QuestionChoiceSelect, data.questionChoiceIndex);
+        socket.to(organizerId).emit(GameEvents.QuestionChoiceSelect, data.questionChoiceIndex);
     }
 
     @SubscribeMessage(GameEvents.QuestionChoiceUnselect)
-    handleQuestionChoiceUnselect(_: Socket, data: { roomId: string; questionChoiceIndex: number }) {
+    handleQuestionChoiceUnselect(socket: Socket, data: { roomId: string; questionChoiceIndex: number }) {
         const organizerId = this.roomManager.findRoom(data.roomId).organizer.socketId;
-        this.server.to(organizerId).emit(GameEvents.QuestionChoiceUnselect, data.questionChoiceIndex);
+        socket.to(organizerId).emit(GameEvents.QuestionChoiceUnselect, data.questionChoiceIndex);
     }
 
     @SubscribeMessage(GameEvents.GiveBonus)
-    handleGiveBonus(_: Socket, roomId: string) {
+    handleGiveBonus(socket: Socket, roomId: string) {
         const room = this.roomManager.findRoom(roomId);
         const quickestPlayer = this.roomManager.getQuickestTime(room);
         if (quickestPlayer) {
             const player = this.roomManager.findUser(quickestPlayer.userId, room) as Player;
             player.bonusCount++;
-            this.server.to(quickestPlayer.userId).emit(GameEvents.GiveBonus);
+            socket.to(quickestPlayer.userId).emit(GameEvents.GiveBonus);
         }
     }
 
@@ -86,7 +78,7 @@ export class GameGateway {
         const room = this.roomManager.findRoom(data.roomId);
         this.roomManager.addPointsToPlayer(socket.id, data.points, room);
         const player = this.roomManager.findUser(socket.id, room) as Player;
-        this.server.to(room.organizer.socketId).emit(GameEvents.AddPointsToPlayer, { pointsToAdd: data.points, name: player.name });
+        socket.to(room.organizer.socketId).emit(GameEvents.AddPointsToPlayer, { pointsToAdd: data.points, name: player.name });
     }
 
     @SubscribeMessage(GameEvents.NextQuestion)
