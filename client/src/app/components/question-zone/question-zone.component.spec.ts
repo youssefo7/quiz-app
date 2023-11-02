@@ -3,7 +3,6 @@
 import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
-import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
 import { TimeService } from '@app/services/time.service';
 import { of } from 'rxjs';
@@ -12,7 +11,6 @@ import { QuestionZoneComponent } from './question-zone.component';
 describe('QuestionZoneComponent', () => {
     let component: QuestionZoneComponent;
     let fixture: ComponentFixture<QuestionZoneComponent>;
-    let communicationServiceMock: jasmine.SpyObj<CommunicationService>;
     let gameService: GameService;
     let timeService: TimeService;
     let elementRef: HTMLElement;
@@ -23,8 +21,10 @@ describe('QuestionZoneComponent', () => {
         TestBed.configureTestingModule({
             declarations: [QuestionZoneComponent],
             providers: [
-                { provide: CommunicationService, useValue: communicationServiceMock },
-                { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' } } } },
+                {
+                    provide: ActivatedRoute,
+                    useValue: { snapshot: { paramMap: { get: () => '123' } } },
+                },
             ],
         }).compileComponents();
         gameService = TestBed.inject(GameService);
@@ -85,19 +85,10 @@ describe('QuestionZoneComponent', () => {
         expect(changeSubmitButtonStateSpy).toHaveBeenCalled();
     });
 
-    it('should fetch the quiz ', () => {
-        const id = '123';
-        const getQuizByIdSpy = spyOn(gameService, 'getQuizById');
-        component.getQuiz();
-        expect(getQuizByIdSpy).toHaveBeenCalledWith(id);
-    });
-
-    it('should fetch the quiz and the first question', fakeAsync(() => {
-        const getQuizSpy = spyOn(component, 'getQuiz');
+    it('should start with the first question', fakeAsync(() => {
         const getQuestionSpy = spyOn(component, 'getQuestion');
-        component.loadQuiz();
+        component.ngOnInit();
         tick();
-        expect(getQuizSpy).toHaveBeenCalled();
         expect(getQuestionSpy).toHaveBeenCalled();
     }));
 
@@ -192,16 +183,11 @@ describe('QuestionZoneComponent', () => {
         expect(setButtonToInitStateSpy).not.toHaveBeenCalled();
     });
 
-    it('should not modify chosenChoices if quiz is not defined or index is out of range', () => {
+    it('should not modify chosenChoices if index is out of range', () => {
         const choiceArray = component.chosenChoices;
         const outOfRangeIndex = 10;
         component.quiz = validMockQuiz;
         component.getQuestion(outOfRangeIndex);
-        expect(choiceArray).toBeUndefined();
-
-        const validIndex = 0;
-        component.quiz = null;
-        component.getQuestion(validIndex);
         expect(choiceArray).toBeUndefined();
     });
 

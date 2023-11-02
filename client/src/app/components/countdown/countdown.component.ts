@@ -12,9 +12,9 @@ import { Subscription } from 'rxjs';
 })
 export class CountdownComponent implements OnInit, OnDestroy {
     @Input() isHost: boolean;
+    @Input() quiz: Quiz;
     message: string;
     clockStyle: { backgroundColor: string };
-    private quiz: Quiz | null;
     private timerSubscription: Subscription;
     private isQuestionTransitioning: boolean;
     private isNextQuestionPressed: boolean;
@@ -53,7 +53,6 @@ export class CountdownComponent implements OnInit, OnDestroy {
     }
 
     private async loadTimer() {
-        await this.getQuiz();
         this.switchColorToRedOnThreeSeconds();
         if (this.quiz) {
             this.lastQuestionIndex = this.quiz.questions.length - 1;
@@ -64,11 +63,6 @@ export class CountdownComponent implements OnInit, OnDestroy {
             // this.detectWhenNextQuestionPress();
             this.gameClock();
         }
-    }
-
-    private async getQuiz() {
-        const id = this.route.snapshot.paramMap.get('id');
-        this.quiz = await this.gameService.getQuizById(id);
     }
 
     private switchColorToRedOnThreeSeconds() {

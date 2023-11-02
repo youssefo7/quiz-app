@@ -139,15 +139,13 @@ describe('QuizListComponent', () => {
         component.ngOnInit();
         tick();
 
-        expect(component.quizList).toEqual(mockQuizList);
+        expect(component.quizzes).toEqual(mockQuizList);
         expect(communicationService.getQuizzes).toHaveBeenCalled();
     }));
 
-    it('should call delete quiz service with the correct quiz', () => {
+    it('should call delete quiz service with the correct quiz', async () => {
         spyOn(communicationService, 'deleteQuiz').and.returnValue(of(propQuiz.id));
-
-        component.deleteQuiz(propQuiz);
-
+        await component.deleteQuiz(propQuiz);
         expect(communicationService.deleteQuiz).toHaveBeenCalledWith(propQuiz.id);
     });
 
@@ -207,10 +205,10 @@ describe('QuizListComponent', () => {
         expect(config.okButtonFunction).toBeDefined();
     });
 
-    it('should popup a warning message when the user tries to delete a quiz that is already deleted', () => {
+    it('should popup a warning message when the user tries to delete a quiz that is already deleted', async () => {
         spyOn(component, 'openPopupWarning');
         spyOn(communicationService, 'deleteQuiz').and.returnValue(throwError(() => HttpStatusCode.NotFound));
-        component.deleteQuiz(propQuiz);
+        await component.deleteQuiz(propQuiz);
 
         expect(component.openPopupWarning).toHaveBeenCalled();
     });

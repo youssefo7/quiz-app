@@ -7,6 +7,7 @@ import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
 import { ImportService } from '@app/services/import.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-quiz-list',
@@ -15,7 +16,7 @@ import { ImportService } from '@app/services/import.service';
 })
 export class QuizListComponent implements OnInit {
     @ViewChild('export') anchor: ElementRef<HTMLAnchorElement>;
-    quizList: Quiz[];
+    quizzes: Quiz[];
     message: string;
 
     // Plus que 3 paramètres sont necessaires pour le fonctionnement de cette composante
@@ -26,29 +27,26 @@ export class QuizListComponent implements OnInit {
         private importService: ImportService,
         private router: Router,
     ) {
-        this.quizList = [];
+        this.quizzes = [];
     }
 
-    ngOnInit(): void {
+    ngOnInit() {
         this.fetchQuizzes();
     }
 
-    fetchQuizzes(): void {
-        this.communicationService.getQuizzes().subscribe((quizzes: Quiz[]) => {
-            this.quizList = quizzes;
-        });
+    async fetchQuizzes() {
+        const quizzes: Quiz[] = await firstValueFrom(this.communicationService.getQuizzes());
+        this.quizzes = quizzes;
     }
 
-    deleteQuiz(quiz: Quiz): void {
-        this.communicationService.deleteQuiz(quiz.id).subscribe({
-            next: () => {
-                this.fetchQuizzes();
-            },
-            error: () => {
-                this.message = 'Ce quiz a déjà été supprimé par un autre administrateur.';
-                this.openPopupWarning(this.message);
-            },
-        });
+    async deleteQuiz(quiz: Quiz): Promise<void> {
+        try {
+            await firstValueFrom(this.communicationService.deleteQuiz(quiz.id));
+            this.fetchQuizzes();
+        } catch (error) {
+            this.message = 'Ce quiz a déjà été supprimé par un autre administrateur.';
+            this.openPopupWarning(this.message);
+        }
     }
 
     //  https://stackoverflow.com/questions/57922872/angular-save-blob-in-local-text-file
@@ -68,9 +66,9 @@ export class QuizListComponent implements OnInit {
         window.URL.revokeObjectURL(blobUrl);
     }
 
-    toggleVisibility(quiz: Quiz): void {
+    async toggleVisibility(quiz: Quiz) {
         quiz.visibility = !quiz.visibility;
-        this.communicationService.updateQuiz(quiz.id, quiz).subscribe();
+        await firstValueFrom(this.communicationService.updateQuiz(quiz.id, quiz));
     }
 
     openPopupDelete(quiz: Quiz): void {

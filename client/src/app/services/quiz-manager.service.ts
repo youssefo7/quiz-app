@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Question, Quiz } from '@app/interfaces/quiz';
+import { firstValueFrom } from 'rxjs';
 import { CommunicationService } from './communication.service';
 
 @Injectable({
@@ -21,45 +22,32 @@ export class QuizManagerService {
         this.isModifiedQuestion = false;
     }
 
-    getQuizListFromServer(): void {
-        this.communicationService.getQuizzes().subscribe({
-            next: (quizzes) => {
-                this.quizzes = quizzes;
-            },
-        });
+    async getQuizListFromServer() {
+        const quizzes: Quiz[] = await firstValueFrom(this.communicationService.getQuizzes());
+        this.quizzes = quizzes;
     }
 
-    addQuizToServer(newQuiz: Quiz) {
-        this.communicationService.addQuiz(newQuiz).subscribe({
-            next: () => {
-                this.router.navigateByUrl('admin');
-            },
-        });
+    async addQuizToServer(newQuiz: Quiz) {
+        await firstValueFrom(this.communicationService.addQuiz(newQuiz));
+        this.router.navigateByUrl('admin');
     }
 
-    updateQuizOnServer(id: string, updatedQuiz: Quiz) {
-        this.communicationService.updateQuiz(id, updatedQuiz).subscribe({
-            next: () => {
-                this.router.navigateByUrl('admin');
-            },
-            error: () => {
-                this.addQuizToServer(updatedQuiz);
-            },
-        });
+    async updateQuizOnServer(id: string, updatedQuiz: Quiz) {
+        try {
+            await firstValueFrom(this.communicationService.updateQuiz(id, updatedQuiz));
+            this.router.navigateByUrl('admin');
+        } catch (error) {
+            this.addQuizToServer(updatedQuiz);
+        }
     }
 
     async fetchQuiz(id: string | null): Promise<Quiz | undefined> {
         if (id) {
-            return new Promise<Quiz | undefined>((resolve) => {
-                this.communicationService.getQuiz(id).subscribe({
-                    next: (quiz) => {
-                        this.quizToModify = JSON.parse(JSON.stringify(quiz));
-                        resolve(quiz);
-                    },
-                });
-            });
+            const quiz: Quiz = await firstValueFrom(this.communicationService.getQuiz(id as string));
+            this.quizToModify = JSON.parse(JSON.stringify(quiz));
+            return Promise.resolve(quiz);
         }
-        return undefined;
+        return Promise.resolve(undefined);
     }
 
     addNewQuestion(newQuestion: Question, quiz: Quiz) {

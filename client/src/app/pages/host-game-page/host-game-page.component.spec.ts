@@ -82,7 +82,6 @@ describe('HostGamePageComponent', () => {
         fixture = TestBed.createComponent(HostGamePageComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
-        gameService = TestBed.inject(GameService);
         router = TestBed.inject(Router);
     }));
 
@@ -91,9 +90,7 @@ describe('HostGamePageComponent', () => {
     });
 
     it('should fetch the quiz ', () => {
-        const getQuizByIdSpy = spyOn(gameService, 'getQuizById');
-        component['getQuiz']();
-        expect(getQuizByIdSpy).toHaveBeenCalledWith(mockedQuiz.id);
+        expect(communicationServiceMock.getQuiz).toHaveBeenCalledWith(mockedQuiz.id);
     });
 
     it('clicking the exit icon should redirect to "/game/new" page', () => {

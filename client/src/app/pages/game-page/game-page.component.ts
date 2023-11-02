@@ -4,7 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
-import { GameService } from '@app/services/game.service';
+import { CommunicationService } from '@app/services/communication.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-game-page',
@@ -13,18 +14,19 @@ import { GameService } from '@app/services/game.service';
 })
 export class GamePageComponent implements OnInit {
     title: string;
-    quiz: Quiz | null;
+    quiz: Quiz;
     playerPoints: number;
     private readonly isTestGame: boolean;
 
     // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
     constructor(
-        private gameService: GameService,
+        // private gameService: GameService,
         private popup: MatDialog,
         private readonly route: ActivatedRoute,
         private readonly router: Router,
         private readonly elementRef: ElementRef,
+        private readonly communicationService: CommunicationService,
     ) {
         this.title = 'Partie: ';
         this.playerPoints = 0;
@@ -41,8 +43,9 @@ export class GamePageComponent implements OnInit {
     }
 
     async getQuiz() {
-        const id = this.route.snapshot.paramMap.get('id');
-        this.quiz = await this.gameService.getQuizById(id);
+        const id = this.route.snapshot.paramMap.get('id') as string;
+        const quiz = await firstValueFrom(this.communicationService.getQuiz(id));
+        this.quiz = quiz;
     }
 
     getQuizTitle() {

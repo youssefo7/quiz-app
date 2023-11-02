@@ -1,5 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, Output } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
 import { TimeService } from '@app/services/time.service';
@@ -10,12 +9,12 @@ import { Subscription } from 'rxjs';
     templateUrl: './question-zone.component.html',
     styleUrls: ['./question-zone.component.scss'],
 })
-export class QuestionZoneComponent implements OnInit, OnDestroy {
+export class QuestionZoneComponent implements OnDestroy, OnInit {
     @Output() pointsEarned: EventEmitter<number>;
+    @Input() quiz: Quiz;
     isQuestionTransitioning: boolean;
     currentQuestionIndex: number;
     points: number;
-    quiz: Quiz | null;
     question: Question;
     chosenChoices: boolean[];
     choiceButtonStyle: { backgroundColor: string }[];
@@ -29,11 +28,8 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     private timerSubscription: Subscription;
     private gameServiceSubscription: Subscription;
 
-    // Raison: J'injecte les services nécessaire dans mon constructeur
-    // eslint-disable-next-line max-params
     constructor(
         private gameService: GameService,
-        private readonly route: ActivatedRoute,
         private readonly elementRef: ElementRef,
         private readonly timeService: TimeService,
     ) {
@@ -72,7 +68,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.loadQuiz();
+        this.getQuestion(this.currentQuestionIndex);
         this.subscribeToTimer();
         this.subscribeToGameService();
     }
@@ -81,16 +77,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.timeService.stopTimer();
         this.timerSubscription.unsubscribe();
         this.gameServiceSubscription.unsubscribe();
-    }
-
-    async getQuiz() {
-        const id = this.route.snapshot.paramMap.get('id');
-        this.quiz = await this.gameService.getQuizById(id);
-    }
-
-    async loadQuiz() {
-        await this.getQuiz();
-        this.getQuestion(this.currentQuestionIndex);
     }
 
     focusOnButton() {

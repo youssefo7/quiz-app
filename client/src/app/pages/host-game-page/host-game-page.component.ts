@@ -4,7 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
-import { GameService } from '@app/services/game.service';
+import { CommunicationService } from '@app/services/communication.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-host-game-page',
@@ -12,17 +13,17 @@ import { GameService } from '@app/services/game.service';
     styleUrls: ['./host-game-page.component.scss'],
 })
 export class HostGamePageComponent implements OnInit {
-    quiz: Quiz | null;
+    quiz: Quiz;
     title: string;
 
     // All these parameters are needed for the component to work properly
     // eslint-disable-next-line max-params
     constructor(
-        private gameService: GameService,
         private popup: MatDialog,
         private readonly route: ActivatedRoute,
         private readonly router: Router,
         private readonly elementRef: ElementRef,
+        private readonly communicationService: CommunicationService,
     ) {
         this.title = 'Partie: ';
     }
@@ -66,8 +67,9 @@ export class HostGamePageComponent implements OnInit {
     }
 
     private async getQuiz() {
-        const id = this.route.snapshot.paramMap.get('id');
-        this.quiz = await this.gameService.getQuizById(id);
+        const id = this.route.snapshot.paramMap.get('id') as string;
+        const quiz = await firstValueFrom(this.communicationService.getQuiz(id));
+        this.quiz = quiz;
     }
     private async leaveGamePage() {
         await this.router.navigateByUrl('/game/new');

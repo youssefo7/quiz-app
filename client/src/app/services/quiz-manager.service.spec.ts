@@ -115,33 +115,33 @@ describe('QuizManagerService', () => {
         expect(service).toBeTruthy();
     });
 
-    it('should fetch quizzes', () => {
+    it('should fetch quizzes', async () => {
         communicationServiceSpy.getQuizzes.and.returnValue(of(quizListMock));
-        service.getQuizListFromServer();
+        await service.getQuizListFromServer();
         expect(service.quizzes).toEqual(quizListMock);
     });
 
-    it('should redirect to the admin page when a new quiz is added', () => {
+    it('should redirect to the admin page when a new quiz is added', async () => {
         communicationServiceSpy.addQuiz.and.returnValue(of(quizToEditMock));
 
-        service.addQuizToServer(quizToEditMock);
+        await service.addQuizToServer(quizToEditMock);
         expect(communicationServiceSpy.addQuiz).toHaveBeenCalledWith(quizToEditMock);
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('admin');
     });
 
-    it('should redirect to admin page when a quiz is updated', () => {
+    it('should redirect to admin page when a quiz is updated', async () => {
         communicationServiceSpy.updateQuiz.and.returnValue(of(quizToEditMock));
 
-        service.updateQuizOnServer(quizToEditMock.id, quizToEditMock);
+        await service.updateQuizOnServer(quizToEditMock.id, quizToEditMock);
         expect(communicationServiceSpy.updateQuiz).toHaveBeenCalledWith(quizToEditMock.id, quizToEditMock);
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('admin');
     });
 
-    it('should create a new quiz when updating a deleted quiz', () => {
+    it('should create a new quiz when updating a deleted quiz', async () => {
         communicationServiceSpy.updateQuiz.and.returnValue(throwError(() => new Error(`Quiz ${quizToEditMock.id} not found`)));
         const addQuizToServerSpy = spyOn(service, 'addQuizToServer');
 
-        service.updateQuizOnServer(quizToEditMock.id, quizToEditMock);
+        await service.updateQuizOnServer(quizToEditMock.id, quizToEditMock);
         expect(addQuizToServerSpy).toHaveBeenCalledWith(quizToEditMock);
     });
 
@@ -149,11 +149,6 @@ describe('QuizManagerService', () => {
         communicationServiceSpy.getQuiz.and.returnValue(of(quizToEditMock));
         const fetchedQuiz = await service.fetchQuiz(quizToEditMock.id);
         expect(fetchedQuiz).toBe(quizToEditMock);
-    });
-
-    it('should return undefined when fetching quiz with null id', async () => {
-        const noQuiz = await service.fetchQuiz(null);
-        expect(noQuiz).toBeUndefined();
     });
 
     it('should add a new question to the questions array of a quiz', () => {

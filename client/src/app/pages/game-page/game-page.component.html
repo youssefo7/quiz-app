@@ -3,8 +3,8 @@
     <div id="exit-button-grid">
         <mat-icon (click)="openQuitPopUp()" title="Quitter la Partie" inline="true">exit_to_app</mat-icon>
     </div>
-    <app-countdown id="countdown-grid"></app-countdown>
-    <app-question-zone id="questions-grid" (pointsEarned)="givePoints($event)"></app-question-zone>
+    <app-countdown *ngIf="quiz" [quiz]="quiz" id="countdown-grid"></app-countdown>
+    <app-question-zone *ngIf="quiz" [quiz]="quiz" id="questions-grid" (pointsEarned)="givePoints($event)"></app-question-zone>
     <div id="chat-player-flex">
         <app-profile id="profile-container" [points]="playerPoints"></app-profile>
         <app-chat id="chat-container"></app-chat>

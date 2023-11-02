@@ -104,9 +104,9 @@ describe('CreateGameListComponent', () => {
         expect(paragraphElement.innerText).toEqual("Aucun jeu n'est disponible pour le moment...");
     });
 
-    it('should not display a message if 1 or more games are available', () => {
+    it('should not display a message if 1 or more games are available', async () => {
         communicationServiceSpy.getQuizzes.and.returnValue(of(visibleQuizMock));
-        component.getVisibleQuizListFromServer();
+        await component.getVisibleQuizListFromServer();
         fixture.detectChanges();
 
         const paragraphElement = fixture.nativeElement.querySelector('p');
@@ -115,20 +115,20 @@ describe('CreateGameListComponent', () => {
         expect(paragraphElement).toBeNull();
     });
 
-    it('should show visible games', () => {
+    it('should show visible games', async () => {
         communicationServiceSpy.getQuizzes.and.returnValue(of(hiddenQuizMock));
-        component.getVisibleQuizListFromServer();
+        await component.getVisibleQuizListFromServer();
 
         expect(component.visibleQuizList).toEqual([]);
     });
 
-    it('should show toggle button when the quiz is visible', () => {
+    it('should show toggle button when the quiz is visible', async () => {
         communicationServiceSpy.getQuizzes.and.returnValue(of(visibleQuizMock));
-        component.getVisibleQuizListFromServer();
+        await component.getVisibleQuizListFromServer();
         fixture.detectChanges();
 
         const toggleButton = fixture.nativeElement.querySelector('.toggleButton');
-        expect(component.visibleQuizList).not.toBeNull();
+        expect(component.visibleQuizList).not.toEqual([]);
         expect(toggleButton).toBeTruthy();
     });
 
@@ -143,9 +143,9 @@ describe('CreateGameListComponent', () => {
         expect(component.selectedQuizId).toBeNull();
     });
 
-    it('should toggle the quiz details when the toggle button is clicked', () => {
+    it('should toggle the quiz details when the toggle button is clicked', async () => {
         communicationServiceSpy.getQuizzes.and.returnValue(of(visibleQuizMock));
-        component.getVisibleQuizListFromServer();
+        await component.getVisibleQuizListFromServer();
         fixture.detectChanges();
 
         const toggleButton = fixture.nativeElement.querySelector('.toggleButton');

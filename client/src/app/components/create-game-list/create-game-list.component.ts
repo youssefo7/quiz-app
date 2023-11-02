@@ -38,10 +38,9 @@ export class CreateGameListComponent implements OnInit {
         this.getVisibleQuizListFromServer();
     }
 
-    getVisibleQuizListFromServer() {
-        this.communicationService.getQuizzes().subscribe((quizzes: Quiz[]) => {
-            this.visibleQuizList = quizzes.filter((quiz) => quiz.visibility);
-        });
+    async getVisibleQuizListFromServer() {
+        const quizzes = await firstValueFrom(this.communicationService.getQuizzes());
+        this.visibleQuizList = quizzes.filter((quiz) => quiz.visibility);
     }
 
     toggleDetails(id: string) {

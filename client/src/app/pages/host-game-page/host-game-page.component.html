@@ -4,7 +4,7 @@
         <mat-icon (click)="openQuitPopUp()" title="Quitter la Partie" inline="true">exit_to_app</mat-icon>
     </div>
     <div id="countdown-player-list-grid">
-        <app-countdown [isHost]="true" id="countdown-container"></app-countdown>
+        <app-countdown *ngIf="quiz" [quiz]="quiz" [isHost]="true" id="countdown-container"></app-countdown>
         <div id="player-list-countainer">
             <app-game-players-list></app-game-players-list>
         </div>
