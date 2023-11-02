@@ -110,11 +110,12 @@ export class QuizManagerService {
     }
 
     hasQuizBeenModified(quiz: Quiz): boolean {
-        if (
-            this.quizToModify.title.trim() !== quiz.title.trim() ||
-            this.quizToModify.description.trim() !== quiz.description.trim() ||
-            this.quizToModify.duration !== quiz.duration
-        ) {
+        const isTitleDifferent = this.quizToModify.title.trim() !== quiz.title.trim();
+        const isDescriptionDifferent = this.quizToModify.description.trim() !== quiz.description.trim();
+        const isDurationDifferent = this.quizToModify.duration !== quiz.duration;
+        const isTitleOrDescriptionDifferent = isTitleDifferent || isDescriptionDifferent;
+
+        if (isTitleOrDescriptionDifferent || isDurationDifferent) {
             return true;
         }
 
@@ -123,20 +124,21 @@ export class QuizManagerService {
         }
 
         for (let i = 0; i < this.quizToModify.questions.length; i++) {
-            if (
-                this.quizToModify.questions[i].type !== quiz.questions[i].type ||
-                this.quizToModify.questions[i].text.trim() !== quiz.questions[i].text.trim() ||
-                this.quizToModify.questions[i].points !== quiz.questions[i].points ||
-                this.quizToModify.questions[i].choices.length !== quiz.questions[i].choices.length
-            ) {
+            const isTypeDifferent = this.quizToModify.questions[i].type !== quiz.questions[i].type;
+            const isTextDifferent = this.quizToModify.questions[i].text.trim() !== quiz.questions[i].text.trim();
+            const isTypeOrTextDifferent = isTypeDifferent || isTextDifferent;
+            const isPointsDifferent = this.quizToModify.questions[i].points !== quiz.questions[i].points;
+            const isChoicesLengthDifferent = this.quizToModify.questions[i].choices.length !== quiz.questions[i].choices.length;
+            const isPointsOrChoicesLengthDifferent = isPointsDifferent || isChoicesLengthDifferent;
+
+            if (isTypeOrTextDifferent || isPointsOrChoicesLengthDifferent) {
                 return true;
             }
 
             for (let j = 0; j < this.quizToModify.questions[i].choices.length; j++) {
-                if (
-                    this.quizToModify.questions[i].choices[j].text.trim() !== quiz.questions[i].choices[j].text.trim() ||
-                    this.quizToModify.questions[i].choices[j].isCorrect !== quiz.questions[i].choices[j].isCorrect
-                ) {
+                const isChoiceTextDifferent = this.quizToModify.questions[i].choices[j].text.trim() !== quiz.questions[i].choices[j].text.trim();
+                const isChoiceIsCorrectDifferent = this.quizToModify.questions[i].choices[j].isCorrect !== quiz.questions[i].choices[j].isCorrect;
+                if (isChoiceTextDifferent || isChoiceIsCorrectDifferent) {
                     return true;
                 }
             }
