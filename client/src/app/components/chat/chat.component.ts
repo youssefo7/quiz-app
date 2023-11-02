@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { SocketClientService } from '@app/services/socket-client.service';
-import { Socket } from 'socket.io-client';
 
 @Component({
     selector: 'app-chat',
@@ -10,13 +9,12 @@ import { Socket } from 'socket.io-client';
     styleUrls: ['./chat.component.scss'],
 })
 export class ChatComponent implements OnInit {
-    socket: Socket;
     chatMessage: ChatMessage;
     characterCounterDisplay: string;
     currentInputLength: number;
     maxInputLength: number;
     roomMessages: ChatMessage[];
-    roomMessage: string;
+    userMessage: string;
     roomId: string;
 
     constructor(
@@ -27,18 +25,18 @@ export class ChatComponent implements OnInit {
         this.currentInputLength = 0;
         this.characterCounterDisplay = `${this.currentInputLength} / ${this.maxInputLength}`;
         this.roomMessages = [];
-        this.roomMessage = '';
+        this.userMessage = '';
         this.roomId = '';
+        this.roomId = this.route.snapshot.paramMap.get('room') as string;
     }
 
     ngOnInit() {
-        this.roomId = this.route.snapshot.paramMap.get('room') as string;
         this.configureChatSocketFeatures();
     }
 
     configureChatSocketFeatures() {
         const addMessage = (data: { name: string; timeString: string; message: string; sentByYou: boolean }) => {
-            const chatMessage: ChatMessage = { name: data.name, time: data.timeString, message: data.message, sentByYou: data.sentByYou };
+            const chatMessage: ChatMessage = { authorName: data.name, time: data.timeString, message: data.message, sentByYou: data.sentByYou };
             this.roomMessages.push(chatMessage);
         };
 
@@ -60,7 +58,7 @@ export class ChatComponent implements OnInit {
     }
 
     sendMessageToRoom() {
-        this.socketService.send('roomMessage', { roomId: this.roomId, message: this.roomMessage });
-        this.roomMessage = '';
+        this.socketService.send('roomMessage', { roomId: this.roomId, message: this.userMessage });
+        this.userMessage = '';
     }
 }
