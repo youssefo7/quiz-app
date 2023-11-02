@@ -41,7 +41,10 @@ export class RoomManagerService {
     }
 
     addPlayerToRoom(room: Room, playerId: string) {
-        room.players.push({ socketId: playerId, name: '', points: 0, bonusCount: 0 });
+        const res = this.findPlayer(playerId, room);
+        if (!res) {
+            room.players.push({ socketId: playerId, name: '', points: 0, bonusCount: 0 });
+        }
     }
 
     addBannedNameToRoom(room: Room, name: string) {
@@ -60,12 +63,12 @@ export class RoomManagerService {
     }
 
     findUser(id: string, room: Room): Player | Organizer {
-        const player = room.players.find((currentPlayer) => currentPlayer.socketId === id);
-        if (player) {
-            return player;
-        }
+        const player = this.findPlayer(id, room);
+        return player ?? room.organizer;
+    }
 
-        return room.organizer;
+    findPlayer(id: string, room: Room): Player {
+        return room.players.find((currentPlayer) => currentPlayer.socketId === id);
     }
 
     findPlayerByName(room: Room, name: string): Player {
@@ -84,17 +87,12 @@ export class RoomManagerService {
     }
 
     isBannedName(room: Room, name: string) {
-        const isBanned = room.bannedNames.find((bannedName) => bannedName === name);
+        const isBanned = room.bannedNames.find((bannedName) => bannedName.toLowerCase() === name.toLowerCase());
         return Boolean(isBanned);
     }
 
     removePlayer(room: Room, playerId: string) {
-        const playerIndex = room.players.findIndex((player) => player.socketId === playerId);
-        const outOfBoundsIndex = -1;
-
-        if (playerIndex !== outOfBoundsIndex) {
-            room.players.splice(playerIndex, 1);
-        }
+        room.players = room.players.filter((player) => player.socketId !== playerId);
     }
 
     deleteRoom(room: Room) {
@@ -136,7 +134,7 @@ export class RoomManagerService {
         const isBannedName = this.isBannedName(room, data.name);
         const isNameValid = !nameExists && !isBannedName;
 
-        if (isNameValid) {
+        if (isNameValid && !room.isLocked) {
             wantedPlayer.name = data.name;
         }
 
@@ -156,5 +154,10 @@ export class RoomManagerService {
 
         this.addPlayerToRoom(room, data.socketId);
         return { roomState: 'OK', quizId: room.quizId };
+    }
+
+    getRoomPlayers(roomId: string) {
+        const room = this.findRoom(roomId);
+        return room.players.map((player) => player.name);
     }
 }

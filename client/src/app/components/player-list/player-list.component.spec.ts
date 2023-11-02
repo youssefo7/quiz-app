@@ -1,3 +1,4 @@
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
@@ -51,6 +52,7 @@ describe('PlayerListComponent', () => {
                 { provide: SocketClientService, useValue: mockSocketClientService },
                 { provide: Router, useValue: routerSpy },
             ],
+            imports: [HttpClientTestingModule],
         }).compileComponents();
     }));
 

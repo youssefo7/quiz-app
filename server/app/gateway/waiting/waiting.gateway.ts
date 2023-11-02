@@ -31,17 +31,18 @@ export class WaitingGateway {
     }
 
     @SubscribeMessage(WaitingEvents.BanName)
-    handleBanName(socket: Socket, data: { roomId: string; name: string }) {
+    handleBanName(_: Socket, data: { roomId: string; name: string }) {
         const room = this.roomManager.findRoom(data.roomId);
+        this.roomManager.addBannedNameToRoom(room, data.name);
         const player = this.roomManager.findPlayerByName(room, data.name);
 
         if (player) {
-            this.roomManager.addBannedNameToRoom(room, data.name);
             this.roomManager.removePlayer(room, player.socketId);
-            if (socket) {
-                socket.emit(WaitingEvents.BanNotification);
-                socket.leave(data.roomId);
-                socket.disconnect();
+            const playerSocket = this.server.sockets.sockets.get(player.socketId);
+            if (playerSocket) {
+                playerSocket.emit(WaitingEvents.BanNotification);
+                playerSocket.leave(data.roomId);
+                playerSocket.disconnect();
             }
             this.server.emit(WaitingEvents.BanName, data.name);
         }

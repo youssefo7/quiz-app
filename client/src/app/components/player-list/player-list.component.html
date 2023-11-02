@@ -8,7 +8,7 @@
         <ol id="playersList">
             <li class="player" *ngFor="let player of players">
                 <mat-icon class="account">account_circle</mat-icon> <span>{{ player }}</span>
-                <button *ngIf="isHost" class="banButton" (click)="removePlayer(player)">
+                <button *ngIf="isHost" class="banButton" (click)="banPlayer(player)">
                     <mat-icon class="banIcon">block</mat-icon>
                 </button>
             </li>

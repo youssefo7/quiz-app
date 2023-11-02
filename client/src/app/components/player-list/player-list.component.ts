@@ -6,7 +6,9 @@ import { GameEvents } from '@app/events/game.events';
 import { JoinEvents } from '@app/events/join.events';
 import { WaitingEvents } from '@app/events/waiting.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
+import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-player-list',
@@ -27,6 +29,7 @@ export class PlayerListComponent implements OnInit {
         private router: Router,
         private popUp: MatDialog,
         private socketClientService: SocketClientService,
+        private roomCommunicationService: RoomCommunicationService,
     ) {
         this.players = [];
         this.bannedPlayers = [];
@@ -47,11 +50,9 @@ export class PlayerListComponent implements OnInit {
         this.quitPopUp();
     }
 
-    ngOnInit() {
+    async ngOnInit() {
         this.listenToSocketEvents();
-        this.socketClientService.send(WaitingEvents.GetPlayerNames, this.roomId, (playerNames: string[]) => {
-            this.players = playerNames;
-        });
+        this.players = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string));
     }
 
     listenToSocketEvents() {
@@ -93,6 +94,9 @@ export class PlayerListComponent implements OnInit {
 
     removePlayer(name: string) {
         this.players = this.players.filter((player) => player !== name);
+    }
+
+    banPlayer(name: string) {
         this.socketClientService.send(WaitingEvents.BanName, { roomId: this.roomId, name });
     }
 

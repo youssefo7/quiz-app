@@ -13,12 +13,20 @@ export class RoomCommunicationService {
 
     constructor(private http: HttpClient) {}
 
-    getNameValidity(data: { name: string; roomId: string; socketId: string }): Observable<boolean> {
+    processUsername(data: { name: string; roomId: string; socketId: string }): Observable<boolean> {
         return this.http.post<boolean>(`${this.baseUrl}/rooms/name`, data).pipe(catchError(this.receiveError<boolean>()));
     }
 
     joinRoom(data: { roomId: string; socketId: string }): Observable<JoinRoomResponse> {
         return this.http.post<JoinRoomResponse>(`${this.baseUrl}/rooms/join`, data).pipe(catchError(this.receiveError<JoinRoomResponse>()));
+    }
+
+    createRoom(data: { quizId: string; socketId: string }): Observable<string> {
+        return this.http.post<string>(`${this.baseUrl}/rooms/new`, data).pipe(catchError(this.receiveError<string>()));
+    }
+
+    getRoomPlayers(roomId: string): Observable<string[]> {
+        return this.http.get<string[]>(`${this.baseUrl}/rooms/${roomId}/players`).pipe(catchError(this.receiveError<string[]>()));
     }
 
     private receiveError<T>() {
