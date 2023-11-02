@@ -79,17 +79,14 @@ export class JoinGamePopupComponent {
             const response = await firstValueFrom(
                 this.roomCommunicationService.joinRoom({ roomId: this.givenRoomCode, socketId: this.socketClientService.socket.id }),
             );
-            console.log(JSON.stringify(response));
             switch (response.roomState) {
                 case RoomState.OK: {
-                    console.log('RoomState.OK');
                     this.showUsernameField = true;
                     this.isCodeValidated = true;
                     this.roomCodeErrorMessage = '';
                     if (response.quizId) {
                         this.quizId = response.quizId;
                     }
-                    console.log('Joining room', this.givenRoomCode);
                     this.socketClientService.send('joinRoom', this.givenRoomCode);
                     break;
                 }

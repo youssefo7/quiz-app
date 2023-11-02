@@ -1,4 +1,4 @@
-import { Player, Room } from '@app/interfaces/room';
+import { Room } from '@app/interfaces/room';
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
 import { Injectable } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -15,32 +15,9 @@ export class JoinGateway {
         this.rooms = roomManager.rooms;
     }
 
-    @SubscribeMessage(JoinEvents.CreateRoom)
-    handleCreateRoom(socket: Socket, quizId: string) {
-        const roomId = this.roomManager.createNewRoom(quizId, socket.id);
-        socket.join(roomId);
-        return roomId;
-    }
-
     @SubscribeMessage(JoinEvents.JoinRoom)
     handleJoinRoom(socket: Socket, roomId: string) {
-        console.log('Joining room', roomId);
         socket.join(roomId);
-    }
-
-    @SubscribeMessage(JoinEvents.ChooseName)
-    handleChooseName(socket: Socket, data: { name: string; roomId: string }) {
-        const room = this.roomManager.findRoom(data.roomId);
-        const wantedPlayer = this.roomManager.findUser(socket.id, room) as Player;
-        const nameExists = this.roomManager.isNameTaken(room, data.name);
-        const isBannedName = this.roomManager.isBannedName(room, data.name);
-        const isNameValid = !nameExists && !isBannedName;
-
-        if (isNameValid) {
-            wantedPlayer.name = data.name;
-        }
-
-        return isNameValid;
     }
 
     @SubscribeMessage(JoinEvents.SuccessfulJoin)

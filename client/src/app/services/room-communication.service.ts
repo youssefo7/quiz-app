@@ -21,6 +21,14 @@ export class RoomCommunicationService {
         return this.http.post<JoinRoomResponse>(`${this.baseUrl}/rooms/join`, data).pipe(catchError(this.receiveError<JoinRoomResponse>()));
     }
 
+    createRoom(data: { quizId: string; socketId: string }): Observable<string> {
+        return this.http.post<string>(`${this.baseUrl}/rooms/new`, data).pipe(catchError(this.receiveError<string>()));
+    }
+
+    getRoomPlayers(roomId: string): Observable<string[]> {
+        return this.http.get<string[]>(`${this.baseUrl}/rooms/${roomId}/players`).pipe(catchError(this.receiveError<string[]>()));
+    }
+
     private receiveError<T>() {
         return (error: HttpErrorResponse): Observable<T> => {
             const errorMessage = `${error.error}`;

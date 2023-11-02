@@ -89,12 +89,7 @@ export class RoomManagerService {
     }
 
     removePlayer(room: Room, playerId: string) {
-        const playerIndex = room.players.findIndex((player) => player.socketId === playerId);
-        const outOfBoundsIndex = -1;
-
-        if (playerIndex !== outOfBoundsIndex) {
-            room.players.splice(playerIndex, 1);
-        }
+        room.players = room.players.filter((player) => player.socketId !== playerId);
     }
 
     deleteRoom(room: Room) {
@@ -156,5 +151,11 @@ export class RoomManagerService {
 
         this.addPlayerToRoom(room, data.socketId);
         return { roomState: 'OK', quizId: room.quizId };
+    }
+
+    getRoomPlayers(roomId: string) {
+        const room = this.findRoom(roomId);
+        const playerNames = room.players.map((player) => player.name);
+        return playerNames;
     }
 }
