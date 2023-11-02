@@ -108,31 +108,15 @@ export class QuizQuestionInfoComponent implements OnInit {
             choiceGroup.get('isCorrect')?.setValue(false);
         });
     }
-
     adjustPadding() {
-        if (
-            this.questionInfoForm.controls.text.invalid &&
-            (this.questionInfoForm.controls.text.dirty || this.questionInfoForm.controls.text.touched)
-        ) {
-            this.isTextValid = false;
-        } else {
-            this.isTextValid = true;
-        }
+        this.isTextValid = this.isValidControl(this.questionInfoForm.controls.text);
+        this.isPointsValid = this.isValidControl(this.questionInfoForm.controls.points);
+        this.isChoicesValid = this.isValidControl(this.questionInfoForm.controls.choices);
+    }
 
-        if (this.questionInfoForm.controls.points.invalid) {
-            this.isPointsValid = false;
-        } else {
-            this.isPointsValid = true;
-        }
-
-        if (
-            this.questionInfoForm.controls.choices.invalid &&
-            (this.questionInfoForm.controls.choices.dirty || this.questionInfoForm.controls.choices.touched)
-        ) {
-            this.isChoicesValid = false;
-        } else {
-            this.isChoicesValid = true;
-        }
+    isValidControl(control: AbstractControl): boolean {
+        const isDirtyOrTouched = control.dirty || control.touched;
+        return !control.invalid && isDirtyOrTouched;
     }
 
     private questionChoicesValidator(): ValidatorFn {
@@ -200,7 +184,6 @@ export class QuizQuestionInfoComponent implements OnInit {
             choices: choicesArray,
         };
 
-        // Do we have to change this to ternary operator?
         if (this.quizManagerService.isModifiedQuestion) {
             this.quizManagerService.modifyQuestion(newQuestion, this.quizManagerService.modifiedIndex, this.newQuiz);
         } else {

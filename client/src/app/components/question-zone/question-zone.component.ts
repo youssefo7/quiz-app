@@ -94,17 +94,17 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     setSubmitButtonStateOnChoices() {
-        if (this.chosenChoices.some((choice) => choice === true)) {
-            this.isSubmitDisabled = false;
-            this.submitButtonStyle = { backgroundColor: 'green' };
-        } else {
-            this.isSubmitDisabled = true;
-            this.submitButtonStyle = { backgroundColor: 'grey' };
-        }
+        const hasChosenChoices = this.chosenChoices.some((choice) => choice);
+        this.isSubmitDisabled = !hasChosenChoices;
+        this.submitButtonStyle = {
+            backgroundColor: hasChosenChoices ? 'green' : 'grey',
+        };
     }
 
     toggleChoice(index: number) {
-        if (!isNaN(index) && index >= 0 && index < this.chosenChoices.length) {
+        const isValidIndex = !isNaN(index);
+        const isInRange = index >= 0 && index < this.chosenChoices.length;
+        if (isValidIndex && isInRange) {
             this.chosenChoices[index] = !this.chosenChoices[index];
         }
     }
