@@ -7,7 +7,6 @@ import { SocketClientService } from '@app/services/socket-client.service';
 import { Socket } from 'socket.io-client';
 import { ChatComponent } from './chat.component';
 
-// La raison du lint disable est que le code vient d'un exemple du professeur et le connect est vide dans l'exemple qu'il utilise pour Mock.
 class SocketClientServiceMock extends SocketClientService {
     override connect() {
         // vide
