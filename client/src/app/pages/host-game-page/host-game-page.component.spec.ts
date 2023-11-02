@@ -20,7 +20,9 @@ import SpyObj = jasmine.SpyObj;
     template: '<p>Template Needed</p>',
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
-export class ChatComponentStub {}
+export class ChatComponentStub {
+    // vide
+}
 
 describe('HostGamePageComponent', () => {
     let component: HostGamePageComponent;

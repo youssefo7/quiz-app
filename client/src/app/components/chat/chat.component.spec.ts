@@ -88,19 +88,21 @@ describe('ChatComponent', () => {
     });
 
     it('should add a message to roomMessages array on roomMessage event when user is not the sender', () => {
-        const chatMessage = { name: 'TestName', time: '10:23:56', message: 'Test Message', sentByYou: false };
+        const chatMessage = { name: 'TestName', timeString: '10:23:56', message: 'Test Message', sentByYou: false };
         socketHelper.peerSideEmit('newRoomMessage', chatMessage);
         expect(component.roomMessages.length).toBe(1);
         expect(component.roomMessages[0].authorName).toEqual(chatMessage.name);
+        expect(component.roomMessages[0].time).toEqual(chatMessage.timeString);
         expect(component.roomMessages[0].message).toEqual(chatMessage.message);
         expect(component.roomMessages[0].sentByYou).toEqual(false);
     });
 
     it('should add a message to roomMessages array on roomMessage event when user is the sender', () => {
-        const chatMessage = { name: 'TestName', time: '10:23:56', message: 'Test Message', sentByYou: true };
+        const chatMessage = { name: 'TestName', timeString: '10:23:56', message: 'Test Message', sentByYou: true };
         socketHelper.peerSideEmit('sentByYou', chatMessage);
         expect(component.roomMessages.length).toBe(1);
         expect(component.roomMessages[0].authorName).toEqual(chatMessage.name);
+        expect(component.roomMessages[0].time).toEqual(chatMessage.timeString);
         expect(component.roomMessages[0].message).toEqual(chatMessage.message);
         expect(component.roomMessages[0].sentByYou).toEqual(true);
     });

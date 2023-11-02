@@ -21,7 +21,9 @@ import SpyObj = jasmine.SpyObj;
     template: '<p>Template Needed</p>',
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
-export class ChatComponentStub {}
+export class ChatComponentStub {
+    // vide
+}
 
 describe('GamePageComponent in test game route', () => {
     let component: GamePageComponent;
@@ -83,7 +85,7 @@ describe('GamePageComponent in test game route', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should call leaveGamePage when clicking okButton', () => {
+    it('should call leaveGamePage when clicking okButton du popup de quitter une partie', () => {
         spyOn(component, 'leaveGamePage');
         component.openQuitPopUp();
 
