@@ -3,7 +3,7 @@
         <div class="message-container" *ngFor="let message of roomMessages">
             <div class="chat-message" [ngClass]="{ sent: message.sentByYou }">
                 <div class="message-info">
-                    <div class="sender-name">{{ message.name }}</div>
+                    <div class="sender-name">{{ message.authorName }}</div>
                     <div class="message-time">{{ message.time }}</div>
                 </div>
                 <div class="message-text">{{ message.message }}</div>
@@ -17,7 +17,7 @@
             maxlength="200"
             (input)="expandTextArea($event)"
             (input)="detectCharacterLengthOnInput($event)"
-            [(ngModel)]="roomMessage"
+            [(ngModel)]="userMessage"
         ></textarea>
         <mat-icon inline="true" (click)="sendMessageToRoom()">send</mat-icon>
     </div>

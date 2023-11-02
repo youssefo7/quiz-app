@@ -7,10 +7,10 @@ import { SocketClientService } from '@app/services/socket-client.service';
 import { Socket } from 'socket.io-client';
 import { ChatComponent } from './chat.component';
 
-// La raison du lint disable est que le code vient d'un exemple du professeur et le connect est vide dans l'exemple qu'il utilise pour Mock.
 class SocketClientServiceMock extends SocketClientService {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    override connect() {}
+    override connect() {
+        // vide
+    }
 }
 
 describe('ChatComponent', () => {
@@ -23,6 +23,9 @@ describe('ChatComponent', () => {
         socketHelper = new SocketTestHelper();
         socketClientServiceMock = new SocketClientServiceMock();
         socketClientServiceMock.socket = socketHelper as unknown as Socket;
+    });
+
+    beforeEach(async () => {
         TestBed.configureTestingModule({
             declarations: [ChatComponent, MatIcon],
             imports: [FormsModule],
@@ -32,12 +35,12 @@ describe('ChatComponent', () => {
                     provide: ActivatedRoute,
                     useValue: {
                         snapshot: {
-                            paramMap: convertToParamMap({ room: 'roomid' }),
+                            paramMap: convertToParamMap({ room: 'roomId' }),
                         },
                     },
                 },
             ],
-        });
+        }).compileComponents();
         fixture = TestBed.createComponent(ChatComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
@@ -73,28 +76,32 @@ describe('ChatComponent', () => {
         expect(component.characterCounterDisplay).toBe('4 / 200');
     });
 
-    it('should send a message to a specific room on the server and reset roomMessage with a roomMessage event', () => {
+    it('should send a message to a specific room on the server and reset userMessage ', () => {
         const spy = spyOn(component.socketService, 'send');
         const event = 'roomMessage';
-        const testRoomId = 'roomid';
+        const testRoomId = 'roomId';
         const message = 'Test Message';
-        component.roomMessage = message;
+        component.userMessage = message;
         component.sendMessageToRoom();
         expect(spy).toHaveBeenCalledWith(event, { roomId: testRoomId, message });
-        expect(component.roomMessage).toEqual('');
+        expect(component.userMessage).toEqual('');
     });
 
-    it('should add a message to roomMessages array from server on roomMessage event when user is not the sender', () => {
+    it('should add a message to roomMessages array on roomMessage event when user is not the sender', () => {
         const chatMessage = { name: 'TestName', time: '10:23:56', message: 'Test Message', sentByYou: false };
         socketHelper.peerSideEmit('newRoomMessage', chatMessage);
         expect(component.roomMessages.length).toBe(1);
+        expect(component.roomMessages[0].authorName).toEqual(chatMessage.name);
         expect(component.roomMessages[0].message).toEqual(chatMessage.message);
+        expect(component.roomMessages[0].sentByYou).toEqual(false);
     });
 
-    it('should add a message to roomMessages array from server on roomMessage event when user is the sender', () => {
+    it('should add a message to roomMessages array on roomMessage event when user is the sender', () => {
         const chatMessage = { name: 'TestName', time: '10:23:56', message: 'Test Message', sentByYou: true };
         socketHelper.peerSideEmit('sentByYou', chatMessage);
         expect(component.roomMessages.length).toBe(1);
+        expect(component.roomMessages[0].authorName).toEqual(chatMessage.name);
         expect(component.roomMessages[0].message).toEqual(chatMessage.message);
+        expect(component.roomMessages[0].sentByYou).toEqual(true);
     });
 });
