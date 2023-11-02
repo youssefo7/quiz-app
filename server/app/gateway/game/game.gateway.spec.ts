@@ -139,25 +139,35 @@ describe('GameGateway', () => {
         expect(getQuickestTimeSpy).toHaveBeenCalled();
         expect(getQuickestTimeSpy).toHaveReturnedWith(fastestPlayer);
         expect(roomManagerServiceMock.rooms[0].players[0].bonusCount).toBeGreaterThan(0);
-        expect(server.to.calledWith(roomId)).toBeTruthy();
+        expect(server.to.calledWith(fastestPlayer.userId)).toBeTruthy();
     });
 
     it('handleGivePointsToPlayer() should give points to player question is answered correctly', () => {
         const roomId = 'testId';
-        const playerPoints = 100;
-        const user = roomManagerServiceMock.findUser(socket.id, roomManagerServiceMock.findRoom(roomId));
+        const room = roomManagerServiceMock.findRoom(roomId);
+        const goodAnswerPoints = 100;
+        const user = roomManagerServiceMock.findUser(socket.id, room);
+        const addPointsToPlayerSpy = jest.spyOn(roomManagerServiceMock, 'addPointsToPlayer');
+
+        roomManagerServiceMock.addPlayerToRoom(room, socket.id);
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual(GameEvents.AddPointsToPlayer);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.handleAddPointsToPlayer(socket, { roomId, points: playerPoints });
+        gateway.handleAddPointsToPlayer(socket, { roomId, points: goodAnswerPoints });
+
         expect(server.to.calledWith(user.socketId)).toBeTruthy();
+        expect(addPointsToPlayerSpy).toHaveBeenCalledWith(socket.id, goodAnswerPoints, room);
+        expect(roomManagerServiceMock.rooms[0].players[2].points).toEqual(goodAnswerPoints);
     });
 
     it('handleNextQuestion() should emit to all users that a new question will appear shortly', () => {
         const roomId = 'testId';
+        const room = roomManagerServiceMock.findRoom(roomId);
+        const resetAnswerTimesSpy = jest.spyOn(roomManagerServiceMock, 'resetAnswerTimes');
+
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
@@ -165,40 +175,63 @@ describe('GameGateway', () => {
             },
         } as BroadcastOperator<unknown, unknown>);
         gateway.handleNextQuestion(socket, roomId);
+
+        expect(resetAnswerTimesSpy).toHaveBeenCalledWith(room);
+        expect(roomManagerServiceMock.rooms[0].answerTimes.length).toEqual(0);
         expect(server.to.called).toBeTruthy();
     });
-});
 
-// roomManagerServiceMock = {
-//     rooms: [
-//         {
-//             id: 'testId',
-//             quizId: '1',
-//             organizer: { socketId: 'organizerId', name: 'Organisateur' },
-//             players: [
-//                 { socketId: 'playerId1', name: 'name1', points: 50, bonusCount: 0 },
-//                 { socketId: 'playerId2', name: 'name2', points: 200, bonusCount: 1 },
-//             ],
-//             isLocked: false,
-//             bannedNames: [],
-//             answerTimes: [
-//                 { userId: 'playerId1', timeStamp: 1698849004046 },
-//                 { userId: 'playerId2', timeStamp: 1698849011696 },
-//             ],
-//         },
-//     ],
-//     findRoom: jest.fn(),
-//     createNewRoom: jest.fn(),
-//     createRoomId: jest.fn(),
-//     addPlayerToRoom: jest.fn(),
-//     addBannedNameToRoom: jest.fn(),
-//     addPointsToPlayer: jest.fn(),
-//     findUser: jest.fn(),
-//     findPlayerByName: jest.fn(),
-//     isNameTaken: jest.fn(),
-//     isBannedName: jest.fn(),
-//     removePlayer: jest.fn(),
-//     deleteRoom: jest.fn(),
-//     getQuickestTime: jest.fn(),
-//     resetAnswerTimes: jest.fn(),
-// };
+    it('handlePlayerLeaveGame() remove them from the room, disconnect them from the server and emit if game has started', () => {
+        const roomId = 'testId';
+        const room = roomManagerServiceMock.findRoom(roomId);
+        const removePlayerSpy = jest.spyOn(roomManagerServiceMock, 'removePlayer');
+
+        roomManagerServiceMock.addPlayerToRoom(room, socket.id);
+
+        stub(socket, 'rooms').value(new Set([roomId]));
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual(GameEvents.PlayerAbandonedGame);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.handlePlayerLeaveGame(socket, { roomId, hasGameStarted: true });
+
+        expect(removePlayerSpy).toHaveBeenCalledWith(room, socket.id);
+        expect(socket.leave.calledOnceWith(roomId)).toBeTruthy();
+        expect(socket.disconnect.called).toBeTruthy();
+    });
+
+    it('handlePlayerLeaveGame() remove them from the room, disconnect them from the server and not emit if game has started', () => {
+        const roomId = 'testId';
+        const room = roomManagerServiceMock.findRoom(roomId);
+        const removePlayerSpy = jest.spyOn(roomManagerServiceMock, 'removePlayer');
+
+        roomManagerServiceMock.addPlayerToRoom(room, socket.id);
+
+        stub(socket, 'rooms').value(new Set([roomId]));
+        gateway.handlePlayerLeaveGame(socket, { roomId, hasGameStarted: false });
+        expect(server.to.called).toBeFalsy();
+
+        expect(removePlayerSpy).toHaveBeenCalledWith(room, socket.id);
+        expect(socket.leave.calledOnceWith(roomId)).toBeTruthy();
+        expect(socket.disconnect.called).toBeTruthy();
+    });
+
+    // it('handleEndGame() should end the game for all users inside a given active game and emit if game was aborted', async () => {
+    //     const roomId = 'testId';
+    //     const room = roomManagerServiceMock.findRoom(roomId);
+    //     const deleteRoomSpy = jest.spyOn(roomManagerServiceMock, 'deleteRoom');
+    //     roomManagerServiceMock.rooms[0].organizer.socketId = socket.id;
+
+    //     stub(socket, 'rooms').value(new Set([roomId]));
+    //     server.to.returns({
+    //         emit: (event: string) => {
+    //             expect(event).toEqual(GameEvents.GameAborted);
+    //         },
+    //     } as BroadcastOperator<unknown, unknown>);
+    //     await gateway.handleEndGame(socket, { roomId, gameAborted: true });
+    //     expect(deleteRoomSpy).toHaveBeenCalledWith(room);
+    //     expect(socket.leave.callCount).toEqual(roomManagerServiceMock.rooms[0].players.length + 1);
+    //     expect(socket.disconnect.callCount).toEqual(roomManagerServiceMock.rooms[0].players.length + 1);
+    // });
+});

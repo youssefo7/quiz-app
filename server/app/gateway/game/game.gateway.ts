@@ -33,14 +33,22 @@ export class GameGateway {
     @SubscribeMessage(GameEvents.EndGame)
     async handleEndGame(socket: Socket, data: { roomId: string; gameAborted: boolean }) {
         const room = this.roomManager.findRoom(data.roomId);
-        const sockets = await this.server.sockets.fetchSockets();
+        const sockets = await this.server.in(data.roomId).fetchSockets();
 
-        socket.to(room.id).emit(data.gameAborted ? GameEvents.GameAborted : GameEvents.EndGame);
-        sockets.forEach((playerSocket) => {
-            playerSocket.leave(room.id);
-            playerSocket.disconnect();
-        });
-        this.roomManager.deleteRoom(room);
+        if (socket.id === room.organizer.socketId) {
+            this.server.to(room.id).emit(data.gameAborted ? GameEvents.GameAborted : GameEvents.EndGame);
+            this.server.socketsLeave(data.roomId);
+            sockets.forEach((playerSocket) => {
+                playerSocket.disconnect(true);
+            });
+            // sockets.forEach((playerSocket) => {
+            //     if (playerSocket.rooms.has(data.roomId)) {
+            //         playerSocket.leave(room.id);
+            //         playerSocket.disconnect();
+            //     }
+            // });
+            this.roomManager.deleteRoom(room);
+        }
     }
 
     @SubscribeMessage(GameEvents.GoodAnswer)
