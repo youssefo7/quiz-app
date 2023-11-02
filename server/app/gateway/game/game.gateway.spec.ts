@@ -31,21 +31,24 @@ describe('GameGateway', () => {
 
         gateway = module.get<GameGateway>(GameGateway);
         roomManagerServiceMock = module.get<RoomManagerService>(RoomManagerService);
-        roomManagerServiceMock.rooms.push({
-            id: 'testId',
-            quizId: '1',
-            organizer: { socketId: 'organizerId', name: 'Organisateur' },
-            players: [
-                { socketId: 'playerId1', name: 'name1', points: 50, bonusCount: 0 },
-                { socketId: 'playerId2', name: 'name2', points: 200, bonusCount: 1 },
-            ],
-            isLocked: false,
-            bannedNames: [],
-            answerTimes: [
-                { userId: 'playerId1', timeStamp: 1698849004046 },
-                { userId: 'playerId2', timeStamp: 1698849011696 },
-            ],
-        });
+        roomManagerServiceMock.rooms = [
+            {
+                id: 'testId',
+                quizId: '1',
+                organizer: { socketId: 'organizerId', name: 'Organisateur' },
+                players: [
+                    { socketId: 'playerId1', name: 'name1', points: 50, bonusCount: 0 },
+                    { socketId: 'playerId2', name: 'name2', points: 200, bonusCount: 1 },
+                ],
+                isLocked: false,
+                bannedNames: [],
+                answerTimes: [
+                    { userId: 'playerId1', timeStamp: 1698849004046 },
+                    { userId: 'playerId2', timeStamp: 1698849011696 },
+                ],
+            },
+        ];
+
         gateway['server'] = server;
     });
 
@@ -67,6 +70,9 @@ describe('GameGateway', () => {
 
     it('handlePlayerLeaveGame() should remove the player from the room and emit if game has started and disconnect from server', () => {
         const roomId = 'testId';
+        const findRoomSpy = jest.spyOn(roomManagerServiceMock, 'findRoom');
+        const findUserSpy = jest.spyOn(roomManagerServiceMock, 'findUser');
+        const removePlayerSpy = jest.spyOn(roomManagerServiceMock, 'removePlayer');
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
@@ -75,6 +81,9 @@ describe('GameGateway', () => {
         } as BroadcastOperator<unknown, unknown>);
         gateway.handlePlayerLeaveGame(socket, { roomId, hasGameStarted: true });
         expect(server.to.calledWith(roomManagerServiceMock.rooms[0].organizer.socketId)).toBeTruthy();
+        expect(findRoomSpy).toHaveBeenCalled();
+        expect(findUserSpy).toHaveBeenCalled();
+        expect(removePlayerSpy).toHaveBeenCalled();
         expect(socket.leave.calledOnceWith(roomId)).toBeTruthy();
         expect(socket.disconnect.calledOnce).toBeTruthy();
     });
@@ -99,7 +108,7 @@ describe('GameGateway', () => {
             },
         } as BroadcastOperator<unknown, unknown>);
         gateway.handleQuestionChoiceSelect(socket, { roomId, questionChoiceIndex });
-        expect(server.to.called).toBeTruthy();
+        expect(server.to.calledWith(roomManagerServiceMock.rooms[0].organizer.socketId)).toBeTruthy();
     });
 
     it('handleQuestionChoiceUnelect() should show the organizer the total answer choice counts of players of a given question', () => {
@@ -112,11 +121,13 @@ describe('GameGateway', () => {
             },
         } as BroadcastOperator<unknown, unknown>);
         gateway.handleQuestionChoiceUnselect(socket, { roomId, questionChoiceIndex });
-        expect(server.to.called).toBeTruthy();
+        expect(server.to.calledWith(roomManagerServiceMock.rooms[0].organizer.socketId)).toBeTruthy();
     });
 
     it('handleGiveBonus() should assign the bonus to player with fastest time when all times are different', () => {
         const roomId = 'testId';
+        const fastestPlayer = roomManagerServiceMock.getQuickestTime(roomManagerServiceMock.findRoom(roomId));
+        const getQuickestTimeSpy = jest.spyOn(roomManagerServiceMock, 'getQuickestTime');
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
@@ -125,12 +136,16 @@ describe('GameGateway', () => {
         } as BroadcastOperator<unknown, unknown>);
         gateway.handleGiveBonus(socket, roomId);
         expect(server.to.called).toBeTruthy();
+        expect(getQuickestTimeSpy).toHaveBeenCalled();
+        expect(getQuickestTimeSpy).toHaveReturnedWith(fastestPlayer);
         expect(roomManagerServiceMock.rooms[0].players[0].bonusCount).toBeGreaterThan(0);
+        expect(server.to.calledWith(roomId)).toBeTruthy();
     });
 
     it('handleGivePointsToPlayer() should give points to player question is answered correctly', () => {
         const roomId = 'testId';
         const playerPoints = 100;
+        const user = roomManagerServiceMock.findUser(socket.id, roomManagerServiceMock.findRoom(roomId));
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
@@ -138,7 +153,7 @@ describe('GameGateway', () => {
             },
         } as BroadcastOperator<unknown, unknown>);
         gateway.handleAddPointsToPlayer(socket, { roomId, points: playerPoints });
-        expect(server.to.called).toBeTruthy();
+        expect(server.to.calledWith(user.socketId)).toBeTruthy();
     });
 
     it('handleNextQuestion() should emit to all users that a new question will appear shortly', () => {
