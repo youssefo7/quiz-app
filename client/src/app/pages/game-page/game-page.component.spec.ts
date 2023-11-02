@@ -1,3 +1,5 @@
+// any is needed to spy on private method
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -16,11 +18,12 @@ import { of } from 'rxjs';
 import { GamePageComponent } from './game-page.component';
 import SpyObj = jasmine.SpyObj;
 
-// La raison du lint disable est que le code vient d'un exemple de stub du professeur et le connect est vide dans l'exemple qu'il utilise.
 @Component({
     selector: 'app-chat',
     template: '<p>Template Needed</p>',
 })
+/* The reason for disabling lint is that the code comes from a professor's stub example,
+    and the connect is empty in the example he uses.*/
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class ChatComponentStub {}
 
@@ -84,13 +87,13 @@ describe('GamePageComponent in test game route', () => {
     });
 
     it('should call leaveGameaPage when clicking okButton', () => {
-        spyOn(component, 'leaveGamePage');
+        spyOn<any>(component, 'leaveGamePage');
         component.openQuitPopUp();
 
         const config = mockDialogRef.componentInstance.config;
         expect(mockDialog.open).toHaveBeenCalled();
         config.okButtonFunction?.();
-        expect(component.leaveGamePage).toHaveBeenCalled();
+        expect(component['leaveGamePage']).toHaveBeenCalled();
     });
 
     it('clicking the exit icon should redirect to "game/new" page', () => {

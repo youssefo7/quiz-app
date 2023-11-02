@@ -15,9 +15,9 @@ describe('QuizGeneralInfoComponent', () => {
     let mockQuizManagerService: jasmine.SpyObj<QuizManagerService>;
     let activatedRouteMock: jasmine.SpyObj<ActivatedRoute>;
 
-    const maxTitleLength = 150;
-    const maxDescriptionLength = 300;
-    const stringLength = 5;
+    const MAX_TITLE_LENGTH = 150;
+    const MAX_DESCRIPTION_LENGTH = 300;
+    const STRING_LENGTH = 5;
 
     const mockEvent = {
         target: {
@@ -131,8 +131,8 @@ describe('QuizGeneralInfoComponent', () => {
 
     it('should initialize max lengths correctly', () => {
         component['initCounters']();
-        expect(component.maxLengthTitle).toBe(maxTitleLength);
-        expect(component.maxLengthDescription).toBe(maxDescriptionLength);
+        expect(component.maxLengthTitle).toBe(MAX_TITLE_LENGTH);
+        expect(component.maxLengthDescription).toBe(MAX_DESCRIPTION_LENGTH);
     });
 
     it('should get title length and set counterTitle', () => {
@@ -166,15 +166,15 @@ describe('QuizGeneralInfoComponent', () => {
     it('should update title length and counter on character change', () => {
         component.maxLengthTitle = 100;
         component.onCharacterChangeTitle(mockEvent);
-        expect(component['titleLength']).toEqual(stringLength);
-        expect(component.counterTitle).toBe(`${stringLength} / ${component.maxLengthTitle}`);
+        expect(component['titleLength']).toEqual(STRING_LENGTH);
+        expect(component.counterTitle).toBe(`${STRING_LENGTH} / ${component.maxLengthTitle}`);
     });
 
     it('should update description length and counter on character change', () => {
         component.maxLengthDescription = 200;
         component.onCharacterChangeDescription(mockEvent);
-        expect(component['descriptionLength']).toEqual(stringLength);
-        expect(component.counterDescription).toBe(`${stringLength} / ${component.maxLengthDescription}`);
+        expect(component['descriptionLength']).toEqual(STRING_LENGTH);
+        expect(component.counterDescription).toBe(`${STRING_LENGTH} / ${component.maxLengthDescription}`);
     });
 
     it('should adjust padding and set isTitleValid to false if title is invalid and dirty', () => {

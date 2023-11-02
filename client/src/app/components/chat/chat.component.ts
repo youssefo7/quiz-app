@@ -4,6 +4,8 @@ import { ChatMessage } from '@app/interfaces/chat-message';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { Socket } from 'socket.io-client';
 
+const MAX_CHARACTER_LENGTH = 200;
+
 @Component({
     selector: 'app-chat',
     templateUrl: './chat.component.html',
@@ -15,22 +17,21 @@ export class ChatComponent implements OnInit {
     characterCounterDisplay: string;
     roomMessages: ChatMessage[];
     roomMessage: string;
-    roomId: string;
+    private roomId: string;
     private currentInputLength: number;
 
     constructor(
         public socketService: SocketClientService,
         private route: ActivatedRoute,
     ) {
-        this.maxInputLength = 200;
         this.currentInputLength = 0;
-        this.characterCounterDisplay = `${this.currentInputLength} / 200`;
+        this.characterCounterDisplay = `${this.currentInputLength} / ${MAX_CHARACTER_LENGTH}}`;
         this.roomMessages = [];
         this.roomMessage = '';
         this.roomId = '';
     }
 
-    ngOnInit(): void {
+    ngOnInit() {
         this.roomId = this.route.snapshot.paramMap.get('room') as string;
         this.configureChatSocketFeatures();
     }
@@ -57,7 +58,7 @@ export class ChatComponent implements OnInit {
     detectCharacterLengthOnInput(event: Event) {
         const inputValue = (event.target as HTMLInputElement).value;
         this.currentInputLength = inputValue.length;
-        this.characterCounterDisplay = `${this.currentInputLength} / 200`;
+        this.characterCounterDisplay = `${this.currentInputLength} / ${MAX_CHARACTER_LENGTH}`;
     }
 
     sendMessageToRoom() {

@@ -19,9 +19,7 @@ export class CreateEditQuizPageComponent implements OnInit {
     @ViewChild(QuizQuestionInfoComponent, { static: false }) quizQuestionInfo: QuizQuestionInfoComponent;
 
     newQuiz: Quiz;
-    // quizId: string;
     pageTitle: string;
-    // resetQuiz: Quiz;
     isQuizSaved: boolean;
     private isGeneralInfoFormValid: boolean;
     private canExitCreateEditQuizPage: boolean;

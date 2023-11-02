@@ -9,6 +9,7 @@ import { Socket } from 'socket.io-client';
 import { ChatComponent } from './chat.component';
 
 class SocketClientServiceMock extends SocketClientService {
+    // This is a mock so we don't want to call the real connect method
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     override connect() {}
 }

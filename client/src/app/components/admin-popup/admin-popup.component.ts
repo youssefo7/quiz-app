@@ -10,7 +10,7 @@ import { AdminGuardService } from '@app/services/admin-guard.service';
 })
 export class AdminPopupComponent {
     givenPassword: string;
-    showErrorMessage: boolean;
+    canShowErrorMessage: boolean;
     passwordInputType: string;
     private isGivenPasswordValid: boolean;
 
@@ -21,7 +21,7 @@ export class AdminPopupComponent {
     ) {
         this.givenPassword = '';
         this.isGivenPasswordValid = false;
-        this.showErrorMessage = false;
+        this.canShowErrorMessage = false;
         this.passwordInputType = 'password';
     }
 
@@ -50,7 +50,7 @@ export class AdminPopupComponent {
 
         if (!this.isGivenPasswordValid) {
             this.givenPassword = '';
-            this.showErrorMessage = true;
+            this.canShowErrorMessage = true;
         } else {
             this.closeAdminPopup();
             await this.router.navigateByUrl('/admin');

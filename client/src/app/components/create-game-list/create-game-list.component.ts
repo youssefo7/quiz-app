@@ -20,7 +20,7 @@ export class CreateGameListComponent implements OnInit {
     visibleQuizList: Quiz[];
     selectedQuizId: string | null;
 
-    // Raison: J'injecte les services nécessaires dans mon constructeur
+    // We need all these parameters for the constructor to work
     // eslint-disable-next-line max-params
     constructor(
         private readonly communicationService: CommunicationService,
@@ -38,11 +38,11 @@ export class CreateGameListComponent implements OnInit {
         this.getVisibleQuizListFromServer();
     }
 
-    toggleDetails(id: string): void {
+    toggleDetails(id: string) {
         this.selectedQuizId = this.selectedQuizId === id ? null : id;
     }
 
-    checkCanProceed(quiz: Quiz, toTest: boolean = false) {
+    canProceed(quiz: Quiz, toTest: boolean = false) {
         this.communicationService.checkQuizAvailability(quiz.id).subscribe((isAvailable) => {
             if (isAvailable) {
                 this.communicationService.checkQuizVisibility(quiz.id).subscribe(async (isVisible) => {
