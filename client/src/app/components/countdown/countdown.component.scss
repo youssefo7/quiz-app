@@ -28,7 +28,8 @@ p {
 #countdown-options {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    width: 100%;
+    justify-content: space-evenly;
 
     button {
         font-size: large;

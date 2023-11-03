@@ -4,17 +4,23 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CountdownComponent } from '@app/components/countdown/countdown.component';
+import { GamePlayersListComponent } from '@app/components/game-players-list/game-players-list.component';
+import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { ProfileComponent } from '@app/components/profile/profile.component';
+import { QuestionZoneStatsComponent } from '@app/components/question-zone-stats/question-zone-stats.component';
 import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
+import { SocketClientService } from '@app/services/socket-client.service';
+import { NgChartsModule } from 'ng2-charts';
 import { of } from 'rxjs';
 import { HostGamePageComponent } from './host-game-page.component';
 import SpyObj = jasmine.SpyObj;
 
-// La raison du lint disable est que le code vient d'un exemple de stub du professeur et le connect est vide dans l'exemple qu'il utilise.
+/* The reason for disabling lint is that the code comes from a professor's stub example,
+    and the connect is empty in the example he uses.*/
 @Component({
     selector: 'app-chat',
     template: '<p>Template Needed</p>',
@@ -28,6 +34,7 @@ describe('HostGamePageComponent', () => {
     let communicationServiceMock: SpyObj<CommunicationService>;
     let mockDialog: SpyObj<MatDialog>;
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
+    let clientSocketServiceMock: SpyObj<SocketClientService>;
     let gameService: GameService;
     let router: Router;
     const mockedQuiz = {
@@ -47,16 +54,29 @@ describe('HostGamePageComponent', () => {
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
         mockDialogRef = jasmine.createSpyObj('MatDialogRef<PopupMessageComponent>', ['componentInstance']);
         mockDialog.open.and.returnValue(mockDialogRef);
+        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
     });
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [HostGamePageComponent, TopBarComponent, CountdownComponent, ProfileComponent, ChatComponentStub, MatIcon],
+            declarations: [
+                HostGamePageComponent,
+                QuestionZoneStatsComponent,
+                HistogramComponent,
+                GamePlayersListComponent,
+                TopBarComponent,
+                CountdownComponent,
+                ProfileComponent,
+                ChatComponentStub,
+                MatIcon,
+            ],
+            imports: [NgChartsModule],
             providers: [
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'host' }] } } },
                 { provide: CommunicationService, useValue: communicationServiceMock },
                 { provide: MatDialog, useValue: mockDialog },
                 { provide: MatDialogRef, useValue: mockDialogRef },
+                { provide: SocketClientService, useValue: clientSocketServiceMock },
             ],
         }).compileComponents();
         fixture = TestBed.createComponent(HostGamePageComponent);
@@ -72,13 +92,13 @@ describe('HostGamePageComponent', () => {
 
     it('should fetch the quiz ', () => {
         const getQuizByIdSpy = spyOn(gameService, 'getQuizById');
-        component.getQuiz();
+        component['getQuiz']();
         expect(getQuizByIdSpy).toHaveBeenCalledWith(mockedQuiz.id);
     });
 
-    it('clicking the exit icon should redirect to "game/new" page', () => {
+    it('clicking the exit icon should redirect to "/game/new" page', () => {
         const navigateSpy = spyOn(router, 'navigateByUrl');
-        component.leaveGamePage();
+        component['leaveGamePage']();
         expect(navigateSpy).toHaveBeenCalledWith('/game/new');
     });
 

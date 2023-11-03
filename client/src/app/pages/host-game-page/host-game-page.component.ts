@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
@@ -15,42 +15,19 @@ export class HostGamePageComponent implements OnInit {
     quiz: Quiz | null;
     title: string;
 
-    // Raison: J'injecte les services nécessaire dans mon constructeur
+    // All these parameters are needed for the component to work properly
     // eslint-disable-next-line max-params
     constructor(
         private gameService: GameService,
         private popup: MatDialog,
         private readonly route: ActivatedRoute,
         private readonly router: Router,
-        private readonly elementRef: ElementRef,
     ) {
         this.title = 'Partie: ';
     }
 
     ngOnInit() {
         this.loadQuiz();
-    }
-
-    async loadQuiz() {
-        await this.getQuiz();
-        this.getQuizTitle();
-    }
-
-    async getQuiz() {
-        const id = this.route.snapshot.paramMap.get('id');
-        this.quiz = await this.gameService.getQuizById(id);
-    }
-
-    getQuizTitle() {
-        if (this.quiz) {
-            this.title += this.quiz.title;
-            this.title += ' (Organisateur)';
-            this.elementRef.nativeElement.setAttribute('title', this.title);
-        }
-    }
-
-    async leaveGamePage() {
-        await this.router.navigateByUrl('/game/new');
     }
 
     openQuitPopUp() {
@@ -65,5 +42,26 @@ export class HostGamePageComponent implements OnInit {
         const dialogRef = this.popup.open(PopupMessageComponent);
         const popupInstance = dialogRef.componentInstance;
         popupInstance.config = config;
+    }
+
+    private async loadQuiz() {
+        await this.getQuiz();
+        this.getQuizTitle();
+    }
+
+    private async getQuiz() {
+        const id = this.route.snapshot.paramMap.get('id');
+        this.quiz = await this.gameService.getQuizById(id);
+    }
+
+    private getQuizTitle() {
+        if (this.quiz) {
+            this.title += this.quiz.title;
+            this.title += ' (Organisateur)';
+        }
+    }
+
+    private async leaveGamePage() {
+        await this.router.navigateByUrl('/game/new');
     }
 }
