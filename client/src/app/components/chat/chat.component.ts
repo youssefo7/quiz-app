@@ -35,13 +35,28 @@ export class ChatComponent implements OnInit {
     }
 
     configureChatSocketFeatures() {
-        const addMessage = (data: { name: string; timeString: string; message: string; sentByYou: boolean }) => {
-            const chatMessage: ChatMessage = { authorName: data.name, time: data.timeString, message: data.message, sentByYou: data.sentByYou };
+        const addMessage = (data: { authorName: string; timeString: string; message: string; sentByUser: boolean }) => {
+            const chatMessage: ChatMessage = {
+                authorName: data.authorName,
+                time: data.timeString,
+                message: data.message,
+                sentByUser: data.sentByUser,
+            };
             this.roomMessages.push(chatMessage);
         };
 
         this.socketService.on('newRoomMessage', addMessage);
-        this.socketService.on('sentByYou', addMessage);
+
+        this.socketService.on('AbandonedGame', (playerName: string) => {
+            const leftTime = new Date();
+            const playerLeftMessage: ChatMessage = {
+                authorName: 'System',
+                time: leftTime.getHours() + ':' + leftTime.getMinutes() + ':' + leftTime.getSeconds(),
+                message: playerName + ' has left the game.',
+                sentByUser: false,
+            };
+            this.roomMessages.push(playerLeftMessage);
+        });
     }
 
     expandTextArea(event: Event) {
