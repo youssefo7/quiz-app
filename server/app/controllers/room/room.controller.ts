@@ -64,7 +64,7 @@ export class RoomController {
         type: Boolean,
     })
     @ApiNotFoundResponse({
-        description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
+        description: 'Return NOT_FOUND http status when request fails',
     })
     @Get('/:roomId/players')
     handleGetPlayers(@Param('roomId') roomId: string, @Res() response: Response) {
@@ -72,7 +72,7 @@ export class RoomController {
             const players = this.roomManagerService.getRoomPlayers(roomId);
             response.status(HttpStatus.OK).send(players);
         } catch (error) {
-            response.status(HttpStatus.INTERNAL_SERVER_ERROR).json('Erreur lors de la récupération des joueurs');
+            response.status(HttpStatus.NOT_FOUND).json(`Erreur lors de la récupération des joueurs de la salle ${roomId}`);
         }
     }
 }
