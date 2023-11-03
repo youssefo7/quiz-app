@@ -1,0 +1,10 @@
+<div id="flex-container">
+    <div id="choices-container">
+        <p class="choices-item" [ngClass]="{ good: goodBadChoices[i] }" *ngFor="let choices of question?.choices; index as i">
+            Choix {{ i + 1 }}: {{ choices.text }}
+        </p>
+    </div>
+    <span id="histogram-container">
+        <canvas id="canvas">{{ chart }}</canvas>
+    </span>
+</div>
