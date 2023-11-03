@@ -91,23 +91,32 @@ describe('ChatComponent', () => {
         expect(component.userMessage).toEqual('');
     });
 
-    it('should add a message to roomMessages array on roomMessage event when user is not the sender', () => {
-        const chatMessage = { name: 'TestName', timeString: '10:23:56', message: 'Test Message', sentByYou: false };
+    it('should add a message to roomMessages array on userMessage event when user is not the sender', () => {
+        const chatMessage = { authorName: 'TestName', timeString: '10:23:56', message: 'Test Message', sentByUser: false };
         socketHelper.peerSideEmit('newRoomMessage', chatMessage);
         expect(component.roomMessages.length).toBe(1);
-        expect(component.roomMessages[0].authorName).toEqual(chatMessage.name);
+        expect(component.roomMessages[0].authorName).toEqual(chatMessage.authorName);
         expect(component.roomMessages[0].time).toEqual(chatMessage.timeString);
         expect(component.roomMessages[0].message).toEqual(chatMessage.message);
-        expect(component.roomMessages[0].sentByYou).toEqual(false);
+        expect(component.roomMessages[0].sentByUser).toEqual(false);
     });
 
-    it('should add a message to roomMessages array on roomMessage event when user is the sender', () => {
-        const chatMessage = { name: 'TestName', timeString: '10:23:56', message: 'Test Message', sentByYou: true };
-        socketHelper.peerSideEmit('sentByYou', chatMessage);
-        expect(component.roomMessages.length).toBe(1);
-        expect(component.roomMessages[0].authorName).toEqual(chatMessage.name);
+    it('should add a message to roomMessages array on userMessage event when user is the sender', () => {
+        const chatMessage = { authorName: 'TestName', timeString: '10:23:56', message: 'Test Message', sentByUser: true };
+        socketHelper.peerSideEmit('newRoomMessage', chatMessage);
+        expect(component.roomMessages.length).toEqual(1);
+        expect(component.roomMessages[0].authorName).toEqual(chatMessage.authorName);
         expect(component.roomMessages[0].time).toEqual(chatMessage.timeString);
         expect(component.roomMessages[0].message).toEqual(chatMessage.message);
-        expect(component.roomMessages[0].sentByYou).toEqual(true);
+        expect(component.roomMessages[0].sentByUser).toEqual(true);
+    });
+
+    it('should warn organizer when a player has left the game', () => {
+        const playerName = 'TestName';
+        socketHelper.peerSideEmit('AbandonedGame', playerName);
+        expect(component.roomMessages.length).toEqual(1);
+        expect(component.roomMessages[0].authorName).toEqual('System');
+        expect(component.roomMessages[0].message).toEqual(playerName + ' has left the game.');
+        expect(component.roomMessages[0].sentByUser).toEqual(false);
     });
 });

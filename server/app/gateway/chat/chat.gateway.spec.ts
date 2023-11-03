@@ -58,7 +58,8 @@ describe('ChatGateway', () => {
             },
         } as BroadcastOperator<unknown, unknown>);
         gateway.handleRoomMessage(socket, { roomId: 'testId', message: 'Test Message' });
-        expect(socket.emit.calledWith(ChatEvents.SentByYou, match.object)).toBeTruthy();
+        expect(socket.to.withArgs(roomManagerServiceMock.rooms[0].id)).toBeTruthy();
+        expect(socket.emit.calledWith(ChatEvents.NewRoomMessage, match.object)).toBeTruthy();
     });
 
     it('handleRoomMessage() should not send message if socket not in the room', () => {
@@ -66,5 +67,6 @@ describe('ChatGateway', () => {
         stub(socket, 'rooms').value(new Set());
         gateway.handleRoomMessage(socket, { roomId: 'testId', message: 'Test Message' });
         expect(socket.emit.called).toBeFalsy();
+        expect(socket.to.called).toBeFalsy();
     });
 });
