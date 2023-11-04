@@ -1,19 +1,17 @@
 <div id="chat-container">
-    <div id="message-box">
-        <div id="message-container" *ngFor="let message of roomMessages">
-            <div
-                class="chat-message"
-                [ngClass]="{
-                    sent: message.sentByUser && message.authorName !== 'System',
-                    'system-sent': message.authorName === 'System' && this.isOrganizer
-                }"
-            >
-                <div class="message-info">
-                    <div class="sender-name">{{ message.authorName }}</div>
-                    <div class="message-time">{{ message.time }}</div>
-                </div>
-                <div class="message-text">{{ message.message }}</div>
+    <div id="message-box" *ngFor="let message of roomMessages">
+        <div
+            class="chat-message"
+            [ngClass]="{
+                sent: message.sentByUser && message.authorName !== 'System',
+                'system-sent': message.authorName === 'System' && this.isOrganizer
+            }"
+        >
+            <div class="message-info">
+                <div class="sender-name">{{ message.authorName }}</div>
+                <div class="message-time">{{ message.time }}</div>
             </div>
+            <div class="message-text">{{ message.message }}</div>
         </div>
     </div>
     <div id="text-input">
@@ -24,8 +22,9 @@
             (input)="expandTextArea($event)"
             (input)="detectCharacterLengthOnInput($event)"
             [(ngModel)]="userMessage"
+            [(ngModel)]="userMessage"
         ></textarea>
-        <mat-icon inline="true" (click)="sendMessageToRoom()" (keydown.enter)="sendMessageToRoom()">send</mat-icon>
+        <mat-icon inline="true" (click)="sendMessageToRoom()" (keyup.enter)="sendMessageToRoom()">send</mat-icon>
     </div>
     <span id="counter">{{ characterCounterDisplay }}</span>
 </div>
