@@ -3,7 +3,7 @@
         <p id="question" *ngIf="question">{{ question.text }}</p>
         <p id="points" *ngIf="question">({{ question.points }} Points)</p>
     </div>
-    <div class="chart-container"><app-histogram></app-histogram></div>
+    <div class="chart-container"><app-histogram *ngIf="quiz" [quiz]="quiz"></app-histogram></div>
     <button id="submit-zone" (click)="goToNextQuestion()" [ngStyle]="nextQuestionButtonStyle" [disabled]="isNextQuestionButtonDisable">
         {{ nextQuestionButtonText }}
     </button>

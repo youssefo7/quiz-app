@@ -1,7 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Question, Quiz } from '@app/interfaces/quiz';
-import { GameService } from '@app/services/game.service';
 import { Chart } from 'chart.js';
 
 @Component({
@@ -10,20 +8,17 @@ import { Chart } from 'chart.js';
     styleUrls: ['./histogram.component.scss'],
 })
 export class HistogramComponent implements OnInit, OnDestroy {
+    @Input() quiz: Quiz;
     question: Question;
     chart: Chart;
     goodBadChoices: boolean[];
-    private quiz: Quiz | null;
     private playersChoices: string[];
     private choicesSelectionCounts: number[];
     private chartBorderColors: string[];
     private chartBackgroundColors: string[];
     private currentQuestionIndex: number;
 
-    constructor(
-        private readonly route: ActivatedRoute,
-        private readonly gameService: GameService,
-    ) {
+    constructor() {
         this.playersChoices = [];
         this.choicesSelectionCounts = [];
         this.chartBorderColors = [];
@@ -41,14 +36,8 @@ export class HistogramComponent implements OnInit, OnDestroy {
     }
 
     private async loadChart() {
-        await this.getQuiz();
         this.getQuestion(this.currentQuestionIndex);
         this.createPlayerAnswersChart();
-    }
-
-    private async getQuiz() {
-        const id = this.route.snapshot.paramMap.get('id');
-        this.quiz = await this.gameService.getQuizById(id);
     }
 
     private getQuestion(index: number) {

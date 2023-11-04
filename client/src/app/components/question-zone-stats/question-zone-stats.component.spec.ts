@@ -14,20 +14,8 @@ describe('QuestionZoneStatsComponent', () => {
     let fixture: ComponentFixture<QuestionZoneStatsComponent>;
     let gameServiceMock: SpyObj<GameService>;
     let timeServiceMock: SpyObj<TimeService>;
-    const mockedQuiz = {
-        $schema: 'test.json',
-        id: '123',
-        title: 'Test quiz',
-        description: 'Test quiz description',
-        visibility: true,
-        duration: 60,
-        lastModification: '2018-11-13T20:20:39+00:00',
-        questions: [],
-    };
 
     beforeEach(() => {
-        gameServiceMock = jasmine.createSpyObj('GameService', ['getQuizById']);
-        gameServiceMock.getQuizById.and.returnValue(Promise.resolve(mockedQuiz));
         timeServiceMock = jasmine.createSpyObj('TimeService', ['subscribeToGameService', 'getTime']);
         timeServiceMock.getTime.and.returnValue(of(0));
     });
@@ -49,10 +37,5 @@ describe('QuestionZoneStatsComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
-    });
-
-    it('should fetch the quiz ', () => {
-        component['getQuiz']();
-        expect(gameServiceMock.getQuizById).toHaveBeenCalledWith(mockedQuiz.id);
     });
 });

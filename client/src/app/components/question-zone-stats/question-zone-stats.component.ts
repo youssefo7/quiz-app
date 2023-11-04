@@ -1,5 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
 import { TimeService } from '@app/services/time.service';
@@ -11,7 +10,7 @@ import { Subscription } from 'rxjs';
     styleUrls: ['./question-zone-stats.component.scss'],
 })
 export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
-    quiz: Quiz | null;
+    @Input() quiz: Quiz;
     question: Question;
     isNextQuestionButtonDisable: boolean;
     nextQuestionButtonText: string;
@@ -23,7 +22,6 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     constructor(
         private gameService: GameService,
         private readonly timeService: TimeService,
-        private readonly route: ActivatedRoute,
     ) {
         this.currentQuestionIndex = 0;
         this.isNextQuestionButtonDisable = true;
@@ -47,13 +45,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         this.gameService.isNextQuestionPressed.next(true);
     }
 
-    private async getQuiz() {
-        const id = this.route.snapshot.paramMap.get('id');
-        this.quiz = await this.gameService.getQuizById(id);
-    }
-
     private async loadQuiz() {
-        await this.getQuiz();
         this.getQuestion(this.currentQuestionIndex);
         this.enableNextQuestionButton();
     }

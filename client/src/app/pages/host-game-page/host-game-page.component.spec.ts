@@ -12,7 +12,6 @@ import { QuestionZoneStatsComponent } from '@app/components/question-zone-stats/
 import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { CommunicationService } from '@app/services/communication.service';
-import { GameService } from '@app/services/game.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { NgChartsModule } from 'ng2-charts';
 import { of } from 'rxjs';
@@ -35,7 +34,6 @@ describe('HostGamePageComponent', () => {
     let mockDialog: SpyObj<MatDialog>;
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
     let clientSocketServiceMock: SpyObj<SocketClientService>;
-    let gameService: GameService;
     let router: Router;
     const mockedQuiz = {
         $schema: 'test.json',

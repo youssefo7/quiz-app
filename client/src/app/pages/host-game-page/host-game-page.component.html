@@ -9,7 +9,7 @@
             <app-game-players-list></app-game-players-list>
         </div>
     </div>
-    <app-question-zone-stats id="questions-stats-grid"></app-question-zone-stats>
+    <app-question-zone-stats *ngIf="quiz" [quiz]="quiz" id="questions-stats-grid"></app-question-zone-stats>
     <div id="chat-player-flex">
         <app-profile [isHost]="true" id="profile-container"></app-profile>
         <app-chat id="chat-container"></app-chat>
