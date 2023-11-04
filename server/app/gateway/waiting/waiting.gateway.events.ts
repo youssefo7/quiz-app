@@ -3,4 +3,5 @@ export enum WaitingEvents {
     UnlockRoom = 'unlockRoom',
     GetPlayerNames = 'getPlayerNames',
     BanName = 'banName',
+    BanNotification = 'banNotification',
 }

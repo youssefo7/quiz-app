@@ -1,7 +1,10 @@
+// any est utilisé pour les tests, car les fonctions sont privées et ne peuvent pas être testées autrement
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
-import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { GameEvents } from '@app/events/game.events';
@@ -51,6 +54,7 @@ describe('PlayerListComponent', () => {
                 { provide: SocketClientService, useValue: mockSocketClientService },
                 { provide: Router, useValue: routerSpy },
             ],
+            imports: [HttpClientTestingModule],
         }).compileComponents();
     }));
 
@@ -79,7 +83,7 @@ describe('PlayerListComponent', () => {
     });
 
     it('should ban player when BanName event is received', () => {
-        const removePlayerSpy = spyOn(component, 'removePlayer').and.callThrough();
+        const removePlayerSpy = spyOn<any>(component, 'removePlayer').and.callThrough();
 
         socketHelper.peerSideEmit(WaitingEvents.BanName, 'playerToBan');
         expect(component.bannedPlayers).toContain('playerToBan');
@@ -88,7 +92,7 @@ describe('PlayerListComponent', () => {
     });
 
     it('should remove player when PlayerAbandonedGame event is received', () => {
-        const removePlayerSpy = spyOn(component, 'removePlayer').and.callThrough();
+        const removePlayerSpy = spyOn<any>(component, 'removePlayer').and.callThrough();
 
         socketHelper.peerSideEmit(GameEvents.PlayerAbandonedGame, 'AbandonedPlayer');
         expect(removePlayerSpy).toHaveBeenCalledWith('AbandonedPlayer');
@@ -96,13 +100,13 @@ describe('PlayerListComponent', () => {
     });
 
     it('should redirect users when StartGame event is received', () => {
-        const redirectUsersSpy = spyOn(component, 'gameBeginsRedirections');
+        const redirectUsersSpy = spyOn<any>(component, 'gameBeginsRedirection');
         socketHelper.peerSideEmit(GameEvents.StartGame);
         expect(redirectUsersSpy).toHaveBeenCalled();
     });
 
     it('should end game when EndGame event is received', () => {
-        const endGameSpy = spyOn(component, 'gameEndPopup');
+        const endGameSpy = spyOn<any>(component, 'gameEndPopup');
         socketHelper.peerSideEmit(GameEvents.GameAborted);
         expect(endGameSpy).toHaveBeenCalled();
     });
@@ -123,13 +127,13 @@ describe('PlayerListComponent', () => {
 
     it('should remove the player by name from the players array', () => {
         component.players = ['Joueur1', 'Joueur2'];
-        component.removePlayer('Joueur1');
+        component['removePlayer']('Joueur1');
         expect(component.players).toEqual(['Joueur2']);
     });
 
     it('should navigate to the game room as player when not Host', () => {
         component.isHost = false;
-        component.gameBeginsRedirections();
+        component['gameBeginsRedirection']();
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('game/123/room/456');
     });
 
@@ -143,26 +147,26 @@ describe('PlayerListComponent', () => {
     it('should navigate to the host game room and send StartGame event when Host', () => {
         spyOn(mockSocketClientService, 'send');
         component.isHost = true;
-        component.gameBeginsRedirections();
+        component['gameBeginsRedirection']();
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('game/123/room/456/host');
     });
 
     it('should call hostPopup if Host quits', () => {
-        const hostQuitPopupSpy = spyOn(component, 'hostQuitPopup');
+        const hostQuitPopupSpy = spyOn<any>(component, 'hostQuitPopup');
         component.isHost = true;
         component.quitPopUp();
         expect(hostQuitPopupSpy).toHaveBeenCalled();
     });
 
     it('should call playerPopup if player quits', () => {
-        const playerQuitPopupSpy = spyOn(component, 'playerQuitPopup');
+        const playerQuitPopupSpy = spyOn<any>(component, 'playerQuitPopup');
         component.isHost = false;
         component.quitPopUp();
         expect(playerQuitPopupSpy).toHaveBeenCalled();
     });
 
     it('should call game endPopup if Host quits', () => {
-        const hostQuitPopupSpy = spyOn(component, 'gameEndPopup');
+        const hostQuitPopupSpy = spyOn<any>(component, 'gameEndPopup');
         socketHelper.peerSideEmit(GameEvents.GameAborted);
         expect(hostQuitPopupSpy).toHaveBeenCalled();
     });
@@ -173,7 +177,7 @@ describe('PlayerListComponent', () => {
             hasCancelButton: true,
         };
 
-        component.hostQuitPopup();
+        component['hostQuitPopup']();
         const config = mockDialogRef.componentInstance.config;
 
         expect(config.message).toEqual(mockConfig.message);
@@ -187,7 +191,7 @@ describe('PlayerListComponent', () => {
             hasCancelButton: true,
         };
 
-        component.playerQuitPopup();
+        component['playerQuitPopup']();
         const config = mockDialogRef.componentInstance.config;
 
         expect(config.message).toEqual(mockConfig.message);
@@ -201,7 +205,7 @@ describe('PlayerListComponent', () => {
             hasCancelButton: false,
         };
 
-        component.gameEndPopup();
+        component['gameEndPopup']();
         const config = mockDialogRef.componentInstance.config;
 
         expect(config.message).toEqual(mockConfig.message);

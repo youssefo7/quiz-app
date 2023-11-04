@@ -127,17 +127,3 @@
     }
 }
 
-#startGameButton {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    padding-left: 20%;
-    
-    button {
-        pointer-events: none;
-    }
-
-    button:disabled {
-        pointer-events: auto;
-    }
-}

@@ -1,7 +1,11 @@
 import { Component, HostListener } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { GameEvents } from '@app/events/game.events';
+import { JoinEvents } from '@app/events/join.events';
+import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { firstValueFrom } from 'rxjs';
 
 const CODE_LENGTH = 4;
 
@@ -9,11 +13,6 @@ enum RoomState {
     OK = 'OK',
     Invalid = 'INVALID',
     IsLocked = 'IS_LOCKED',
-}
-
-interface JoinRoomResponse {
-    roomState: RoomState;
-    quizId: string | null;
 }
 
 @Component({
@@ -30,10 +29,13 @@ export class JoinGamePopupComponent {
     isCodeValidated: boolean;
     private quizId: string;
 
+    // Raison: J'injecte les services nécessaires dans mon constructeur
+    // eslint-disable-next-line max-params
     constructor(
         private joinGamePopupRef: MatDialogRef<JoinGamePopupComponent>,
         private router: Router,
         private socketClientService: SocketClientService,
+        private roomCommunicationService: RoomCommunicationService,
     ) {
         this.givenRoomCode = '';
         this.quizId = '';
@@ -43,88 +45,104 @@ export class JoinGamePopupComponent {
     }
 
     @HostListener('keyup', ['$event'])
-    handleEnterPress(event: KeyboardEvent): void {
+    async handleEnterPress(event: KeyboardEvent) {
         if (event.key === 'Enter') {
             if (!this.isCodeValidated) {
-                this.checkCode();
+                await this.checkCode();
             } else if (this.showUsernameField) {
                 this.verifyAndAccess();
             }
         }
     }
 
-    checkUsername(): void {
+    async isUsernameValid(): Promise<boolean> {
+        let isNameValid = false;
         const trimmedUsername = this.givenUsername.trim();
         if (trimmedUsername.length === 0) {
             this.nameErrorMessage = 'Veuillez entrer un nom d’utilisateur valide.';
-            return;
-        }
-        this.socketClientService.send('chooseName', trimmedUsername, (isNameValid: boolean) => {
+        } else {
+            isNameValid = await firstValueFrom(
+                this.roomCommunicationService.processUsername(this.givenRoomCode, {
+                    name: trimmedUsername,
+                    socketId: this.socketClientService.socket.id,
+                }),
+            );
             if (!isNameValid) {
-                this.nameErrorMessage = `Le nom ${trimmedUsername} n'est pas autorisé ou déjà pris!`;
-            } else {
-                this.nameErrorMessage = '';
-                this.verifyAndAccess();
+                this.nameErrorMessage = `Le nom ${this.givenUsername} n'est pas autorisé ou déjà pris!`;
             }
-        });
+        }
+        return isNameValid;
     }
 
-    checkCode(): void {
+    async checkCode() {
         if (this.givenRoomCode.length === CODE_LENGTH) {
-            this.socketClientService.send('joinRoom', this.givenRoomCode, (response: JoinRoomResponse) => {
-                switch (response.roomState) {
-                    case RoomState.OK: {
-                        this.showUsernameField = true;
-                        this.isCodeValidated = true;
-                        this.roomCodeErrorMessage = '';
-                        if (response.quizId) {
-                            this.quizId = response.quizId;
-                        }
-                        break;
+            const joinRoomResponse = await firstValueFrom(
+                this.roomCommunicationService.joinRoom(this.givenRoomCode, { socketId: this.socketClientService.socket.id }),
+            );
+            switch (joinRoomResponse.roomState) {
+                case RoomState.OK: {
+                    this.showUsernameField = true;
+                    this.isCodeValidated = true;
+                    this.roomCodeErrorMessage = '';
+                    if (joinRoomResponse.quizId) {
+                        this.quizId = joinRoomResponse.quizId;
                     }
-                    case RoomState.IsLocked: {
-                        this.roomCodeErrorMessage = 'La partie est verrouillée.';
-                        this.showUsernameField = false;
-                        break;
-                    }
-                    case RoomState.Invalid: {
-                        this.roomCodeErrorMessage = 'Code invalide.';
-                        this.showUsernameField = false;
-                        break;
-                    }
-                    default: {
-                        this.roomCodeErrorMessage = 'Une erreur est survenue.';
-                        this.showUsernameField = false;
-                        break;
-                    }
+                    this.socketClientService.send(JoinEvents.JoinRoom, this.givenRoomCode);
+                    break;
                 }
-            });
+                case RoomState.IsLocked: {
+                    this.roomCodeErrorMessage = 'La partie est verrouillée.';
+                    this.showUsernameField = false;
+                    break;
+                }
+                case RoomState.Invalid: {
+                    this.roomCodeErrorMessage = 'Code invalide.';
+                    this.showUsernameField = false;
+                    break;
+                }
+                default: {
+                    this.roomCodeErrorMessage = 'Une erreur est survenue.';
+                    this.showUsernameField = false;
+                    break;
+                }
+            }
         } else {
             this.roomCodeErrorMessage = 'Code à 4 chiffres requis.';
             this.showUsernameField = false;
         }
     }
 
-    verifyAndAccess(): void {
-        if (!this.nameErrorMessage) {
-            this.socketClientService.send('successfulJoin', {
+    async verifyAndAccess() {
+        const joinRoomResponse = await firstValueFrom(
+            this.roomCommunicationService.joinRoom(this.givenRoomCode, { socketId: this.socketClientService.socket.id }),
+        );
+        if (joinRoomResponse.roomState !== RoomState.OK) {
+            this.isCodeValidated = false;
+            this.showUsernameField = false;
+            this.roomCodeErrorMessage = 'La partie est verrouillée ou n’existe plus.';
+            return;
+        }
+        const isUsernameValid = await this.isUsernameValid();
+        if (isUsernameValid) {
+            this.socketClientService.send(JoinEvents.SuccessfulJoin, {
                 roomId: this.givenRoomCode,
                 name: this.givenUsername,
             });
-            this.closeAdminPopup();
+            this.joinGamePopupRef.close();
             this.router.navigateByUrl(`/waiting/game/${this.quizId}/room/${this.givenRoomCode}`);
         }
     }
 
-    closeAdminPopup(): void {
+    closeAdminPopup() {
         this.joinGamePopupRef.close();
-        this.socketClientService.send('playerLeaveGame', { roomId: this.givenRoomCode, isInGame: false });
+        this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.givenRoomCode, isInGame: false });
     }
 
-    allowNumbersOnly(event: KeyboardEvent): void {
+    allowNumbersOnly(event: KeyboardEvent) {
         const pattern = /[0-9]/;
         const allowedKeys = ['Backspace', 'ArrowLeft', 'ArrowRight', 'Delete', 'Tab'];
-        if (!pattern.test(event.key) && !allowedKeys.includes(event.key)) {
+        const allowedInput = pattern.test(event.key) || allowedKeys.includes(event.key);
+        if (!allowedInput) {
             event.preventDefault();
         }
     }

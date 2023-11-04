@@ -6,7 +6,9 @@ import { JoinEvents } from '@app/events/join.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
+import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-create-game-list',
@@ -22,6 +24,7 @@ export class CreateGameListComponent implements OnInit {
     // eslint-disable-next-line max-params
     constructor(
         private readonly communicationService: CommunicationService,
+        private readonly roomCommunicationService: RoomCommunicationService,
         private socketClientService: SocketClientService,
         private router: Router,
         private popUp: MatDialog,
@@ -52,14 +55,19 @@ export class CreateGameListComponent implements OnInit {
     checkCanProceed(quiz: Quiz, toTest: boolean = false) {
         this.communicationService.checkQuizAvailability(quiz.id).subscribe((isAvailable) => {
             if (isAvailable) {
-                this.communicationService.checkQuizVisibility(quiz.id).subscribe((isVisible) => {
+                this.communicationService.checkQuizVisibility(quiz.id).subscribe(async (isVisible) => {
                     if (isVisible) {
                         if (toTest) this.router.navigateByUrl(`game/${quiz.id}/test`);
                         else {
                             this.socketClientService.connect();
-                            this.socketClientService.send(JoinEvents.CreateRoom, quiz.id, (roomId: string) => {
-                                this.router.navigateByUrl(`/waiting/game/${quiz.id}/room/${roomId}/host`);
-                            });
+                            const roomId = await firstValueFrom(
+                                this.roomCommunicationService.createRoom({
+                                    quizId: quiz.id,
+                                    socketId: this.socketClientService.socket.id,
+                                }),
+                            );
+                            this.socketClientService.send(JoinEvents.JoinRoom, JSON.stringify(roomId));
+                            this.router.navigateByUrl(`/waiting/game/${quiz.id}/room/${roomId}/host`);
                         }
                     } else {
                         this.openHiddenPopUp();

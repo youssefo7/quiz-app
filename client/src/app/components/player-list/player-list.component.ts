@@ -6,7 +6,9 @@ import { GameEvents } from '@app/events/game.events';
 import { JoinEvents } from '@app/events/join.events';
 import { WaitingEvents } from '@app/events/waiting.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
+import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-player-list',
@@ -27,6 +29,7 @@ export class PlayerListComponent implements OnInit {
         private router: Router,
         private popUp: MatDialog,
         private socketClientService: SocketClientService,
+        private roomCommunicationService: RoomCommunicationService,
     ) {
         this.players = [];
         this.bannedPlayers = [];
@@ -35,17 +38,24 @@ export class PlayerListComponent implements OnInit {
         this.roomId = this.route.snapshot.paramMap.get('roomId');
     }
 
-    // TODO: flèche de retour
+    // TODO: deconnecter lors de refresh
     /* @HostListener('window:popstate')
     onPopState() {
         this.quitPopUp();
     } */
 
-    ngOnInit() {
+    // @HostListener('window:beforeunload', ['$event'])
+    // unloadNotification($event: BeforeUnloadEvent) {
+    //     if (this.isHost) {
+    //         this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: true });
+    //     }
+    //     this.router.navigateByUrl('home/');
+    //     return false;
+    // }
+
+    async ngOnInit() {
         this.listenToSocketEvents();
-        this.socketClientService.send(WaitingEvents.GetPlayerNames, this.roomId, (playerNames: string[]) => {
-            this.players = playerNames;
-        });
+        this.players = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string));
     }
 
     listenToSocketEvents() {
@@ -63,11 +73,15 @@ export class PlayerListComponent implements OnInit {
         });
 
         this.socketClientService.on(GameEvents.StartGame, () => {
-            this.gameBeginsRedirections();
+            this.gameBeginsRedirection();
         });
 
         this.socketClientService.on(GameEvents.GameAborted, () => {
             this.gameEndPopup();
+        });
+
+        this.socketClientService.on(GameEvents.BanNotification, () => {
+            this.banPopup();
         });
     }
 
@@ -81,22 +95,12 @@ export class PlayerListComponent implements OnInit {
         this.isLocked = false;
     }
 
-    removePlayer(name: string) {
-        const index = this.players.findIndex((player) => player === name);
-        this.players.splice(index, 1);
+    banPlayer(name: string) {
+        this.socketClientService.send(WaitingEvents.BanName, { roomId: this.roomId, name });
     }
 
     startGame() {
         this.socketClientService.send(GameEvents.StartGame, this.roomId);
-    }
-
-    gameBeginsRedirections() {
-        const quizId = this.route.snapshot.paramMap.get('quizId');
-        if (!this.isHost) {
-            this.router.navigateByUrl(`game/${quizId}/room/${this.roomId}`);
-        } else {
-            this.router.navigateByUrl(`game/${quizId}/room/${this.roomId}/host`);
-        }
     }
 
     quitPopUp() {
@@ -107,7 +111,20 @@ export class PlayerListComponent implements OnInit {
         }
     }
 
-    hostQuitPopup() {
+    private removePlayer(name: string) {
+        this.players = this.players.filter((player) => player !== name);
+    }
+
+    private gameBeginsRedirection() {
+        const quizId = this.route.snapshot.paramMap.get('quizId');
+        if (!this.isHost) {
+            this.router.navigateByUrl(`game/${quizId}/room/${this.roomId}`);
+        } else {
+            this.router.navigateByUrl(`game/${quizId}/room/${this.roomId}/host`);
+        }
+    }
+
+    private hostQuitPopup() {
         const config: PopupMessageConfig = {
             message: 'Êtes-vous sûr de vouloir quitter? Tous les joueurs seront exclus de la partie.',
             hasCancelButton: true,
@@ -122,13 +139,13 @@ export class PlayerListComponent implements OnInit {
         popupInstance.config = config;
     }
 
-    playerQuitPopup() {
+    private playerQuitPopup() {
         const config: PopupMessageConfig = {
             message: 'Êtes-vous sûr de vouloir abandonner la partie?',
             hasCancelButton: true,
             okButtonText: 'Quitter',
             okButtonFunction: () => {
-                this.socketClientService.send(GameEvents.PlayerLeaveGame, this.roomId);
+                this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
                 this.router.navigateByUrl('home/');
             },
         };
@@ -137,9 +154,23 @@ export class PlayerListComponent implements OnInit {
         popupInstance.config = config;
     }
 
-    gameEndPopup() {
+    private gameEndPopup() {
         const config: PopupMessageConfig = {
             message: "L'organisateur a quitté. La partie est terminée.",
+            hasCancelButton: false,
+            okButtonText: 'Quitter',
+            okButtonFunction: () => {
+                this.router.navigateByUrl('home/');
+            },
+        };
+        const dialogRef = this.popUp.open(PopupMessageComponent);
+        const popupInstance = dialogRef.componentInstance;
+        popupInstance.config = config;
+    }
+
+    private banPopup() {
+        const config: PopupMessageConfig = {
+            message: 'Vous avez été banni de la partie.',
             hasCancelButton: false,
             okButtonText: 'Quitter',
             okButtonFunction: () => {
