@@ -10,4 +10,5 @@ export enum GameEvents {
     NextQuestion = 'nextQuestion',
     PlayerAbandonedGame = 'abandonedGame',
     GameAborted = 'gameAborted',
+    ShowResults = 'showResults',
 }

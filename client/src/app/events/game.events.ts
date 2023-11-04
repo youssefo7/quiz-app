@@ -11,4 +11,5 @@ export enum GameEvents {
     PlayerAbandonedGame = 'abandonedGame',
     GameAborted = 'gameAborted',
     BanNotification = 'banNotification',
+    ShowResults = 'showResults',
 }
