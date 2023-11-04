@@ -1,4 +1,3 @@
-import { Player } from '@app/interfaces/room';
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
 import { Injectable } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -20,14 +19,16 @@ export class GameGateway {
     @SubscribeMessage(GameEvents.PlayerLeaveGame)
     handlePlayerLeaveGame(socket: Socket, data: { roomId: string; isInGame: boolean }) {
         const room = this.roomManager.findRoom(data.roomId);
-        const player = this.roomManager.findUser(socket.id, room);
+        if (room) {
+            const player = this.roomManager.findPlayer(socket.id, room);
 
-        if (data.isInGame) {
-            this.server.to(room.organizer.socketId).emit(GameEvents.PlayerAbandonedGame, player.name);
+            if (data.isInGame) {
+                this.server.to(data.roomId).emit(GameEvents.PlayerAbandonedGame, player.name);
+            }
+            this.roomManager.removePlayer(room, player.socketId);
+            socket.leave(room.id);
+            socket.disconnect();
         }
-        this.roomManager.removePlayer(room, player.socketId);
-        socket.leave(room.id);
-        socket.disconnect();
     }
 
     @SubscribeMessage(GameEvents.EndGame)
@@ -66,7 +67,7 @@ export class GameGateway {
         const room = this.roomManager.findRoom(roomId);
         const quickestPlayer = this.roomManager.getQuickestTime(room);
         if (quickestPlayer) {
-            const player = this.roomManager.findUser(quickestPlayer.userId, room) as Player;
+            const player = this.roomManager.findPlayer(quickestPlayer.userId, room);
             player.bonusCount++;
             this.server.to(quickestPlayer.userId).emit(GameEvents.GiveBonus);
         }
@@ -77,7 +78,7 @@ export class GameGateway {
     handleAddPointsToPlayer(socket: Socket, data: { roomId: string; points: number }) {
         const room = this.roomManager.findRoom(data.roomId);
         this.roomManager.addPointsToPlayer(socket.id, data.points, room);
-        const player = this.roomManager.findUser(socket.id, room) as Player;
+        const player = this.roomManager.findPlayer(socket.id, room);
         this.server.to(room.organizer.socketId).emit(GameEvents.AddPointsToPlayer, { pointsToAdd: data.points, name: player.name });
     }
 

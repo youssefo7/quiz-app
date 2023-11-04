@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
@@ -22,9 +22,17 @@ export class HostGamePageComponent implements OnInit {
         private popup: MatDialog,
         private readonly route: ActivatedRoute,
         private readonly router: Router,
+        private readonly elementRef: ElementRef,
     ) {
         this.title = 'Partie: ';
     }
+
+    // TODO : deconnecter lors de refresh
+    // @HostListener('window:beforeunload', ['$event'])
+    // unloadNotification($event: BeforeUnloadEvent): void {
+    //     $event.returnValue = false;
+    //     this.leaveGamePage();
+    // }
 
     ngOnInit() {
         this.loadQuiz();
@@ -44,6 +52,14 @@ export class HostGamePageComponent implements OnInit {
         popupInstance.config = config;
     }
 
+    getQuizTitle() {
+        if (this.quiz) {
+            this.title += this.quiz.title;
+            this.title += ' (Organisateur)';
+            this.elementRef.nativeElement.setAttribute('title', this.title);
+        }
+    }
+
     private async loadQuiz() {
         await this.getQuiz();
         this.getQuizTitle();
@@ -53,14 +69,6 @@ export class HostGamePageComponent implements OnInit {
         const id = this.route.snapshot.paramMap.get('id');
         this.quiz = await this.gameService.getQuizById(id);
     }
-
-    private getQuizTitle() {
-        if (this.quiz) {
-            this.title += this.quiz.title;
-            this.title += ' (Organisateur)';
-        }
-    }
-
     private async leaveGamePage() {
         await this.router.navigateByUrl('/game/new');
     }

@@ -10,21 +10,6 @@ export class RoomManagerService {
         this.rooms = [];
     }
 
-    createRoomId() {
-        let roomId = '';
-        let roomExists: Room;
-
-        do {
-            roomId = randomstring.generate({
-                charset: 'numeric',
-                length: 4,
-            });
-            roomExists = this.findRoom(roomId);
-        } while (roomExists);
-
-        return roomId;
-    }
-
     createNewRoom(quizId: string, organizerId: string) {
         const roomId = this.createRoomId();
         this.rooms.push({
@@ -40,66 +25,38 @@ export class RoomManagerService {
         return roomId;
     }
 
-    addPlayerToRoom(room: Room, playerId: string) {
-        room.players.push({ socketId: playerId, name: '', points: 0, bonusCount: 0 });
-    }
-
     addBannedNameToRoom(room: Room, name: string) {
         room.bannedNames.push(name);
     }
 
     addPointsToPlayer(playerId: string, points: number, room: Room) {
-        const player = this.findUser(playerId, room) as Player;
+        const player = this.findPlayer(playerId, room);
         player.points += points;
     }
 
-    findRoom(roomId: string): Room {
+    findRoom(roomId: string): Room | undefined {
         return this.rooms.find((room) => room.id === roomId);
     }
 
     findUser(id: string, room: Room): Player | Organizer {
-        const player = room.players.find((currentPlayer) => currentPlayer.socketId === id);
-        if (player) {
-            return player;
-        }
-
-        return room.organizer;
+        const player = this.findPlayer(id, room);
+        return player ?? room.organizer;
     }
 
-    findPlayerByName(room: Room, name: string): Player {
+    findPlayer(id: string, room: Room): Player | undefined {
+        return room.players.find((currentPlayer) => currentPlayer.socketId === id);
+    }
+
+    findPlayerByName(room: Room, name: string): Player | undefined {
         return room.players.find((user) => user.name === name);
     }
 
-    isNameTaken(room: Room, name: string) {
-        if (name.toLowerCase() === 'organisateur') {
-            return true;
-        }
-
-        const nameExists = room.players.find((player) => player.name.toLowerCase() === name.toLowerCase());
-        return Boolean(nameExists);
-    }
-
-    isBannedName(room: Room, name: string) {
-        const isBanned = room.bannedNames.find((bannedName) => bannedName === name);
-        return Boolean(isBanned);
-    }
-
     removePlayer(room: Room, playerId: string) {
-        const playerIndex = room.players.findIndex((player) => player.socketId === playerId);
-        const outOfBoundsIndex = -1;
-
-        if (playerIndex !== outOfBoundsIndex) {
-            room.players.splice(playerIndex, 1);
-        }
+        room.players = room.players.filter((player) => player.socketId !== playerId);
     }
 
     deleteRoom(room: Room) {
-        const roomIndex = this.rooms.findIndex((currentRoom) => currentRoom.id === room.id);
-        const outOfBoundsIndex = -1;
-
-        if (roomIndex !== outOfBoundsIndex) {
-            this.rooms.splice(roomIndex, 1);
-        }
+        this.rooms = this.rooms.filter((currentRoom) => currentRoom.id !== room.id);
     }
 
     getQuickestTime(room: Room): AnswerTime | null {
@@ -123,5 +80,75 @@ export class RoomManagerService {
 
     resetAnswerTimes(room: Room) {
         room.answerTimes = [];
+    }
+
+    processUsername(data: { name: string; roomId: string; socketId: string }) {
+        const room = this.findRoom(data.roomId);
+        const wantedPlayer = this.findPlayer(data.socketId, room);
+        const nameExists = this.isNameTaken(room, data.name);
+        const isBannedName = this.isBannedName(room, data.name);
+        const isNameValid = !nameExists && !isBannedName;
+
+        if (isNameValid && !room.isLocked) {
+            wantedPlayer.name = data.name;
+        }
+
+        return isNameValid;
+    }
+
+    processJoinRoom(data: { socketId: string; roomId: string }) {
+        const room = this.findRoom(data.roomId);
+
+        if (!room) {
+            return { roomState: 'INVALID', quizId: null };
+        }
+
+        if (room.isLocked) {
+            return { roomState: 'IS_LOCKED', quizId: null };
+        }
+
+        this.addPlayerToRoom(room, data.socketId);
+        return { roomState: 'OK', quizId: room.quizId };
+    }
+
+    getRoomPlayers(roomId: string) {
+        const room = this.findRoom(roomId);
+        return room.players.map((player) => player.name);
+    }
+
+    private createRoomId() {
+        let roomId = '';
+        let roomExists: Room;
+
+        do {
+            roomId = randomstring.generate({
+                charset: 'numeric',
+                length: 4,
+            });
+            roomExists = this.findRoom(roomId);
+        } while (roomExists);
+
+        return roomId;
+    }
+
+    private addPlayerToRoom(room: Room, playerId: string) {
+        const res = this.findPlayer(playerId, room);
+        if (!res) {
+            room.players.push({ socketId: playerId, name: '', points: 0, bonusCount: 0 });
+        }
+    }
+
+    private isNameTaken(room: Room, name: string) {
+        if (name.toLowerCase() === 'organisateur') {
+            return true;
+        }
+
+        const nameExists = room.players.find((player) => player.name.toLowerCase() === name.toLowerCase());
+        return Boolean(nameExists);
+    }
+
+    private isBannedName(room: Room, name: string) {
+        const isBanned = room.bannedNames.find((bannedName) => bannedName.toLowerCase() === name.toLowerCase());
+        return Boolean(isBanned);
     }
 }
