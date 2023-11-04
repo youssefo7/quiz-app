@@ -34,7 +34,7 @@ describe('SocketClientService', () => {
         expect(disconnectSpy).toHaveBeenCalled();
     });
 
-    it('if socket is defined and connected to a game', () => {
+    it('should return true if socket is defined and connected to a game', () => {
         service.socket.connected = true;
         const socketIsActive = service.socketExists();
         expect(socketIsActive).toBeTruthy();
