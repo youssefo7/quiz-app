@@ -39,7 +39,7 @@ describe('ChatComponent', () => {
                     provide: ActivatedRoute,
                     useValue: {
                         snapshot: {
-                            paramMap: convertToParamMap({ room: 'roomId' }),
+                            paramMap: convertToParamMap({ roomId: 'roomId' }),
                         },
                     },
                 },
@@ -112,6 +112,7 @@ describe('ChatComponent', () => {
     });
 
     it('should warn organizer when a player has left the game', () => {
+        component.isOrganizer = true;
         const playerName = 'TestName';
         socketHelper.peerSideEmit('AbandonedGame', playerName);
         expect(component.roomMessages.length).toEqual(1);

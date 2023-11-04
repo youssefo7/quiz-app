@@ -5,7 +5,7 @@
                 class="chat-message"
                 [ngClass]="{
                     sent: message.sentByUser && message.authorName !== 'System',
-                    'system-sent': message.authorName === 'System'
+                    'system-sent': message.authorName === 'System' && this.isOrganizer
                 }"
             >
                 <div class="message-info">

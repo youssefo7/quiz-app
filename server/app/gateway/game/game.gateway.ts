@@ -23,7 +23,7 @@ export class GameGateway {
         const player = this.roomManager.findUser(socket.id, room);
 
         if (data.isInGame) {
-            socket.to(room.organizer.socketId).emit(GameEvents.PlayerAbandonedGame, player.name);
+            this.server.to(data.roomId).emit(GameEvents.PlayerAbandonedGame, player.name);
         }
         this.roomManager.removePlayer(room, player.socketId);
         socket.leave(room.id);

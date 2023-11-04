@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { SocketClientService } from '@app/services/socket-client.service';
@@ -9,6 +9,7 @@ import { SocketClientService } from '@app/services/socket-client.service';
     styleUrls: ['./chat.component.scss'],
 })
 export class ChatComponent implements OnInit {
+    @Input() isOrganizer: boolean;
     chatMessage: ChatMessage;
     characterCounterDisplay: string;
     currentInputLength: number;
@@ -26,8 +27,7 @@ export class ChatComponent implements OnInit {
         this.characterCounterDisplay = `${this.currentInputLength} / ${this.maxInputLength}`;
         this.roomMessages = [];
         this.userMessage = '';
-        this.roomId = '';
-        this.roomId = this.route.snapshot.paramMap.get('room') as string;
+        this.roomId = this.route.snapshot.paramMap.get('roomId') as string;
     }
 
     ngOnInit() {
@@ -48,14 +48,16 @@ export class ChatComponent implements OnInit {
         this.socketService.on('newRoomMessage', addMessage);
 
         this.socketService.on('AbandonedGame', (playerName: string) => {
-            const leftTime = new Date();
-            const playerLeftMessage: ChatMessage = {
-                authorName: 'System',
-                time: leftTime.getHours() + ':' + leftTime.getMinutes() + ':' + leftTime.getSeconds(),
-                message: playerName + ' has left the game.',
-                sentByUser: false,
-            };
-            this.roomMessages.push(playerLeftMessage);
+            if (this.isOrganizer) {
+                const leftTime = new Date();
+                const playerLeftMessage: ChatMessage = {
+                    authorName: 'System',
+                    time: leftTime.getHours() + ':' + leftTime.getMinutes() + ':' + leftTime.getSeconds(),
+                    message: playerName + ' has left the game.',
+                    sentByUser: false,
+                };
+                this.roomMessages.push(playerLeftMessage);
+            }
         });
     }
 
