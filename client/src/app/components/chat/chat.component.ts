@@ -74,6 +74,13 @@ export class ChatComponent implements OnInit {
         this.characterCounterDisplay = `${this.currentInputLength} / ${this.maxInputLength}`;
     }
 
+    keyUpEvent($event: KeyboardEvent) {
+        $event.preventDefault();
+        if ($event.key === 'Enter') {
+            this.sendMessageToRoom();
+        }
+    }
+
     sendMessageToRoom() {
         this.socketService.send('roomMessage', { roomId: this.roomId, message: this.userMessage });
         this.userMessage = '';

@@ -121,4 +121,11 @@ describe('ChatComponent', () => {
         expect(component.roomMessages[0].message).toEqual(playerName + ' has left the game.');
         expect(component.roomMessages[0].sentByUser).toEqual(false);
     });
+
+    it('should call sendMessageToRoom on "Enter" key up in the textarea', () => {
+        const spySendMessageToRoom = spyOn(component, 'sendMessageToRoom');
+        const event = new KeyboardEvent('keyup', { key: 'Enter' });
+        component.keyUpEvent(event);
+        expect(spySendMessageToRoom).toHaveBeenCalled();
+    });
 });

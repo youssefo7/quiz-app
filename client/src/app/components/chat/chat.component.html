@@ -21,7 +21,7 @@
             maxlength="200"
             (input)="expandTextArea($event)"
             (input)="detectCharacterLengthOnInput($event)"
-            [(ngModel)]="userMessage"
+            (keyup)="keyUpEvent($event)"
             [(ngModel)]="userMessage"
         ></textarea>
         <mat-icon inline="true" (click)="sendMessageToRoom()" (keyup.enter)="sendMessageToRoom()">send</mat-icon>
