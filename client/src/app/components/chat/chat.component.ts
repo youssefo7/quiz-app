@@ -1,5 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { ChatEvents } from '@app/events/chat.events';
+import { GameEvents } from '@app/events/game.events';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { SocketClientService } from '@app/services/socket-client.service';
 
@@ -45,9 +47,9 @@ export class ChatComponent implements OnInit {
             this.roomMessages.push(chatMessage);
         };
 
-        this.socketService.on('newRoomMessage', addMessage);
+        this.socketService.on(ChatEvents.NewRoomMessage, addMessage);
 
-        this.socketService.on('AbandonedGame', (playerName: string) => {
+        this.socketService.on(GameEvents.PlayerAbandonedGame, (playerName: string) => {
             if (this.isOrganizer) {
                 const leftTime = new Date();
                 const playerLeftMessage: ChatMessage = {
@@ -82,7 +84,7 @@ export class ChatComponent implements OnInit {
     }
 
     sendMessageToRoom() {
-        this.socketService.send('roomMessage', { roomId: this.roomId, message: this.userMessage });
+        this.socketService.send(ChatEvents.RoomMessage, { roomId: this.roomId, message: this.userMessage });
         this.userMessage = '';
     }
 }

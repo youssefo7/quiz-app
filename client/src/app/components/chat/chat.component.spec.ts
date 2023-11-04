@@ -3,6 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
+import { ChatEvents } from '@app/events/chat.events';
+import { GameEvents } from '@app/events/game.events';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { Socket } from 'socket.io-client';
 import { ChatComponent } from './chat.component';
@@ -83,7 +85,7 @@ describe('ChatComponent', () => {
 
     it('should send a message to a specific room on the server and reset userMessage ', () => {
         const spy = spyOn(component.socketService, 'send');
-        const event = 'roomMessage';
+        const event = ChatEvents.RoomMessage;
         const testRoomId = 'roomId';
         const message = 'Test Message';
         component.userMessage = message;
@@ -94,7 +96,7 @@ describe('ChatComponent', () => {
 
     it('should add a message to roomMessages array on userMessage event when user is not the sender', () => {
         const chatMessage = { authorName: 'TestName', timeString: '10:23:56', message: 'Test Message', sentByUser: false };
-        socketHelper.peerSideEmit('newRoomMessage', chatMessage);
+        socketHelper.peerSideEmit(ChatEvents.NewRoomMessage, chatMessage);
         expect(component.roomMessages.length).toBe(1);
         expect(component.roomMessages[0].authorName).toEqual(chatMessage.authorName);
         expect(component.roomMessages[0].time).toEqual(chatMessage.timeString);
@@ -104,7 +106,7 @@ describe('ChatComponent', () => {
 
     it('should add a message to roomMessages array on userMessage event when user is the sender', () => {
         const chatMessage = { authorName: 'TestName', timeString: '10:23:56', message: 'Test Message', sentByUser: true };
-        socketHelper.peerSideEmit('newRoomMessage', chatMessage);
+        socketHelper.peerSideEmit(ChatEvents.NewRoomMessage, chatMessage);
         expect(component.roomMessages.length).toEqual(1);
         expect(component.roomMessages[0].authorName).toEqual(chatMessage.authorName);
         expect(component.roomMessages[0].time).toEqual(chatMessage.timeString);
@@ -115,7 +117,7 @@ describe('ChatComponent', () => {
     it('should warn organizer when a player has left the game', () => {
         component.isOrganizer = true;
         const playerName = 'TestName';
-        socketHelper.peerSideEmit('AbandonedGame', playerName);
+        socketHelper.peerSideEmit(GameEvents.PlayerAbandonedGame, playerName);
         expect(component.roomMessages.length).toEqual(1);
         expect(component.roomMessages[0].authorName).toEqual('System');
         expect(component.roomMessages[0].message).toEqual(playerName + ' has left the game.');
