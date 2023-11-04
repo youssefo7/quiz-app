@@ -1,6 +1,6 @@
 export interface ChatMessage {
-    name: string;
+    authorName: string;
     time: string;
     message: string;
-    sentByYou: boolean;
+    sentByUser: boolean;
 }
