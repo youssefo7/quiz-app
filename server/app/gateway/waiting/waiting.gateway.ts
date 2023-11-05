@@ -33,10 +33,10 @@ export class WaitingGateway {
     @SubscribeMessage(WaitingEvents.BanName)
     handleBanName(_: Socket, data: { roomId: string; name: string }) {
         const room = this.roomManager.findRoom(data.roomId);
-        this.roomManager.addBannedNameToRoom(room, data.name);
         const player = this.roomManager.findPlayerByName(room, data.name);
 
         if (player) {
+            this.roomManager.addBannedNameToRoom(room, data.name);
             this.roomManager.removePlayer(room, player.socketId);
             const playerSocket = this.server.sockets.sockets.get(player.socketId);
             if (playerSocket) {
