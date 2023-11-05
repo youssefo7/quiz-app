@@ -54,7 +54,7 @@ describe('SocketClientService', () => {
 
     it('should call socket.on with a valid event', () => {
         const action = () => {
-            // empty action
+            // action vide
         };
         const spySocketOn = spyOn(service.socket, 'on');
         service.on(event, action);
