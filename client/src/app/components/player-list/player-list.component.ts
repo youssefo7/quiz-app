@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
@@ -16,7 +16,7 @@ import { firstValueFrom } from 'rxjs';
     templateUrl: './player-list.component.html',
     styleUrls: ['./player-list.component.scss'],
 })
-export class PlayerListComponent implements OnInit {
+export class PlayerListComponent implements OnInit, OnDestroy {
     players: string[];
     bannedPlayers: string[];
     isHost: boolean;
@@ -43,9 +43,40 @@ export class PlayerListComponent implements OnInit {
         this.transitionCounter = 0;
     }
 
+    @HostListener('window:beforeunload', ['$event'])
+    beforeUnloadHandler() {
+        sessionStorage.setItem('isReload', 'true');
+        this.handleNavigation();
+    }
+
+    ngOnDestroy() {
+        this.handleNavigation();
+    }
+
+    handleNavigation() {
+        const currentUrl = this.router.url;
+        const gameUrl = `/game/${this.route.snapshot.paramMap.get('quizId')}/room/${this.roomId}`;
+        if (this.isHost) {
+            if (currentUrl !== gameUrl + '/host') {
+                this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: true });
+                this.router.navigateByUrl('home/');
+            }
+        } else {
+            if (currentUrl !== gameUrl) {
+                this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
+                this.router.navigateByUrl('home/');
+            }
+        }
+    }
+
     async ngOnInit() {
-        this.listenToSocketEvents();
-        this.players = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string));
+        if (sessionStorage.getItem('isReload') === 'true') {
+            this.handleNavigation();
+            sessionStorage.removeItem('isReload');
+        } else {
+            this.listenToSocketEvents();
+            this.players = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string));
+        }
     }
 
     listenToSocketEvents() {
