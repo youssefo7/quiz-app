@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
@@ -12,10 +12,10 @@ import { firstValueFrom } from 'rxjs';
     templateUrl: './host-game-page.component.html',
     styleUrls: ['./host-game-page.component.scss', '../../../assets/shared.scss'],
 })
-export class HostGamePageComponent implements OnInit {
+export class HostGamePageComponent implements OnInit, OnDestroy {
     quiz: Quiz;
     title: string;
-    roomId: string;
+    roomId: string | null;
 
     // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
@@ -27,14 +27,23 @@ export class HostGamePageComponent implements OnInit {
         private readonly elementRef: ElementRef,
     ) {
         this.title = 'Partie: ';
+        this.roomId = this.route.snapshot.paramMap.get('roomId');
     }
 
-    // TODO : deconnecter lors de refresh
-    // @HostListener('window:beforeunload', ['$event'])
-    // unloadNotification($event: BeforeUnloadEvent): void {
-    //     $event.returnValue = false;
-    //     this.leaveGamePage();
-    // }
+    @HostListener('window:beforeunload', ['$event'])
+    beforeUnloadHandler() {
+        this.handleNavigation();
+    }
+
+    ngOnDestroy() {
+        this.handleNavigation();
+    }
+
+    // TODO : ajouter url pour la pages des resultats
+    handleNavigation() {
+        this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: true });
+        this.router.navigateByUrl('home/');
+    }
 
     async ngOnInit() {
         this.loadQuiz();

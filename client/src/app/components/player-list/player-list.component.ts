@@ -45,7 +45,6 @@ export class PlayerListComponent implements OnInit, OnDestroy {
 
     @HostListener('window:beforeunload', ['$event'])
     beforeUnloadHandler() {
-        sessionStorage.setItem('isReload', 'true');
         this.handleNavigation();
     }
 
@@ -70,13 +69,8 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     }
 
     async ngOnInit() {
-        if (sessionStorage.getItem('isReload') === 'true') {
-            this.handleNavigation();
-            sessionStorage.removeItem('isReload');
-        } else {
-            this.listenToSocketEvents();
-            this.players = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string));
-        }
+        this.listenToSocketEvents();
+        this.players = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string));
     }
 
     listenToSocketEvents() {

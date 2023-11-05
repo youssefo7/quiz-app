@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
@@ -16,7 +16,7 @@ import { firstValueFrom } from 'rxjs';
     templateUrl: './game-page.component.html',
     styleUrls: ['./game-page.component.scss', '../../../assets/shared.scss'],
 })
-export class GamePageComponent implements OnInit {
+export class GamePageComponent implements OnInit, OnDestroy {
     title: string;
     quiz: Quiz | null;
     playerPoints: number;
@@ -39,6 +39,21 @@ export class GamePageComponent implements OnInit {
         this.playerPoints = 0;
         this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
         this.roomId = this.route.snapshot.paramMap.get('roomId');
+    }
+
+    @HostListener('window:beforeunload', ['$event'])
+    beforeUnloadHandler() {
+        this.handleNavigation();
+    }
+
+    ngOnDestroy() {
+        this.handleNavigation();
+    }
+
+    // TODO : ajouter url pour la pages des resultats
+    handleNavigation() {
+        this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
+        this.router.navigateByUrl('home/');
     }
 
     async ngOnInit() {
