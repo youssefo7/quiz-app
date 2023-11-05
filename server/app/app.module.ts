@@ -1,3 +1,4 @@
+import { TimeGateway } from '@app/gateway/time/time.gateway';
 import { AdminGuardController } from '@app/controllers/admin-guard/admin-guard.controller';
 import { QuizzesController } from '@app/controllers/quizzes/quizzes.controller';
 import { Quiz, quizSchema } from '@app/model/database/quiz';
@@ -26,6 +27,6 @@ import { RoomManagerService } from './services/room-manager/room-manager.service
         MongooseModule.forFeature([{ name: Quiz.name, schema: quizSchema }]),
     ],
     controllers: [QuizzesController, AdminGuardController, RoomController],
-    providers: [Logger, AdminGuardService, QuizzesService, RoomManagerService, GameGateway, ChatGateway, WaitingGateway, JoinGateway],
+    providers: [Logger, AdminGuardService, QuizzesService, RoomManagerService, GameGateway, ChatGateway, WaitingGateway, JoinGateway, TimeGateway],
 })
 export class AppModule {}
