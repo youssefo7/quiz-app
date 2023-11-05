@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
@@ -15,7 +15,7 @@ import { firstValueFrom } from 'rxjs';
     templateUrl: './create-game-list.component.html',
     styleUrls: ['./create-game-list.component.scss'],
 })
-export class CreateGameListComponent implements OnInit {
+export class CreateGameListComponent implements OnInit, OnDestroy {
     message: string;
     visibleQuizList: Quiz[];
     selectedQuizId: string | null;
@@ -36,6 +36,14 @@ export class CreateGameListComponent implements OnInit {
 
     ngOnInit() {
         this.getVisibleQuizListFromServer();
+        this.socketClientService.connect();
+    }
+
+    ngOnDestroy() {
+        const currentUrl = this.router.url;
+        if (!currentUrl.includes('waiting')) {
+            this.socketClientService.disconnect();
+        }
     }
 
     getVisibleQuizListFromServer() {
@@ -53,21 +61,25 @@ export class CreateGameListComponent implements OnInit {
     }
 
     checkCanProceed(quiz: Quiz, toTest: boolean = false) {
+        let roomId: string;
         this.communicationService.checkQuizAvailability(quiz.id).subscribe((isAvailable) => {
             if (isAvailable) {
                 this.communicationService.checkQuizVisibility(quiz.id).subscribe(async (isVisible) => {
                     if (isVisible) {
                         if (toTest) this.router.navigateByUrl(`game/${quiz.id}/test`);
                         else {
-                            this.socketClientService.connect();
-                            const roomId = await firstValueFrom(
-                                this.roomCommunicationService.createRoom({
-                                    quizId: quiz.id,
-                                    socketId: this.socketClientService.socket.id,
-                                }),
-                            );
-                            this.socketClientService.send(JoinEvents.JoinRoom, JSON.stringify(roomId));
-                            this.router.navigateByUrl(`/waiting/game/${quiz.id}/room/${roomId}/host`);
+                            if (this.socketClientService.socketExists()) {
+                                roomId = await firstValueFrom(
+                                    this.roomCommunicationService.createRoom({
+                                        quizId: this.selectedQuizId as string,
+                                        socketId: this.socketClientService.socket.id,
+                                    }),
+                                );
+                                this.socketClientService.send(JoinEvents.JoinRoom, JSON.stringify(roomId));
+                                this.router.navigateByUrl(`/waiting/game/${this.selectedQuizId}/room/${roomId}/host`);
+                            } else {
+                                this.openConnectionPopUp();
+                            }
                         }
                     } else {
                         this.openHiddenPopUp();
@@ -99,6 +111,16 @@ export class CreateGameListComponent implements OnInit {
             okButtonFunction: () => {
                 this.getVisibleQuizListFromServer();
             },
+        };
+        const dialogRef = this.popUp.open(PopupMessageComponent);
+        const popupInstance = dialogRef.componentInstance;
+        popupInstance.config = config;
+    }
+
+    openConnectionPopUp() {
+        const config: PopupMessageConfig = {
+            message: "Vous n'êtes pas connecté. Vous devez réessayer une fois pour se connecter.",
+            hasCancelButton: false,
         };
         const dialogRef = this.popUp.open(PopupMessageComponent);
         const popupInstance = dialogRef.componentInstance;

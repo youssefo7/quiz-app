@@ -32,6 +32,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     private hasGameEnded: boolean;
     private timerSubscription: Subscription;
     private gameServiceSubscription: Subscription;
+    private roomId: string | null;
 
     // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
@@ -53,6 +54,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.doesDisplayPoints = false;
         this.hasGameEnded = false;
         this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
+        this.roomId = this.route.snapshot.paramMap.get('roomId');
     }
 
     @HostListener('keypress', ['$event'])
@@ -81,6 +83,8 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.loadQuiz();
         this.subscribeToTimer();
         this.detectEndGame();
+        this.handleTransitionClockFinished();
+        this.handleBonusPoints();
     }
 
     ngOnDestroy() {
@@ -114,6 +118,10 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
                 this.detectEndOfQuestion(time);
             });
+
+            this.socketClientService.on(TimeEvents.TimerInterrupted, () => {
+                this.detectEndOfQuestion(0);
+            });
         }
     }
 
@@ -142,6 +150,11 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     toggleChoice(index: number) {
         if (!isNaN(index) && index >= 0 && index < this.chosenChoices.length) {
             this.chosenChoices[index] = !this.chosenChoices[index];
+            if (this.chosenChoices[index]) {
+                this.socketClientService.send(GameEvents.QuestionChoiceSelect, { roomId: this.roomId, questionChoiceIndex: index });
+            } else {
+                this.socketClientService.send(GameEvents.QuestionChoiceUnselect, { roomId: this.roomId, questionChoiceIndex: index });
+            }
         }
     }
 
@@ -175,9 +188,18 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     submitAnswerOnClickEvent() {
-        this.gameService.setButtonPressState = true;
-        this.showResult();
-        this.isQuestionTransitioning = true;
+        if (this.isTestGame) {
+            this.gameService.setButtonPressState = true;
+            this.showResult();
+            this.isQuestionTransitioning = true;
+        } else {
+            this.setSubmitButtonToDisabled(true, { backgroundColor: 'grey' });
+            this.socketClientService.send(GameEvents.SubmitQuestion, this.roomId);
+        }
+        if (this.isAnswerGood() && !this.isTestGame) {
+            this.points = this.question.points;
+            this.socketClientService.send(GameEvents.GoodAnswer, this.roomId);
+        }
     }
 
     isAnswerGood() {
@@ -193,11 +215,11 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     givePoints() {
-        if (this.isAnswerGood()) {
+        if (this.isAnswerGood() && this.isTestGame) {
             const bonus = 1.2;
             this.points = this.question.points * bonus;
             this.bonusMessage = '(20% bonus Woohoo!)';
-        } else {
+        } else if (!this.isAnswerGood()) {
             this.points = 0;
             this.bonusMessage = '';
         }
@@ -210,12 +232,30 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.givePoints();
     }
 
+    handleTransitionClockFinished() {
+        this.socketClientService.on(TimeEvents.TransitionClockFinished, () => {
+            this.isQuestionTransitioning = false;
+            ++this.currentQuestionIndex;
+            this.getQuestion(this.currentQuestionIndex);
+        });
+    }
+
+    handleBonusPoints() {
+        this.socketClientService.on(GameEvents.GiveBonus, () => {
+            console.log('give bonus');
+            const bonus = 0.2;
+            this.points += this.points * bonus;
+            this.bonusMessage = '(20% bonus Woohoo!)';
+        });
+    }
+
     private detectEndOfQuestion(time: number) {
         if (!this.hasGameEnded && time === 0) {
             if (!this.isQuestionTransitioning) {
                 this.showResult();
                 this.isQuestionTransitioning = true;
-            } else {
+                this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
+            } else if (this.isTestGame) {
                 this.isQuestionTransitioning = false;
                 ++this.currentQuestionIndex;
                 this.getQuestion(this.currentQuestionIndex);

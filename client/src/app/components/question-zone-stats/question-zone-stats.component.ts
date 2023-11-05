@@ -85,6 +85,14 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
             this.detectEndOfQuestion(time);
         });
+
+        this.socketClientService.on(TimeEvents.TimerInterrupted, () => {
+            this.detectEndOfQuestion(0);
+        });
+
+        this.socketClientService.on(TimeEvents.TransitionClockFinished, () => {
+            this.showNextQuestion();
+        });
     }
 
     private detectEndOfQuestion(time: number) {
@@ -94,7 +102,6 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
                 this.isNextQuestionButtonDisable = false;
                 this.nextQuestionButtonStyle = { backgroundColor: 'rgb(18, 18, 217)' };
             }
-            this.showNextQuestion();
         }
     }
 

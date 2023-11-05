@@ -1,7 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { GameEvents } from '@app/events/game.events';
+import { TimeEvents } from '@app/events/time.events';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
+import { SocketClientService } from '@app/services/socket-client.service';
 import { Chart } from 'chart.js';
 
 @Component({
@@ -23,9 +26,9 @@ export class HistogramComponent implements OnInit, OnDestroy {
     constructor(
         private readonly route: ActivatedRoute,
         private readonly gameService: GameService,
+        private readonly socketClientService: SocketClientService,
     ) {
         this.playersChoices = [];
-        this.choicesSelectionCounts = [];
         this.chartBorderColors = [];
         this.chartBackgroundColors = [];
         this.goodBadChoices = [];
@@ -33,7 +36,10 @@ export class HistogramComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+        this.choicesSelectionCounts = [];
         this.loadChart();
+        this.updateSelections();
+        this.reactToNextQuestionEvent();
     }
 
     ngOnDestroy() {
@@ -47,7 +53,7 @@ export class HistogramComponent implements OnInit, OnDestroy {
     }
 
     private async getQuiz() {
-        const id = this.route.snapshot.paramMap.get('id');
+        const id = this.route.snapshot.paramMap.get('quizId');
         this.quiz = await this.gameService.getQuizById(id);
     }
 
@@ -63,14 +69,23 @@ export class HistogramComponent implements OnInit, OnDestroy {
         }
     }
 
+    private reactToNextQuestionEvent() {
+        this.socketClientService.on(TimeEvents.TransitionClockFinished, () => {
+            this.currentQuestionIndex++;
+            this.resetArrays();
+            this.getQuestion(this.currentQuestionIndex);
+            this.updateCharConfig();
+        });
+    }
+
     // TODO: Call this function when transitioning to the next question
-    // private resetArrays() {
-    //     this.playersChoices = [];
-    //     this.choicesSelectionCounts = [];
-    //     this.chartBorderColors = [];
-    //     this.chartBackgroundColors = [];
-    //     this.goodBadChoices = [];
-    // }
+    private resetArrays() {
+        this.playersChoices = [];
+        this.choicesSelectionCounts = [];
+        this.chartBorderColors = [];
+        this.chartBackgroundColors = [];
+        this.goodBadChoices = [];
+    }
 
     private setBackgroundColors(choiceIndex: number) {
         const choice = this.question.choices[choiceIndex];
@@ -79,9 +94,16 @@ export class HistogramComponent implements OnInit, OnDestroy {
     }
 
     // TODO: Get players answers dynamically from the server (use chart.update() to update the chart)
-    // private getPlayersAnswers() {
-    //     this.choicesSelectionCounts = [3, 5, 2, 10];
-    // }
+    private updateSelections() {
+        this.socketClientService.on(GameEvents.QuestionChoiceSelect, (selectionIndex: number) => {
+            this.choicesSelectionCounts[selectionIndex]++;
+            this.chart.update();
+        });
+        this.socketClientService.on(GameEvents.QuestionChoiceUnselect, (deselectionIndex: number) => {
+            this.choicesSelectionCounts[deselectionIndex]--;
+            this.chart.update();
+        });
+    }
 
     private createPlayerAnswersChart() {
         this.chart = new Chart('canvas', {
@@ -117,5 +139,13 @@ export class HistogramComponent implements OnInit, OnDestroy {
                 },
             },
         });
+    }
+
+    private updateCharConfig() {
+        this.chart.data.labels = this.playersChoices;
+        this.chart.data.datasets[0].data = this.choicesSelectionCounts;
+        this.chart.data.datasets[0].backgroundColor = this.chartBackgroundColors;
+        this.chart.data.datasets[0].borderColor = this.chartBorderColors;
+        this.chart.update();
     }
 }

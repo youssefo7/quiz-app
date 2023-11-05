@@ -60,9 +60,10 @@ export class RoomManagerService {
     }
 
     getQuickestTime(room: Room): AnswerTime | null {
-        const player = room.answerTimes.reduce((fastestPlayer = room.answerTimes[0], currentPlayer) => {
-            const isCurrentFaster = currentPlayer.timeStamp < fastestPlayer.timeStamp;
-            fastestPlayer = isCurrentFaster ? currentPlayer : fastestPlayer;
+        const player = room.answerTimes.reduce((fastestPlayer, currentPlayer) => {
+            if (currentPlayer.timeStamp < fastestPlayer.timeStamp) {
+                return currentPlayer;
+            }
             return fastestPlayer;
         }, room.answerTimes[0]);
 
@@ -114,6 +115,12 @@ export class RoomManagerService {
     getRoomPlayers(roomId: string) {
         const room = this.findRoom(roomId);
         return room.players.map((player) => player.name);
+    }
+
+    getPlayerName(roomId: string, playerId: string) {
+        const room = this.findRoom(roomId);
+        const player = this.findPlayer(playerId, room);
+        return player?.name;
     }
 
     private createRoomId() {

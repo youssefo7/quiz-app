@@ -57,9 +57,10 @@ export class GameGateway {
     }
 
     @SubscribeMessage(GameEvents.GoodAnswer)
-    handleGoodAnswer(socket: Socket, data: { roomId: string; timeStamp: Date }) {
-        const room = this.roomManager.findRoom(data.roomId);
-        room.answerTimes.push({ userId: socket.id, timeStamp: data.timeStamp.getTime() });
+    handleGoodAnswer(socket: Socket, roomId: string) {
+        const room = this.roomManager.findRoom(roomId);
+        const timeStamp = new Date();
+        room.answerTimes.push({ userId: socket.id, timeStamp: timeStamp.getTime() });
     }
 
     @SubscribeMessage(GameEvents.QuestionChoiceSelect)
@@ -74,6 +75,7 @@ export class GameGateway {
         this.server.to(organizer).emit(GameEvents.QuestionChoiceUnselect, data.questionChoiceIndex);
     }
 
+    // TODO : Ajouter un événement pour que le joueur puisse envoyer son nom au serveur
     @SubscribeMessage(GameEvents.GiveBonus)
     handleGiveBonus(_: Socket, roomId: string) {
         const room = this.roomManager.findRoom(roomId);
@@ -81,6 +83,7 @@ export class GameGateway {
         if (quickestPlayer) {
             const player = this.roomManager.findPlayer(quickestPlayer.userId, room);
             player.bonusCount++;
+            console.log('sending bonus to ');
             this.server.to(quickestPlayer.userId).emit(GameEvents.GiveBonus);
         }
     }
@@ -111,5 +114,9 @@ export class GameGateway {
         this.server.to(roomId).emit(GameEvents.ShowResults);
     }
 
-    // TODO : faire l'événement de déconnexion
+    @SubscribeMessage(GameEvents.SubmitQuestion)
+    handleSubmitQuestion(_: Socket, roomId: string) {
+        const organizer = this.roomManager.findRoom(roomId).organizer.socketId;
+        this.server.to(organizer).emit(GameEvents.SubmitQuestion);
+    }
 }

@@ -9,6 +9,7 @@ import { ActivatedRoute } from '@angular/router';
 export class ProfileComponent implements OnInit {
     @Input() points: number;
     @Input() isHost: boolean;
+    @Input() playerName: string | null;
     name: string;
 
     constructor(private readonly route: ActivatedRoute) {
@@ -28,6 +29,8 @@ export class ProfileComponent implements OnInit {
             profileName = 'Testeur';
         } else if (this.isHost) {
             profileName = 'Organisateur';
+        } else {
+            profileName = this.playerName as string;
         }
 
         return profileName;

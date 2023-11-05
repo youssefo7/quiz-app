@@ -35,6 +35,17 @@ export class TimeGateway {
         this.interval = null;
     }
 
+    @SubscribeMessage(TimeEvents.TransitionClockFinished)
+    handleTransitionClockFinished(_: Socket, roomId: string) {
+        this.server.to(roomId).emit(TimeEvents.TransitionClockFinished);
+    }
+
+    @SubscribeMessage(TimeEvents.TimerInterrupted)
+    handleTimerInterrupted(_: Socket, roomId: string) {
+        this.handleStopTimer();
+        this.server.to(roomId).emit(TimeEvents.TimerInterrupted);
+    }
+
     private emitUpdatedTime(roomId: string) {
         this.server.to(roomId).emit(TimeEvents.CurrentTimer, this.counter);
         this.counter--;
