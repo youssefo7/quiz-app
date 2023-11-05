@@ -24,6 +24,7 @@ export class TimeGateway {
                 this.emitUpdatedTime(data.roomId);
             } else {
                 this.handleStopTimer();
+                this.server.to(data.roomId).emit(TimeEvents.TimerFinished);
             }
         }, this.tickRate);
     }

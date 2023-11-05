@@ -1,7 +1,10 @@
 import { Component, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { GameEvents } from '@app/events/game.events';
+import { TimeEvents } from '@app/events/time.events';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
+import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
 import { Subscription } from 'rxjs';
 
@@ -25,6 +28,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     isSubmitDisabled: boolean;
     isChoiceButtonDisabled: boolean;
     doesDisplayPoints: boolean;
+    private isTestGame: boolean;
     private hasGameEnded: boolean;
     private timerSubscription: Subscription;
     private gameServiceSubscription: Subscription;
@@ -36,6 +40,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         private readonly route: ActivatedRoute,
         private readonly elementRef: ElementRef,
         private readonly timeService: TimeService,
+        private socketClientService: SocketClientService,
     ) {
         this.pointsEarned = new EventEmitter<number>();
         this.isQuestionTransitioning = false;
@@ -47,6 +52,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.isChoiceButtonDisabled = false;
         this.doesDisplayPoints = false;
         this.hasGameEnded = false;
+        this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
     }
 
     @HostListener('keypress', ['$event'])
@@ -74,18 +80,20 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.loadQuiz();
         this.subscribeToTimer();
-        this.subscribeToGameService();
+        this.detectEndGame();
     }
 
     ngOnDestroy() {
-        this.timeService.stopTimer();
-        this.timerSubscription.unsubscribe();
-        this.gameServiceSubscription.unsubscribe();
+        if (this.isTestGame) {
+            this.timeService.stopTimer();
+            if (this.timerSubscription) this.timerSubscription.unsubscribe();
+            if (this.gameServiceSubscription) this.gameServiceSubscription.unsubscribe();
+        }
     }
 
     async getQuiz() {
-        const id = this.route.snapshot.paramMap.get('id');
-        this.quiz = await this.gameService.getQuizById(id);
+        const quizId = this.route.snapshot.paramMap.get('quizId');
+        this.quiz = await this.gameService.getQuizById(quizId);
     }
 
     async loadQuiz() {
@@ -98,27 +106,27 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     subscribeToTimer() {
-        this.timerSubscription = this.timeService.getTime().subscribe((time: number) => {
-            if (!this.hasGameEnded) {
-                const timerTime = time;
-                if (timerTime === 0) {
-                    if (!this.isQuestionTransitioning) {
-                        this.showResult();
-                        this.isQuestionTransitioning = true;
-                    } else {
-                        this.isQuestionTransitioning = false;
-                        ++this.currentQuestionIndex;
-                        this.getQuestion(this.currentQuestionIndex);
-                    }
-                }
-            }
-        });
+        if (this.isTestGame) {
+            this.timerSubscription = this.timeService.getTime().subscribe((time: number) => {
+                this.detectEndOfQuestion(time);
+            });
+        } else {
+            this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
+                this.detectEndOfQuestion(time);
+            });
+        }
     }
 
-    subscribeToGameService() {
-        this.gameServiceSubscription = this.gameService.hasGameEndedObservable.subscribe((hasEnded: boolean) => {
-            this.hasGameEnded = hasEnded;
-        });
+    detectEndGame() {
+        if (this.isTestGame) {
+            this.gameServiceSubscription = this.gameService.hasGameEndedObservable.subscribe((hasEnded: boolean) => {
+                this.hasGameEnded = hasEnded;
+            });
+        } else {
+            this.socketClientService.on(GameEvents.ShowResults, () => {
+                this.hasGameEnded = true;
+            });
+        }
     }
 
     getQuestion(index: number) {
@@ -200,5 +208,18 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.setSubmitButtonToDisabled(true, { backgroundColor: 'grey' });
         this.displayCorrectAnswer();
         this.givePoints();
+    }
+
+    private detectEndOfQuestion(time: number) {
+        if (!this.hasGameEnded && time === 0) {
+            if (!this.isQuestionTransitioning) {
+                this.showResult();
+                this.isQuestionTransitioning = true;
+            } else {
+                this.isQuestionTransitioning = false;
+                ++this.currentQuestionIndex;
+                this.getQuestion(this.currentQuestionIndex);
+            }
+        }
     }
 }

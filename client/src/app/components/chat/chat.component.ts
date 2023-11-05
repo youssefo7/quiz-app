@@ -18,6 +18,7 @@ export class ChatComponent implements OnInit {
     roomMessages: ChatMessage[];
     roomMessage: string;
     roomId: string;
+    private isTestGame: boolean;
 
     constructor(
         public socketService: SocketClientService,
@@ -29,11 +30,14 @@ export class ChatComponent implements OnInit {
         this.roomMessages = [];
         this.roomMessage = '';
         this.roomId = '';
+        this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
     }
 
-    ngOnInit(): void {
+    ngOnInit() {
         this.roomId = this.route.snapshot.paramMap.get('room') as string;
-        this.configureChatSocketFeatures();
+        if (!this.isTestGame) {
+            this.configureChatSocketFeatures();
+        }
     }
 
     configureChatSocketFeatures() {

@@ -1,9 +1,14 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { GameEvents } from '@app/events/game.events';
+import { TimeEvents } from '@app/events/time.events';
 import { Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
+import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
 import { Subscription } from 'rxjs';
+
+const ONE_SECOND_INTERVAL = 1000;
 
 @Component({
     selector: 'app-countdown',
@@ -14,33 +19,34 @@ export class CountdownComponent implements OnInit, OnDestroy {
     @Input() isHost: boolean;
     message: string;
     clockStyle: { backgroundColor: string };
+    private socketTime: number;
     private quiz: Quiz | null;
     private timerSubscription: Subscription;
     private isQuestionTransitioning: boolean;
-    private isNextQuestionPressed: boolean;
     private currentQuestionIndex: number;
     private lastQuestionIndex: number;
-    private hasGameStarted: boolean;
     private isTestGame: boolean;
     private gameServiceSubscription: Subscription;
+    private hasFinishedTransitionClock: boolean;
+    private roomId: string;
 
-    // All these parameters are needed for the component to work properly
+    // Tous ces paramètres sont nécessaires pour que la composante fonctionne bien
     // eslint-disable-next-line max-params
     constructor(
         private readonly timeService: TimeService,
         private readonly route: ActivatedRoute,
         private readonly router: Router,
         private readonly gameService: GameService,
+        private readonly socketClientService: SocketClientService,
     ) {
         this.isHost = false;
-        this.isNextQuestionPressed = false;
         this.currentQuestionIndex = 0;
-        this.hasGameStarted = false;
         this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
+        this.roomId = this.route.snapshot.paramMap.get('roomId') as string;
     }
 
     get time() {
-        return this.timeService.time;
+        return this.isTestGame ? this.timeService.time : this.socketTime;
     }
 
     ngOnInit() {
@@ -54,38 +60,77 @@ export class CountdownComponent implements OnInit, OnDestroy {
 
     private async loadTimer() {
         await this.getQuiz();
-        this.switchColorToRedOnThreeSeconds();
         if (this.quiz) {
             this.lastQuestionIndex = this.quiz.questions.length - 1;
         }
         if (this.isTestGame) {
+            this.switchColorToRedOnThreeSeconds();
             this.testGameClock();
         } else {
-            // this.detectWhenNextQuestionPress();
-            this.gameClock();
+            this.reactToTimerEvent();
+            this.reactToTimerFinishedEvent();
+            this.reactToNextQuestionEvent();
+            this.questionClock();
+            this.currentQuestionIndex++;
         }
     }
 
+    private reactToTimerEvent() {
+        this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
+            this.socketTime = time;
+            const switchColorTime = 3;
+            this.setClockColorToRed(this.socketTime, switchColorTime);
+        });
+    }
+
+    private reactToTimerFinishedEvent() {
+        this.socketClientService.on(TimeEvents.TimerFinished, () => {
+            if (this.hasFinishedTransitionClock) {
+                this.currentQuestionIndex++;
+                this.hasFinishedTransitionClock = false;
+                this.questionClock();
+            }
+        });
+    }
+
+    private reactToNextQuestionEvent() {
+        this.socketClientService.on(GameEvents.NextQuestion, () => {
+            if (this.currentQuestionIndex <= this.lastQuestionIndex) {
+                this.hasFinishedTransitionClock = true;
+                this.transitionClock();
+            }
+        });
+    }
+
     private async getQuiz() {
-        const id = this.route.snapshot.paramMap.get('id');
-        this.quiz = await this.gameService.getQuizById(id);
+        const quizId = this.route.snapshot.paramMap.get('quizId');
+        this.quiz = await this.gameService.getQuizById(quizId);
     }
 
     private switchColorToRedOnThreeSeconds() {
         const switchColorTime = 4;
         this.timerSubscription = this.timeService.getTime().subscribe((time: number) => {
-            if (!this.isQuestionTransitioning && time <= switchColorTime) {
-                this.clockStyle = { backgroundColor: '#FF4D4D' };
-            }
+            this.setClockColorToRed(time, switchColorTime);
         });
     }
 
+    private setClockColorToRed(time: number, switchColorTime: number) {
+        if (!this.isQuestionTransitioning && time <= switchColorTime) {
+            this.clockStyle = { backgroundColor: '#FF4D4D' };
+        }
+    }
+
+    // TODO: Revoir l'affichage de la question suivante après la transition
     private async transitionClock() {
         const transitionTime = 3;
         this.isQuestionTransitioning = true;
         this.message = 'Préparez-vous!';
         this.clockStyle = { backgroundColor: '#E5E562' };
-        await this.timeService.startTimer(transitionTime);
+        if (this.isTestGame) {
+            await this.timeService.startTimer(transitionTime);
+        } else {
+            this.socketClientService.send(TimeEvents.StartTimer, { initialTime: transitionTime, roomId: this.roomId, tickRate: ONE_SECOND_INTERVAL });
+        }
     }
 
     private async questionClock() {
@@ -93,7 +138,15 @@ export class CountdownComponent implements OnInit, OnDestroy {
         this.message = 'Temps Restant';
         this.clockStyle = { backgroundColor: 'lightblue' };
         if (this.quiz) {
-            await this.timeService.startTimer(this.quiz.duration);
+            if (this.isTestGame) {
+                await this.timeService.startTimer(this.quiz.duration);
+            } else {
+                this.socketClientService.send(TimeEvents.StartTimer, {
+                    initialTime: this.quiz.duration,
+                    roomId: this.roomId,
+                    tickRate: ONE_SECOND_INTERVAL,
+                });
+            }
         }
     }
 
@@ -102,7 +155,9 @@ export class CountdownComponent implements OnInit, OnDestroy {
         this.isQuestionTransitioning = true;
         this.message = 'Redirection vers «Créer une Partie»';
         this.clockStyle = { backgroundColor: 'white' };
-        await this.timeService.startTimer(exitTransitionTime);
+        if (this.isTestGame) {
+            await this.timeService.startTimer(exitTransitionTime);
+        }
     }
 
     private async testGameClock() {
@@ -116,33 +171,9 @@ export class CountdownComponent implements OnInit, OnDestroy {
         this.leaveGame();
     }
 
-    private async gameClock() {
-        if (this.currentQuestionIndex <= this.lastQuestionIndex) {
-            if (!this.hasGameStarted) {
-                await this.questionClock();
-                this.hasGameStarted = true;
-                this.currentQuestionIndex++;
-            }
-            if (this.isNextQuestionPressed) {
-                await this.transitionClock();
-                await this.questionClock();
-                this.currentQuestionIndex++;
-            }
-        } else {
-            // TODO: Rediriger vers la page de résultat
-        }
-    }
-
     private async leaveGame() {
         this.gameService.setGameEndState = true;
         await this.leaveGameClock();
         await this.router.navigateByUrl('/game/new');
     }
-    // Logique de detection du bouton "Next Question" (Doit être implémenter avec les sockets)
-    // detectWhenNextQuestionPress() {
-    //     this.gameServiceSubscription = this.gameService.isNextQuestionPressed.subscribe((isPressed) => {
-    //         this.isNextQuestionPressed = isPressed;
-    //         this.gameClock();
-    //     });
-    // }
 }

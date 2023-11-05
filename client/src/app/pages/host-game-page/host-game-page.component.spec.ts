@@ -54,7 +54,7 @@ describe('HostGamePageComponent', () => {
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
         mockDialogRef = jasmine.createSpyObj('MatDialogRef<PopupMessageComponent>', ['componentInstance']);
         mockDialog.open.and.returnValue(mockDialogRef);
-        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
+        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'send']);
     });
 
     beforeEach(waitForAsync(() => {
