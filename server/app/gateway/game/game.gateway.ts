@@ -75,6 +75,7 @@ export class GameGateway {
         this.server.to(organizer).emit(GameEvents.QuestionChoiceUnselect, data.questionChoiceIndex);
     }
 
+    // TODO : Ajouter un événement pour que le joueur puisse envoyer son nom au serveur
     @SubscribeMessage(GameEvents.GiveBonus)
     handleGiveBonus(_: Socket, roomId: string) {
         const room = this.roomManager.findRoom(roomId);
@@ -82,6 +83,7 @@ export class GameGateway {
         if (quickestPlayer) {
             const player = this.roomManager.findPlayer(quickestPlayer.userId, room);
             player.bonusCount++;
+            console.log('sending bonus to ');
             this.server.to(quickestPlayer.userId).emit(GameEvents.GiveBonus);
         }
     }
