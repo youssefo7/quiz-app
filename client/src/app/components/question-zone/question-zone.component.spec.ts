@@ -5,6 +5,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angul
 import { ActivatedRoute } from '@angular/router';
 import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
+import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
 import { of } from 'rxjs';
 import { QuestionZoneComponent } from './question-zone.component';
@@ -12,23 +13,33 @@ import { QuestionZoneComponent } from './question-zone.component';
 describe('QuestionZoneComponent', () => {
     let component: QuestionZoneComponent;
     let fixture: ComponentFixture<QuestionZoneComponent>;
-    let communicationServiceMock: jasmine.SpyObj<CommunicationService>;
     let gameService: GameService;
-    let timeService: TimeService;
     let elementRef: HTMLElement;
     let debugElement: DebugElement;
     let setButtonSpy: jasmine.Spy;
+    let clientSocketServiceMock: jasmine.SpyObj<SocketClientService>;
+    let communicationServiceMock: jasmine.SpyObj<CommunicationService>;
+    let timeServiceMock: jasmine.SpyObj<TimeService>;
+
+    beforeEach(() => {
+        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
+        communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
+        communicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
+        timeServiceMock = jasmine.createSpyObj('TimeService', ['getTime', 'stopTimer']);
+        timeServiceMock.getTime.and.returnValue(of(0));
+    });
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
             declarations: [QuestionZoneComponent],
             providers: [
+                { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: ['test'] } } },
+                { provide: SocketClientService, useValue: clientSocketServiceMock },
                 { provide: CommunicationService, useValue: communicationServiceMock },
-                { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' } } } },
+                { provide: TimeService, useValue: timeServiceMock },
             ],
         }).compileComponents();
         gameService = TestBed.inject(GameService);
-        timeService = TestBed.inject(TimeService);
     }));
 
     beforeEach(() => {
@@ -115,9 +126,9 @@ describe('QuestionZoneComponent', () => {
 
     it('should submit answers if the timer is at 0, the question is not transitioning and the game has not ended', () => {
         const showResultSpy = spyOn(component, 'showResult');
-        spyOn(timeService, 'getTime').and.returnValue(of(0));
         component['hasGameEnded'] = false;
         component.isQuestionTransitioning = false;
+        component['isTestGame'] = true;
         component.subscribeToTimer();
 
         expect(showResultSpy).toHaveBeenCalled();
@@ -127,9 +138,9 @@ describe('QuestionZoneComponent', () => {
     it('should go to the next question if the timer is at 0, the question is transitioning and the game has not ended', () => {
         const getQuestionSpy = spyOn(component, 'getQuestion');
         const showResultSpy = spyOn(component, 'showResult');
-        spyOn(timeService, 'getTime').and.returnValue(of(0));
         component['hasGameEnded'] = false;
         component.isQuestionTransitioning = true;
+        component['isTestGame'] = true;
         const currentIndex = component.currentQuestionIndex;
         component.subscribeToTimer();
 
@@ -142,7 +153,6 @@ describe('QuestionZoneComponent', () => {
     it('should do nothing if the timer is at 0 and the game has ended', () => {
         const getQuestionSpy = spyOn(component, 'getQuestion');
         const showResultSpy = spyOn(component, 'showResult');
-        spyOn(timeService, 'getTime').and.returnValue(of(0));
         component['hasGameEnded'] = true;
         component.isQuestionTransitioning = true;
         const currentIndex = component.currentQuestionIndex;
@@ -157,7 +167,7 @@ describe('QuestionZoneComponent', () => {
     it('should do nothing if the timer is not at 0 and the game has not ended', () => {
         const getQuestionSpy = spyOn(component, 'getQuestion');
         const showResultSpy = spyOn(component, 'showResult');
-        spyOn(timeService, 'getTime').and.returnValue(of(1));
+        timeServiceMock.getTime.and.returnValue(of(1));
         component['hasGameEnded'] = false;
         component.isQuestionTransitioning = true;
         const currentIndex = component.currentQuestionIndex;
@@ -171,7 +181,8 @@ describe('QuestionZoneComponent', () => {
 
     it('should set hasGameEnded if gameService.hasGameEndedObservable is true', () => {
         spyOnProperty(gameService, 'hasGameEndedObservable').and.returnValue(of(true));
-        component.subscribeToGameService();
+        component['isTestGame'] = true;
+        component.detectEndGame();
         expect(component['hasGameEnded']).toBeTrue();
     });
 
@@ -375,4 +386,15 @@ const validMockQuiz = {
             ],
         },
     ],
+};
+
+const mockedQuiz = {
+    $schema: 'test.json',
+    id: '123',
+    title: 'Test quiz',
+    description: 'Test quiz description',
+    visibility: true,
+    duration: 60,
+    lastModification: '2018-11-13T20:20:39+00:00',
+    questions: [],
 };

@@ -2,9 +2,11 @@ import { Component, ElementRef, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
+import { GameEvents } from '@app/events/game.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
+import { SocketClientService } from '@app/services/socket-client.service';
 
 @Component({
     selector: 'app-host-game-page',
@@ -23,6 +25,7 @@ export class HostGamePageComponent implements OnInit {
         private readonly route: ActivatedRoute,
         private readonly router: Router,
         private readonly elementRef: ElementRef,
+        private readonly socketClientService: SocketClientService,
     ) {
         this.title = 'Partie: ';
     }
@@ -60,14 +63,22 @@ export class HostGamePageComponent implements OnInit {
         }
     }
 
+    private reactToShowResultsEvent() {
+        this.socketClientService.on(GameEvents.ShowResults, () => {
+            // TODO: changer pour la page de résultat
+            this.router.navigateByUrl('/home');
+        });
+    }
+
     private async loadQuiz() {
         await this.getQuiz();
         this.getQuizTitle();
+        this.reactToShowResultsEvent();
     }
 
     private async getQuiz() {
-        const id = this.route.snapshot.paramMap.get('id');
-        this.quiz = await this.gameService.getQuizById(id);
+        const quizId = this.route.snapshot.paramMap.get('quizId');
+        this.quiz = await this.gameService.getQuizById(quizId);
     }
     private async leaveGamePage() {
         await this.router.navigateByUrl('/game/new');

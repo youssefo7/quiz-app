@@ -26,6 +26,11 @@ export class GameGateway {
                 this.server.to(data.roomId).emit(GameEvents.PlayerAbandonedGame, player.name);
             }
             this.roomManager.removePlayer(room, player.socketId);
+            if (room.players.length === 0 && room.organizer.socketId === '') {
+                socket.leave(room.id);
+                socket.disconnect();
+                this.roomManager.deleteRoom(room);
+            }
             socket.leave(room.id);
             socket.disconnect();
         }
@@ -35,13 +40,22 @@ export class GameGateway {
     async handleEndGame(socket: Socket, data: { roomId: string; gameAborted: boolean }) {
         const room = this.roomManager.findRoom(data.roomId);
         const sockets = await this.server.sockets.fetchSockets();
-
-        socket.to(room.id).emit(data.gameAborted ? GameEvents.GameAborted : GameEvents.EndGame);
-        sockets.forEach((playerSocket) => {
-            playerSocket.leave(room.id);
-            playerSocket.disconnect();
-        });
-        this.roomManager.deleteRoom(room);
+        if (data.gameAborted) {
+            socket.to(room.id).emit(GameEvents.GameAborted);
+            sockets.forEach((playerSocket) => {
+                playerSocket.leave(room.id);
+                playerSocket.disconnect();
+            });
+            this.roomManager.deleteRoom(room);
+        } else {
+            if (room.players.length > 0) {
+                room.organizer.socketId = '';
+            } else {
+                this.roomManager.deleteRoom(room);
+            }
+            socket.leave(room.id);
+            socket.disconnect();
+        }
     }
 
     @SubscribeMessage(GameEvents.GoodAnswer)
@@ -87,6 +101,11 @@ export class GameGateway {
         const room = this.roomManager.findRoom(roomId);
         this.roomManager.resetAnswerTimes(room);
         this.server.to(roomId).emit(GameEvents.NextQuestion);
+    }
+
+    @SubscribeMessage(GameEvents.ShowResults)
+    handleShowResults(_: Socket, roomId: string) {
+        this.server.to(roomId).emit(GameEvents.ShowResults);
     }
 
     // TODO : faire l'événement de déconnexion

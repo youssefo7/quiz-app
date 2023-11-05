@@ -15,7 +15,7 @@ const routes: Routes = [
     { path: 'home', component: MainPageComponent },
     { path: 'admin', component: AdminPageComponent, canActivate: [AdminGuardService] },
     { path: 'game/new', component: CreateGamePageComponent },
-    { path: 'game/:id/test', component: GamePageComponent },
+    { path: 'game/:quizId/test', component: GamePageComponent },
     { path: 'game/:quizId/room/:roomId/host', component: HostGamePageComponent },
     { path: 'game/:quizId/room/:roomId', component: GamePageComponent },
     { path: 'quiz/new', component: CreateEditQuizPageComponent, canDeactivate: [exitCreateEditQuizPageGuard], canActivate: [QuizGuardService] },

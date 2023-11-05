@@ -33,6 +33,7 @@ describe('ChatComponent', () => {
                     useValue: {
                         snapshot: {
                             paramMap: convertToParamMap({ room: 'roomid' }),
+                            url: ['test'],
                         },
                     },
                 },

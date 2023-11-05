@@ -3,9 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { GamePlayersListComponent } from '@app/components/game-players-list/game-players-list.component';
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { GameService } from '@app/services/game.service';
-import { TimeService } from '@app/services/time.service';
+import { SocketClientService } from '@app/services/socket-client.service';
 import { NgChartsModule } from 'ng2-charts';
-import { of } from 'rxjs';
 import { QuestionZoneStatsComponent } from './question-zone-stats.component';
 import SpyObj = jasmine.SpyObj;
 
@@ -13,7 +12,7 @@ describe('QuestionZoneStatsComponent', () => {
     let component: QuestionZoneStatsComponent;
     let fixture: ComponentFixture<QuestionZoneStatsComponent>;
     let gameServiceMock: SpyObj<GameService>;
-    let timeServiceMock: SpyObj<TimeService>;
+    let clientSocketServiceMock: SpyObj<SocketClientService>;
     const mockedQuiz = {
         $schema: 'test.json',
         id: '123',
@@ -26,10 +25,9 @@ describe('QuestionZoneStatsComponent', () => {
     };
 
     beforeEach(() => {
+        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
         gameServiceMock = jasmine.createSpyObj('GameService', ['getQuizById']);
         gameServiceMock.getQuizById.and.returnValue(Promise.resolve(mockedQuiz));
-        timeServiceMock = jasmine.createSpyObj('TimeService', ['subscribeToGameService', 'getTime']);
-        timeServiceMock.getTime.and.returnValue(of(0));
     });
 
     beforeEach(waitForAsync(() => {
@@ -39,7 +37,7 @@ describe('QuestionZoneStatsComponent', () => {
             providers: [
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' } } } },
                 { provide: GameService, useValue: gameServiceMock },
-                { provide: TimeService, useValue: timeServiceMock },
+                { provide: SocketClientService, useValue: clientSocketServiceMock },
             ],
         }).compileComponents();
         fixture = TestBed.createComponent(QuestionZoneStatsComponent);

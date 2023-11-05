@@ -1,8 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { GameEvents } from '@app/events/game.events';
+import { TimeEvents } from '@app/events/time.events';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
-import { TimeService } from '@app/services/time.service';
+import { SocketClientService } from '@app/services/socket-client.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -17,13 +19,14 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     nextQuestionButtonText: string;
     nextQuestionButtonStyle: { backgroundColor: string };
     private currentQuestionIndex: number;
+    private lastQuestionIndex: number;
     private isEndOfQuestionTime: boolean;
     private timeServiceSubscription: Subscription;
 
     constructor(
         private gameService: GameService,
-        private readonly timeService: TimeService,
         private readonly route: ActivatedRoute,
+        private readonly socketClientService: SocketClientService,
     ) {
         this.currentQuestionIndex = 0;
         this.isNextQuestionButtonDisable = true;
@@ -33,7 +36,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.loadQuiz();
+        this.setEvents();
     }
 
     ngOnDestroy() {
@@ -41,21 +44,35 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     }
 
     goToNextQuestion() {
-        this.isEndOfQuestionTime = true;
-        this.isNextQuestionButtonDisable = true;
-        this.nextQuestionButtonStyle = { backgroundColor: '' };
-        this.gameService.isNextQuestionPressed.next(true);
+        const roomId = this.route.snapshot.paramMap.get('roomId');
+        if (this.currentQuestionIndex !== this.lastQuestionIndex) {
+            this.socketClientService.send(GameEvents.NextQuestion, roomId);
+        } else {
+            this.socketClientService.send(GameEvents.ShowResults, roomId);
+        }
+    }
+
+    private reactToNextQuestionEvent() {
+        this.socketClientService.on(GameEvents.NextQuestion, () => {
+            this.isEndOfQuestionTime = true;
+            this.isNextQuestionButtonDisable = true;
+            this.nextQuestionButtonStyle = { backgroundColor: '' };
+        });
     }
 
     private async getQuiz() {
-        const id = this.route.snapshot.paramMap.get('id');
-        this.quiz = await this.gameService.getQuizById(id);
+        const quizId = this.route.snapshot.paramMap.get('quizId');
+        this.quiz = await this.gameService.getQuizById(quizId);
+        if (this.quiz) {
+            this.lastQuestionIndex = this.quiz.questions.length - 1;
+        }
     }
 
-    private async loadQuiz() {
+    private async setEvents() {
         await this.getQuiz();
         this.getQuestion(this.currentQuestionIndex);
         this.enableNextQuestionButton();
+        this.reactToNextQuestionEvent();
     }
 
     private getQuestion(index: number) {
@@ -65,24 +82,27 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     }
 
     private enableNextQuestionButton() {
-        this.timeServiceSubscription = this.timeService.getTime().subscribe((time) => {
-            if (time === 0) {
-                this.isEndOfQuestionTime = !this.isEndOfQuestionTime;
-                if (this.isEndOfQuestionTime) {
-                    this.isNextQuestionButtonDisable = false;
-                    this.nextQuestionButtonStyle = { backgroundColor: 'rgb(18, 18, 217)' };
-                }
-                this.showNextQuestion();
-            }
+        this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
+            this.detectEndOfQuestion(time);
         });
+    }
+
+    private detectEndOfQuestion(time: number) {
+        if (time === 0) {
+            this.isEndOfQuestionTime = !this.isEndOfQuestionTime;
+            if (this.isEndOfQuestionTime) {
+                this.isNextQuestionButtonDisable = false;
+                this.nextQuestionButtonStyle = { backgroundColor: 'rgb(18, 18, 217)' };
+            }
+            this.showNextQuestion();
+        }
     }
 
     private showNextQuestion() {
         if (!this.isEndOfQuestionTime && this.quiz) {
-            const lastQuestionIndex = this.quiz.questions.length - 1;
             this.currentQuestionIndex++;
             this.getQuestion(this.currentQuestionIndex);
-            if (this.currentQuestionIndex === lastQuestionIndex) {
+            if (this.currentQuestionIndex === this.lastQuestionIndex) {
                 this.nextQuestionButtonText = 'Voir les résultats';
             }
         }
