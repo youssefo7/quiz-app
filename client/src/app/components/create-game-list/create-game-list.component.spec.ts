@@ -156,7 +156,7 @@ describe('CreateGameListComponent', () => {
         expect(questions.length).toEqual(visibleQuizMock[0].questions.length);
     });
 
-    it('should navigate to the correct URL when calling redirectHost', async () => {
+    it('should navigate to waiting page of the correct quiz and room when calling redirectHost', async () => {
         const mockRoomId = '1234';
         const connectSpy = spyOn(component['socketClientService'], 'connect').and.callThrough();
         const sendSpy = spyOn(component['socketClientService'], 'send').and.callThrough();

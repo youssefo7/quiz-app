@@ -66,12 +66,12 @@ describe('WaitingPageComponent', () => {
     it('should get the room players on init', async () => {
         await fixture.whenStable();
         expect(mockRoomCommunicationService.getRoomPlayers).toHaveBeenCalledWith('456');
-        expect(component.players).toEqual(['player1', 'player2']);
+        expect(component['players']).toEqual(['player1', 'player2']);
     });
 
     it('should listen on event PlayerAbandonedGame and remove player from players list', () => {
         clientSocketServiceMock.on.calls.argsFor(0)[1]('abandonnedPlayer');
-        expect(component.players).not.toContain('abandonnedPlayer');
+        expect(component['players']).not.toContain('abandonnedPlayer');
     });
 
     it('should send EndGame if the user is the host on beforeUnload', () => {

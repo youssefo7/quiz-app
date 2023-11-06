@@ -14,11 +14,9 @@ import { firstValueFrom } from 'rxjs';
     styleUrls: ['./waiting-page.component.scss'],
 })
 export class WaitingPageComponent implements OnInit {
-    players: string[];
-    bannedPlayers: string[];
     isHost: boolean;
-    isLocked: boolean;
     roomId: string | null;
+    private players: string[];
 
     // Raison: J'injecte les services nécessaires dans mon constructeur
     // eslint-disable-next-line max-params
@@ -30,8 +28,6 @@ export class WaitingPageComponent implements OnInit {
         private roomCommunicationService: RoomCommunicationService,
     ) {
         this.players = [];
-        this.bannedPlayers = [];
-        this.isLocked = false;
         this.isHost = this.route.snapshot.url.some((segment) => segment.path === 'host');
         this.roomId = this.route.snapshot.paramMap.get('roomId');
     }

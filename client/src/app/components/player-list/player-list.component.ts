@@ -21,10 +21,9 @@ export class PlayerListComponent implements OnInit {
     bannedPlayers: string[];
     isHost: boolean;
     isLocked: boolean;
-    roomId: string | null;
     transitionCounter: number;
-    time: number;
     showCountdown: boolean;
+    private roomId: string | null;
 
     // Raison: J'injecte les services nécessaires dans mon constructeur
     // eslint-disable-next-line max-params
@@ -42,7 +41,6 @@ export class PlayerListComponent implements OnInit {
         this.roomId = this.route.snapshot.paramMap.get('roomId');
         this.showCountdown = false;
         this.transitionCounter = 0;
-        this.time = 5;
     }
 
     async ngOnInit() {

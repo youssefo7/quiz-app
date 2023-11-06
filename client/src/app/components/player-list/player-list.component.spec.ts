@@ -4,7 +4,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
-import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { GameEvents } from '@app/events/game.events';
@@ -14,7 +14,6 @@ import { WaitingEvents } from '@app/events/waiting.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
-import { TimeService } from '@app/services/time.service';
 import { Socket } from 'socket.io-client';
 import { PlayerListComponent } from './player-list.component';
 
@@ -33,7 +32,6 @@ describe('PlayerListComponent', () => {
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
     let mockSocketClientService: MockSocketClientService;
     let mockRoomCommunicationService: RoomCommunicationService;
-    let mockTimeService: TimeService;
     let routerSpy: SpyObj<Router>;
     let socketHelper: SocketTestHelper;
 
@@ -42,7 +40,6 @@ describe('PlayerListComponent', () => {
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
         mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['componentInstance']);
         mockSocketClientService = jasmine.createSpyObj('SocketClientService', ['on']);
-        mockTimeService = jasmine.createSpyObj('TimeService', ['startTimer']);
     });
 
     beforeEach(waitForAsync(() => {
@@ -60,7 +57,6 @@ describe('PlayerListComponent', () => {
                 },
                 { provide: SocketClientService, useValue: mockSocketClientService },
                 { provide: RoomCommunicationService, useValue: mockRoomCommunicationService },
-                { provide: TimeService, useValue: mockTimeService },
                 { provide: Router, useValue: routerSpy },
             ],
             imports: [HttpClientTestingModule],
@@ -122,7 +118,7 @@ describe('PlayerListComponent', () => {
         const startTimerEvent = {
             initialTime: 5,
             tickRate: 1000,
-            roomId: component.roomId,
+            roomId: component['roomId'],
         };
         component.startGame();
 
