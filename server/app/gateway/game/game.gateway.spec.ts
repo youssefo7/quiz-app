@@ -1,4 +1,6 @@
+// Raison: les any sont nécessaire pour tester les méthodes privées
 /* eslint-disable @typescript-eslint/no-explicit-any */
+// Raison: tout les tests sont necessaires, dans leur intégralité, pour tester de manière exhaustive le gateway
 /* eslint-disable max-lines */
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
 import { Logger } from '@nestjs/common';
@@ -110,7 +112,7 @@ describe('GameGateway', () => {
         expect(socket.disconnect.calledOnce).toBeTruthy();
     });
 
-    it('handleGoodAnswer() should add the timestamp of the good answer to a list in rooms', () => {
+    it('handleGoodAnswer() should add the timestamp of the good answer to the answersTime list in the room', () => {
         const date: Date = new Date();
         stub(socket, 'rooms').value(new Set([roomId]));
         gateway.handleGoodAnswer(socket, { roomId, timeStamp: date });
@@ -206,7 +208,7 @@ describe('GameGateway', () => {
         expect(getQuickestTimeSpy).toHaveReturnedWith(undefined);
     });
 
-    it('handleAddPointsToPlayer() should give points to player question is answered correctly', () => {
+    it('handleAddPointsToPlayer() should give points to the player if the question is answered correctly', () => {
         const room = roomManagerServiceMock.findRoom(roomId);
         const goodAnswerPoints = 100;
         const addPointsToPlayerSpy = jest.spyOn(roomManagerServiceMock, 'addPointsToPlayer');
@@ -228,10 +230,10 @@ describe('GameGateway', () => {
     it('handleAddPointsToPlayer() should not add points if room is not found', () => {
         const addPointsToPlayerSpy = jest.spyOn(roomManagerServiceMock, 'addPointsToPlayer');
         const invalidRoomId = 'nonexistentRoomId';
-        const invalidPoints = -100;
+        const pointsToAdd = 10;
         stub(socket, 'rooms').value(new Set([invalidRoomId]));
 
-        gateway.handleAddPointsToPlayer(socket, { roomId: invalidRoomId, points: invalidPoints });
+        gateway.handleAddPointsToPlayer(socket, { roomId: invalidRoomId, points: pointsToAdd });
         expect(addPointsToPlayerSpy).not.toHaveBeenCalled();
         expect(server.to.withArgs(roomManagerServiceMock.rooms[0].organizer.socketId).called).toBeFalsy();
     });
@@ -251,7 +253,7 @@ describe('GameGateway', () => {
         expect(server.to.called).toBeFalsy();
     });
 
-    it('handleNextQuestion() should emit to all users that a new question will appear shortly', () => {
+    it('handleNextQuestion() should reset players answersTimes list going into a new question', () => {
         const room = roomManagerServiceMock.findRoom(roomId);
         const resetAnswerTimesSpy = jest.spyOn(roomManagerServiceMock, 'resetAnswerTimes');
 
@@ -268,7 +270,7 @@ describe('GameGateway', () => {
         expect(server.to.called).toBeTruthy();
     });
 
-    it('handlePlayerLeaveGame() remove them from the room, disconnect them from the server and emit if game has started', () => {
+    it('handlePlayerLeaveGame() remove the players from the room, disconnect them from the server and emit if the game has started', () => {
         const room = roomManagerServiceMock.findRoom(roomId);
         const removePlayerSpy = jest.spyOn(roomManagerServiceMock, 'removePlayer');
         socket.join(roomId);
@@ -288,7 +290,7 @@ describe('GameGateway', () => {
         expect(socket.disconnect.called).toBeTruthy();
     });
 
-    it('handlePlayerLeaveGame() remove them from the room, disconnect them from the server and not emit if game has started', () => {
+    it('handlePlayerLeaveGame() remove the players from the room, disconnect them from the server and not emit if the game has started', () => {
         const room = roomManagerServiceMock.findRoom(roomId);
         const removePlayerSpy = jest.spyOn(roomManagerServiceMock, 'removePlayer');
 
