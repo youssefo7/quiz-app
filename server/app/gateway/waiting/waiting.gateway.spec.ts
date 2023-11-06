@@ -104,19 +104,6 @@ describe('WaitingGateway', () => {
         const room = roomManagerServiceMock.rooms[0];
         const playerNameToBan = 'bannedName';
         stub(socket, 'rooms').value(new Set([roomId]));
-        // const playerSocket: SinonStubbedInstance<Socket> = {
-        //     rooms: new Set([roomId]),
-        //     join: jest.fn(),
-        //     id: roomId,
-        //     // emit: (eventName: string) => {
-        //     //     expect(eventName === WaitingEvents.BanNotification).toEqual(true);
-        //     // },
-        //     emit: jest.fn(),
-        //     leave: (id: string) => {
-        //         expect(id === roomId).toEqual(true);
-        //     },
-        //     disconnect: jest.fn(),
-        // } as unknown as SinonStubbedInstance<Socket>;
 
         roomManagerServiceMock.rooms[0].players.push({ socketId: socket.id, name: playerNameToBan, points: 100, bonusCount: 1 });
 
@@ -137,9 +124,7 @@ describe('WaitingGateway', () => {
         const playerNameToBan = 'TestName';
         const serverEmitMock = jest.spyOn(gateway['server'], 'emit');
 
-        stub(socket, 'rooms').value(new Set([roomId]));
         gateway.handleBanName(socket, { roomId, name: playerNameToBan });
-        // expect(socket.emit.called).toBeTruthy();
         expect(serverEmitMock).not.toHaveBeenCalledWith(WaitingEvents.BanName, playerNameToBan);
 
         const bannedName = room.bannedNames.find((name) => name === playerNameToBan);
@@ -147,6 +132,8 @@ describe('WaitingGateway', () => {
 
         expect(bannedName).toBeUndefined();
         expect(player).toBeUndefined();
+        expect(socket.leave.called).toBeFalsy();
+        expect(socket.disconnect.called).toBeFalsy();
         expect(roomManagerServiceMock.rooms[0].bannedNames).not.toContain(playerNameToBan);
     });
 
