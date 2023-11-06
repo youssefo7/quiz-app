@@ -153,7 +153,7 @@ describe('CreateGameListComponent', () => {
     it('should navigate to the correct URL when calling redirectHost', () => {
         communicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
         communicationServiceSpy.checkQuizVisibility.and.returnValue(of(true));
-        component.checkCanProceed(visibleQuizMock[0]);
+        component.checkAndCreateRoom(visibleQuizMock[0]);
         expect(mockSocketClientService.connect).toHaveBeenCalled();
 
         mockSocketClientService.send = jasmine.createSpy('send').and.callFake((event, quizId, callback) => {
@@ -164,7 +164,7 @@ describe('CreateGameListComponent', () => {
     it('should navigate to test game page if quiz is available and visible', () => {
         communicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
         communicationServiceSpy.checkQuizVisibility.and.returnValue(of(true));
-        component.checkCanProceed(visibleQuizMock[0], true);
+        component.checkAndCreateRoom(visibleQuizMock[0], true);
 
         expect(communicationServiceSpy.checkQuizAvailability).toHaveBeenCalled();
         expect(communicationServiceSpy.checkQuizVisibility).toHaveBeenCalled();
@@ -175,7 +175,7 @@ describe('CreateGameListComponent', () => {
         communicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
         communicationServiceSpy.checkQuizVisibility.and.returnValue(of(false));
         const hiddenPopUpSpy = spyOn(component, 'openHiddenPopUp').and.callThrough();
-        component.checkCanProceed(hiddenQuizMock[0]);
+        component.checkAndCreateRoom(hiddenQuizMock[0]);
 
         expect(communicationServiceSpy.checkQuizAvailability).toHaveBeenCalled();
         expect(communicationServiceSpy.checkQuizVisibility).toHaveBeenCalled();
@@ -186,7 +186,7 @@ describe('CreateGameListComponent', () => {
         communicationServiceSpy.checkQuizAvailability.and.returnValue(of(false));
         communicationServiceSpy.checkQuizVisibility.and.returnValue(of(false));
         const isUnavailableSpy = spyOn(component, 'openUnavailablePopUp').and.callThrough();
-        component.checkCanProceed(hiddenQuizMock[0]);
+        component.checkAndCreateRoom(hiddenQuizMock[0]);
 
         expect(communicationServiceSpy.checkQuizAvailability).toHaveBeenCalled();
         expect(communicationServiceSpy.checkQuizVisibility).not.toHaveBeenCalled();

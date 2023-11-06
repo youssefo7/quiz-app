@@ -33,10 +33,10 @@ export class HistogramComponent implements OnInit, OnDestroy {
         this.chartBackgroundColors = [];
         this.goodBadChoices = [];
         this.currentQuestionIndex = 0;
+        this.choicesSelectionCounts = [];
     }
 
     ngOnInit() {
-        this.choicesSelectionCounts = [];
         this.loadChart();
         this.updateSelections();
         this.reactToNextQuestionEvent();
@@ -93,7 +93,6 @@ export class HistogramComponent implements OnInit, OnDestroy {
         this.goodBadChoices.push(choice.isCorrect);
     }
 
-    // TODO: Get players answers dynamically from the server (use chart.update() to update the chart)
     private updateSelections() {
         this.socketClientService.on(GameEvents.QuestionChoiceSelect, (selectionIndex: number) => {
             this.choicesSelectionCounts[selectionIndex]++;

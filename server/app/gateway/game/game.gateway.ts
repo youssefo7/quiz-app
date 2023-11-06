@@ -61,8 +61,6 @@ export class GameGateway {
         const room = this.roomManager.findRoom(roomId);
         const timeStamp = new Date();
         room.answerTimes.push({ userId: socket.id, timeStamp: timeStamp.getTime() });
-        const organizer = room.organizer.socketId;
-        this.server.to(organizer).emit(GameEvents.GoodAnswer);
     }
 
     @SubscribeMessage(GameEvents.QuestionChoiceSelect)
@@ -77,7 +75,6 @@ export class GameGateway {
         this.server.to(organizer).emit(GameEvents.QuestionChoiceUnselect, data.questionChoiceIndex);
     }
 
-    // TODO : Ajouter un événement pour que le joueur puisse envoyer son nom au serveur
     @SubscribeMessage(GameEvents.GiveBonus)
     handleGiveBonus(_: Socket, roomId: string) {
         const room = this.roomManager.findRoom(roomId);

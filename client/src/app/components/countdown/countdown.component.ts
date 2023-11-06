@@ -77,9 +77,9 @@ export class CountdownComponent implements OnInit, OnDestroy {
     }
 
     private reactToTimerEvent() {
+        const switchColorTime = 3;
         this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
             this.socketTime = time;
-            const switchColorTime = 3;
             this.setClockColorToRed(this.socketTime, switchColorTime);
         });
     }

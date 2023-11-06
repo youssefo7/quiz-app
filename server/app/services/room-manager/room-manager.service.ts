@@ -60,15 +60,15 @@ export class RoomManagerService {
     }
 
     getQuickestTime(room: Room): AnswerTime | null {
-        const player = room.answerTimes.reduce((fastestPlayer, currentPlayer) => {
-            if (currentPlayer.timeStamp < fastestPlayer.timeStamp) {
+        const fastestPlayer = room.answerTimes.reduce((currentFastestPlayer, currentPlayer) => {
+            if (currentPlayer.timeStamp < currentFastestPlayer.timeStamp) {
                 return currentPlayer;
             }
-            return fastestPlayer;
+            return currentFastestPlayer;
         }, room.answerTimes[0]);
 
         const fastestPlayersCount = room.answerTimes.reduce(
-            (count: number, currentPlayer: AnswerTime) => (currentPlayer.timeStamp === player.timeStamp ? ++count : count),
+            (count: number, currentPlayer: AnswerTime) => (currentPlayer.timeStamp === fastestPlayer.timeStamp ? ++count : count),
             0,
         );
 
@@ -76,7 +76,7 @@ export class RoomManagerService {
             return null;
         }
 
-        return player;
+        return fastestPlayer;
     }
 
     resetAnswerTimes(room: Room) {

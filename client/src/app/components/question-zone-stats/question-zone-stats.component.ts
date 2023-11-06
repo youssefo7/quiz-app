@@ -27,7 +27,6 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     private submittedQuestionCount: number;
     private playerCount: number;
     private hasTimerBeenInterrupted: boolean;
-    private goodAnswerCount: number;
 
     // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
@@ -45,7 +44,6 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         this.roomId = this.route.snapshot.paramMap.get('roomId');
         this.hasTimerBeenInterrupted = false;
         this.submittedQuestionCount = 0;
-        this.goodAnswerCount = 0;
     }
 
     async ngOnInit() {
@@ -90,7 +88,6 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         this.handleSubmittedQuestion();
         this.handlePlayerLeaveGame();
         this.handleNextQuestion();
-        this.handleGoodAnswerCount();
     }
 
     private getQuestion(index: number) {
@@ -116,7 +113,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
 
     private detectEndOfQuestion(time: number) {
         if (time === 0) {
-            if ((this.submittedQuestionCount >= 1 || this.goodAnswerCount === 1) && !this.hasTimerBeenInterrupted) {
+            if (this.submittedQuestionCount >= 1 && !this.hasTimerBeenInterrupted) {
                 this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
             } else if (this.hasTimerBeenInterrupted) {
                 this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
@@ -160,12 +157,6 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     private handlePlayerLeaveGame() {
         this.socketClientService.on(GameEvents.PlayerLeaveGame, () => {
             this.playerCount--;
-        });
-    }
-
-    private handleGoodAnswerCount() {
-        this.socketClientService.on(GameEvents.GoodAnswer, () => {
-            this.goodAnswerCount++;
         });
     }
 }

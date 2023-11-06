@@ -79,7 +79,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
 
         if (keyPressed === 'Enter') {
             if (!this.isSubmitDisabled) {
-                this.submitAnswerOnClickEvent();
+                this.submitAnswer();
             }
         } else {
             const choiceIndex = parseInt(keyPressed, 10) - 1;
@@ -157,7 +157,8 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     toggleChoice(index: number) {
-        if (!isNaN(index) && index >= 0 && index < this.chosenChoices.length) {
+        const isIndexInbound = !isNaN(index) && index >= 0 && index < this.chosenChoices.length;
+        if (isIndexInbound) {
             this.chosenChoices[index] = !this.chosenChoices[index];
             if (this.chosenChoices[index]) {
                 this.socketClientService.send(GameEvents.QuestionChoiceSelect, { roomId: this.roomId, questionChoiceIndex: index });
@@ -196,7 +197,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.isChoiceButtonDisabled = true;
     }
 
-    submitAnswerOnClickEvent() {
+    submitAnswer() {
         if (this.isTestGame) {
             this.gameService.setButtonPressState = true;
             this.givePoints();
@@ -225,12 +226,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     giveBonus() {
-        let bonus: number;
-        if (this.isTestGame) {
-            bonus = BONUS_120_PERCENT;
-        } else {
-            bonus = BONUS_20_PERCENT;
-        }
+        const bonus = this.isTestGame ? BONUS_120_PERCENT : BONUS_20_PERCENT;
 
         this.pointsToDisplay = this.question.points * BONUS_120_PERCENT;
         this.points = this.question.points * bonus;
@@ -290,7 +286,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         if (!this.hasGameEnded && time === 0) {
             if (!this.isQuestionTransitioning) {
                 if (!this.hasSentAnswer) {
-                    this.submitAnswerOnClickEvent();
+                    this.submitAnswer();
                 }
                 this.isQuestionTransitioning = true;
                 this.givePoints();

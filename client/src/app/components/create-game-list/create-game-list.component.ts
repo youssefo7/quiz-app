@@ -60,7 +60,7 @@ export class CreateGameListComponent implements OnInit, OnDestroy {
         }
     }
 
-    checkCanProceed(quiz: Quiz, toTest: boolean = false) {
+    checkAndCreateRoom(quiz: Quiz, toTest: boolean = false) {
         let roomId: string;
         this.communicationService.checkQuizAvailability(quiz.id).subscribe((isAvailable) => {
             if (isAvailable) {
@@ -119,7 +119,7 @@ export class CreateGameListComponent implements OnInit, OnDestroy {
 
     openConnectionPopUp() {
         const config: PopupMessageConfig = {
-            message: "Vous n'êtes pas connecté. Vous devez réessayer une fois pour se connecter.",
+            message: "Vous n'êtes pas connecté. Veuillez réessayer.",
             hasCancelButton: false,
         };
         const dialogRef = this.popUp.open(PopupMessageComponent);
