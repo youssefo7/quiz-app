@@ -8,6 +8,8 @@ import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 
+import { JoinEvents } from '@app/events/join.events';
+import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { of } from 'rxjs';
 import { CreateGameListComponent } from './create-game-list.component';
 import SpyObj = jasmine.SpyObj;
@@ -19,7 +21,9 @@ describe('CreateGameListComponent', () => {
     let communicationServiceSpy: SpyObj<CommunicationService>;
     let mockDialog: SpyObj<MatDialog>;
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
-    let mockSocketClientService: SpyObj<SocketClientService>;
+    let mockSocketClientService: MockSocketClientService;
+    let mockRoomCommunicationService: SpyObj<RoomCommunicationService>;
+    let socketHelper: SocketTestHelper;
 
     const visibleQuizMock: Quiz[] = [
         {
@@ -61,6 +65,7 @@ describe('CreateGameListComponent', () => {
         mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['componentInstance']);
         communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getQuizzes', 'checkQuizAvailability', 'checkQuizVisibility']);
         communicationServiceSpy.getQuizzes.and.returnValue(of([]));
+        mockRoomCommunicationService = jasmine.createSpyObj('RoomCommunicationService', ['createRoom']);
         mockSocketClientService = jasmine.createSpyObj('SocketClientService', ['connect', 'disconnect', 'socketExists', 'send']);
     });
 
@@ -73,6 +78,7 @@ describe('CreateGameListComponent', () => {
                 { provide: CommunicationService, useValue: communicationServiceSpy },
                 { provide: MatDialog, useValue: mockDialog },
                 { provide: SocketClientService, useValue: mockSocketClientService },
+                { provide: RoomCommunicationService, useValue: mockRoomCommunicationService },
             ],
         }).compileComponents();
     }));
@@ -150,15 +156,19 @@ describe('CreateGameListComponent', () => {
         expect(questions.length).toEqual(visibleQuizMock[0].questions.length);
     });
 
-    it('should navigate to the correct URL when calling redirectHost', () => {
+    it('should navigate to the correct URL when calling redirectHost', async () => {
+        const mockRoomId = '1234';
+        const connectSpy = spyOn(component['socketClientService'], 'connect').and.callThrough();
+        const sendSpy = spyOn(component['socketClientService'], 'send').and.callThrough();
+
         communicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
         communicationServiceSpy.checkQuizVisibility.and.returnValue(of(true));
-        component.checkAndCreateRoom(visibleQuizMock[0]);
-        expect(mockSocketClientService.connect).toHaveBeenCalled();
+        mockRoomCommunicationService.createRoom.and.returnValue(of(mockRoomId));
 
-        mockSocketClientService.send = jasmine.createSpy('send').and.callFake((event, quizId, callback) => {
-            expect(routerSpy.navigateByUrl).toHaveBeenCalledWith(`/waiting/game/${quizId}/room/${callback}/host`);
-        });
+        await component.checkCanProceed(visibleQuizMock[0]);
+        expect(connectSpy).toHaveBeenCalled();
+        expect(sendSpy).toHaveBeenCalledWith(JoinEvents.JoinRoom, JSON.stringify(mockRoomId));
+        expect(routerSpy.navigateByUrl).toHaveBeenCalledWith(`/waiting/game/${visibleQuizMock[0].id}/room/${mockRoomId}/host`);
     });
 
     it('should navigate to test game page if quiz is available and visible', () => {
