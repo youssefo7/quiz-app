@@ -58,10 +58,11 @@ describe('ProfileComponent in regular game route', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should display nothing when the route doesn\'\t contain "test"', () => {
-        expect(component.getProfileName()).toBeFalsy();
+    it('should display the player name when the route doesn\'\t contain "test"', () => {
+        component.playerName = 'The Goat';
+        expect(component.getProfileName()).toBeTruthy();
         component.ngOnInit();
-        expect(component.name).toEqual('');
+        expect(component.name).toEqual('The Goat');
     });
 
     it('should display points given as input', () => {

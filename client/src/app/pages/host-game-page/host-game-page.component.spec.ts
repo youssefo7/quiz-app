@@ -13,12 +13,12 @@ import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
+import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { NgChartsModule } from 'ng2-charts';
 import { of } from 'rxjs';
 import { HostGamePageComponent } from './host-game-page.component';
 import SpyObj = jasmine.SpyObj;
-import { RoomCommunicationService } from '@app/services/room-communication.service';
 
 // La raison du lint disable est que le code vient d'un exemple de stub du professeur et le connect est vide dans l'exemple qu'il utilise.
 @Component({
@@ -54,6 +54,11 @@ describe('HostGamePageComponent', () => {
         clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
         communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
         roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', ['getRoomPlayers']);
+        roomCommunicationServiceMock.getRoomPlayers.and.returnValue(
+            of([
+                /* liste mock de joueur d'une salle */
+            ]),
+        );
         communicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
         mockDialogRef = jasmine.createSpyObj('MatDialogRef<PopupMessageComponent>', ['componentInstance']);

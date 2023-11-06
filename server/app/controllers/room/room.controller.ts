@@ -50,9 +50,9 @@ export class RoomController {
         description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
     })
     @Post('/new')
-    handleCreateRoom(@Body() body: { quizId: string; socketId: string }, @Res() response: Response) {
+    handleCreateRoom(@Body() data: { quizId: string; socketId: string }, @Res() response: Response) {
         try {
-            const roomId = this.roomManagerService.createNewRoom(body.quizId, body.socketId);
+            const roomId = this.roomManagerService.createNewRoom(data.quizId, data.socketId);
             response.status(HttpStatus.OK).send(roomId);
         } catch (error) {
             response.status(HttpStatus.INTERNAL_SERVER_ERROR).json('Erreur lors de la création de la salle');
@@ -73,6 +73,23 @@ export class RoomController {
             response.status(HttpStatus.OK).send(players);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).json(`Erreur lors de la récupération des joueurs de la salle ${roomId}`);
+        }
+    }
+
+    @ApiOkResponse({
+        description: 'Returns player name in room',
+        type: Boolean,
+    })
+    @ApiNotFoundResponse({
+        description: 'Return NOT_FOUND http status when request fails',
+    })
+    @Post('/:roomId/playerName')
+    handleGetName(@Param('roomId') roomId: string, @Body() data: { socketId: string }, @Res() response: Response) {
+        try {
+            const name = this.roomManagerService.getPlayerName(roomId, data.socketId);
+            response.status(HttpStatus.OK).json(name);
+        } catch (error) {
+            response.status(HttpStatus.NOT_FOUND).json(`Erreur lors de la récupération du nom du joueur ${data.socketId} de la salle ${roomId}`);
         }
     }
 }

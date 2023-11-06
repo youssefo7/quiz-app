@@ -4,8 +4,9 @@ import { GameEvents } from '@app/events/game.events';
 import { TimeEvents } from '@app/events/time.events';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
+import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
-import { Subscription } from 'rxjs';
+import { Subscription, firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-question-zone-stats',
@@ -22,21 +23,32 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     private lastQuestionIndex: number;
     private isEndOfQuestionTime: boolean;
     private timeServiceSubscription: Subscription;
+    private roomId: string | null;
+    private submittedQuestionCount: number;
+    private playerCount: number;
+    private hasTimerBeenInterrupted: boolean;
 
+    // Raison: J'injecte les services nécessaire dans mon constructeur
+    // eslint-disable-next-line max-params
     constructor(
         private gameService: GameService,
         private readonly route: ActivatedRoute,
         private readonly socketClientService: SocketClientService,
+        private readonly roomCommunicationService: RoomCommunicationService,
     ) {
         this.currentQuestionIndex = 0;
         this.isNextQuestionButtonDisable = true;
         this.nextQuestionButtonText = 'Prochaine Question';
         this.nextQuestionButtonStyle = { backgroundColor: '' };
         this.isEndOfQuestionTime = false;
+        this.roomId = this.route.snapshot.paramMap.get('roomId');
+        this.hasTimerBeenInterrupted = false;
+        this.submittedQuestionCount = 0;
     }
 
-    ngOnInit() {
+    async ngOnInit() {
         this.setEvents();
+        this.playerCount = (await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string))).length;
     }
 
     ngOnDestroy() {
@@ -73,6 +85,9 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         this.getQuestion(this.currentQuestionIndex);
         this.enableNextQuestionButton();
         this.reactToNextQuestionEvent();
+        this.handleSubmittedQuestion();
+        this.handlePlayerLeaveGame();
+        this.handleNextQuestion();
     }
 
     private getQuestion(index: number) {
@@ -85,16 +100,32 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
             this.detectEndOfQuestion(time);
         });
+
+        this.socketClientService.on(TimeEvents.TimerInterrupted, () => {
+            this.hasTimerBeenInterrupted = true;
+            this.detectEndOfQuestion(0);
+        });
+
+        this.socketClientService.on(TimeEvents.TransitionClockFinished, () => {
+            this.showNextQuestion();
+        });
     }
 
     private detectEndOfQuestion(time: number) {
         if (time === 0) {
+            if (this.submittedQuestionCount >= 1 && !this.hasTimerBeenInterrupted) {
+                this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
+            } else if (this.hasTimerBeenInterrupted) {
+                this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
+            }
+
             this.isEndOfQuestionTime = !this.isEndOfQuestionTime;
+
             if (this.isEndOfQuestionTime) {
                 this.isNextQuestionButtonDisable = false;
                 this.nextQuestionButtonStyle = { backgroundColor: 'rgb(18, 18, 217)' };
             }
-            this.showNextQuestion();
+            this.hasTimerBeenInterrupted = false;
         }
     }
 
@@ -106,5 +137,26 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
                 this.nextQuestionButtonText = 'Voir les résultats';
             }
         }
+    }
+
+    private handleSubmittedQuestion() {
+        this.socketClientService.on(GameEvents.SubmitQuestion, () => {
+            this.submittedQuestionCount++;
+            if (this.submittedQuestionCount === this.playerCount) {
+                this.socketClientService.send(TimeEvents.TimerInterrupted, this.roomId);
+            }
+        });
+    }
+
+    private handleNextQuestion() {
+        this.socketClientService.on(GameEvents.NextQuestion, () => {
+            this.submittedQuestionCount = 0;
+        });
+    }
+
+    private handlePlayerLeaveGame() {
+        this.socketClientService.on(GameEvents.PlayerLeaveGame, () => {
+            this.playerCount--;
+        });
     }
 }

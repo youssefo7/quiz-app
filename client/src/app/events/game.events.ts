@@ -12,4 +12,5 @@ export enum GameEvents {
     GameAborted = 'gameAborted',
     BanNotification = 'banNotification',
     ShowResults = 'showResults',
+    SubmitQuestion = 'submitQuestion',
 }

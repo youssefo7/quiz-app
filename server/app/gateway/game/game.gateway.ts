@@ -57,9 +57,10 @@ export class GameGateway {
     }
 
     @SubscribeMessage(GameEvents.GoodAnswer)
-    handleGoodAnswer(socket: Socket, data: { roomId: string; timeStamp: Date }) {
-        const room = this.roomManager.findRoom(data.roomId);
-        room.answerTimes.push({ userId: socket.id, timeStamp: data.timeStamp.getTime() });
+    handleGoodAnswer(socket: Socket, roomId: string) {
+        const room = this.roomManager.findRoom(roomId);
+        const timeStamp = new Date();
+        room.answerTimes.push({ userId: socket.id, timeStamp: timeStamp.getTime() });
     }
 
     @SubscribeMessage(GameEvents.QuestionChoiceSelect)
@@ -96,6 +97,7 @@ export class GameGateway {
             this.roomManager.addPointsToPlayer(socket.id, data.points, room);
             const player = this.roomManager.findPlayer(socket.id, room);
             this.server.to(room.organizer.socketId).emit(GameEvents.AddPointsToPlayer, { pointsToAdd: data.points, name: player.name });
+            this.server.to(socket.id).emit(GameEvents.AddPointsToPlayer, { pointsToAdd: data.points, name: player.name });
         }
     }
 
@@ -111,5 +113,9 @@ export class GameGateway {
         this.server.to(roomId).emit(GameEvents.ShowResults);
     }
 
-    // TODO : faire l'événement de déconnexion
+    @SubscribeMessage(GameEvents.SubmitQuestion)
+    handleSubmitQuestion(_: Socket, roomId: string) {
+        const organizer = this.roomManager.findRoom(roomId).organizer.socketId;
+        this.server.to(organizer).emit(GameEvents.SubmitQuestion);
+    }
 }

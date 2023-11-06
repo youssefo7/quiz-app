@@ -3,10 +3,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { GameEvents } from '@app/events/game.events';
+import { PlayerPoints } from '@app/interfaces/player-points';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
+import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-game-page',
@@ -17,7 +20,9 @@ export class GamePageComponent implements OnInit {
     title: string;
     quiz: Quiz | null;
     playerPoints: number;
-    private readonly isTestGame: boolean;
+    playerName: string;
+    readonly isTestGame: boolean;
+    private roomId: string | null;
 
     // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
@@ -28,21 +33,28 @@ export class GamePageComponent implements OnInit {
         private readonly router: Router,
         private readonly elementRef: ElementRef,
         private readonly socketClientService: SocketClientService,
+        private readonly roomCommunicationService: RoomCommunicationService,
     ) {
         this.title = 'Partie: ';
         this.playerPoints = 0;
         this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
+        this.roomId = this.route.snapshot.paramMap.get('roomId');
     }
 
-    ngOnInit() {
+    async ngOnInit() {
         this.loadQuiz();
+        if (!this.isTestGame) {
+            this.playerName = await firstValueFrom(
+                this.roomCommunicationService.getPlayerName(this.roomId as string, { socketId: this.socketClientService.socket.id }),
+            );
+        }
     }
 
     async loadQuiz() {
         await this.getQuiz();
         this.getQuizTitle();
         if (!this.isTestGame) {
-            this.reactToShowResultsEvent();
+            this.socketClientServiceConfig();
         }
     }
 
@@ -81,10 +93,14 @@ export class GamePageComponent implements OnInit {
         popupInstance.config = config;
     }
 
-    private reactToShowResultsEvent() {
+    private socketClientServiceConfig() {
         this.socketClientService.on(GameEvents.ShowResults, () => {
             // TODO: changer pour la page de résultat
             this.router.navigateByUrl('/home');
+        });
+
+        this.socketClientService.on(GameEvents.AddPointsToPlayer, (pointsObject: PlayerPoints) => {
+            this.givePoints(pointsObject.pointsToAdd);
         });
     }
 }

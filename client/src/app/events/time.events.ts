@@ -3,4 +3,6 @@ export enum TimeEvents {
     StopTimer = 'stopTimer',
     CurrentTimer = 'currentTimer',
     TimerFinished = 'timerFinished',
+    TimerInterrupted = 'timerInterrupted',
+    TransitionClockFinished = 'transitionClockFinished',
 }
