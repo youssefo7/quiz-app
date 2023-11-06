@@ -18,6 +18,7 @@ import { NgChartsModule } from 'ng2-charts';
 import { of } from 'rxjs';
 import { HostGamePageComponent } from './host-game-page.component';
 import SpyObj = jasmine.SpyObj;
+import { RoomCommunicationService } from '@app/services/room-communication.service';
 
 /* The reason for disabling lint is that the code comes from a professor's stub example,
     and the connect is empty in the example he uses.*/
@@ -37,6 +38,8 @@ describe('HostGamePageComponent', () => {
     let clientSocketServiceMock: SpyObj<SocketClientService>;
     let gameService: GameService;
     let router: Router;
+    let roomCommunicationServiceMock: jasmine.SpyObj<RoomCommunicationService>;
+
     const mockedQuiz = {
         $schema: 'test.json',
         id: '123',
@@ -49,7 +52,9 @@ describe('HostGamePageComponent', () => {
     };
 
     beforeEach(() => {
+        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
         communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
+        roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', ['getRoomPlayers']);
         communicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
         mockDialogRef = jasmine.createSpyObj('MatDialogRef<PopupMessageComponent>', ['componentInstance']);
@@ -77,6 +82,8 @@ describe('HostGamePageComponent', () => {
                 { provide: MatDialog, useValue: mockDialog },
                 { provide: MatDialogRef, useValue: mockDialogRef },
                 { provide: SocketClientService, useValue: clientSocketServiceMock },
+                { provide: SocketClientService, useValue: clientSocketServiceMock },
+                { provide: RoomCommunicationService, useValue: roomCommunicationServiceMock },
             ],
         }).compileComponents();
         fixture = TestBed.createComponent(HostGamePageComponent);
