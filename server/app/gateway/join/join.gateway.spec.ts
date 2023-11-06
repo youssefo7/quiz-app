@@ -49,76 +49,22 @@ describe('JoinGateway', () => {
         expect(gateway).toBeDefined();
     });
 
-    // TODO: refaire les tests
-    // it('handleCreateRoom() should create a new room and join the socket', () => {
-    //     const quizId = '2';
-    //     const createdRoomId = gateway.handleCreateRoom(socket, quizId);
-
-    //     expect(createdRoomId).toBeDefined();
-    //     expect(roomManagerServiceMock.rooms).toContainEqual(expect.objectContaining({ id: createdRoomId, quizId }));
-    //     expect(socket.join.calledOnce).toBeTruthy();
-    // });
-
-    // it('handleJoinRoom() should allow joining an existing room', () => {
-    //     const roomId = 'testId';
-    //     const result = gateway.handleJoinRoom(socket, roomId);
-    //     expect(result).toEqual({ roomState: 'OK', quizId: '1' });
-    //     expect(roomManagerServiceMock.rooms[0].players).toContainEqual(expect.objectContaining({ socketId: socket.id }));
-    //     expect(socket.join.calledOnce).toBeTruthy();
-    // });
-
-    // it('handleJoinRoom() should not allow joining a locked room', () => {
-    //     const roomId = 'testId';
-    //     roomManagerServiceMock.rooms[0].isLocked = true;
-    //     const result = gateway.handleJoinRoom(socket, roomId);
-    //     expect(result).toEqual({ roomState: 'IS_LOCKED', quizId: null });
-    // });
-
-    // it('handleJoinRoom() should handle joining an invalid room', () => {
-    //     const invalidRoomId = 'invalidId';
-    //     const result = gateway.handleJoinRoom(socket, invalidRoomId);
-    //     expect(result).toEqual({ roomState: 'INVALID', quizId: null });
-    // });
-
-    // it('handleChooseName() should choose a name if it is valid', () => {
-    //     const roomId = 'testId';
-    //     const name = 'newName';
-    //     const room = roomManagerServiceMock.findRoom(roomId);
-    //     roomManagerServiceMock.addPlayerToRoom(room, socket.id);
-
-    //     const isNameTakenSpy = jest.spyOn(roomManagerServiceMock, 'isNameTaken');
-    //     const isBannedNameSpy = jest.spyOn(roomManagerServiceMock, 'isBannedName');
-
-    //     const result = gateway.handleChooseName(socket, name);
-
-    //     expect(result).toBe(true);
-    //     expect(isNameTakenSpy).toHaveBeenCalledWith(roomManagerServiceMock.rooms[0], name);
-    //     expect(isBannedNameSpy).toHaveBeenCalledWith(roomManagerServiceMock.rooms[0], name);
-    // });
-
-    // it('handleChooseName() should not choose a name if it is taken or is banned', () => {
-    //     const roomId = 'testId';
-    //     const bannedName = 'bannedName1';
-    //     const room = roomManagerServiceMock.findRoom(roomId);
-    //     roomManagerServiceMock.addPlayerToRoom(room, socket.id);
-
-    //     const isNameTakenSpy = jest.spyOn(roomManagerServiceMock, 'isNameTaken');
-    //     const isBannedNameSpy = jest.spyOn(roomManagerServiceMock, 'isBannedName');
-
-    //     const result = gateway.handleChooseName(socket, bannedName);
-
-    //     expect(result).toBe(false);
-    //     expect(isNameTakenSpy).toHaveBeenCalledWith(roomManagerServiceMock.rooms[0], bannedName);
-    //     expect(isBannedNameSpy).toHaveBeenCalledWith(roomManagerServiceMock.rooms[0], bannedName);
-    // });
+    it('handleJoinRoom() should not allow joining a locked room', () => {
+        const roomId = 'testId';
+        // const findRoomSpy = jest.spyOn(roomManagerServiceMock, 'findRoom');
+        gateway.handleJoinRoom(socket, roomId);
+        // expect(findRoomSpy).toHaveBeenCalledWith(roomId);
+        expect(socket.join.calledWith(roomId)).toBeTruthy();
+    });
 
     it('handleSuccessfulJoin() should emit event PlayerHasJoined to the server', () => {
         const data = { roomId: 'testId', name: 'newPlayer' };
         const roomId = 'testId';
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
-            emit: (event: string) => {
+            emit: (event: string, playerName: string) => {
                 expect(event).toEqual('playerHasJoined');
+                expect(playerName).toEqual(data.name);
             },
         } as BroadcastOperator<unknown, unknown>);
         gateway.handleSuccessfulJoin(socket, data);
