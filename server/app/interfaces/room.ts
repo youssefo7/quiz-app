@@ -10,6 +10,7 @@ export interface Room {
     answerTimes: AnswerTime[];
     timer: ReturnType<typeof setInterval> | null;
     results: Results[];
+    chatMessage: ChatMessage[];
 }
 
 export interface User {
@@ -34,4 +35,11 @@ export interface Results {
     points: number;
     hasAbandoned: boolean;
     bonusCount: number;
+}
+
+export interface ChatMessage {
+    authorName: string;
+    time: string;
+    message: string;
+    sentByUser: boolean;
 }

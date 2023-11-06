@@ -1,5 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { ChatMessage } from '@app/interfaces/chat-message';
 import { JoinRoomResponse } from '@app/interfaces/join-room-response';
 import { Quiz } from '@app/interfaces/quiz';
 import { Results } from '@app/interfaces/player-info';
@@ -45,6 +46,16 @@ export class RoomCommunicationService {
 
     sendPlayerResults(roomId: string, results: Results[]): Observable<Results[]> {
         return this.http.post<Results[]>(`${this.baseUrl}/rooms/${roomId}/results`, results).pipe(catchError(this.receiveError<Results[]>()));
+    }
+
+    getChatMessages(roomId: string): Observable<ChatMessage[]> {
+        return this.http.get<ChatMessage[]>(`${this.baseUrl}/rooms/${roomId}/chat`).pipe(catchError(this.receiveError<ChatMessage[]>()));
+    }
+
+    sendChatMessages(roomId: string, chatMessages: ChatMessage[]): Observable<ChatMessage[]> {
+        return this.http
+            .post<ChatMessage[]>(`${this.baseUrl}/rooms/${roomId}/chat`, chatMessages)
+            .pipe(catchError(this.receiveError<ChatMessage[]>()));
     }
 
     private receiveError<T>() {
