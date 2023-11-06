@@ -83,7 +83,6 @@ export class GameGateway {
         if (quickestPlayer) {
             const player = this.roomManager.findPlayer(quickestPlayer.userId, room);
             player.bonusCount++;
-            console.log('sending bonus to ');
             this.server.to(quickestPlayer.userId).emit(GameEvents.GiveBonus);
         }
     }

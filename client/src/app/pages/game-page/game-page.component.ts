@@ -53,7 +53,7 @@ export class GamePageComponent implements OnInit {
         await this.getQuiz();
         this.getQuizTitle();
         if (!this.isTestGame) {
-            this.reactToShowResultsEvent();
+            this.socketClientServiceConfig();
         }
     }
 
@@ -92,10 +92,15 @@ export class GamePageComponent implements OnInit {
         popupInstance.config = config;
     }
 
-    private reactToShowResultsEvent() {
+    private socketClientServiceConfig() {
         this.socketClientService.on(GameEvents.ShowResults, () => {
             // TODO: changer pour la page de résultat
             this.router.navigateByUrl('/home');
+        });
+
+        this.socketClientService.on(GameEvents.AddPointsToPlayer, (points: number) => {
+            console.log('Add points to user: ', points);
+            this.givePoints(points);
         });
     }
 }

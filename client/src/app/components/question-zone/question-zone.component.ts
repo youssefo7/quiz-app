@@ -33,6 +33,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     private timerSubscription: Subscription;
     private gameServiceSubscription: Subscription;
     private roomId: string | null;
+    private hasReceivedBonus: boolean;
 
     // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
@@ -55,6 +56,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.hasGameEnded = false;
         this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
         this.roomId = this.route.snapshot.paramMap.get('roomId');
+        this.hasReceivedBonus = false;
     }
 
     @HostListener('keypress', ['$event'])
@@ -190,7 +192,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     submitAnswerOnClickEvent() {
         if (this.isTestGame) {
             this.gameService.setButtonPressState = true;
-            this.showResult();
+            this.givePoints();
             this.isQuestionTransitioning = true;
         } else {
             this.setSubmitButtonToDisabled(true, { backgroundColor: 'grey' });
@@ -214,47 +216,64 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.doesDisplayPoints = true;
     }
 
+    giveBonus() {
+        const bonus = 1.2;
+        this.points = this.question.points * bonus;
+        this.bonusMessage = '(20% bonus Woohoo!)';
+    }
+
     givePoints() {
-        if (this.isAnswerGood() && this.isTestGame) {
-            const bonus = 1.2;
-            this.points = this.question.points * bonus;
-            this.bonusMessage = '(20% bonus Woohoo!)';
-        } else if (!this.isAnswerGood()) {
-            this.points = 0;
-            this.bonusMessage = '';
+        if (this.isTestGame) {
+            if (this.isAnswerGood()) {
+                this.giveBonus();
+            } else {
+                this.points = 0;
+                this.bonusMessage = '';
+            }
+            this.pointsEarned.emit(this.points);
+        } else {
+            if (!this.hasReceivedBonus) {
+                if (this.isAnswerGood()) {
+                    this.points = this.question.points;
+                } else {
+                    this.points = 0;
+                }
+                this.bonusMessage = '';
+            }
+            this.socketClientService.send(GameEvents.AddPointsToPlayer, { roomId: this.roomId, points: this.points });
         }
-        this.pointsEarned.emit(this.points);
+        this.showResult();
     }
 
     showResult() {
         this.setSubmitButtonToDisabled(true, { backgroundColor: 'grey' });
         this.displayCorrectAnswer();
-        this.givePoints();
     }
 
-    handleTransitionClockFinished() {
+    private handleTransitionClockFinished() {
         this.socketClientService.on(TimeEvents.TransitionClockFinished, () => {
             this.isQuestionTransitioning = false;
+            this.hasReceivedBonus = false;
             ++this.currentQuestionIndex;
             this.getQuestion(this.currentQuestionIndex);
         });
     }
 
-    handleBonusPoints() {
+    private handleBonusPoints() {
         this.socketClientService.on(GameEvents.GiveBonus, () => {
-            console.log('give bonus');
-            const bonus = 0.2;
-            this.points += this.points * bonus;
-            this.bonusMessage = '(20% bonus Woohoo!)';
+            if (this.hasReceivedBonus) return;
+            this.hasReceivedBonus = true;
+            this.giveBonus();
+            this.givePoints();
         });
     }
 
     private detectEndOfQuestion(time: number) {
         if (!this.hasGameEnded && time === 0) {
             if (!this.isQuestionTransitioning) {
-                this.showResult();
                 this.isQuestionTransitioning = true;
                 this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
+                this.givePoints();
             } else if (this.isTestGame) {
                 this.isQuestionTransitioning = false;
                 ++this.currentQuestionIndex;
