@@ -1,8 +1,8 @@
 <div id="lists">
+    <div id="countdown-container" *ngIf="showCountdown">
+        <div id="countdown">La partie commence dans:  {{ transitionCounter }}</div>
+    </div>
     <div id="listComponent">
-        <div id="countdown-container" *ngIf="showCountdown">
-            <div id="countdown">La partie commence dans:  {{ transitionCounter }}</div>
-        </div>
         <ol id="playersList">
             <li class="player" *ngFor="let player of players">
                 <mat-icon class="account">account_circle</mat-icon> <span>{{ player }}</span>

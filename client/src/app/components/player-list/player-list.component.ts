@@ -40,6 +40,9 @@ export class PlayerListComponent implements OnInit {
         this.isLocked = false;
         this.isHost = this.route.snapshot.url.some((segment) => segment.path === 'host');
         this.roomId = this.route.snapshot.paramMap.get('roomId');
+        this.showCountdown = false;
+        this.transitionCounter = 0;
+        this.time = 5;
     }
 
     async ngOnInit() {
@@ -66,6 +69,7 @@ export class PlayerListComponent implements OnInit {
         });
 
         this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
+            this.showCountdown = true;
             this.countdown(time);
         });
     }
@@ -86,7 +90,6 @@ export class PlayerListComponent implements OnInit {
 
     startGame() {
         this.socketClientService.send(TimeEvents.StartTimer, { initialTime: 5, tickRate: 1000, roomId: this.roomId });
-        this.showCountdown = true;
     }
 
     private removePlayer(name: string) {
