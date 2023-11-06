@@ -50,18 +50,30 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.handleNavigation();
     }
 
-    // TODO : ajouter url pour la pages des resultats
     handleNavigation() {
-        this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
-        this.router.navigateByUrl('home/');
+        const currentUrl = this.router.url;
+        const gameUrl = `/results/${this.route.snapshot.paramMap.get('quizId')}/room/${this.roomId}`;
+        if (currentUrl !== gameUrl) {
+            this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
+        }
     }
 
     async ngOnInit() {
-        this.loadQuiz();
-        if (!this.isTestGame) {
-            this.playerName = await firstValueFrom(
-                this.roomCommunicationService.getPlayerName(this.roomId as string, { socketId: this.socketClientService.socket.id }),
-            );
+        if (!this.socketClientService.socketExists()) {
+            this.socketClientService.connect();
+            while (this.socketClientService.socketExists()) {
+                this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
+                this.socketClientService.disconnect();
+            }
+            this.router.navigateByUrl('home/');
+            return;
+        } else {
+            this.loadQuiz();
+            if (!this.isTestGame) {
+                this.playerName = await firstValueFrom(
+                    this.roomCommunicationService.getPlayerName(this.roomId as string, { socketId: this.socketClientService.socket.id }),
+                );
+            }
         }
     }
 

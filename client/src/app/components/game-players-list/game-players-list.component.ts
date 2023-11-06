@@ -35,6 +35,9 @@ export class GamePlayersListComponent implements OnInit {
     }
 
     async ngOnInit() {
+        if (!this.socketService.socketExists()) {
+            return;
+        }
         await this.fetchPlayersList();
         const canSort = this.isResultsRoute && this.playerResults.length > 0;
         if (canSort) {

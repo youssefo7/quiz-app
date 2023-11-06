@@ -58,17 +58,32 @@ export class PlayerListComponent implements OnInit, OnDestroy {
         if (this.isHost) {
             if (currentUrl !== gameUrl + '/host') {
                 this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: true });
-                this.router.navigateByUrl('home/');
             }
         } else {
             if (currentUrl !== gameUrl) {
                 this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
-                this.router.navigateByUrl('home/');
             }
         }
     }
 
     async ngOnInit() {
+        if (!this.socketClientService.socketExists()) {
+            if (this.isHost) {
+                this.socketClientService.connect();
+                while (this.socketClientService.socketExists()) {
+                    this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: true });
+                    this.socketClientService.disconnect();
+                }
+            } else {
+                this.socketClientService.connect();
+                while (this.socketClientService.socketExists()) {
+                    this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
+                    this.socketClientService.disconnect();
+                }
+            }
+            this.router.navigateByUrl('home/');
+            return;
+        }
         this.listenToSocketEvents();
         this.players = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string));
     }

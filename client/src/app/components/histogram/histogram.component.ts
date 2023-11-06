@@ -31,6 +31,9 @@ export class HistogramComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+        if (!this.socketClientService.socketExists()) {
+            return;
+        }
         this.choicesSelectionCounts = [];
         this.loadChart();
         this.updateSelections();
@@ -38,7 +41,9 @@ export class HistogramComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.chart.destroy();
+        if (this.chart) {
+            this.chart.destroy();
+        }
     }
 
     private async loadChart() {
