@@ -29,6 +29,10 @@ export class RoomCommunicationService {
         return this.http.get<string[]>(`${this.baseUrl}/rooms/${roomId}/players`).pipe(catchError(this.receiveError<string[]>()));
     }
 
+    getPlayerName(roomId: string, data: { socketId: string }): Observable<string> {
+        return this.http.post<string>(`${this.baseUrl}/rooms/${roomId}/playerName`, data).pipe(catchError(this.receiveError<string>()));
+    }
+
     private receiveError<T>() {
         return (error: HttpErrorResponse): Observable<T> => {
             const errorMessage = `${error.error}`;

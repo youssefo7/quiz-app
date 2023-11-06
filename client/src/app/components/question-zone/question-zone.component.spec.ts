@@ -22,7 +22,7 @@ describe('QuestionZoneComponent', () => {
     let timeServiceMock: jasmine.SpyObj<TimeService>;
 
     beforeEach(() => {
-        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
+        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'send']);
         communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
         communicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
         timeServiceMock = jasmine.createSpyObj('TimeService', ['getTime', 'stopTimer']);
@@ -74,7 +74,7 @@ describe('QuestionZoneComponent', () => {
     it('should not submit the answer when enter key is pressed if submit button disabled', () => {
         const event = new KeyboardEvent('keyup', { key: 'Enter' });
         component.isSubmitDisabled = true;
-        const submitAnswerSpy = spyOn(component, 'submitAnswerOnClickEvent');
+        const submitAnswerSpy = spyOn(component, 'submitAnswer');
         component.buttonDetect(event);
         expect(submitAnswerSpy).not.toHaveBeenCalled();
     });
@@ -82,7 +82,7 @@ describe('QuestionZoneComponent', () => {
     it('should submit the answer when enter key is pressed', () => {
         const event = new KeyboardEvent('keyup', { key: 'Enter' });
         component.isSubmitDisabled = false;
-        const submitAnswerSpy = spyOn(component, 'submitAnswerOnClickEvent');
+        const submitAnswerSpy = spyOn(component, 'submitAnswer');
         component.buttonDetect(event);
         expect(submitAnswerSpy).toHaveBeenCalled();
     });
@@ -282,8 +282,9 @@ describe('QuestionZoneComponent', () => {
     });
 
     it('should submit answer on click event', () => {
+        component['isTestGame'] = true;
         spyOn(component, 'showResult');
-        component.submitAnswerOnClickEvent();
+        component.submitAnswer();
         expect(setButtonSpy).toHaveBeenCalledWith(true);
         expect(component.isQuestionTransitioning).toBeTrue();
         expect(component.showResult).toHaveBeenCalled();
@@ -311,6 +312,7 @@ describe('QuestionZoneComponent', () => {
         const bonus = 1.2;
         component.question.points = 10;
         spyOn(component, 'isAnswerGood').and.returnValue(true);
+        component['isTestGame'] = true;
         component.givePoints();
         expect(component.points).toEqual(component.question.points * bonus);
         expect(component.bonusMessage).toEqual('(20% bonus Woohoo!)');
@@ -330,7 +332,6 @@ describe('QuestionZoneComponent', () => {
         component.showResult();
         expect(component.setSubmitButtonToDisabled).toHaveBeenCalledWith(true, { backgroundColor: 'grey' });
         expect(component.displayCorrectAnswer).toHaveBeenCalled();
-        expect(component.givePoints).toHaveBeenCalled();
     });
 
     it('should focus on button', () => {

@@ -3,8 +3,10 @@ import { ActivatedRoute } from '@angular/router';
 import { GamePlayersListComponent } from '@app/components/game-players-list/game-players-list.component';
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { GameService } from '@app/services/game.service';
+import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { NgChartsModule } from 'ng2-charts';
+import { of } from 'rxjs';
 import { QuestionZoneStatsComponent } from './question-zone-stats.component';
 import SpyObj = jasmine.SpyObj;
 
@@ -13,6 +15,7 @@ describe('QuestionZoneStatsComponent', () => {
     let fixture: ComponentFixture<QuestionZoneStatsComponent>;
     let gameServiceMock: SpyObj<GameService>;
     let clientSocketServiceMock: SpyObj<SocketClientService>;
+    let roomCommunicationServiceMock: jasmine.SpyObj<RoomCommunicationService>;
     const mockedQuiz = {
         $schema: 'test.json',
         id: '123',
@@ -28,6 +31,12 @@ describe('QuestionZoneStatsComponent', () => {
         clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
         gameServiceMock = jasmine.createSpyObj('GameService', ['getQuizById']);
         gameServiceMock.getQuizById.and.returnValue(Promise.resolve(mockedQuiz));
+        roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', ['getRoomPlayers']);
+        roomCommunicationServiceMock.getRoomPlayers.and.returnValue(
+            of([
+                /* liste vide de joueur */
+            ]),
+        );
     });
 
     beforeEach(waitForAsync(() => {
@@ -38,6 +47,7 @@ describe('QuestionZoneStatsComponent', () => {
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' } } } },
                 { provide: GameService, useValue: gameServiceMock },
                 { provide: SocketClientService, useValue: clientSocketServiceMock },
+                { provide: RoomCommunicationService, useValue: roomCommunicationServiceMock },
             ],
         }).compileComponents();
         fixture = TestBed.createComponent(QuestionZoneStatsComponent);

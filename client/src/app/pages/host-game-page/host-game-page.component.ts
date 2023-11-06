@@ -17,7 +17,7 @@ export class HostGamePageComponent implements OnInit {
     quiz: Quiz | null;
     title: string;
 
-    // All these parameters are needed for the component to work properly
+    // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
     constructor(
         private gameService: GameService,
@@ -37,7 +37,7 @@ export class HostGamePageComponent implements OnInit {
     //     this.leaveGamePage();
     // }
 
-    ngOnInit() {
+    async ngOnInit() {
         this.loadQuiz();
     }
 

@@ -8,6 +8,9 @@ import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
 import { Subscription } from 'rxjs';
 
+const BONUS_20_PERCENT = 0.2;
+const BONUS_120_PERCENT = 1.2;
+
 @Component({
     selector: 'app-question-zone',
     templateUrl: './question-zone.component.html',
@@ -28,10 +31,14 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     isSubmitDisabled: boolean;
     isChoiceButtonDisabled: boolean;
     doesDisplayPoints: boolean;
+    pointsToDisplay: number;
     private isTestGame: boolean;
     private hasGameEnded: boolean;
     private timerSubscription: Subscription;
     private gameServiceSubscription: Subscription;
+    private roomId: string | null;
+    private hasReceivedBonus: boolean;
+    private hasSentAnswer: boolean;
 
     // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
@@ -53,6 +60,10 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.doesDisplayPoints = false;
         this.hasGameEnded = false;
         this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
+        this.roomId = this.route.snapshot.paramMap.get('roomId');
+        this.hasReceivedBonus = false;
+        this.pointsToDisplay = 0;
+        this.hasSentAnswer = false;
     }
 
     @HostListener('keypress', ['$event'])
@@ -68,7 +79,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
 
         if (keyPressed === 'Enter') {
             if (!this.isSubmitDisabled) {
-                this.submitAnswerOnClickEvent();
+                this.submitAnswer();
             }
         } else {
             const choiceIndex = parseInt(keyPressed, 10) - 1;
@@ -81,6 +92,8 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.loadQuiz();
         this.subscribeToTimer();
         this.detectEndGame();
+        this.handleTransitionClockFinished();
+        this.handleBonusPoints();
     }
 
     ngOnDestroy() {
@@ -114,6 +127,10 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
                 this.detectEndOfQuestion(time);
             });
+
+            this.socketClientService.on(TimeEvents.TimerInterrupted, () => {
+                this.detectEndOfQuestion(0);
+            });
         }
     }
 
@@ -140,8 +157,14 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     toggleChoice(index: number) {
-        if (!isNaN(index) && index >= 0 && index < this.chosenChoices.length) {
+        const isIndexInbound = !isNaN(index) && index >= 0 && index < this.chosenChoices.length;
+        if (isIndexInbound) {
             this.chosenChoices[index] = !this.chosenChoices[index];
+            if (this.chosenChoices[index]) {
+                this.socketClientService.send(GameEvents.QuestionChoiceSelect, { roomId: this.roomId, questionChoiceIndex: index });
+            } else {
+                this.socketClientService.send(GameEvents.QuestionChoiceUnselect, { roomId: this.roomId, questionChoiceIndex: index });
+            }
         }
     }
 
@@ -174,14 +197,24 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.isChoiceButtonDisabled = true;
     }
 
-    submitAnswerOnClickEvent() {
-        this.gameService.setButtonPressState = true;
-        this.showResult();
-        this.isQuestionTransitioning = true;
+    submitAnswer() {
+        if (this.isTestGame) {
+            this.gameService.setButtonPressState = true;
+            this.givePoints();
+            this.isQuestionTransitioning = true;
+        } else {
+            this.setSubmitButtonToDisabled(true, { backgroundColor: 'grey' });
+            this.socketClientService.send(GameEvents.SubmitQuestion, this.roomId);
+        }
+        if (this.isAnswerGood() && !this.isTestGame) {
+            this.points = this.question.points;
+            this.socketClientService.send(GameEvents.GoodAnswer, this.roomId);
+        }
+        this.hasSentAnswer = true;
     }
 
     isAnswerGood() {
-        const isAnswerGood = this.chosenChoices.every((answer, index) => answer === this.question.choices[index].isCorrect);
+        const isAnswerGood = this.chosenChoices?.every((answer, index) => answer === this.question.choices[index].isCorrect);
         return isAnswerGood;
     }
 
@@ -192,30 +225,72 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.doesDisplayPoints = true;
     }
 
+    giveBonus() {
+        const bonus = this.isTestGame ? BONUS_120_PERCENT : BONUS_20_PERCENT;
+
+        this.pointsToDisplay = this.question.points * BONUS_120_PERCENT;
+        this.points = this.question.points * bonus;
+        this.bonusMessage = '(20% bonus Woohoo!)';
+    }
+
     givePoints() {
-        if (this.isAnswerGood()) {
-            const bonus = 1.2;
-            this.points = this.question.points * bonus;
-            this.bonusMessage = '(20% bonus Woohoo!)';
+        if (this.isTestGame) {
+            if (this.isAnswerGood()) {
+                this.giveBonus();
+            } else {
+                this.points = 0;
+                this.bonusMessage = '';
+                this.pointsToDisplay = 0;
+            }
+            this.pointsEarned.emit(this.points);
         } else {
-            this.points = 0;
-            this.bonusMessage = '';
+            if (!this.hasReceivedBonus) {
+                if (this.isAnswerGood()) {
+                    this.points = this.question.points;
+                    this.pointsToDisplay = this.question.points;
+                } else {
+                    this.points = 0;
+                    this.pointsToDisplay = 0;
+                }
+                this.bonusMessage = '';
+                this.socketClientService.send(GameEvents.AddPointsToPlayer, { roomId: this.roomId, points: this.points });
+            }
         }
-        this.pointsEarned.emit(this.points);
+        this.showResult();
     }
 
     showResult() {
         this.setSubmitButtonToDisabled(true, { backgroundColor: 'grey' });
         this.displayCorrectAnswer();
-        this.givePoints();
+    }
+
+    private handleTransitionClockFinished() {
+        this.socketClientService.on(TimeEvents.TransitionClockFinished, () => {
+            this.isQuestionTransitioning = false;
+            this.hasReceivedBonus = false;
+            ++this.currentQuestionIndex;
+            this.getQuestion(this.currentQuestionIndex);
+        });
+    }
+
+    private handleBonusPoints() {
+        this.socketClientService.on(GameEvents.GiveBonus, () => {
+            this.hasReceivedBonus = true;
+            this.giveBonus();
+            this.givePoints();
+            this.socketClientService.send(GameEvents.AddPointsToPlayer, { roomId: this.roomId, points: this.points });
+        });
     }
 
     private detectEndOfQuestion(time: number) {
         if (!this.hasGameEnded && time === 0) {
             if (!this.isQuestionTransitioning) {
-                this.showResult();
+                if (!this.hasSentAnswer) {
+                    this.submitAnswer();
+                }
                 this.isQuestionTransitioning = true;
-            } else {
+                this.givePoints();
+            } else if (this.isTestGame) {
                 this.isQuestionTransitioning = false;
                 ++this.currentQuestionIndex;
                 this.getQuestion(this.currentQuestionIndex);

@@ -70,15 +70,16 @@ export class CountdownComponent implements OnInit, OnDestroy {
             this.reactToTimerEvent();
             this.reactToTimerFinishedEvent();
             this.reactToNextQuestionEvent();
+            this.reactToTimerInterruptedEvent();
             this.questionClock();
             this.currentQuestionIndex++;
         }
     }
 
     private reactToTimerEvent() {
+        const switchColorTime = 3;
         this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
             this.socketTime = time;
-            const switchColorTime = 3;
             this.setClockColorToRed(this.socketTime, switchColorTime);
         });
     }
@@ -87,9 +88,18 @@ export class CountdownComponent implements OnInit, OnDestroy {
         this.socketClientService.on(TimeEvents.TimerFinished, () => {
             if (this.hasFinishedTransitionClock) {
                 this.currentQuestionIndex++;
+                if (this.isHost) {
+                    this.socketClientService.send(TimeEvents.TransitionClockFinished, this.roomId);
+                }
                 this.hasFinishedTransitionClock = false;
                 this.questionClock();
             }
+        });
+    }
+
+    private reactToTimerInterruptedEvent() {
+        this.socketClientService.on(TimeEvents.TimerInterrupted, () => {
+            this.socketTime = 0;
         });
     }
 
