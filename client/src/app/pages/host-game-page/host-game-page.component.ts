@@ -3,13 +3,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { GameEvents } from '@app/events/game.events';
-import { TimeEvents } from '@app/events/time.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
-import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
-import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-host-game-page',
@@ -19,11 +16,8 @@ import { firstValueFrom } from 'rxjs';
 export class HostGamePageComponent implements OnInit {
     quiz: Quiz | null;
     title: string;
-    private submittedQuestionCount: number;
-    private playerCount: number;
-    private roomId: string | null;
 
-    // All these parameters are needed for the component to work properly
+    // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
     constructor(
         private gameService: GameService,
@@ -32,11 +26,8 @@ export class HostGamePageComponent implements OnInit {
         private readonly router: Router,
         private readonly elementRef: ElementRef,
         private readonly socketClientService: SocketClientService,
-        private readonly roomCommunicationService: RoomCommunicationService,
     ) {
         this.title = 'Partie: ';
-        this.submittedQuestionCount = 0;
-        this.roomId = this.route.snapshot.paramMap.get('roomId');
     }
 
     // TODO : deconnecter lors de refresh
@@ -48,10 +39,6 @@ export class HostGamePageComponent implements OnInit {
 
     async ngOnInit() {
         this.loadQuiz();
-        this.playerCount = (await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string))).length;
-        this.handleSubmittedQuestion();
-        this.handlePlayerLeaveGame();
-        this.handleNextQuestion();
     }
 
     openQuitPopUp() {
@@ -95,26 +82,5 @@ export class HostGamePageComponent implements OnInit {
     }
     private async leaveGamePage() {
         await this.router.navigateByUrl('/game/new');
-    }
-
-    private handleSubmittedQuestion() {
-        this.socketClientService.on(GameEvents.SubmitQuestion, () => {
-            this.submittedQuestionCount++;
-            if (this.submittedQuestionCount === this.playerCount) {
-                this.socketClientService.send(TimeEvents.TimerInterrupted, this.roomId);
-            }
-        });
-    }
-
-    private handleNextQuestion() {
-        this.socketClientService.on(GameEvents.NextQuestion, () => {
-            this.submittedQuestionCount = 0;
-        });
-    }
-
-    private handlePlayerLeaveGame() {
-        this.socketClientService.on(GameEvents.PlayerLeaveGame, () => {
-            this.playerCount--;
-        });
     }
 }

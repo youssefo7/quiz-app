@@ -282,6 +282,7 @@ describe('QuestionZoneComponent', () => {
     });
 
     it('should submit answer on click event', () => {
+        component['isTestGame'] = true;
         spyOn(component, 'showResult');
         component.submitAnswerOnClickEvent();
         expect(setButtonSpy).toHaveBeenCalledWith(true);
@@ -311,6 +312,7 @@ describe('QuestionZoneComponent', () => {
         const bonus = 1.2;
         component.question.points = 10;
         spyOn(component, 'isAnswerGood').and.returnValue(true);
+        component['isTestGame'] = true;
         component.givePoints();
         expect(component.points).toEqual(component.question.points * bonus);
         expect(component.bonusMessage).toEqual('(20% bonus Woohoo!)');
@@ -324,13 +326,13 @@ describe('QuestionZoneComponent', () => {
     });
 
     it('should show results', () => {
+        component['isTestGame'] = true;
         spyOn(component, 'setSubmitButtonToDisabled');
         spyOn(component, 'displayCorrectAnswer');
         spyOn(component, 'givePoints');
         component.showResult();
         expect(component.setSubmitButtonToDisabled).toHaveBeenCalledWith(true, { backgroundColor: 'grey' });
         expect(component.displayCorrectAnswer).toHaveBeenCalled();
-        expect(component.givePoints).toHaveBeenCalled();
     });
 
     it('should focus on button', () => {

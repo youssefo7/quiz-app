@@ -61,6 +61,8 @@ export class GameGateway {
         const room = this.roomManager.findRoom(roomId);
         const timeStamp = new Date();
         room.answerTimes.push({ userId: socket.id, timeStamp: timeStamp.getTime() });
+        const organizer = room.organizer.socketId;
+        this.server.to(organizer).emit(GameEvents.GoodAnswer);
     }
 
     @SubscribeMessage(GameEvents.QuestionChoiceSelect)

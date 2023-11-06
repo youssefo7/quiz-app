@@ -8,6 +8,9 @@ import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
 import { Subscription } from 'rxjs';
 
+const BONUS_20_PERCENT = 0.2;
+const BONUS_120_PERCENT = 1.2;
+
 @Component({
     selector: 'app-question-zone',
     templateUrl: './question-zone.component.html',
@@ -28,12 +31,14 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     isSubmitDisabled: boolean;
     isChoiceButtonDisabled: boolean;
     doesDisplayPoints: boolean;
+    pointsToDisplay: number;
     private isTestGame: boolean;
     private hasGameEnded: boolean;
     private timerSubscription: Subscription;
     private gameServiceSubscription: Subscription;
     private roomId: string | null;
     private hasReceivedBonus: boolean;
+    private hasSentAnswer: boolean;
 
     // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
@@ -57,6 +62,8 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
         this.roomId = this.route.snapshot.paramMap.get('roomId');
         this.hasReceivedBonus = false;
+        this.pointsToDisplay = 0;
+        this.hasSentAnswer = false;
     }
 
     @HostListener('keypress', ['$event'])
@@ -202,10 +209,11 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             this.points = this.question.points;
             this.socketClientService.send(GameEvents.GoodAnswer, this.roomId);
         }
+        this.hasSentAnswer = true;
     }
 
     isAnswerGood() {
-        const isAnswerGood = this.chosenChoices.every((answer, index) => answer === this.question.choices[index].isCorrect);
+        const isAnswerGood = this.chosenChoices?.every((answer, index) => answer === this.question.choices[index].isCorrect);
         return isAnswerGood;
     }
 
@@ -217,7 +225,14 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     giveBonus() {
-        const bonus = 1.2;
+        let bonus: number;
+        if (this.isTestGame) {
+            bonus = BONUS_120_PERCENT;
+        } else {
+            bonus = BONUS_20_PERCENT;
+        }
+
+        this.pointsToDisplay = this.question.points * BONUS_120_PERCENT;
         this.points = this.question.points * bonus;
         this.bonusMessage = '(20% bonus Woohoo!)';
     }
@@ -229,14 +244,17 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             } else {
                 this.points = 0;
                 this.bonusMessage = '';
+                this.pointsToDisplay = 0;
             }
             this.pointsEarned.emit(this.points);
         } else {
             if (!this.hasReceivedBonus) {
                 if (this.isAnswerGood()) {
                     this.points = this.question.points;
+                    this.pointsToDisplay = this.question.points;
                 } else {
                     this.points = 0;
+                    this.pointsToDisplay = 0;
                 }
                 this.bonusMessage = '';
                 this.socketClientService.send(GameEvents.AddPointsToPlayer, { roomId: this.roomId, points: this.points });
@@ -261,13 +279,9 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
 
     private handleBonusPoints() {
         this.socketClientService.on(GameEvents.GiveBonus, () => {
-            // J'ai mis cette ligne car le bonus est tjr émit 2 fois et j'ai aucune idée pourquoi
-            // Le if ci-dessous est une solution (pas optimale mais ça marche)
-            if (this.hasReceivedBonus) return;
             this.hasReceivedBonus = true;
             this.giveBonus();
             this.givePoints();
-            this.detectEndOfQuestion(0);
             this.socketClientService.send(GameEvents.AddPointsToPlayer, { roomId: this.roomId, points: this.points });
         });
     }
@@ -275,9 +289,10 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     private detectEndOfQuestion(time: number) {
         if (!this.hasGameEnded && time === 0) {
             if (!this.isQuestionTransitioning) {
+                if (!this.hasSentAnswer) {
+                    this.submitAnswerOnClickEvent();
+                }
                 this.isQuestionTransitioning = true;
-                this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
-                // TODO: Fix pour que le joueur ayant le bonus ne vall pas givePoints() 2 fois
                 this.givePoints();
             } else if (this.isTestGame) {
                 this.isQuestionTransitioning = false;

@@ -2,23 +2,15 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
-import { Socket } from 'socket.io-client';
 
 import { of } from 'rxjs';
 import { CreateGameListComponent } from './create-game-list.component';
 import SpyObj = jasmine.SpyObj;
-
-class MockSocketClientService extends SocketClientService {
-    override connect() {
-        // vide
-    }
-}
 
 describe('CreateGameListComponent', () => {
     let component: CreateGameListComponent;
@@ -27,8 +19,7 @@ describe('CreateGameListComponent', () => {
     let communicationServiceSpy: SpyObj<CommunicationService>;
     let mockDialog: SpyObj<MatDialog>;
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
-    let mockSocketClientService: MockSocketClientService;
-    let socketHelper: SocketTestHelper;
+    let mockSocketClientService: SpyObj<SocketClientService>;
 
     const visibleQuizMock: Quiz[] = [
         {
@@ -65,16 +56,15 @@ describe('CreateGameListComponent', () => {
 
     beforeEach(() => {
         routerSpy = jasmine.createSpyObj('Router', ['navigateByUrl']);
+        Object.defineProperty(routerSpy, 'url', { value: 'waiting' });
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
         mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['componentInstance']);
         communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getQuizzes', 'checkQuizAvailability', 'checkQuizVisibility']);
         communicationServiceSpy.getQuizzes.and.returnValue(of([]));
+        mockSocketClientService = jasmine.createSpyObj('SocketClientService', ['connect', 'disconnect', 'socketExists', 'send']);
     });
 
     beforeEach(waitForAsync(() => {
-        socketHelper = new SocketTestHelper();
-        mockSocketClientService = new MockSocketClientService();
-        mockSocketClientService.socket = socketHelper as unknown as Socket;
         TestBed.configureTestingModule({
             declarations: [CreateGameListComponent],
             imports: [HttpClientTestingModule],
@@ -161,13 +151,12 @@ describe('CreateGameListComponent', () => {
     });
 
     it('should navigate to the correct URL when calling redirectHost', () => {
-        const connectSpy = spyOn(component['socketClientService'], 'connect');
         communicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
         communicationServiceSpy.checkQuizVisibility.and.returnValue(of(true));
         component.checkCanProceed(visibleQuizMock[0]);
-        expect(connectSpy).toHaveBeenCalled();
+        expect(mockSocketClientService.connect).toHaveBeenCalled();
 
-        spyOn(component['socketClientService'], 'send').and.callFake((event, quizId, callback) => {
+        mockSocketClientService.send = jasmine.createSpy('send').and.callFake((event, quizId, callback) => {
             expect(routerSpy.navigateByUrl).toHaveBeenCalledWith(`/waiting/game/${quizId}/room/${callback}/host`);
         });
     });
