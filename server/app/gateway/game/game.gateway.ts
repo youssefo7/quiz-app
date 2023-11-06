@@ -85,13 +85,18 @@ export class GameGateway {
         }
     }
 
-    // C'est le joueur qui doit envoyer cet événement pour que ses points soient mis à jour
     @SubscribeMessage(GameEvents.AddPointsToPlayer)
     handleAddPointsToPlayer(socket: Socket, data: { roomId: string; points: number }) {
+        const minPoints = 0;
+        const maxPoints = 100;
         const room = this.roomManager.findRoom(data.roomId);
-        this.roomManager.addPointsToPlayer(socket.id, data.points, room);
-        const player = this.roomManager.findPlayer(socket.id, room);
-        this.server.to(room.organizer.socketId).emit(GameEvents.AddPointsToPlayer, { pointsToAdd: data.points, name: player.name });
+        const validPoints = data.points >= minPoints && data.points <= maxPoints;
+
+        if (validPoints && room) {
+            this.roomManager.addPointsToPlayer(socket.id, data.points, room);
+            const player = this.roomManager.findPlayer(socket.id, room);
+            this.server.to(room.organizer.socketId).emit(GameEvents.AddPointsToPlayer, { pointsToAdd: data.points, name: player.name });
+        }
     }
 
     @SubscribeMessage(GameEvents.NextQuestion)
