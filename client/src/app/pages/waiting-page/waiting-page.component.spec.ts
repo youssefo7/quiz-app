@@ -74,10 +74,6 @@ describe('WaitingPageComponent', () => {
         expect(component.players).not.toContain('abandonnedPlayer');
     });
 
-    it('should listen on event GameAborted and call gameEndsPopup', () => {
-        // TODO
-    });
-
     it('should send EndGame if the user is the host on beforeUnload', () => {
         component.isHost = true;
         component.beforeUnload();

@@ -20,6 +20,8 @@ export class WaitingPageComponent implements OnInit {
     isLocked: boolean;
     roomId: string | null;
 
+    // Raison: J'injecte les services nécessaires dans mon constructeur
+    // eslint-disable-next-line max-params
     constructor(
         private route: ActivatedRoute,
         private router: Router,
