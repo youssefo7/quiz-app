@@ -107,6 +107,7 @@ export class PlayerListComponent implements OnInit {
     private countdown(time: number) {
         this.transitionCounter = time;
         if (this.transitionCounter === 0) {
+            this.socketClientService.send(TimeEvents.StopTimer);
             this.gameBeginsRedirection();
         }
     }
