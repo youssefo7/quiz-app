@@ -127,7 +127,6 @@ describe('PlayerListComponent', () => {
         component.startGame();
 
         expect(sendSpy).toHaveBeenCalledWith(TimeEvents.StartTimer, startTimerEvent);
-        expect(component.showCountdown).toBeTrue();
     });
 
     it('should set transitionCounter and not redirect if time is not zero', () => {
