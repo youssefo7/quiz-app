@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { ChatEvents } from '@app/events/chat.events';
+import { GameEvents } from '@app/events/game.events';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { SocketClientService } from '@app/services/socket-client.service';
-import { Socket } from 'socket.io-client';
 
 @Component({
     selector: 'app-chat',
@@ -10,13 +11,13 @@ import { Socket } from 'socket.io-client';
     styleUrls: ['./chat.component.scss'],
 })
 export class ChatComponent implements OnInit {
-    socket: Socket;
+    @Input() isOrganizer: boolean;
     chatMessage: ChatMessage;
     characterCounterDisplay: string;
     currentInputLength: number;
     maxInputLength: number;
     roomMessages: ChatMessage[];
-    roomMessage: string;
+    userMessage: string;
     roomId: string;
     private isTestGame: boolean;
 
@@ -28,27 +29,42 @@ export class ChatComponent implements OnInit {
         this.currentInputLength = 0;
         this.characterCounterDisplay = `${this.currentInputLength} / ${this.maxInputLength}`;
         this.roomMessages = [];
-        this.roomMessage = '';
         this.roomId = '';
+        this.userMessage = '';
         this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
+        this.roomId = this.route.snapshot.paramMap.get('roomId') as string;
     }
 
     ngOnInit() {
-        this.roomId = this.route.snapshot.paramMap.get('room') as string;
         if (!this.isTestGame) {
             this.configureChatSocketFeatures();
         }
     }
 
     configureChatSocketFeatures() {
-        this.socketService.on('newRoomMessage', (data: { name: string; timeString: string; message: string; sentByYou: boolean }) => {
-            const chatMessage: ChatMessage = { name: data.name, time: data.timeString, message: data.message, sentByYou: data.sentByYou };
+        const addMessage = (data: { authorName: string; timeString: string; message: string; sentByUser: boolean }) => {
+            const chatMessage: ChatMessage = {
+                authorName: data.authorName,
+                time: data.timeString,
+                message: data.message,
+                sentByUser: data.sentByUser,
+            };
             this.roomMessages.push(chatMessage);
-        });
+        };
 
-        this.socketService.on('sentByYou', (data: { name: string; timeString: string; message: string; sentByYou: boolean }) => {
-            const chatMessage: ChatMessage = { name: data.name, time: data.timeString, message: data.message, sentByYou: data.sentByYou };
-            this.roomMessages.push(chatMessage);
+        this.socketService.on(ChatEvents.NewRoomMessage, addMessage);
+
+        this.socketService.on(GameEvents.PlayerAbandonedGame, (playerName: string) => {
+            if (this.isOrganizer) {
+                const leftTime = new Date();
+                const playerLeftMessage: ChatMessage = {
+                    authorName: 'System',
+                    time: leftTime.getHours() + ':' + leftTime.getMinutes() + ':' + leftTime.getSeconds(),
+                    message: playerName + ' a quitté la partie.',
+                    sentByUser: false,
+                };
+                this.roomMessages.push(playerLeftMessage);
+            }
         });
     }
 
@@ -65,8 +81,17 @@ export class ChatComponent implements OnInit {
         this.characterCounterDisplay = `${this.currentInputLength} / ${this.maxInputLength}`;
     }
 
+    keyUpEvent($event: KeyboardEvent) {
+        $event.preventDefault();
+        if ($event.key === 'Enter') {
+            this.sendMessageToRoom();
+        }
+    }
+
     sendMessageToRoom() {
-        this.socketService.send('roomMessage', { roomId: this.roomId, message: this.roomMessage });
-        this.roomMessage = '';
+        if (this.userMessage.trim().length !== 0 && !this.isTestGame) {
+            this.socketService.send(ChatEvents.RoomMessage, { roomId: this.roomId, message: this.userMessage.trim() });
+            this.userMessage = '';
+        }
     }
 }

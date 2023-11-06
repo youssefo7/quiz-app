@@ -20,8 +20,7 @@ import { HostGamePageComponent } from './host-game-page.component';
 import SpyObj = jasmine.SpyObj;
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 
-/* The reason for disabling lint is that the code comes from a professor's stub example,
-    and the connect is empty in the example he uses.*/
+// La raison du lint disable est que le code vient d'un exemple de stub du professeur et le connect est vide dans l'exemple qu'il utilise.
 @Component({
     selector: 'app-chat',
     template: '<p>Template Needed</p>',

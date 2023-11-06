@@ -68,7 +68,9 @@
         }
 
         #chat-container {
+            max-height: 350px;
             flex-basis: 90%;
+            overflow-y: auto;
         }
     }
 
