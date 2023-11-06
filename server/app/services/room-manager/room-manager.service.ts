@@ -1,4 +1,4 @@
-import { AnswerTime, Organizer, Player, Room } from '@app/interfaces/room';
+import { AnswerTime, Organizer, Player, Results, Room } from '@app/interfaces/room';
 import { Quiz } from '@app/model/database/quiz';
 import { Injectable } from '@nestjs/common';
 import * as randomstring from 'randomstring';
@@ -22,6 +22,7 @@ export class RoomManagerService {
             bannedNames: [],
             answerTimes: [],
             timer: null,
+            results: [],
         });
 
         return roomId;
@@ -127,6 +128,15 @@ export class RoomManagerService {
 
     getRoomQuiz(roomId: string): Quiz {
         return this.findRoom(roomId).quiz;
+    }
+
+    getResults(roomId: string): Results[] {
+        return this.findRoom(roomId).results;
+    }
+
+    postResults(roomId: string, results: Results[]) {
+        const room = this.findRoom(roomId);
+        room.results = results;
     }
 
     private createRoomId() {

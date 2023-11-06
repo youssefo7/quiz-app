@@ -13,4 +13,5 @@ export enum GameEvents {
     BanNotification = 'banNotification',
     ShowResults = 'showResults',
     SubmitQuestion = 'submitQuestion',
+    BonusUpdate = 'bonusUpdate',
 }

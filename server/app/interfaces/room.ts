@@ -9,6 +9,7 @@ export interface Room {
     bannedNames: string[];
     answerTimes: AnswerTime[];
     timer: ReturnType<typeof setInterval> | null;
+    results: Results[];
 }
 
 export interface User {
@@ -26,4 +27,11 @@ export interface Organizer extends User {}
 export interface AnswerTime {
     userId: string;
     timeStamp: number;
+}
+
+export interface Results {
+    name: string;
+    points: number;
+    hasAbandoned: boolean;
+    bonusCount: number;
 }

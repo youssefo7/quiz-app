@@ -28,6 +28,7 @@ export class HostGamePageComponent implements OnInit {
         private readonly socketClientService: SocketClientService,
     ) {
         this.title = 'Partie: ';
+        // this.roomId = this.route.snapshot.paramMap.get('roomId') as string;
     }
 
     // TODO : deconnecter lors de refresh
@@ -65,8 +66,7 @@ export class HostGamePageComponent implements OnInit {
 
     private reactToShowResultsEvent() {
         this.socketClientService.on(GameEvents.ShowResults, () => {
-            // TODO: changer pour la page de résultat
-            this.router.navigateByUrl('/home');
+            // this.router.navigateByUrl(`/results/game/${this.quiz?.id}/room/${this.roomId}`);
         });
     }
 

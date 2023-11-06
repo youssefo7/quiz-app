@@ -1,6 +1,6 @@
-export interface PlayerInfo {
+export interface Results {
     name: string;
-    score: number;
+    points: number;
     hasAbandoned: boolean;
     bonusCount: number;
 }

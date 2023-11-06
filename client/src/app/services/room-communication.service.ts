@@ -2,6 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { JoinRoomResponse } from '@app/interfaces/join-room-response';
 import { Quiz } from '@app/interfaces/quiz';
+import { Results } from '@app/interfaces/player-info';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -36,6 +37,14 @@ export class RoomCommunicationService {
 
     getRoomQuiz(roomId: string): Observable<Quiz> {
         return this.http.get<Quiz>(`${this.baseUrl}/rooms/${roomId}/quiz`).pipe(catchError(this.receiveError<Quiz>()));
+    }
+
+    getPlayerResults(roomId: string): Observable<Results[]> {
+        return this.http.get<Results[]>(`${this.baseUrl}/rooms/${roomId}/results`).pipe(catchError(this.receiveError<Results[]>()));
+    }
+
+    sendPlayerResults(roomId: string, results: Results[]): Observable<Results[]> {
+        return this.http.post<Results[]>(`${this.baseUrl}/rooms/${roomId}/results`, results).pipe(catchError(this.receiveError<Results[]>()));
     }
 
     private receiveError<T>() {
