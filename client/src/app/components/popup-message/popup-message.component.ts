@@ -10,7 +10,9 @@ import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 export class PopupMessageComponent {
     config: PopupMessageConfig;
 
-    constructor(private popupRef: MatDialogRef<PopupMessageComponent>) {}
+    constructor(
+        private popupRef: MatDialogRef<PopupMessageComponent>, // private changeDetectorRef: ChangeDetectorRef,
+    ) {}
 
     okFunctionWrapper() {
         this.config.okButtonFunction?.();
@@ -21,4 +23,8 @@ export class PopupMessageComponent {
         this.config.cancelButtonFunction?.();
         this.popupRef.close();
     }
+
+    /* changeDetection() {
+        this.changeDetectorRef.detectChanges();
+    } */
 }

@@ -46,10 +46,9 @@ export class CreateGameListComponent implements OnInit, OnDestroy {
         }
     }
 
-    getVisibleQuizListFromServer() {
-        this.communicationService.getQuizzes().subscribe((quizzes: Quiz[]) => {
-            this.visibleQuizList = quizzes.filter((quiz) => quiz.visibility);
-        });
+    async getVisibleQuizListFromServer(): Promise<void> {
+        const quizzes = await firstValueFrom(this.communicationService.getQuizzes());
+        this.visibleQuizList = quizzes.filter((quiz) => quiz.visibility);
     }
 
     toggleDetails(id: string) {
