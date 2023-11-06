@@ -1,0 +1,23 @@
+#players-list {
+  display: flex;
+  justify-content: center;
+}
+
+div {
+  height: 100%;
+  overflow: hidden;
+}
+
+#exit-button {
+  font-size: 2em;
+  width: 100%;
+  height: auto;
+
+  transform: rotateX(180deg);
+}
+
+#exit-button:hover {
+  color: red;
+  cursor: pointer;
+}
+
