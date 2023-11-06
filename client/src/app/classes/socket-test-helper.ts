@@ -1,4 +1,5 @@
-// On a disable les tests qui sont liés à ce fichier puisque le code est fournit (approuvé par professeur)
+// La raison du disable du lint pour ce fichiers et même chose pour les tests qui sont liés à ce fichier puisque le code est fourni
+// (approuvé par professeur)
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */

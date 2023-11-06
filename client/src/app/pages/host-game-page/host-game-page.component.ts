@@ -11,7 +11,7 @@ import { SocketClientService } from '@app/services/socket-client.service';
 @Component({
     selector: 'app-host-game-page',
     templateUrl: './host-game-page.component.html',
-    styleUrls: ['./host-game-page.component.scss'],
+    styleUrls: ['./host-game-page.component.scss', '../../../assets/shared.scss'],
 })
 export class HostGamePageComponent implements OnInit {
     quiz: Quiz | null;

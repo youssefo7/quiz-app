@@ -27,8 +27,6 @@ export class GameGateway {
             }
             this.roomManager.removePlayer(room, player.socketId);
             if (room.players.length === 0 && room.organizer.socketId === '') {
-                socket.leave(room.id);
-                socket.disconnect();
                 this.roomManager.deleteRoom(room);
             }
             socket.leave(room.id);
