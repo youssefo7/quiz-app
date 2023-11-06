@@ -51,9 +51,7 @@ describe('JoinGateway', () => {
 
     it('handleJoinRoom() should not allow joining a locked room', () => {
         const roomId = 'testId';
-        // const findRoomSpy = jest.spyOn(roomManagerServiceMock, 'findRoom');
         gateway.handleJoinRoom(socket, roomId);
-        // expect(findRoomSpy).toHaveBeenCalledWith(roomId);
         expect(socket.join.calledWith(roomId)).toBeTruthy();
     });
 
