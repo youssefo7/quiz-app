@@ -98,6 +98,7 @@ export class GameGateway {
             this.roomManager.addPointsToPlayer(socket.id, data.points, room);
             const player = this.roomManager.findPlayer(socket.id, room);
             this.server.to(room.organizer.socketId).emit(GameEvents.AddPointsToPlayer, { pointsToAdd: data.points, name: player.name });
+            this.server.to(socket.id).emit(GameEvents.AddPointsToPlayer, { pointsToAdd: data.points, name: player.name });
         }
     }
 

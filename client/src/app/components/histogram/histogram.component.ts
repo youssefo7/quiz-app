@@ -74,7 +74,7 @@ export class HistogramComponent implements OnInit, OnDestroy {
             this.currentQuestionIndex++;
             this.resetArrays();
             this.getQuestion(this.currentQuestionIndex);
-            this.updateCharConfig();
+            this.updateChartConfig();
         });
     }
 
@@ -141,7 +141,7 @@ export class HistogramComponent implements OnInit, OnDestroy {
         });
     }
 
-    private updateCharConfig() {
+    private updateChartConfig() {
         this.chart.data.labels = this.playersChoices;
         this.chart.data.datasets[0].data = this.choicesSelectionCounts;
         this.chart.data.datasets[0].backgroundColor = this.chartBackgroundColors;

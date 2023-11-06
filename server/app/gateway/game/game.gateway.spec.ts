@@ -115,7 +115,7 @@ describe('GameGateway', () => {
     it('handleGoodAnswer() should add the timestamp of the good answer to the answersTime list in the room', () => {
         const date: Date = new Date();
         stub(socket, 'rooms').value(new Set([roomId]));
-        gateway.handleGoodAnswer(socket, { roomId, timeStamp: date });
+        gateway.handleGoodAnswer(socket, roomId);
         expect(roomManagerServiceMock.rooms[0].answerTimes.length).toBeGreaterThan(2);
         expect(roomManagerServiceMock.rooms[0].answerTimes[2].userId).toBe(socket.id);
         expect(roomManagerServiceMock.rooms[0].answerTimes[2].timeStamp).toBe(date.getTime());

@@ -239,8 +239,8 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
                     this.points = 0;
                 }
                 this.bonusMessage = '';
+                this.socketClientService.send(GameEvents.AddPointsToPlayer, { roomId: this.roomId, points: this.points });
             }
-            this.socketClientService.send(GameEvents.AddPointsToPlayer, { roomId: this.roomId, points: this.points });
         }
         this.showResult();
     }
@@ -261,10 +261,14 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
 
     private handleBonusPoints() {
         this.socketClientService.on(GameEvents.GiveBonus, () => {
+            // J'ai mis cette ligne car le bonus est tjr émit 2 fois et j'ai aucune idée pourquoi
+            // Le if ci-dessous est une solution (pas optimale mais ça marche)
             if (this.hasReceivedBonus) return;
             this.hasReceivedBonus = true;
             this.giveBonus();
             this.givePoints();
+            this.detectEndOfQuestion(0);
+            this.socketClientService.send(GameEvents.AddPointsToPlayer, { roomId: this.roomId, points: this.points });
         });
     }
 
@@ -273,6 +277,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             if (!this.isQuestionTransitioning) {
                 this.isQuestionTransitioning = true;
                 this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
+                // TODO: Fix pour que le joueur ayant le bonus ne vall pas givePoints() 2 fois
                 this.givePoints();
             } else if (this.isTestGame) {
                 this.isQuestionTransitioning = false;

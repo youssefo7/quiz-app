@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { GameEvents } from '@app/events/game.events';
+import { PlayerPoints } from '@app/interfaces/player-points';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
@@ -98,9 +99,8 @@ export class GamePageComponent implements OnInit {
             this.router.navigateByUrl('/home');
         });
 
-        this.socketClientService.on(GameEvents.AddPointsToPlayer, (points: number) => {
-            console.log('Add points to user: ', points);
-            this.givePoints(points);
+        this.socketClientService.on(GameEvents.AddPointsToPlayer, (pointsObject: PlayerPoints) => {
+            this.givePoints(pointsObject.pointsToAdd);
         });
     }
 }

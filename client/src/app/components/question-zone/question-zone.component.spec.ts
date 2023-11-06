@@ -22,7 +22,7 @@ describe('QuestionZoneComponent', () => {
     let timeServiceMock: jasmine.SpyObj<TimeService>;
 
     beforeEach(() => {
-        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
+        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'send']);
         communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
         communicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
         timeServiceMock = jasmine.createSpyObj('TimeService', ['getTime', 'stopTimer']);
