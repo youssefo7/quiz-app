@@ -1,5 +1,5 @@
-// La raison du disable lint du any est pour que nous puissons faire des tests et pour que nous puissions faire des spy
-// des méthode privées
+/* La raison du disable lint du any est pour que nous puissions faire des tests et pour que nous puissions faire des spy
+ des méthode privées */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
 import { Logger } from '@nestjs/common';
