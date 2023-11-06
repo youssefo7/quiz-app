@@ -77,14 +77,6 @@ describe('PlayerListComponent', () => {
     it('should create', () => {
         expect(component).toBeTruthy();
     });
-    // TODO: tester init
-    /*  it('should call listenToSocketEvents and send GetPlayerNames when component is initialized', () => {
-        component.players = ['Player1', 'Player2'];
-        const listenSpy = spyOn(component, 'listenToSocketEvents');
-        component.ngOnInit();
-        expect(listenSpy).toHaveBeenCalled();
-        // TODO: tester la modification de la liste de joueurs
-    }); */
 
     it('should add player when PlayerHasJoined event is received', () => {
         socketHelper.peerSideEmit(JoinEvents.PlayerHasJoined, 'playerName');
@@ -118,8 +110,52 @@ describe('PlayerListComponent', () => {
         expect(component.players).not.toContain('AbandonedPlayer');
     });
 
-    it('should display transition popUp of 5 secondes before users are redirected', () => {
-        // TODO: tester le timer durant la transition
+    it('should call countdown with time when startTimer is received', () => {
+        const time = 5;
+        const countdownSpy = spyOn<any>(component, 'countdown').and.callThrough();
+        socketHelper.peerSideEmit(TimeEvents.CurrentTimer, time);
+        expect(countdownSpy).toHaveBeenCalledWith(time);
+    });
+
+    it('should send start timer event and show countdown', () => {
+        const sendSpy = spyOn(mockSocketClientService, 'send');
+        const startTimerEvent = {
+            initialTime: 5,
+            tickRate: 1000,
+            roomId: component.roomId,
+        };
+        component.startGame();
+
+        expect(sendSpy).toHaveBeenCalledWith(TimeEvents.StartTimer, startTimerEvent);
+        expect(component.showCountdown).toBeTrue();
+    });
+
+    it('should set transitionCounter and not redirect if time is not zero', () => {
+        const timer = 5;
+        component['countdown'](timer);
+
+        expect(component['transitionCounter']).toBe(timer);
+        expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
+    });
+
+    it('should redirect to the game page if time is zero and is player', () => {
+        component.isHost = false;
+        const gameBeginsRedirectionSpy = spyOn<any>(component, 'gameBeginsRedirection').and.callThrough();
+        component['countdown'](0);
+
+        expect(component['transitionCounter']).toBe(0);
+        expect(gameBeginsRedirectionSpy).toHaveBeenCalled();
+        expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('game/123/room/456');
+    });
+
+    it('should redirect to the host game page if time is zero and is host', () => {
+        component.isHost = true;
+        const gameBeginsRedirectionSpy = spyOn<any>(component, 'gameBeginsRedirection').and.callThrough();
+        component['countdown'](0);
+
+        expect(component['transitionCounter']).toBe(0);
+        expect(gameBeginsRedirectionSpy).toHaveBeenCalled();
+        expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('game/123/room/456/host');
     });
 
     it('should lock the game and set isLocked to true', () => {
