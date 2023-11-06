@@ -6,6 +6,7 @@ import { GameEvents } from '@app/events/game.events';
 import { PlayerInfo } from '@app/interfaces/player-info';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { of } from 'rxjs';
 import { GamePlayersListComponent } from './game-players-list.component';
 
 describe('GamePlayersListComponent', () => {
@@ -67,6 +68,14 @@ describe('GamePlayersListComponent', () => {
         component['isResultsRoute'] = true;
         await component.ngOnInit();
         expect(sortPlayersSpy).toHaveBeenCalled();
+    });
+
+    it('should fetch players list', async () => {
+        roomCommunicationServiceMock.getRoomPlayers.and.returnValue(of(playersListMock.map((player) => player.name)));
+        await component.fetchPlayersList();
+
+        expect(roomCommunicationServiceMock.getRoomPlayers).toHaveBeenCalledWith('123');
+        expect(component.playersList.length).toBe(playersListMock.length);
     });
 
     it('sortPlayers() should sort playersList by score in ascending order', () => {
