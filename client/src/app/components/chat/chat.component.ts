@@ -89,7 +89,9 @@ export class ChatComponent implements OnInit {
     }
 
     sendMessageToRoom() {
-        this.socketService.send(ChatEvents.RoomMessage, { roomId: this.roomId, message: this.userMessage });
-        this.userMessage = '';
+        if (this.userMessage.trim().length !== 0 && !this.isTestGame) {
+            this.socketService.send(ChatEvents.RoomMessage, { roomId: this.roomId, message: this.userMessage.trim() });
+            this.userMessage = '';
+        }
     }
 }

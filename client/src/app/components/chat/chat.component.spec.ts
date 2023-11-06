@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
@@ -31,7 +31,7 @@ describe('ChatComponent', () => {
         socketClientServiceMock.socket = socketHelper as unknown as Socket;
     });
 
-    beforeEach(async () => {
+    beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
             declarations: [ChatComponent, MatIcon],
             imports: [FormsModule],
@@ -52,7 +52,7 @@ describe('ChatComponent', () => {
         fixture = TestBed.createComponent(ChatComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
-    });
+    }));
 
     it('should create', () => {
         expect(component).toBeTruthy();
