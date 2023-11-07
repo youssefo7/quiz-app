@@ -88,6 +88,9 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+        if (!this.socketClientService.socketExists() && !this.isTestGame) {
+            return;
+        }
         this.getQuestion(this.currentQuestionIndex);
         this.subscribeToTimer();
         this.detectEndGame();

@@ -52,7 +52,7 @@ describe('HistogramComponent', () => {
     } as Quiz;
 
     beforeEach(() => {
-        socketClientServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
+        socketClientServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'socketExists']);
     });
 
     beforeEach(waitForAsync(() => {

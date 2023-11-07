@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
@@ -16,7 +16,7 @@ import { firstValueFrom } from 'rxjs';
     templateUrl: './game-page.component.html',
     styleUrls: ['./game-page.component.scss', '../../../assets/shared.scss'],
 })
-export class GamePageComponent implements OnInit {
+export class GamePageComponent implements OnInit, OnDestroy {
     title: string;
     quiz: Quiz | null;
     playerPoints: number;
@@ -40,12 +40,40 @@ export class GamePageComponent implements OnInit {
         this.roomId = this.route.snapshot.paramMap.get('roomId');
     }
 
+    @HostListener('window:beforeunload', ['$event'])
+    beforeUnloadHandler() {
+        this.handleNavigation();
+    }
+
+    ngOnDestroy() {
+        this.handleNavigation();
+    }
+
+    handleNavigation() {
+        const currentUrl = this.router.url;
+        const gameUrl = `/results/game/${this.route.snapshot.paramMap.get('quizId')}/room/${this.roomId}`;
+        if (currentUrl !== gameUrl) {
+            this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
+            this.socketClientService.disconnect();
+        }
+    }
+
     async ngOnInit() {
-        this.loadQuiz();
-        if (!this.isTestGame) {
-            this.playerName = await firstValueFrom(
-                this.roomCommunicationService.getPlayerName(this.roomId as string, { socketId: this.socketClientService.socket.id }),
-            );
+        if (!this.socketClientService.socketExists() && !this.isTestGame) {
+            this.socketClientService.connect();
+            while (this.socketClientService.socketExists()) {
+                this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
+                this.socketClientService.disconnect();
+            }
+            this.router.navigateByUrl('home/');
+            return;
+        } else {
+            this.loadQuiz();
+            if (!this.isTestGame) {
+                this.playerName = await firstValueFrom(
+                    this.roomCommunicationService.getPlayerName(this.roomId as string, { socketId: this.socketClientService.socket.id }),
+                );
+            }
         }
     }
 

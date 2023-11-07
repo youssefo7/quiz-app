@@ -24,6 +24,7 @@ const routes: Routes = [
     { path: 'waiting/game/:quizId/room/:roomId/host', component: WaitingPageComponent },
     { path: 'waiting/game/:quizId/room/:roomId', component: WaitingPageComponent },
     { path: 'results/game/:quizId/room/:roomId', component: ResultsPageComponent },
+    { path: 'results/game/:quizId/room/:roomId/host', component: ResultsPageComponent },
     { path: '**', redirectTo: '/home' },
 ];
 

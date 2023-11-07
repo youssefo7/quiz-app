@@ -48,6 +48,9 @@ export class CountdownComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+        if (!this.socketClientService.socketExists() && !this.isTestGame) {
+            return;
+        }
         this.loadTimer();
     }
 

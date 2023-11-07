@@ -37,7 +37,8 @@ describe('QuestionZoneComponent', () => {
     let socketHelper: SocketTestHelper;
 
     beforeEach(() => {
-        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'send']);
+        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'send', 'socketExists']);
+        clientSocketServiceMock.socketExists.and.returnValue(true);
         communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
         communicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
         timeServiceMock = jasmine.createSpyObj('TimeService', ['getTime', 'stopTimer']);
