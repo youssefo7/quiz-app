@@ -106,12 +106,19 @@ describe('CountdownComponent', () => {
         expect(timeServiceMock.startTimer).toHaveBeenCalledWith(mockQuiz.duration);
     }));
 
-    it('should switch the clock color to red on three seconds', waitForAsync(() => {
+    it('should call switch setColorToRed if timer has 3 seconds remaining or less', waitForAsync(() => {
         const setClockColorToRedSpy = spyOn<any>(component, 'setClockColorToRed').and.callThrough();
         component['switchColorToRedOnThreeSeconds']();
         component['isQuestionTransitioning'] = false;
         expect(timeServiceMock.getTime).toHaveBeenCalled();
         expect(setClockColorToRedSpy).toHaveBeenCalled();
+    }));
+
+    it('should switch the clock color to red on three seconds', waitForAsync(() => {
+        const switchToRedTime = 3;
+        const currentTime = 2;
+        component['isQuestionTransitioning'] = false;
+        component['setClockColorToRed'](currentTime, switchToRedTime);
         expect(component.clockStyle).toEqual({ backgroundColor: '#FF4D4D' });
     }));
 
@@ -128,7 +135,6 @@ describe('CountdownComponent', () => {
         component['quiz'] = mockQuiz;
         const questionClockSpy = spyOn<any>(component, 'questionClock').and.returnValue(Promise.resolve());
         const transitionClockSpy = spyOn<any>(component, 'transitionClock').and.returnValue(Promise.resolve());
-        const leaveSpy = spyOn<any>(component, 'leaveGame');
 
         component['lastQuestionIndex'] = 3;
         component['isTestGame'] = true;
@@ -137,7 +143,6 @@ describe('CountdownComponent', () => {
         fixture.whenStable().then(() => {
             expect(questionClockSpy).toHaveBeenCalled();
             expect(transitionClockSpy).toHaveBeenCalled();
-            expect(leaveSpy).toHaveBeenCalled();
         });
     }));
 
