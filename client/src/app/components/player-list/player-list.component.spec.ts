@@ -136,21 +136,16 @@ describe('PlayerListComponent', () => {
     it('should redirect to the game page if time is zero and is player', () => {
         component.isHost = false;
         const gameBeginsRedirectionSpy = spyOn<any>(component, 'gameBeginsRedirection').and.callThrough();
-        component['countdown'](0);
-
-        expect(component['transitionCounter']).toBe(0);
+        socketHelper.peerSideEmit(TimeEvents.TimerFinished);
         expect(gameBeginsRedirectionSpy).toHaveBeenCalled();
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('game/123/room/456');
     });
 
-    it('should redirect to the host game page if time is zero and is host', () => {
+    it('should set transitionCounter to the time value', () => {
         component.isHost = true;
-        const gameBeginsRedirectionSpy = spyOn<any>(component, 'gameBeginsRedirection').and.callThrough();
-        component['countdown'](0);
 
+        component['countdown'](0);
         expect(component['transitionCounter']).toBe(0);
-        expect(gameBeginsRedirectionSpy).toHaveBeenCalled();
-        expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('game/123/room/456/host');
     });
 
     it('should lock the game and set isLocked to true', () => {

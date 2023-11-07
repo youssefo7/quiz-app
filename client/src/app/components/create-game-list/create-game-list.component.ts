@@ -59,7 +59,7 @@ export class CreateGameListComponent implements OnInit, OnDestroy {
         }
     }
 
-    checkAndCreateRoom(quiz: Quiz, toTest: boolean = false) {
+    async checkAndCreateRoom(quiz: Quiz, toTest: boolean = false) {
         let roomId: string;
         this.communicationService.checkQuizAvailability(quiz.id).subscribe((isAvailable) => {
             if (isAvailable) {

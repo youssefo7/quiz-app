@@ -70,6 +70,10 @@ export class PlayerListComponent implements OnInit {
             this.showCountdown = true;
             this.countdown(time);
         });
+
+        this.socketClientService.on(TimeEvents.TimerFinished, () => {
+            this.gameBeginsRedirection();
+        });
     }
 
     lockGame() {
@@ -95,21 +99,17 @@ export class PlayerListComponent implements OnInit {
     }
 
     private gameBeginsRedirection() {
-        this.socketClientService.send(GameEvents.StartGame, this.roomId);
         const quizId = this.route.snapshot.paramMap.get('quizId');
         if (!this.isHost) {
             this.router.navigateByUrl(`game/${quizId}/room/${this.roomId}`);
         } else {
+            this.socketClientService.send(GameEvents.StartGame, this.roomId);
             this.router.navigateByUrl(`game/${quizId}/room/${this.roomId}/host`);
         }
     }
 
     private countdown(time: number) {
         this.transitionCounter = time;
-        if (this.transitionCounter === 0) {
-            this.socketClientService.send(TimeEvents.StopTimer);
-            this.gameBeginsRedirection();
-        }
     }
 
     private banPopup() {
