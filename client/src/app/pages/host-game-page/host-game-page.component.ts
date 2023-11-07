@@ -44,6 +44,7 @@ export class HostGamePageComponent implements OnInit, OnDestroy {
         const gameUrl = `/results/${this.route.snapshot.paramMap.get('quizId')}/room/${this.roomId}`;
         if (currentUrl !== gameUrl) {
             this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: true });
+            this.socketClientService.disconnect();
         }
     }
 

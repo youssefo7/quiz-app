@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
@@ -16,7 +16,7 @@ import { firstValueFrom } from 'rxjs';
     templateUrl: './player-list.component.html',
     styleUrls: ['./player-list.component.scss'],
 })
-export class PlayerListComponent implements OnInit, OnDestroy {
+export class PlayerListComponent implements OnInit {
     players: string[];
     bannedPlayers: string[];
     isHost: boolean;
@@ -43,45 +43,8 @@ export class PlayerListComponent implements OnInit, OnDestroy {
         this.transitionCounter = 0;
     }
 
-    @HostListener('window:beforeunload', ['$event'])
-    beforeUnloadHandler() {
-        this.handleNavigation();
-    }
-
-    ngOnDestroy() {
-        this.handleNavigation();
-    }
-
-    handleNavigation() {
-        const currentUrl = this.router.url;
-        const gameUrl = `/game/${this.route.snapshot.paramMap.get('quizId')}/room/${this.roomId}`;
-        if (this.isHost) {
-            if (currentUrl !== gameUrl + '/host') {
-                this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: true });
-            }
-        } else {
-            if (currentUrl !== gameUrl) {
-                this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
-            }
-        }
-    }
-
     async ngOnInit() {
         if (!this.socketClientService.socketExists()) {
-            if (this.isHost) {
-                this.socketClientService.connect();
-                while (this.socketClientService.socketExists()) {
-                    this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: true });
-                    this.socketClientService.disconnect();
-                }
-            } else {
-                this.socketClientService.connect();
-                while (this.socketClientService.socketExists()) {
-                    this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
-                    this.socketClientService.disconnect();
-                }
-            }
-            this.router.navigateByUrl('home/');
             return;
         }
         this.listenToSocketEvents();
