@@ -1,4 +1,5 @@
 import { AnswerTime, Organizer, Player, Room } from '@app/interfaces/room';
+import { Quiz } from '@app/model/database/quiz';
 import { Injectable } from '@nestjs/common';
 import * as randomstring from 'randomstring';
 
@@ -10,11 +11,11 @@ export class RoomManagerService {
         this.rooms = [];
     }
 
-    createNewRoom(quizId: string, organizerId: string) {
+    createNewRoom(quiz: Quiz, organizerId: string) {
         const roomId = this.createRoomId();
         this.rooms.push({
             id: roomId,
-            quizId,
+            quiz,
             organizer: { socketId: organizerId, name: 'Organisateur' },
             players: [],
             isLocked: false,
@@ -101,15 +102,15 @@ export class RoomManagerService {
         const room = this.findRoom(data.roomId);
 
         if (!room) {
-            return { roomState: 'INVALID', quizId: null };
+            return { roomState: 'INVALID', quiz: null };
         }
 
         if (room.isLocked) {
-            return { roomState: 'IS_LOCKED', quizId: null };
+            return { roomState: 'IS_LOCKED', quiz: null };
         }
 
         this.addPlayerToRoom(room, data.socketId);
-        return { roomState: 'OK', quizId: room.quizId };
+        return { roomState: 'OK', quiz: room.quiz };
     }
 
     getRoomPlayers(roomId: string) {
@@ -121,6 +122,10 @@ export class RoomManagerService {
         const room = this.findRoom(roomId);
         const player = this.findPlayer(playerId, room);
         return player?.name;
+    }
+
+    getRoomQuiz(roomId: string): Quiz {
+        return this.findRoom(roomId).quiz;
     }
 
     private createRoomId() {

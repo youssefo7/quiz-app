@@ -1,9 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { GameEvents } from '@app/events/game.events';
 import { TimeEvents } from '@app/events/time.events';
 import { Question, Quiz } from '@app/interfaces/quiz';
-import { GameService } from '@app/services/game.service';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { Subscription, firstValueFrom } from 'rxjs';
@@ -14,7 +12,8 @@ import { Subscription, firstValueFrom } from 'rxjs';
     styleUrls: ['./question-zone-stats.component.scss'],
 })
 export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
-    quiz: Quiz | null;
+    @Input() quiz: Quiz;
+    @Input() roomId: string;
     question: Question;
     isNextQuestionButtonDisable: boolean;
     nextQuestionButtonText: string;
@@ -23,16 +22,11 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     private lastQuestionIndex: number;
     private isEndOfQuestionTime: boolean;
     private timeServiceSubscription: Subscription;
-    private roomId: string | null;
     private submittedQuestionCount: number;
     private playerCount: number;
     private hasTimerBeenInterrupted: boolean;
 
-    // Raison: J'injecte les services nécessaire dans mon constructeur
-    // eslint-disable-next-line max-params
     constructor(
-        private gameService: GameService,
-        private readonly route: ActivatedRoute,
         private readonly socketClientService: SocketClientService,
         private readonly roomCommunicationService: RoomCommunicationService,
     ) {
@@ -41,7 +35,6 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         this.nextQuestionButtonText = 'Prochaine Question';
         this.nextQuestionButtonStyle = { backgroundColor: '' };
         this.isEndOfQuestionTime = false;
-        this.roomId = this.route.snapshot.paramMap.get('roomId');
         this.hasTimerBeenInterrupted = false;
         this.submittedQuestionCount = 0;
     }
@@ -49,6 +42,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     async ngOnInit() {
         this.setEvents();
         this.playerCount = (await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string))).length;
+        this.lastQuestionIndex = this.quiz.questions.length - 1;
     }
 
     ngOnDestroy() {
@@ -56,11 +50,10 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     }
 
     goToNextQuestion() {
-        const roomId = this.route.snapshot.paramMap.get('roomId');
         if (this.currentQuestionIndex !== this.lastQuestionIndex) {
-            this.socketClientService.send(GameEvents.NextQuestion, roomId);
+            this.socketClientService.send(GameEvents.NextQuestion, this.roomId);
         } else {
-            this.socketClientService.send(GameEvents.ShowResults, roomId);
+            this.socketClientService.send(GameEvents.ShowResults, this.roomId);
         }
     }
 
@@ -72,16 +65,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         });
     }
 
-    private async getQuiz() {
-        const quizId = this.route.snapshot.paramMap.get('quizId');
-        this.quiz = await this.gameService.getQuizById(quizId);
-        if (this.quiz) {
-            this.lastQuestionIndex = this.quiz.questions.length - 1;
-        }
-    }
-
     private async setEvents() {
-        await this.getQuiz();
         this.getQuestion(this.currentQuestionIndex);
         this.enableNextQuestionButton();
         this.reactToNextQuestionEvent();

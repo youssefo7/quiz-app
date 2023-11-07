@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { GameEvents } from '@app/events/game.events';
 import { TimeEvents } from '@app/events/time.events';
@@ -18,10 +18,11 @@ const BONUS_120_PERCENT = 1.2;
 })
 export class QuestionZoneComponent implements OnInit, OnDestroy {
     @Output() pointsEarned: EventEmitter<number>;
+    @Input() quiz: Quiz;
+    @Input() roomId: string | null;
     isQuestionTransitioning: boolean;
     currentQuestionIndex: number;
     points: number;
-    quiz: Quiz | null;
     question: Question;
     chosenChoices: boolean[];
     choiceButtonStyle: { backgroundColor: string }[];
@@ -36,7 +37,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     private hasGameEnded: boolean;
     private timerSubscription: Subscription;
     private gameServiceSubscription: Subscription;
-    private roomId: string | null;
     private hasReceivedBonus: boolean;
     private hasSentAnswer: boolean;
 
@@ -60,7 +60,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.doesDisplayPoints = false;
         this.hasGameEnded = false;
         this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
-        this.roomId = this.route.snapshot.paramMap.get('roomId');
         this.hasReceivedBonus = false;
         this.pointsToDisplay = 0;
         this.hasSentAnswer = false;
@@ -104,13 +103,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         }
     }
 
-    async getQuiz() {
-        const quizId = this.route.snapshot.paramMap.get('quizId');
-        this.quiz = await this.gameService.getQuizById(quizId);
-    }
-
     async loadQuiz() {
-        await this.getQuiz();
         this.getQuestion(this.currentQuestionIndex);
     }
 

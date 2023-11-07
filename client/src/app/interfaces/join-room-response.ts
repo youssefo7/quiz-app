@@ -1,4 +1,6 @@
+import { Quiz } from './quiz';
+
 export interface JoinRoomResponse {
     roomState: string;
-    quizId: string | null;
+    quiz: Quiz;
 }

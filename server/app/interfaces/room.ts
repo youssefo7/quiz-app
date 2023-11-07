@@ -1,6 +1,8 @@
+import { Quiz } from '@app/model/database/quiz';
+
 export interface Room {
     id: string;
-    quizId: string;
+    quiz: Quiz;
     organizer: Organizer;
     players: Player[];
     isLocked: boolean;
@@ -13,7 +15,6 @@ export interface User {
     name: string;
 }
 
-// TODO : voir s'il y a un risque d'envoyer des événements à un joueur qui a abandonné
 export interface Player extends User {
     points: number;
     bonusCount: number;
