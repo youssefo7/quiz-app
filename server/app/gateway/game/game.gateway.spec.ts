@@ -53,6 +53,7 @@ describe('GameGateway', () => {
                     { userId: 'playerId1', timeStamp: 1698849004046 },
                     { userId: 'playerId2', timeStamp: 1698849011696 },
                 ],
+                timer: null,
             },
         ];
 

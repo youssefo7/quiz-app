@@ -6,6 +6,7 @@ export interface Room {
     isLocked: boolean;
     bannedNames: string[];
     answerTimes: AnswerTime[];
+    timer: ReturnType<typeof setInterval> | null;
 }
 
 export interface User {
