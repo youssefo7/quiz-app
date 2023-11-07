@@ -54,9 +54,9 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     }
 
     async ngOnInit() {
-        this.setEvents();
-        this.playerCount = (await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string))).length;
         this.lastQuestionIndex = this.quiz.questions.length - 1;
+        this.playerCount = (await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string))).length;
+        this.setEvents();
     }
 
     ngOnDestroy() {
@@ -79,7 +79,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         });
     }
 
-    private async setEvents() {
+    private setEvents() {
         this.getQuestion(this.currentQuestionIndex);
         this.enableNextQuestionButton();
         this.reactToNextQuestionEvent();
