@@ -106,6 +106,16 @@ describe('TimeGateway', () => {
         });
     });
 
+    it('should call handleTransitionClockFinished event when transition has finished', () => {
+        stub(socket, 'rooms').value(new Set([roomId]));
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual(TimeEvents.TransitionClockFinished);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.handleTransitionClockFinished(socket, roomId);
+    });
+
     it('should handle the timer finishing and emit TimerFinished event', async () => {
         jest.useFakeTimers();
 
@@ -145,5 +155,17 @@ describe('TimeGateway', () => {
 
         expect(emitUpdatedTimeSpy).not.toHaveBeenCalled();
         expect(emitUpdatedTimeSpy).not.toHaveBeenCalled();
+    });
+
+    it('should call HandleTimerInterrupted when the time on timer has been suddently modified', () => {
+        const stopTimerSpy = jest.spyOn(gateway, 'handleStopTimer');
+        stub(socket, 'rooms').value(new Set([roomId]));
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual(TimeEvents.TimerInterrupted);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.handleTimerInterrupted(socket, roomId);
+        expect(stopTimerSpy).toHaveBeenCalledTimes(1);
     });
 });
