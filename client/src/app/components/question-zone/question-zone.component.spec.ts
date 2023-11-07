@@ -455,7 +455,6 @@ describe('QuestionZoneComponent', () => {
         const sendSpy = spyOn(clientSocketServiceMock, 'send');
         socketHelper.peerSideEmit(GameEvents.GiveBonus, component['roomId']);
         component.ngOnInit();
-        component['handleBonusPoints']();
 
         expect(sendSpy).toHaveBeenCalledWith(GameEvents.AddPointsToPlayer, {
             roomId: component['roomId'],
