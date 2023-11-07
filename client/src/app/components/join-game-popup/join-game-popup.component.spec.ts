@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { FormsModule } from '@angular/forms';
+import { MatDialogActions, MatDialogContent, MatDialogRef } from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { GameEvents } from '@app/events/game.events';
@@ -14,7 +16,6 @@ describe('JoinGamePopupComponent', () => {
     let component: JoinGamePopupComponent;
     let routerSpy: SpyObj<Router>;
     let fixture: ComponentFixture<JoinGamePopupComponent>;
-    let mockDialog: SpyObj<MatDialog>;
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
     let mockSocketClientService: SpyObj<SocketClientService>;
     let mockRoomCommunicationService: SpyObj<RoomCommunicationService>;
@@ -42,10 +43,10 @@ describe('JoinGamePopupComponent', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [JoinGamePopupComponent],
+            declarations: [JoinGamePopupComponent, MatIcon, MatDialogContent, MatDialogActions],
+            imports: [FormsModule],
             providers: [
                 { provide: Router, useValue: routerSpy },
-                { provide: MatDialog, useValue: mockDialog },
                 { provide: MatDialogRef, useValue: mockDialogRef },
                 { provide: SocketClientService, useValue: mockSocketClientService },
                 { provide: RoomCommunicationService, useValue: mockRoomCommunicationService },
@@ -66,7 +67,6 @@ describe('JoinGamePopupComponent', () => {
     it('should handle enter press when code is not valid', async () => {
         const checkCodeSpy = spyOn(component, 'checkCode');
         component.isCodeValidated = false;
-
         const event = new KeyboardEvent('keyup', {
             key: 'Enter',
         });
@@ -80,7 +80,6 @@ describe('JoinGamePopupComponent', () => {
         const verifyAndAccessSpy = spyOn(component, 'verifyAndAccess');
         component.isCodeValidated = true;
         component.showUsernameField = true;
-
         const event = new KeyboardEvent('keyup', {
             key: 'Enter',
         });
@@ -104,7 +103,6 @@ describe('JoinGamePopupComponent', () => {
         component.givenUsername = testUsername;
 
         const isValid = await component.isUsernameValid();
-
         expect(isValid).toBeFalse();
         expect(mockRoomCommunicationService.processUsername).toHaveBeenCalledWith(roomIdMock, {
             name: testUsername,
@@ -119,7 +117,6 @@ describe('JoinGamePopupComponent', () => {
         component.givenUsername = testUsername;
 
         const isValid = await component.isUsernameValid();
-
         expect(isValid).toBeTrue();
         expect(mockRoomCommunicationService.processUsername).toHaveBeenCalledWith(roomIdMock, {
             name: testUsername,
@@ -184,7 +181,6 @@ describe('JoinGamePopupComponent', () => {
 
     it('should not allow access if RoomState is not OK', async () => {
         mockRoomCommunicationService.joinRoom.and.returnValue(of(mockJoinRoomResponse));
-
         await component.verifyAndAccess();
 
         expect(component.isCodeValidated).toBeFalse();
@@ -241,18 +237,20 @@ describe('JoinGamePopupComponent', () => {
     });
 
     it('should not prevent default action for numeric keys', () => {
-        const event: KeyboardEvent = new KeyboardEvent('keydown', {
-            key: '1',
+        const numbersAllowedKeys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+        numbersAllowedKeys.forEach((key) => {
+            const event: KeyboardEvent = new KeyboardEvent('keydown', { key });
+            spyOn(event, 'preventDefault');
+            component.allowNumbersOnly(event);
+            expect(event.preventDefault).not.toHaveBeenCalled();
         });
-        spyOn(event, 'preventDefault');
-        component.allowNumbersOnly(event);
-        expect(event.preventDefault).not.toHaveBeenCalled();
     });
 
     it('should prevent default action for non-allowed keys', () => {
-        const symbolsNonAllowedKeys = ['!', '@', '#', '$', '%', '?', '&', '*', '-', '_', '+', '='];
+        const symbolsNotAllowedKeys = ['!', '@', '#', '$', '%', '?', '&', '*', '-', '_', '+', '='];
 
-        symbolsNonAllowedKeys.forEach((key) => {
+        symbolsNotAllowedKeys.forEach((key) => {
             const event: KeyboardEvent = new KeyboardEvent('keydown', { key });
             spyOn(event, 'preventDefault');
             component.allowNumbersOnly(event);
