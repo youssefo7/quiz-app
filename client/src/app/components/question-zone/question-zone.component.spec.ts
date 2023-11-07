@@ -1,15 +1,28 @@
+// any est utilisé pour les tests, car les fonctions sont privées et ne peuvent pas être testées autrement
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 // Raison: On est à des mockQuiz qui prennent beaucoup de place, mais on ne vaut pas les déplacer dans un fichier séparé
 /* eslint-disable max-lines */
 import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
+import { SocketTestHelper } from '@app/classes/socket-test-helper';
+import { GameEvents } from '@app/events/game.events';
+import { TimeEvents } from '@app/events/time.events';
 import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
 import { of } from 'rxjs';
+import { Socket } from 'socket.io-client';
 import { QuestionZoneComponent } from './question-zone.component';
+
+class MockSocketClientService extends SocketClientService {
+    override connect() {
+        // vide
+    }
+}
 
 describe('QuestionZoneComponent', () => {
     let component: QuestionZoneComponent;
@@ -18,9 +31,10 @@ describe('QuestionZoneComponent', () => {
     let elementRef: HTMLElement;
     let debugElement: DebugElement;
     let setButtonSpy: jasmine.Spy;
-    let clientSocketServiceMock: jasmine.SpyObj<SocketClientService>;
+    let clientSocketServiceMock: MockSocketClientService;
     let communicationServiceMock: jasmine.SpyObj<CommunicationService>;
     let timeServiceMock: jasmine.SpyObj<TimeService>;
+    let socketHelper: SocketTestHelper;
 
     beforeEach(() => {
         clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'send']);
@@ -31,6 +45,10 @@ describe('QuestionZoneComponent', () => {
     });
 
     beforeEach(waitForAsync(() => {
+        socketHelper = new SocketTestHelper();
+        clientSocketServiceMock = new MockSocketClientService();
+        clientSocketServiceMock.socket = socketHelper as unknown as Socket;
+
         TestBed.configureTestingModule({
             declarations: [QuestionZoneComponent],
             providers: [
@@ -170,10 +188,26 @@ describe('QuestionZoneComponent', () => {
         expect(component.isQuestionTransitioning).toBeTrue();
     });
 
-    it('should set hasGameEnded if gameService.hasGameEndedObservable is true', () => {
+    it('should set hasGameEnded when testGame is true, if gameService.hasGameEndedObservable is also true', () => {
         spyOnProperty(gameService, 'hasGameEndedObservable').and.returnValue(of(true));
         component['isTestGame'] = true;
         component.detectEndGame();
+        expect(component['hasGameEnded']).toBeTrue();
+    });
+
+    it('should listen on CurrentTime and TimeInterrupted event when testGame is false and call methods', () => {
+        const detectEndOfQuestionSpy = spyOn<any>(component, 'detectEndOfQuestion');
+        component['isTestGame'] = false;
+        socketHelper.peerSideEmit(TimeEvents.CurrentTimer);
+        expect(detectEndOfQuestionSpy).toHaveBeenCalled();
+
+        socketHelper.peerSideEmit(TimeEvents.TimerInterrupted, component['roomId']);
+        expect(detectEndOfQuestionSpy).toHaveBeenCalledWith(0);
+    });
+
+    it('should listen on ShowResults event when testGame is false and set hasGameEnded to true', () => {
+        component['isTestGame'] = false;
+        socketHelper.peerSideEmit(GameEvents.ShowResults, component['roomId']);
         expect(component['hasGameEnded']).toBeTrue();
     });
 
@@ -208,10 +242,23 @@ describe('QuestionZoneComponent', () => {
     });
 
     it('should toggle the choice if the index is valid', () => {
-        const invalidIndex = 1;
+        const sendSpy = spyOn(clientSocketServiceMock, 'send');
+        const validIndex = 1;
         component.chosenChoices = [false, false, false];
-        component.toggleChoice(invalidIndex);
+
+        component.toggleChoice(validIndex);
         expect(component.chosenChoices).toEqual([false, true, false]);
+        expect(sendSpy).toHaveBeenCalledWith(GameEvents.QuestionChoiceSelect, {
+            roomId: component['roomId'],
+            questionChoiceIndex: validIndex,
+        });
+
+        component.toggleChoice(validIndex);
+        expect(component.chosenChoices).toEqual([false, false, false]);
+        expect(sendSpy).toHaveBeenCalledWith(GameEvents.QuestionChoiceUnselect, {
+            roomId: component['roomId'],
+            questionChoiceIndex: validIndex,
+        });
     });
 
     it('should not toggle the choice if the index is invalid', () => {
@@ -252,6 +299,7 @@ describe('QuestionZoneComponent', () => {
         component.submitButtonStyle = { backgroundColor: 'green' };
         component.doesDisplayPoints = true;
         component.setButtonToInitState(buttonIndex);
+
         expect(component.isChoiceButtonDisabled).toBeFalse();
         expect(component.submitButtonStyle).toEqual({ backgroundColor: '' });
         expect(component.choiceButtonStyle[buttonIndex]).toEqual({ backgroundColor: '' });
@@ -266,19 +314,105 @@ describe('QuestionZoneComponent', () => {
         component.isChoiceButtonDisabled = false;
         component.setButtonStateOnSubmit(firstButtonIndex);
         component.setButtonStateOnSubmit(secondButtonIndex);
+
         expect(component.isChoiceButtonDisabled).toBeTrue();
         expect(component.submitButtonStyle).toEqual({ backgroundColor: '' });
         expect(component.choiceButtonStyle[firstButtonIndex]).toEqual({ backgroundColor: 'red' });
         expect(component.choiceButtonStyle[secondButtonIndex]).toEqual({ backgroundColor: 'rgb(97, 207, 72)' });
     });
 
-    it('should submit answer on click event', () => {
+    it('should submit answer on click event if in test game is true', () => {
         component['isTestGame'] = true;
         spyOn(component, 'showResult');
         component.submitAnswerOnClick();
         expect(setButtonSpy).toHaveBeenCalledWith(true);
         expect(component.isQuestionTransitioning).toBeTrue();
         expect(component.showResult).toHaveBeenCalled();
+    });
+
+    it('should disable submit button if test game is false and send SubmitQuestion event', () => {
+        const disableSubmitButtonSpy = spyOn(component, 'setSubmitButtonToDisabled');
+        const event = new KeyboardEvent('keyup', { key: 'Enter' });
+        const sendSpy = spyOn(clientSocketServiceMock, 'send');
+
+        component['isTestGame'] = false;
+        component.buttonDetect(event);
+        component.submitAnswerOnClick();
+
+        expect(component.isQuestionTransitioning).toBeFalse();
+        expect(disableSubmitButtonSpy).toHaveBeenCalledWith(true, { backgroundColor: 'grey' });
+        expect(sendSpy).toHaveBeenCalledWith(GameEvents.SubmitQuestionOnClick, component['roomId']);
+        expect(component['hasSentAnswer']).toBeTrue();
+    });
+
+    it('should send GoodAnswerOnFinishedTimer event when answer is right and not in testGame', () => {
+        component.question.choices = [
+            { text: 'test', isCorrect: true },
+            { text: 'test2', isCorrect: false },
+        ];
+        component.chosenChoices = [true, false];
+
+        const event = new KeyboardEvent('keyup', { key: 'Enter' });
+        const sendSpy = spyOn(clientSocketServiceMock, 'send');
+
+        component['isTestGame'] = false;
+        component.buttonDetect(event);
+        component.submitAnswerOnClick();
+
+        expect(sendSpy).toHaveBeenCalledWith(GameEvents.GoodAnswerOnClick, component['roomId']);
+        expect(component['hasSentAnswer']).toBeTrue();
+    });
+
+    it('should send BadAnswerOnFinishedTimer event when answer is wrong and not in testGame', () => {
+        component.question.choices = [
+            { text: 'test', isCorrect: true },
+            { text: 'test2', isCorrect: false },
+        ];
+        component.chosenChoices = [false, true];
+
+        const event = new KeyboardEvent('keyup', { key: 'Enter' });
+        const sendSpy = spyOn(clientSocketServiceMock, 'send');
+
+        component['isTestGame'] = false;
+        component.buttonDetect(event);
+        component.submitAnswerOnClick();
+
+        expect(sendSpy).toHaveBeenCalledWith(GameEvents.BadAnswerOnClick, component['roomId']);
+        expect(component['hasSentAnswer']).toBeTrue();
+    });
+
+    it('should send GoodAnswerOnFinishedTimer event when answer is good and timer is finished', () => {
+        component.question.choices = [
+            { text: 'test', isCorrect: true },
+            { text: 'test2', isCorrect: false },
+        ];
+        component.chosenChoices = [true, false];
+
+        const sendSpy = spyOn(clientSocketServiceMock, 'send');
+        const disableButtonSpy = spyOn(component, 'setSubmitButtonToDisabled');
+        component.submitAnswerOnFinishedTimer();
+
+        expect(disableButtonSpy).toHaveBeenCalledWith(true, { backgroundColor: 'grey' });
+        expect(sendSpy).toHaveBeenCalledWith(GameEvents.SubmitQuestionOnFinishedTimer, component['roomId']);
+        expect(component['hasSentAnswer']).toBeTrue();
+        expect(sendSpy).toHaveBeenCalledWith(GameEvents.GoodAnswerOnFinishedTimer, component['roomId']);
+    });
+
+    it('should send BadAnswerOnFinishedTimer event when answer is wrong and timer is finished', () => {
+        component.question.choices = [
+            { text: 'test', isCorrect: true },
+            { text: 'test2', isCorrect: false },
+        ];
+        component.chosenChoices = [false, true];
+
+        const sendSpy = spyOn(clientSocketServiceMock, 'send');
+        const disableButtonSpy = spyOn(component, 'setSubmitButtonToDisabled');
+        component.submitAnswerOnFinishedTimer();
+
+        expect(disableButtonSpy).toHaveBeenCalledWith(true, { backgroundColor: 'grey' });
+        expect(sendSpy).toHaveBeenCalledWith(GameEvents.SubmitQuestionOnFinishedTimer, component['roomId']);
+        expect(component['hasSentAnswer']).toBeTrue();
+        expect(sendSpy).toHaveBeenCalledWith(GameEvents.BadAnswerOnFinishedTimer, component['roomId']);
     });
 
     it('should identify a good answer', () => {
@@ -307,6 +441,34 @@ describe('QuestionZoneComponent', () => {
         component.givePoints();
         expect(component.points).toEqual(component.question.points * bonus);
         expect(component.bonusMessage).toEqual('(20% bonus Woohoo!)');
+    });
+
+    it('should handle transition clock finished on init', () => {
+        const transitionClockFinishedSpy = spyOn<any>(component, 'handleTransitionClockFinished');
+        socketHelper.peerSideEmit(TimeEvents.TransitionClockFinished, component['roomId']);
+        component.ngOnInit();
+
+        expect(transitionClockFinishedSpy).toHaveBeenCalled();
+    });
+
+    it('should handle bonus points on init', () => {
+        const sendSpy = spyOn(clientSocketServiceMock, 'send');
+        socketHelper.peerSideEmit(GameEvents.GiveBonus, component['roomId']);
+        component.ngOnInit();
+
+        expect(sendSpy).toHaveBeenCalledWith(GameEvents.AddPointsToPlayer, {
+            roomId: component['roomId'],
+            points: component.points,
+        });
+    });
+
+    it('should give points for a correct answer', () => {
+        spyOn(component, 'isAnswerGood').and.returnValue(true);
+        const questionPoints = 10;
+        component.question.points = questionPoints;
+        component.givePoints();
+        expect(component.points).toEqual(questionPoints);
+        expect(component.pointsToDisplay).toEqual(questionPoints);
     });
 
     it('should not give points for an incorrect answer', () => {
