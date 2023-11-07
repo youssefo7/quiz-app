@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { GameEvents } from '@app/events/game.events';
 import { JoinEvents } from '@app/events/join.events';
+import { Quiz } from '@app/interfaces/quiz';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { of } from 'rxjs';
@@ -25,12 +26,12 @@ describe('JoinGamePopupComponent', () => {
 
     const mockJoinRoomResponse = {
         roomState: '',
-        quizId: '',
+        quiz: {} as Quiz,
     };
 
     const mockJoinRoomResponseOK = {
         roomState: 'OK',
-        quizId: 'mockId',
+        quiz: { id: 'mockId' } as Quiz,
     };
 
     beforeEach(() => {
@@ -139,7 +140,7 @@ describe('JoinGamePopupComponent', () => {
     it('should display an error message if room is locked', async () => {
         const mockJoinRoomResponseLocked = {
             roomState: 'IS_LOCKED',
-            quizId: 'mockId',
+            quiz: { id: 'mockedId' } as Quiz,
         };
         component.givenRoomCode = roomIdMock;
         mockRoomCommunicationService.joinRoom.and.returnValue(of(mockJoinRoomResponseLocked));
@@ -152,7 +153,7 @@ describe('JoinGamePopupComponent', () => {
     it('should display an error message if room is invalid', async () => {
         const mockJoinRoomResponseInvalid = {
             roomState: 'INVALID',
-            quizId: 'mockId',
+            quiz: { id: 'mockedId' } as Quiz,
         };
         component.givenRoomCode = roomIdMock;
         mockRoomCommunicationService.joinRoom.and.returnValue(of(mockJoinRoomResponseInvalid));
