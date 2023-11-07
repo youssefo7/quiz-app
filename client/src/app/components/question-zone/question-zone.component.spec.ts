@@ -9,6 +9,7 @@ import { ActivatedRoute } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { GameEvents } from '@app/events/game.events';
 import { TimeEvents } from '@app/events/time.events';
+import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
 import { SocketClientService } from '@app/services/socket-client.service';
