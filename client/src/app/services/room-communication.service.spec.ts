@@ -95,6 +95,37 @@ describe('RoomCommunicationService', () => {
         req.flush(mockPlayers);
     });
 
+    it('should get a player name when sending POST request with socket id in body (HTTPClient called once)', () => {
+        const mockPlayerName = 'player';
+        const playerNameData = { socketId: 'mockSocketId' };
+
+        service.getPlayerName(roomId, playerNameData).subscribe({
+            next: (response) => {
+                expect(response).toBe(mockPlayerName);
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/rooms/${roomId}/playerName`);
+        expect(req.request.method).toBe('POST');
+        req.flush(mockPlayerName);
+    });
+
+    it('should get a quiz when sending GET request with /rooms/:roomId/quiz param (HTTPClient called once)', () => {
+        const mockQuiz = {} as Quiz;
+
+        service.getRoomQuiz(roomId).subscribe({
+            next: (response) => {
+                expect(response).toEqual(mockQuiz);
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/rooms/${roomId}/quiz`);
+        expect(req.request.method).toBe('GET');
+        req.flush(mockQuiz);
+    });
+
     it('should receive error from server', () => {
         const nonExistentId = 'nonExistentId';
 
