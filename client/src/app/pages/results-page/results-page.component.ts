@@ -5,4 +5,10 @@ import { Component } from '@angular/core';
     templateUrl: './results-page.component.html',
     styleUrls: ['./results-page.component.scss', '../../../assets/shared.scss'],
 })
-export class ResultsPageComponent {}
+export class ResultsPageComponent {
+    title: string;
+
+    constructor() {
+        this.title = 'Résultats';
+    }
+}

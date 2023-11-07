@@ -1,5 +1,12 @@
-<div class="background" id="container">
-    <app-top-bar [title]="'Résultats'"></app-top-bar>
-    <mat-icon id="exit-button" title="Retour à la vue initiale">exit_to_app</mat-icon>
-    <app-game-players-list id="players-list"></app-game-players-list>
+<div class="background">
+    <app-top-bar [title]="title"></app-top-bar>
+    <div id="grid-container">
+        <div id="exit-button-grid">
+            <mat-icon title="Quitter la Partie" inline="true">exit_to_app</mat-icon>
+        </div>
+        <app-game-players-list id="player-list-grid"></app-game-players-list>
+        <div id="chat-player-flex">
+            <app-chat id="chat-container"></app-chat>
+        </div>
+    </div>
 </div>
