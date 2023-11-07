@@ -2,7 +2,10 @@ export enum GameEvents {
     StartGame = 'startGame',
     PlayerLeaveGame = 'playerLeaveGame',
     EndGame = 'endGame',
-    GoodAnswer = 'goodAnswer',
+    GoodAnswerOnClick = 'goodAnswerOnClick',
+    GoodAnswerOnFinishedTimer = 'goodAnswerOnFinishedTimer',
+    BadAnswerOnClick = 'badAnswerOnClick',
+    BadAnswerOnFinishedTimer = 'badAnswerOnFinishedTimer',
     QuestionChoiceSelect = 'questionChoiceSelect',
     QuestionChoiceUnselect = 'questionChoiceUnselect',
     GiveBonus = 'giveBonus',
@@ -15,4 +18,6 @@ export enum GameEvents {
     SubmitQuestion = 'submitQuestion',
     BonusUpdate = 'bonusUpdate',
     SendResults = 'sendResults',
+    SubmitQuestionOnClick = 'submitQuestionOnClick',
+    SubmitQuestionOnFinishedTimer = 'submitQuestionOnFinishedTimer',
 }

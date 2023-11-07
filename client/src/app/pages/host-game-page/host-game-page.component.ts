@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
@@ -24,7 +24,6 @@ export class HostGamePageComponent implements OnInit {
         private roomCommunicationService: RoomCommunicationService,
         private readonly router: Router,
         private readonly route: ActivatedRoute,
-        private readonly elementRef: ElementRef,
     ) {
         this.title = 'Partie: ';
     }
@@ -58,7 +57,6 @@ export class HostGamePageComponent implements OnInit {
         if (this.quiz) {
             this.title += this.quiz.title;
             this.title += ' (Organisateur)';
-            this.elementRef.nativeElement.setAttribute('title', this.title);
         }
     }
 

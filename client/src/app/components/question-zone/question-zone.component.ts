@@ -78,7 +78,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
 
         if (keyPressed === 'Enter') {
             if (!this.isSubmitDisabled) {
-                this.submitAnswer();
+                this.submitAnswerOnClick();
             }
         } else {
             const choiceIndex = parseInt(keyPressed, 10) - 1;
@@ -146,8 +146,8 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     toggleChoice(index: number) {
-        const isIndexInbound = !isNaN(index) && index >= 0 && index < this.chosenChoices.length;
-        if (isIndexInbound) {
+        const isIndexInbound = index >= 0 && index < this.chosenChoices.length;
+        if (!isNaN(index) && isIndexInbound) {
             this.chosenChoices[index] = !this.chosenChoices[index];
             if (this.chosenChoices[index]) {
                 this.socketClientService.send(GameEvents.QuestionChoiceSelect, { roomId: this.roomId, questionChoiceIndex: index });
@@ -186,20 +186,34 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.isChoiceButtonDisabled = true;
     }
 
-    submitAnswer() {
+    submitAnswerOnClick() {
         if (this.isTestGame) {
             this.gameService.setButtonPressState = true;
             this.givePoints();
             this.isQuestionTransitioning = true;
         } else {
             this.setSubmitButtonToDisabled(true, { backgroundColor: 'grey' });
-            this.socketClientService.send(GameEvents.SubmitQuestion, this.roomId);
+            this.socketClientService.send(GameEvents.SubmitQuestionOnClick, this.roomId);
+            if (this.isAnswerGood()) {
+                this.points = this.question.points;
+                this.socketClientService.send(GameEvents.GoodAnswerOnClick, this.roomId);
+            } else {
+                this.socketClientService.send(GameEvents.BadAnswerOnClick, this.roomId);
+            }
+            this.hasSentAnswer = true;
         }
-        if (this.isAnswerGood() && !this.isTestGame) {
-            this.points = this.question.points;
-            this.socketClientService.send(GameEvents.GoodAnswer, this.roomId);
-        }
+    }
+
+    submitAnswerOnFinishedTimer() {
+        this.setSubmitButtonToDisabled(true, { backgroundColor: 'grey' });
+        this.socketClientService.send(GameEvents.SubmitQuestionOnFinishedTimer, this.roomId);
         this.hasSentAnswer = true;
+        if (this.isAnswerGood()) {
+            this.points = this.question.points;
+            this.socketClientService.send(GameEvents.GoodAnswerOnFinishedTimer, this.roomId);
+        } else {
+            this.socketClientService.send(GameEvents.BadAnswerOnFinishedTimer, this.roomId);
+        }
     }
 
     isAnswerGood() {
@@ -216,7 +230,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
 
     giveBonus() {
         const bonus = this.isTestGame ? BONUS_120_PERCENT : BONUS_20_PERCENT;
-
         this.pointsToDisplay = this.question.points * BONUS_120_PERCENT;
         this.points = this.question.points * bonus;
         this.bonusMessage = '(20% bonus Woohoo!)';
@@ -259,6 +272,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             this.hasReceivedBonus = false;
             ++this.currentQuestionIndex;
             this.getQuestion(this.currentQuestionIndex);
+            this.hasSentAnswer = false;
         });
     }
 
@@ -275,7 +289,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         if (!this.hasGameEnded && time === 0) {
             if (!this.isQuestionTransitioning) {
                 if (!this.hasSentAnswer) {
-                    this.submitAnswer();
+                    this.submitAnswerOnFinishedTimer();
                 }
                 this.isQuestionTransitioning = true;
                 this.givePoints();
