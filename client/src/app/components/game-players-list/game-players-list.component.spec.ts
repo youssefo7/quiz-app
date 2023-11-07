@@ -37,7 +37,7 @@ describe('GamePlayersListComponent', () => {
                     provide: SocketClientService,
                     useValue: clientSocketServiceMock,
                 },
-                { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'results' }] } } },
+                { provide: ActivatedRoute, useValue: { snapshot: { url: [{ path: 'results' }] } } },
                 { provide: RoomCommunicationService, useValue: roomCommunicationServiceMock },
             ],
         });
@@ -71,6 +71,7 @@ describe('GamePlayersListComponent', () => {
     });
 
     it('should fetch players list', async () => {
+        component.roomId = '123';
         roomCommunicationServiceMock.getRoomPlayers.and.returnValue(of(playersListMock.map((player) => player.name)));
         await component.fetchPlayersList();
 

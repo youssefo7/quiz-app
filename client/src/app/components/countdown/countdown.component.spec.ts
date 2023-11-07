@@ -177,6 +177,23 @@ describe('CountdownComponent', () => {
         expect(fixture.nativeElement.querySelector('#countdown-options')).toBeTruthy();
     });
 
+    it('should set socket events and start currentQuestionIndex at 1', () => {
+        const reactToTimerEventSpy = spyOn<any>(component, 'reactToTimerEvent');
+        const reactToTimerFinishedEventSpy = spyOn<any>(component, 'reactToTimerFinishedEvent');
+        const reactToNextQuestionEvent = spyOn<any>(component, 'reactToNextQuestionEvent');
+        const reactToTimerInterruptedEvent = spyOn<any>(component, 'reactToTimerInterruptedEvent');
+        const questionClockSpy = spyOn<any>(component, 'questionClock');
+        component['isTestGame'] = false;
+
+        component['loadTimer']();
+        expect(reactToTimerEventSpy).toHaveBeenCalled();
+        expect(reactToTimerFinishedEventSpy).toHaveBeenCalled();
+        expect(reactToNextQuestionEvent).toHaveBeenCalled();
+        expect(reactToTimerInterruptedEvent).toHaveBeenCalled();
+        expect(questionClockSpy).toHaveBeenCalled();
+        expect(component['currentQuestionIndex']).toEqual(1);
+    });
+
     it('should start socket timer to 3s with transitionClock', () => {
         const roomId = '123';
         const transitionTime = 3;
@@ -242,5 +259,17 @@ describe('CountdownComponent', () => {
         socketHelper.peerSideEmit(GameEvents.NextQuestion);
         expect(component['hasFinishedTransitionClock']).toBeTrue();
         expect(transitionClockSpy).toHaveBeenCalled();
+    });
+
+    it('should send start timer event on new question start', () => {
+        const roomId = '123';
+        const oneSecondInterval = 1000;
+        component['quiz'] = mockQuiz;
+        component['roomId'] = roomId;
+        component['isTestGame'] = false;
+        const sendSpy = spyOn(component['socketClientService'], 'send');
+
+        component['questionClock']();
+        expect(sendSpy).toHaveBeenCalledWith(TimeEvents.StartTimer, { initialTime: mockQuiz.duration, roomId, tickRate: oneSecondInterval });
     });
 });
