@@ -45,6 +45,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         this.hasTimerBeenInterrupted = false;
         this.socketTime = 0;
         this.submittedQuestionOnClickCount = 0;
+        this.goodAnswerOnFinishedTimerCount = 0;
         this.goodAnswerOnClickCount = 0;
         this.badAnswerOnClickCount = 0;
         this.badAnswerOnFinishedTimerCount = 0;
@@ -115,15 +116,23 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
 
     private detectEndOfQuestion(time: number) {
         if (time === 0) {
+            console.log(this.submittedQuestionOnClickCount + ' submittedCount/playercount ' + this.playerCount);
             if (this.hasTimerBeenInterrupted && this.submittedQuestionOnClickCount === this.playerCount) {
+                console.log('timer interrompu');
                 this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
             } else {
                 this.totalGoodAnswers = this.goodAnswerOnClickCount + this.goodAnswerOnFinishedTimerCount;
                 this.totalBadAnswers = this.badAnswerOnClickCount + this.badAnswerOnFinishedTimerCount;
+                console.log(
+                    this.totalGoodAnswers + ' totalGoodAnswers ' + this.totalBadAnswers + ' totalBadAnswers ' + this.playerCount + ' playerCount ',
+                );
+                console.log('is totaltGoodAnswers a number: ' + !isNaN(this.totalGoodAnswers));
                 if (this.totalGoodAnswers + this.totalBadAnswers === this.playerCount) {
                     if (this.goodAnswerOnClickCount >= 1) {
+                        console.log('bonus given because someone clicked on good answer');
                         this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
                     } else if (this.goodAnswerOnFinishedTimerCount === 1) {
+                        console.log('bonus given no one submitted a good answer on click but one guy did on timer');
                         this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
                     }
                 }
@@ -149,6 +158,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
 
     private resetAnswerCount() {
         this.submittedQuestionOnClickCount = 0;
+        this.goodAnswerOnFinishedTimerCount = 0;
         this.goodAnswerOnClickCount = 0;
         this.badAnswerOnClickCount = 0;
         this.badAnswerOnFinishedTimerCount = 0;

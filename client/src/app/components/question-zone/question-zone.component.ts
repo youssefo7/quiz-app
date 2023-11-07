@@ -197,8 +197,10 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             if (this.isAnswerGood()) {
                 this.points = this.question.points;
                 this.socketClientService.send(GameEvents.GoodAnswerOnClick, this.roomId);
+                console.log('good answer sent');
             } else {
                 this.socketClientService.send(GameEvents.BadAnswerOnClick, this.roomId);
+                console.log('bad answer sent');
             }
             this.hasSentAnswer = true;
         }
