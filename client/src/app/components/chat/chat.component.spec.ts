@@ -1,3 +1,4 @@
+import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
@@ -20,6 +21,7 @@ describe('ChatComponent', () => {
     let socketClientServiceMock: SocketClientServiceMock;
     let socketHelper: SocketTestHelper;
     let fixture: ComponentFixture<ChatComponent>;
+    let roomCommunicationServiceMock: RoomCommunicationService;
 
     beforeEach(() => {
         socketClientServiceMock = jasmine.createSpyObj('SocketClientService', ['connect', 'disconnect', 'send', 'on']);
@@ -45,6 +47,10 @@ describe('ChatComponent', () => {
                             url: ['test'],
                         },
                     },
+                },
+                {
+                    provide: RoomCommunicationService,
+                    useValue: roomCommunicationServiceMock,
                 },
             ],
         }).compileComponents();

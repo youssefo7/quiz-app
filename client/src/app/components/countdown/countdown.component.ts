@@ -39,7 +39,6 @@ export class CountdownComponent implements OnInit, OnDestroy {
         private readonly gameService: GameService,
         private readonly socketClientService: SocketClientService,
     ) {
-        this.isHost = false;
         this.currentQuestionIndex = 0;
         this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
     }

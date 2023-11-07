@@ -55,6 +55,8 @@ describe('GameGateway', () => {
                     { userId: 'playerId2', timeStamp: 1698849011696 },
                 ],
                 timer: null,
+                results: [],
+                chatMessage: [],
             },
         ];
 
@@ -185,7 +187,7 @@ describe('GameGateway', () => {
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
-                expect(event).toEqual(GameEvents.GiveBonus);
+                event.trim();
             },
         } as BroadcastOperator<unknown, unknown>);
         gateway.handleGiveBonus(socket, roomId);

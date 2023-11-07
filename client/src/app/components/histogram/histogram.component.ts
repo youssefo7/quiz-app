@@ -31,6 +31,7 @@ export class HistogramComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+        this.choicesSelectionCounts = [];
         this.loadChart();
         this.updateSelections();
         this.reactToNextQuestionEvent();

@@ -52,6 +52,8 @@ describe('WaitingGateway', () => {
             bannedNames: [],
             answerTimes: [],
             timer: null,
+            results: [],
+            chatMessage: [],
         });
 
         gateway['server'] = server;

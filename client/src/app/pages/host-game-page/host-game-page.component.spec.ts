@@ -12,7 +12,6 @@ import { QuestionZoneStatsComponent } from '@app/components/question-zone-stats/
 import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
-import { SocketClientService } from '@app/services/socket-client.service';
 import { NgChartsModule } from 'ng2-charts';
 import { of } from 'rxjs';
 import { HostGamePageComponent } from './host-game-page.component';
@@ -31,7 +30,6 @@ describe('HostGamePageComponent', () => {
     let fixture: ComponentFixture<HostGamePageComponent>;
     let mockDialog: SpyObj<MatDialog>;
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
-    let clientSocketServiceMock: SpyObj<SocketClientService>;
     let router: Router;
     let roomCommunicationServiceMock: jasmine.SpyObj<RoomCommunicationService>;
 
@@ -47,7 +45,6 @@ describe('HostGamePageComponent', () => {
     };
 
     beforeEach(() => {
-        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
         roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', ['getRoomPlayers', 'getRoomQuiz']);
         roomCommunicationServiceMock.getRoomPlayers.and.returnValue(
             of([
@@ -58,7 +55,6 @@ describe('HostGamePageComponent', () => {
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
         mockDialogRef = jasmine.createSpyObj('MatDialogRef<PopupMessageComponent>', ['componentInstance']);
         mockDialog.open.and.returnValue(mockDialogRef);
-        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'send']);
     });
 
     beforeEach(waitForAsync(() => {
@@ -79,7 +75,6 @@ describe('HostGamePageComponent', () => {
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'host' }] } } },
                 { provide: MatDialog, useValue: mockDialog },
                 { provide: MatDialogRef, useValue: mockDialogRef },
-                { provide: SocketClientService, useValue: clientSocketServiceMock },
                 { provide: RoomCommunicationService, useValue: roomCommunicationServiceMock },
             ],
         }).compileComponents();

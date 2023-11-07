@@ -53,7 +53,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         if (this.currentQuestionIndex !== this.lastQuestionIndex) {
             this.socketClientService.send(GameEvents.NextQuestion, this.roomId);
         } else {
-            this.socketClientService.send(GameEvents.ShowResults, this.roomId);
+            this.socketClientService.send(GameEvents.SendResults, this.roomId);
         }
     }
 

@@ -43,6 +43,8 @@ describe('JoinGateway', () => {
             bannedNames: ['bannedName1'],
             answerTimes: [],
             timer: null,
+            results: [],
+            chatMessage: [],
         });
         gateway['server'] = server;
     });

@@ -1,4 +1,5 @@
 import { Quiz } from '@app/model/database/quiz';
+import { ChatMessage, Results } from '@app/interfaces/room';
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
 import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
 import { ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
@@ -28,7 +29,7 @@ export class RoomController {
 
     @ApiOkResponse({
         description: 'Returns room state',
-        type: Boolean,
+        type: Object,
     })
     @ApiNotFoundResponse({
         description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
@@ -45,7 +46,7 @@ export class RoomController {
 
     @ApiOkResponse({
         description: 'Returns room id',
-        type: Boolean,
+        type: String,
     })
     @ApiNotFoundResponse({
         description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
@@ -62,7 +63,7 @@ export class RoomController {
 
     @ApiOkResponse({
         description: 'Returns player names in room',
-        type: Boolean,
+        type: Array<string>,
     })
     @ApiNotFoundResponse({
         description: 'Return NOT_FOUND http status when request fails',
@@ -79,7 +80,7 @@ export class RoomController {
 
     @ApiOkResponse({
         description: 'Returns player name in room',
-        type: Boolean,
+        type: String,
     })
     @ApiNotFoundResponse({
         description: 'Return NOT_FOUND http status when request fails',
@@ -108,6 +109,74 @@ export class RoomController {
             response.status(HttpStatus.OK).json(quiz);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).json(`Erreur lors de la récupération du quiz de la salle ${roomId}`);
+        }
+    }
+
+    @ApiOkResponse({
+        description: 'Returns posted player results in room',
+        type: Array<Results>,
+    })
+    @ApiNotFoundResponse({
+        description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
+    })
+    @Post('/:roomId/results')
+    handleSendResults(@Param('roomId') roomId: string, @Body() results: Results[], @Res() response: Response) {
+        try {
+            this.roomManagerService.postResults(roomId, results);
+            response.status(HttpStatus.OK).json(results);
+        } catch (error) {
+            response.status(HttpStatus.INTERNAL_SERVER_ERROR).json(`Erreur lors de l'envoi des résultats de la salle ${roomId}`);
+        }
+    }
+
+    @ApiOkResponse({
+        description: 'Returns player results in room',
+        type: Array<Results>,
+    })
+    @ApiNotFoundResponse({
+        description: 'Return NOT_FOUND http status when request fails',
+    })
+    @Get('/:roomId/results')
+    handleGetResults(@Param('roomId') roomId: string, @Res() response: Response) {
+        try {
+            const results = this.roomManagerService.getResults(roomId);
+            response.status(HttpStatus.OK).json(results);
+        } catch (error) {
+            response.status(HttpStatus.NOT_FOUND).json(`Erreur lors de la récupération des résultats de la salle ${roomId}`);
+        }
+    }
+
+    @ApiOkResponse({
+        description: 'Returns posted chat messages in room',
+        type: Array<Results>,
+    })
+    @ApiNotFoundResponse({
+        description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
+    })
+    @Post('/:roomId/chat')
+    handleSendMessages(@Param('roomId') roomId: string, @Body() messages: ChatMessage[], @Res() response: Response) {
+        try {
+            this.roomManagerService.postChatMessages(roomId, messages);
+            response.status(HttpStatus.OK).json(messages);
+        } catch (error) {
+            response.status(HttpStatus.INTERNAL_SERVER_ERROR).json(`Erreur lors de l'envoi des messages de la salle ${roomId}`);
+        }
+    }
+
+    @ApiOkResponse({
+        description: 'Returns chat messages in room',
+        type: Array<Results>,
+    })
+    @ApiNotFoundResponse({
+        description: 'Return NOT_FOUND http status when request fails',
+    })
+    @Get('/:roomId/chat')
+    handleGetMessages(@Param('roomId') roomId: string, @Res() response: Response) {
+        try {
+            const messages = this.roomManagerService.getChatMessages(roomId);
+            response.status(HttpStatus.OK).json(messages);
+        } catch (error) {
+            response.status(HttpStatus.NOT_FOUND).json(`Erreur lors de la récupération des messages de la salle ${roomId}`);
         }
     }
 }

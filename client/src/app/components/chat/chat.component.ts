@@ -1,9 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ChatEvents } from '@app/events/chat.events';
 import { GameEvents } from '@app/events/game.events';
 import { ChatMessage } from '@app/interfaces/chat-message';
-import { SocketClientService } from '@app/services/socket-client.service';
+import { RoomCommunicationService } from '@app/services/room-communication.service';
+import { firstValueFrom } from 'rxjs';
+import { SocketClientService } from './../../services/socket-client.service';
 
 @Component({
     selector: 'app-chat',
@@ -19,23 +21,32 @@ export class ChatComponent implements OnInit {
     maxInputLength: number;
     roomMessages: ChatMessage[];
     userMessage: string;
+    private isResultsRoute: boolean;
     private isTestGame: boolean;
 
+    // Raison: Les 4 injections sont nécessaires  dans le constructeur
+    // eslint-disable-next-line max-params
     constructor(
         public socketService: SocketClientService,
         private route: ActivatedRoute,
+        private router: Router,
+        private roomCommunicationService: RoomCommunicationService,
     ) {
         this.maxInputLength = 200;
         this.currentInputLength = 0;
         this.characterCounterDisplay = `${this.currentInputLength} / ${this.maxInputLength}`;
         this.roomMessages = [];
         this.userMessage = '';
+        this.isResultsRoute = this.router.url.includes('results');
         this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
     }
 
-    ngOnInit() {
+    async ngOnInit() {
         if (!this.isTestGame) {
             this.configureChatSocketFeatures();
+        }
+        if (this.isResultsRoute) {
+            this.roomMessages = await firstValueFrom(this.roomCommunicationService.getChatMessages(this.roomId as string));
         }
     }
 
@@ -63,6 +74,10 @@ export class ChatComponent implements OnInit {
                 };
                 this.roomMessages.push(playerLeftMessage);
             }
+        });
+
+        this.socketService.on(GameEvents.SendResults, async () => {
+            await firstValueFrom(this.roomCommunicationService.sendChatMessages(this.roomId as string, this.roomMessages));
         });
     }
 
