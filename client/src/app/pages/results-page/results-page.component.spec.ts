@@ -12,7 +12,6 @@ describe('ResultsPageComponent', () => {
     let fixture: ComponentFixture<ResultsPageComponent>;
     let clientSocketServiceMock: jasmine.SpyObj<SocketClientService>;
     let roomCommunicationServiceMock: jasmine.SpyObj<RoomCommunicationService>;
-    const activatedRouteMock = jasmine.createSpyObj<ActivatedRoute>;
 
     beforeEach(() => {
         clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
@@ -25,10 +24,7 @@ describe('ResultsPageComponent', () => {
                     useValue: clientSocketServiceMock,
                 },
                 { provide: RoomCommunicationService, useValue: roomCommunicationServiceMock },
-                {
-                    provide: ActivatedRoute,
-                    useValue: activatedRouteMock,
-                },
+                { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'results' }] } } },
             ],
         });
         fixture = TestBed.createComponent(ResultsPageComponent);

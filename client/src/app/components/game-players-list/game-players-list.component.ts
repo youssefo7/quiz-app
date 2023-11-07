@@ -30,7 +30,7 @@ export class GamePlayersListComponent implements OnInit {
         private route: ActivatedRoute,
     ) {
         this.isResultsRoute = this.router.url.includes('results');
-        this.playerResults = []; // DIFFERENT QUAND ON EST DANS LA VUE DES RESULTATS
+        this.playerResults = [];
         this.quizId = this.route.snapshot.paramMap.get('quizId') as string;
     }
 
