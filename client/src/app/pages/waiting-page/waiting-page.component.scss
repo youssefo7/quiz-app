@@ -1,0 +1,36 @@
+#headers {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    padding: 1%;
+    padding-bottom: 0%;
+
+    .mat-icon {
+        transform: rotate(180deg);
+        font-size: 3em;
+        display: flex;
+        justify-content: flex-end;
+        width: 6%;
+    }
+
+    .mat-icon:hover {
+        color: red;
+        cursor: pointer;
+    }
+
+    #roomId {
+        text-align: center;
+        width: 50%;
+        padding-right: 11%;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    #bannedList {
+        text-align: center;
+        width: 50%;
+        display: flex;
+        justify-content: flex-end;
+        padding-right: 3%;
+    }
+}

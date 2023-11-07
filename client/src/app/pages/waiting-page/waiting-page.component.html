@@ -1,2 +1,7 @@
 <app-top-bar [title]="'Vue d\'attente'"></app-top-bar>
+<div id="headers">
+    <mat-icon (click)="quitPopUp()" title="Quitter la Partie" inline="true">exit_to_app</mat-icon>
+    <h1 id="roomId">Salle: {{ roomId }}</h1>
+    <h2 *ngIf="isHost" id="bannedList">Joueur(s) banni(s)</h2>
+</div>
 <app-player-list></app-player-list>
