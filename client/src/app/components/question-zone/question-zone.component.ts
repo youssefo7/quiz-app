@@ -259,6 +259,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             this.hasReceivedBonus = false;
             ++this.currentQuestionIndex;
             this.getQuestion(this.currentQuestionIndex);
+            this.hasSentAnswer = false;
         });
     }
 

@@ -25,6 +25,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     private submittedQuestionCount: number;
     private playerCount: number;
     private hasTimerBeenInterrupted: boolean;
+    private socketTime: number;
 
     constructor(
         private readonly socketClientService: SocketClientService,
@@ -37,6 +38,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         this.isEndOfQuestionTime = false;
         this.hasTimerBeenInterrupted = false;
         this.submittedQuestionCount = 0;
+        this.socketTime = 0;
     }
 
     async ngOnInit() {
@@ -83,6 +85,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     private enableNextQuestionButton() {
         this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
             this.detectEndOfQuestion(time);
+            this.socketTime = time;
         });
 
         this.socketClientService.on(TimeEvents.TimerInterrupted, () => {
@@ -126,7 +129,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     private handleSubmittedQuestion() {
         this.socketClientService.on(GameEvents.SubmitQuestion, () => {
             this.submittedQuestionCount++;
-            if (this.submittedQuestionCount === this.playerCount) {
+            if (this.submittedQuestionCount === this.playerCount && this.socketTime !== 0) {
                 this.socketClientService.send(TimeEvents.TimerInterrupted, this.roomId);
             }
         });
