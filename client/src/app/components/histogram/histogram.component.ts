@@ -34,7 +34,6 @@ export class HistogramComponent implements OnInit, OnDestroy {
         if (!this.socketClientService.socketExists()) {
             return;
         }
-        this.choicesSelectionCounts = [];
         this.loadChart();
         this.updateSelections();
         this.reactToNextQuestionEvent();

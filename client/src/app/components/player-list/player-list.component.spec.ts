@@ -23,6 +23,9 @@ class MockSocketClientService extends SocketClientService {
     override connect() {
         // vide
     }
+    override socketExists() {
+        return true;
+    }
 }
 
 describe('PlayerListComponent', () => {
@@ -36,10 +39,10 @@ describe('PlayerListComponent', () => {
     let socketHelper: SocketTestHelper;
 
     beforeEach(() => {
+        mockSocketClientService = jasmine.createSpyObj('SocketClientService', ['on', 'socketExists']);
         routerSpy = jasmine.createSpyObj('Router', ['navigateByUrl']);
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
         mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['componentInstance']);
-        mockSocketClientService = jasmine.createSpyObj('SocketClientService', ['on']);
     });
 
     beforeEach(waitForAsync(() => {

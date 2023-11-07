@@ -2,9 +2,11 @@ import { Component, ElementRef, HostListener, OnDestroy, OnInit } from '@angular
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
+import { GameEvents } from '@app/events/game.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
+import { SocketClientService } from '@app/services/socket-client.service';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -15,19 +17,20 @@ import { firstValueFrom } from 'rxjs';
 export class HostGamePageComponent implements OnInit, OnDestroy {
     quiz: Quiz;
     title: string;
-    roomId: string | null;
+    roomId: string;
 
     // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
     constructor(
         private popup: MatDialog,
         private roomCommunicationService: RoomCommunicationService,
+        private socketClientService: SocketClientService,
         private readonly router: Router,
         private readonly route: ActivatedRoute,
         private readonly elementRef: ElementRef,
     ) {
         this.title = 'Partie: ';
-        this.roomId = this.route.snapshot.paramMap.get('roomId');
+        this.roomId = this.route.snapshot.paramMap.get('roomId') as string;
     }
 
     @HostListener('window:beforeunload', ['$event'])

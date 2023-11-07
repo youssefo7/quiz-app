@@ -47,7 +47,8 @@ describe('GamePageComponent in test game route', () => {
     };
 
     beforeEach(async () => {
-        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
+        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'socketExists', 'connect', 'disconnect', 'send']);
+        clientSocketServiceMock.socketExists.and.returnValue(true);
         roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', ['getPlayerName']);
         communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
         communicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
@@ -153,7 +154,8 @@ describe('GamePageComponent in regular game route', () => {
     let roomCommunicationServiceMock: jasmine.SpyObj<RoomCommunicationService>;
 
     beforeEach(() => {
-        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
+        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'socketExists', 'connect', 'disconnect', 'send']);
+        clientSocketServiceMock.socketExists.and.returnValue(true);
         roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', ['getPlayerName']);
         communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
     });

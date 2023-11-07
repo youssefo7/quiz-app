@@ -44,7 +44,7 @@ export class WaitingGateway {
                 playerSocket.leave(data.roomId);
                 playerSocket.disconnect();
             }
-            this.server.emit(WaitingEvents.BanName, data.name);
+            this.server.to(data.roomId).emit(WaitingEvents.BanName, data.name);
         }
     }
 }

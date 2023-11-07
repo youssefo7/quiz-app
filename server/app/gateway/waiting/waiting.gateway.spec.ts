@@ -25,6 +25,7 @@ describe('WaitingGateway', () => {
                 sockets: new Map(),
             },
             emit: jest.fn(),
+            to: jest.fn().mockReturnThis(),
         } as unknown as SinonStubbedInstance<Server>;
 
         const module: TestingModule = await Test.createTestingModule({

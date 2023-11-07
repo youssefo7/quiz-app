@@ -53,6 +53,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     handleNavigation() {
         const currentUrl = this.router.url;
         const gameUrl = `/results/${this.route.snapshot.paramMap.get('quizId')}/room/${this.roomId}`;
+        console.log(currentUrl, gameUrl);
         if (currentUrl !== gameUrl) {
             this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
             this.socketClientService.disconnect();

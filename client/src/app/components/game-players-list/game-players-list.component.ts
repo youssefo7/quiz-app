@@ -83,7 +83,7 @@ export class GamePlayersListComponent implements OnInit {
         this.socketService.on(GameEvents.SendResults, async () => {
             await firstValueFrom(this.roomCommunicationService.sendPlayerResults(this.roomId as string, this.playerResults));
             this.socketService.send(GameEvents.ShowResults, this.roomId);
-            this.router.navigateByUrl(`/results/game/${this.quizId}/room/${this.roomId}`);
+            this.router.navigateByUrl(`/results/game/${this.quizId}/room/${this.roomId}/host`);
         });
     }
 
