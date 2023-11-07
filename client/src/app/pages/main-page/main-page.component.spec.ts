@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
-import { AdminGuardService } from '@app/services/admin-guard.service';
+import { SocketClientService } from '@app/services/socket-client.service';
 
 import SpyObj = jasmine.SpyObj;
 
@@ -9,11 +9,11 @@ describe('MainPageComponent', () => {
     let component: MainPageComponent;
     let fixture: ComponentFixture<MainPageComponent>;
     let matDialogServiceSpy: SpyObj<MatDialog>;
-    let adminGuardServiceMock: SpyObj<AdminGuardService>;
+    let socketClientServiceMock: SpyObj<SocketClientService>;
 
     beforeEach(() => {
         matDialogServiceSpy = jasmine.createSpyObj('MatDialog', ['open']);
-        adminGuardServiceMock = jasmine.createSpyObj('AdminGuardService', ['showAdminPopup']);
+        socketClientServiceMock = jasmine.createSpyObj('SocketClientService', ['connect']);
     });
 
     beforeEach(waitForAsync(() => {
@@ -21,7 +21,7 @@ describe('MainPageComponent', () => {
             declarations: [MainPageComponent],
             providers: [
                 { provide: MatDialog, useValue: matDialogServiceSpy },
-                { provide: AdminGuardService, useValue: adminGuardServiceMock },
+                { provide: SocketClientService, useValue: socketClientServiceMock },
             ],
         }).compileComponents();
     }));
@@ -38,17 +38,24 @@ describe('MainPageComponent', () => {
 
     it('should have a "Administrer les jeux" button that opens a modal when clicked', () => {
         const adminButton: HTMLButtonElement = fixture.debugElement.nativeElement.querySelector('#admin-button');
+        const openAdminPopupSpy = spyOn(component, 'openAdminPopup').and.callThrough();
         adminButton.click();
 
+        expect(openAdminPopupSpy).toHaveBeenCalled();
         expect(adminButton.innerText).toEqual('Administrer les jeux');
         expect(matDialogServiceSpy.open).toHaveBeenCalled();
     });
 
-    // it('should have a "Joindre une partie" button redirecting to /game', () => {
-    //     const joinGameButton = fixture.debugElement.nativeElement.querySelector('#join-game-button');
-    //     expect(joinGameButton.innerText).toEqual('Joindre une partie');
-    //     expect(joinGameButton.getAttribute('RouterLink')).toEqual('/game');
-    // });
+    it('should have a "Joindre une partie" button that opens a modal when clicked and connects client socket', () => {
+        const joinGameButton: HTMLButtonElement = fixture.debugElement.nativeElement.querySelector('#join-game-button');
+        const openJoinGamePopupSpy = spyOn(component, 'openJoinGamePopup').and.callThrough();
+        joinGameButton.click();
+
+        expect(openJoinGamePopupSpy).toHaveBeenCalled();
+        expect(joinGameButton.innerText).toEqual('Joindre une partie');
+        expect(matDialogServiceSpy.open).toHaveBeenCalled();
+        expect(socketClientServiceMock.connect).toHaveBeenCalled();
+    });
 
     it('should have a "Créer une partie" button redirecting to /game/new', () => {
         const hostGameButton = fixture.debugElement.nativeElement.querySelector('#create-game-button');
