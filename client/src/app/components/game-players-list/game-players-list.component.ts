@@ -60,7 +60,6 @@ export class GamePlayersListComponent implements OnInit {
         }
     }
 
-    // !
     isResultsPage() {
         return this.isResultsRoute;
     }

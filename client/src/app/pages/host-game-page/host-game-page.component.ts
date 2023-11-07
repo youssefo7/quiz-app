@@ -2,11 +2,9 @@ import { Component, ElementRef, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
-import { GameEvents } from '@app/events/game.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
-import { SocketClientService } from '@app/services/socket-client.service';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -27,10 +25,8 @@ export class HostGamePageComponent implements OnInit {
         private readonly router: Router,
         private readonly route: ActivatedRoute,
         private readonly elementRef: ElementRef,
-        private readonly socketClientService: SocketClientService,
     ) {
         this.title = 'Partie: ';
-        // this.roomId = this.route.snapshot.paramMap.get('roomId') as string;
     }
 
     // TODO : deconnecter lors de refresh
@@ -66,16 +62,9 @@ export class HostGamePageComponent implements OnInit {
         }
     }
 
-    private reactToShowResultsEvent() {
-        this.socketClientService.on(GameEvents.ShowResults, () => {
-            // this.router.navigateByUrl(`/results/game/${this.quiz?.id}/room/${this.roomId}`);
-        });
-    }
-
     private async loadQuiz() {
         await this.getQuiz();
         this.getQuizTitle();
-        this.reactToShowResultsEvent();
     }
 
     private async getQuiz() {
