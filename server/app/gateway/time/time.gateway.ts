@@ -1,3 +1,4 @@
+import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
 import { Injectable } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
@@ -7,32 +8,32 @@ import { TimeEvents } from './time.gateway.events';
 @Injectable()
 export class TimeGateway {
     @WebSocketServer() private server: Server;
-    private interval: ReturnType<typeof setInterval> | null;
-    private counter: number;
-    private tickRate: number;
+    constructor(private roomManagerService: RoomManagerService) {}
 
     @SubscribeMessage(TimeEvents.StartTimer)
-    handleStartTimer(_: Socket, data: { initialTime: number; tickRate: number; roomId: string }) {
-        if (this.interval) return;
+    handleStartTimer(socket: Socket, data: { initialTime: number; tickRate: number; roomId: string }) {
+        let counter = data.initialTime;
+        const room = this.roomManagerService.findRoom(data.roomId);
+        if (room.timer) return;
+        this.server.to(data.roomId).emit(TimeEvents.CurrentTimer, counter);
+        counter--;
 
-        this.counter = data.initialTime;
-        this.tickRate = data.tickRate;
-        this.emitUpdatedTime(data.roomId);
-
-        this.interval = setInterval(() => {
-            if (this.counter >= 0) {
-                this.emitUpdatedTime(data.roomId);
+        room.timer = setInterval(() => {
+            if (counter >= 0) {
+                this.server.to(data.roomId).emit(TimeEvents.CurrentTimer, counter);
+                counter--;
             } else {
-                this.handleStopTimer();
+                this.handleStopTimer(socket, data.roomId);
                 this.server.to(data.roomId).emit(TimeEvents.TimerFinished);
             }
-        }, this.tickRate);
+        }, data.tickRate);
     }
 
     @SubscribeMessage(TimeEvents.StopTimer)
-    handleStopTimer() {
-        clearInterval(this.interval);
-        this.interval = null;
+    handleStopTimer(_: Socket, roomId: string) {
+        const room = this.roomManagerService.findRoom(roomId);
+        clearInterval(room.timer);
+        room.timer = null;
     }
 
     @SubscribeMessage(TimeEvents.TransitionClockFinished)
@@ -41,13 +42,8 @@ export class TimeGateway {
     }
 
     @SubscribeMessage(TimeEvents.TimerInterrupted)
-    handleTimerInterrupted(_: Socket, roomId: string) {
-        this.handleStopTimer();
+    handleTimerInterrupted(socket: Socket, roomId: string) {
+        this.handleStopTimer(socket, roomId);
         this.server.to(roomId).emit(TimeEvents.TimerInterrupted);
-    }
-
-    private emitUpdatedTime(roomId: string) {
-        this.server.to(roomId).emit(TimeEvents.CurrentTimer, this.counter);
-        this.counter--;
     }
 }

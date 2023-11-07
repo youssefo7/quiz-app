@@ -41,6 +41,7 @@ describe('JoinGateway', () => {
             isLocked: false,
             bannedNames: ['bannedName1'],
             answerTimes: [],
+            timer: null,
         });
         gateway['server'] = server;
     });

@@ -34,6 +34,7 @@ describe('RoomManagerService', () => {
                     { userId: 'playerId2', timeStamp: 90 },
                     { userId: 'playerId1', timeStamp: 100 },
                 ],
+                timer: null,
             },
         ];
         room = roomManagerServiceMock.rooms[0];

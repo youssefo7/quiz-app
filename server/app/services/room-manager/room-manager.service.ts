@@ -20,6 +20,7 @@ export class RoomManagerService {
             isLocked: false,
             bannedNames: [],
             answerTimes: [],
+            timer: null,
         });
 
         return roomId;
