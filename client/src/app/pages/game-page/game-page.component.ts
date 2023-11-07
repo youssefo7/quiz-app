@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
@@ -30,7 +30,6 @@ export class GamePageComponent implements OnInit {
         private popup: MatDialog,
         private readonly route: ActivatedRoute,
         private readonly router: Router,
-        private readonly elementRef: ElementRef,
         private readonly socketClientService: SocketClientService,
         private readonly roomCommunicationService: RoomCommunicationService,
         private readonly gameService: GameService,
@@ -72,7 +71,6 @@ export class GamePageComponent implements OnInit {
         if (this.quiz) {
             this.title += this.quiz.title;
             this.title += this.isTestGame ? ' (Test)' : '';
-            this.elementRef.nativeElement.setAttribute('title', this.title);
         }
     }
 

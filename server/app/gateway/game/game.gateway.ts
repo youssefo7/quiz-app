@@ -56,11 +56,36 @@ export class GameGateway {
         }
     }
 
-    @SubscribeMessage(GameEvents.GoodAnswer)
-    handleGoodAnswer(socket: Socket, roomId: string) {
+    @SubscribeMessage(GameEvents.GoodAnswerOnClick)
+    handleGoodAnswerOnClick(socket: Socket, roomId: string) {
         const room = this.roomManager.findRoom(roomId);
         const timeStamp = new Date();
         room.answerTimes.push({ userId: socket.id, timeStamp: timeStamp.getTime() });
+        const organizer = room.organizer.socketId;
+        this.server.to(organizer).emit(GameEvents.GoodAnswerOnClick);
+    }
+
+    @SubscribeMessage(GameEvents.GoodAnswerOnFinishedTimer)
+    handleGoodAnswerOnFinishedTimer(socket: Socket, roomId: string) {
+        const room = this.roomManager.findRoom(roomId);
+        const timeStamp = new Date();
+        room.answerTimes.push({ userId: socket.id, timeStamp: timeStamp.getTime() });
+        const organizer = room.organizer.socketId;
+        this.server.to(organizer).emit(GameEvents.GoodAnswerOnFinishedTimer);
+    }
+
+    @SubscribeMessage(GameEvents.BadAnswerOnClick)
+    handleBadAnswerOnClick(socket: Socket, roomId: string) {
+        const room = this.roomManager.findRoom(roomId);
+        const organizer = room.organizer.socketId;
+        this.server.to(organizer).emit(GameEvents.BadAnswerOnClick);
+    }
+
+    @SubscribeMessage(GameEvents.BadAnswerOnFinishedTimer)
+    handleBadAnswerOnFinishedTimer(socket: Socket, roomId: string) {
+        const room = this.roomManager.findRoom(roomId);
+        const organizer = room.organizer.socketId;
+        this.server.to(organizer).emit(GameEvents.BadAnswerOnFinishedTimer);
     }
 
     @SubscribeMessage(GameEvents.QuestionChoiceSelect)
@@ -120,9 +145,15 @@ export class GameGateway {
         this.server.to(room.organizer.socketId).emit(GameEvents.SendResults);
     }
 
-    @SubscribeMessage(GameEvents.SubmitQuestion)
-    handleSubmitQuestion(_: Socket, roomId: string) {
+    @SubscribeMessage(GameEvents.SubmitQuestionOnClick)
+    handleSubmitQuestionOnClick(_: Socket, roomId: string) {
         const organizer = this.roomManager.findRoom(roomId).organizer.socketId;
-        this.server.to(organizer).emit(GameEvents.SubmitQuestion);
+        this.server.to(organizer).emit(GameEvents.SubmitQuestionOnClick);
+    }
+
+    @SubscribeMessage(GameEvents.SubmitQuestionOnFinishedTimer)
+    handleSubmitQuestionOnFinishedTimer(_: Socket, roomId: string) {
+        const organizer = this.roomManager.findRoom(roomId).organizer.socketId;
+        this.server.to(organizer).emit(GameEvents.SubmitQuestionOnFinishedTimer);
     }
 }
