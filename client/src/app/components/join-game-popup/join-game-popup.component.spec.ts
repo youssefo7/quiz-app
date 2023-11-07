@@ -76,7 +76,7 @@ describe('JoinGamePopupComponent', () => {
         expect(checkCodeSpy).toHaveBeenCalled();
     });
 
-    it('should handle enter press when code is not valid', async () => {
+    it('should handle enter press when code is valid', async () => {
         const verifyAndAccessSpy = spyOn(component, 'verifyAndAccess');
         component.isCodeValidated = true;
         component.showUsernameField = true;
@@ -195,7 +195,7 @@ describe('JoinGamePopupComponent', () => {
         expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
     });
 
-    it('should navigate if username is invalid', async () => {
+    it('should navigate if username is valid', async () => {
         component.givenRoomCode = roomIdMock;
         component.givenUsername = 'validUsername';
 
@@ -211,7 +211,7 @@ describe('JoinGamePopupComponent', () => {
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith(`/waiting/game/${component['quizId']}/room/${roomIdMock}`);
     });
 
-    it('should close the dialog and send the player leave join game if user cancels', () => {
+    it('should close the dialog and send the player a PlayerLeaveGame event if user cancels', () => {
         const cancelButton = fixture.debugElement.nativeElement.querySelector('#cancel');
         spyOn(component, 'closeAdminPopup').and.callThrough();
 
@@ -247,7 +247,7 @@ describe('JoinGamePopupComponent', () => {
         });
     });
 
-    it('should prevent default action for non-allowed keys', () => {
+    it('should prevent default action for symbols', () => {
         const symbolsNotAllowedKeys = ['!', '@', '#', '$', '%', '?', '&', '*', '-', '_', '+', '='];
 
         symbolsNotAllowedKeys.forEach((key) => {
@@ -258,7 +258,7 @@ describe('JoinGamePopupComponent', () => {
         });
     });
 
-    it('should prevent default action for non-allowed keys', () => {
+    it('should prevent default action for letters', () => {
         const lettersNotAllowedKeys = ['A', 'Z', 'a', 'z'];
 
         lettersNotAllowedKeys.forEach((key) => {
