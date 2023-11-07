@@ -51,6 +51,7 @@ describe('ChatComponent', () => {
 
         fixture = TestBed.createComponent(ChatComponent);
         component = fixture.componentInstance;
+        component.roomId = 'roomId';
         fixture.detectChanges();
     }));
 

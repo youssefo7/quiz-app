@@ -22,18 +22,18 @@ export class GamePageComponent implements OnInit {
     playerPoints: number;
     playerName: string;
     readonly isTestGame: boolean;
-    private roomId: string | null;
+    roomId: string | null;
 
     // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
     constructor(
-        private gameService: GameService,
         private popup: MatDialog,
         private readonly route: ActivatedRoute,
         private readonly router: Router,
         private readonly elementRef: ElementRef,
         private readonly socketClientService: SocketClientService,
         private readonly roomCommunicationService: RoomCommunicationService,
+        private readonly gameService: GameService,
     ) {
         this.title = 'Partie: ';
         this.playerPoints = 0;
@@ -59,8 +59,13 @@ export class GamePageComponent implements OnInit {
     }
 
     async getQuiz() {
-        const quizId = this.route.snapshot.paramMap.get('quizId');
-        this.quiz = await this.gameService.getQuizById(quizId);
+        if (this.isTestGame) {
+            const quizId = this.route.snapshot.paramMap.get('quizId');
+            this.quiz = await this.gameService.getQuizById(quizId);
+        } else {
+            const roomId = this.route.snapshot.paramMap.get('roomId') as string;
+            this.quiz = await firstValueFrom(this.roomCommunicationService.getRoomQuiz(roomId));
+        }
     }
 
     getQuizTitle() {

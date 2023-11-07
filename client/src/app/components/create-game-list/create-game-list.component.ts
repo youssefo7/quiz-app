@@ -70,7 +70,7 @@ export class CreateGameListComponent implements OnInit, OnDestroy {
                             if (this.socketClientService.socketExists()) {
                                 roomId = await firstValueFrom(
                                     this.roomCommunicationService.createRoom({
-                                        quizId: this.selectedQuizId as string,
+                                        quiz: this.findSelectedQuizInVisibleList() as Quiz,
                                         socketId: this.socketClientService.socket.id,
                                     }),
                                 );
@@ -124,5 +124,9 @@ export class CreateGameListComponent implements OnInit, OnDestroy {
         const dialogRef = this.popUp.open(PopupMessageComponent);
         const popupInstance = dialogRef.componentInstance;
         popupInstance.config = config;
+    }
+
+    private findSelectedQuizInVisibleList(): Quiz | undefined {
+        return this.visibleQuizList.find((quiz) => quiz.id === this.selectedQuizId);
     }
 }

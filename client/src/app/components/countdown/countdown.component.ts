@@ -17,10 +17,11 @@ const ONE_SECOND_INTERVAL = 1000;
 })
 export class CountdownComponent implements OnInit, OnDestroy {
     @Input() isHost: boolean;
+    @Input() quiz: Quiz;
+    @Input() roomId: string | null;
     message: string;
     clockStyle: { backgroundColor: string };
     private socketTime: number;
-    private quiz: Quiz | null;
     private timerSubscription: Subscription;
     private isQuestionTransitioning: boolean;
     private currentQuestionIndex: number;
@@ -28,7 +29,6 @@ export class CountdownComponent implements OnInit, OnDestroy {
     private isTestGame: boolean;
     private gameServiceSubscription: Subscription;
     private hasFinishedTransitionClock: boolean;
-    private roomId: string;
 
     // Tous ces paramètres sont nécessaires pour que la composante fonctionne bien
     // eslint-disable-next-line max-params
@@ -42,7 +42,6 @@ export class CountdownComponent implements OnInit, OnDestroy {
         this.isHost = false;
         this.currentQuestionIndex = 0;
         this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
-        this.roomId = this.route.snapshot.paramMap.get('roomId') as string;
     }
 
     get time() {
@@ -59,7 +58,6 @@ export class CountdownComponent implements OnInit, OnDestroy {
     }
 
     private async loadTimer() {
-        await this.getQuiz();
         if (this.quiz) {
             this.lastQuestionIndex = this.quiz.questions.length - 1;
         }
@@ -110,11 +108,6 @@ export class CountdownComponent implements OnInit, OnDestroy {
                 this.transitionClock();
             }
         });
-    }
-
-    private async getQuiz() {
-        const quizId = this.route.snapshot.paramMap.get('quizId');
-        this.quiz = await this.gameService.getQuizById(quizId);
     }
 
     private switchColorToRedOnThreeSeconds() {

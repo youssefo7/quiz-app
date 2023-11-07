@@ -1,9 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { GameEvents } from '@app/events/game.events';
 import { TimeEvents } from '@app/events/time.events';
 import { Question, Quiz } from '@app/interfaces/quiz';
-import { GameService } from '@app/services/game.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { Chart } from 'chart.js';
 
@@ -13,21 +11,17 @@ import { Chart } from 'chart.js';
     styleUrls: ['./histogram.component.scss'],
 })
 export class HistogramComponent implements OnInit, OnDestroy {
+    @Input() quiz: Quiz;
     question: Question;
     chart: Chart;
     goodBadChoices: boolean[];
-    private quiz: Quiz | null;
     private playersChoices: string[];
     private choicesSelectionCounts: number[];
     private chartBorderColors: string[];
     private chartBackgroundColors: string[];
     private currentQuestionIndex: number;
 
-    constructor(
-        private readonly route: ActivatedRoute,
-        private readonly gameService: GameService,
-        private readonly socketClientService: SocketClientService,
-    ) {
+    constructor(private readonly socketClientService: SocketClientService) {
         this.playersChoices = [];
         this.chartBorderColors = [];
         this.chartBackgroundColors = [];
@@ -47,14 +41,8 @@ export class HistogramComponent implements OnInit, OnDestroy {
     }
 
     private async loadChart() {
-        await this.getQuiz();
         this.getQuestion(this.currentQuestionIndex);
         this.createPlayerAnswersChart();
-    }
-
-    private async getQuiz() {
-        const id = this.route.snapshot.paramMap.get('quizId');
-        this.quiz = await this.gameService.getQuizById(id);
     }
 
     private getQuestion(index: number) {

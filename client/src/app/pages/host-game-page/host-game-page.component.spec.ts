@@ -11,8 +11,6 @@ import { ProfileComponent } from '@app/components/profile/profile.component';
 import { QuestionZoneStatsComponent } from '@app/components/question-zone-stats/question-zone-stats.component';
 import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
-import { CommunicationService } from '@app/services/communication.service';
-import { GameService } from '@app/services/game.service';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { NgChartsModule } from 'ng2-charts';
@@ -31,11 +29,9 @@ export class ChatComponentStub {}
 describe('HostGamePageComponent', () => {
     let component: HostGamePageComponent;
     let fixture: ComponentFixture<HostGamePageComponent>;
-    let communicationServiceMock: SpyObj<CommunicationService>;
     let mockDialog: SpyObj<MatDialog>;
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
     let clientSocketServiceMock: SpyObj<SocketClientService>;
-    let gameService: GameService;
     let router: Router;
     let roomCommunicationServiceMock: jasmine.SpyObj<RoomCommunicationService>;
 
@@ -52,14 +48,13 @@ describe('HostGamePageComponent', () => {
 
     beforeEach(() => {
         clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
-        communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
-        roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', ['getRoomPlayers']);
+        roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', ['getRoomPlayers', 'getRoomQuiz']);
         roomCommunicationServiceMock.getRoomPlayers.and.returnValue(
             of([
                 /* liste mock de joueur d'une salle */
             ]),
         );
-        communicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
+        roomCommunicationServiceMock.getRoomQuiz.and.returnValue(of(mockedQuiz));
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
         mockDialogRef = jasmine.createSpyObj('MatDialogRef<PopupMessageComponent>', ['componentInstance']);
         mockDialog.open.and.returnValue(mockDialogRef);
@@ -82,10 +77,8 @@ describe('HostGamePageComponent', () => {
             imports: [NgChartsModule],
             providers: [
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'host' }] } } },
-                { provide: CommunicationService, useValue: communicationServiceMock },
                 { provide: MatDialog, useValue: mockDialog },
                 { provide: MatDialogRef, useValue: mockDialogRef },
-                { provide: SocketClientService, useValue: clientSocketServiceMock },
                 { provide: SocketClientService, useValue: clientSocketServiceMock },
                 { provide: RoomCommunicationService, useValue: roomCommunicationServiceMock },
             ],
@@ -93,7 +86,6 @@ describe('HostGamePageComponent', () => {
         fixture = TestBed.createComponent(HostGamePageComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
-        gameService = TestBed.inject(GameService);
         router = TestBed.inject(Router);
     }));
 
@@ -102,9 +94,8 @@ describe('HostGamePageComponent', () => {
     });
 
     it('should fetch the quiz ', () => {
-        const getQuizByIdSpy = spyOn(gameService, 'getQuizById');
         component['getQuiz']();
-        expect(getQuizByIdSpy).toHaveBeenCalledWith(mockedQuiz.id);
+        expect(roomCommunicationServiceMock.getRoomQuiz).toHaveBeenCalledWith(mockedQuiz.id);
     });
 
     it('clicking the exit icon should redirect to "/game/new" page', () => {

@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // Raison: tout les tests sont necessaires, dans leur intégralité, pour tester de manière exhaustive le gateway
 /* eslint-disable max-lines */
+import { Quiz } from '@app/model/database/quiz';
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -40,7 +41,7 @@ describe('GameGateway', () => {
         roomManagerServiceMock.rooms = [
             {
                 id: roomId,
-                quizId: '1',
+                quiz: {} as Quiz,
                 organizer: { socketId: 'organizerId', name: 'Organisateur' },
                 players: [
                     { socketId: 'playerId1', name: 'name1', points: 50, bonusCount: 0 },
