@@ -1,4 +1,3 @@
-import { SocketClientService } from './../../services/socket-client.service';
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChatEvents } from '@app/events/chat.events';
@@ -6,6 +5,7 @@ import { GameEvents } from '@app/events/game.events';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { firstValueFrom } from 'rxjs';
+import { SocketClientService } from './../../services/socket-client.service';
 
 @Component({
     selector: 'app-chat',
@@ -46,7 +46,6 @@ export class ChatComponent implements OnInit {
             this.configureChatSocketFeatures();
         }
         if (this.isResultsRoute) {
-            console.log(this.roomId)
             this.roomMessages = await firstValueFrom(this.roomCommunicationService.getChatMessages(this.roomId as string));
         }
     }
