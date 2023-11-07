@@ -50,6 +50,7 @@ describe('WaitingGateway', () => {
             isLocked: false,
             bannedNames: [],
             answerTimes: [],
+            timer: null,
         });
 
         gateway['server'] = server;
