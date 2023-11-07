@@ -267,4 +267,16 @@ describe('RoomManagerService', () => {
         expect(user?.socketId).toBe(playerId);
         expect(user).not.toEqual(room.organizer);
     });
+
+    it('should return undefined for a player that does not exist in a given room', () => {
+        const playerId = 'nonExistentPlayerId';
+        const result = roomManagerServiceMock.getPlayerName(roomId, playerId);
+        expect(result).toBeUndefined();
+    });
+
+    it('should return player if player exists in a given room', () => {
+        const playerId = 'playerId1';
+        const result = roomManagerServiceMock.getPlayerName(roomId, playerId);
+        expect(result).toBe('name1');
+    });
 });
