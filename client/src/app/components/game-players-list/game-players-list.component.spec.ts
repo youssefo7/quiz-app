@@ -39,7 +39,7 @@ describe('GamePlayersListComponent', () => {
                     provide: SocketClientService,
                     useValue: clientSocketServiceMock,
                 },
-                { provide: ActivatedRoute, useValue: { snapshot: { url: [{ path: 'results' }] } } },
+                { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'results' }] } } },
                 { provide: RoomCommunicationService, useValue: roomCommunicationServiceMock },
             ],
         });
@@ -81,7 +81,7 @@ describe('GamePlayersListComponent', () => {
         await component.fetchPlayersList();
 
         expect(roomCommunicationServiceMock.getRoomPlayers).toHaveBeenCalledWith('123');
-        expect(component.playersList.length).toBe(playersListMock.length);
+        expect(component.playerResults.length).toBe(playersListMock.length);
     });
 
     it('sortPlayers() should sort playersList by score in ascending order', () => {

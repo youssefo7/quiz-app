@@ -7,6 +7,7 @@ import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-host-game-page',
@@ -22,6 +23,7 @@ export class HostGamePageComponent implements OnInit {
     // eslint-disable-next-line max-params
     constructor(
         private popup: MatDialog,
+        private roomCommunicationService: RoomCommunicationService,
         private readonly router: Router,
         private readonly route: ActivatedRoute,
         private readonly elementRef: ElementRef,

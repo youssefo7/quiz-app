@@ -4,9 +4,9 @@
         <div id="exit-button-grid">
             <mat-icon title="Quitter la Partie" inline="true">exit_to_app</mat-icon>
         </div>
-        <app-game-players-list id="player-list-grid"></app-game-players-list>
+        <app-game-players-list id="player-list-grid" [roomId]="roomId"></app-game-players-list>
         <div id="chat-player-flex">
-            <app-chat id="chat-container"></app-chat>
+            <app-chat id="chat-container" [roomId]="roomId"></app-chat>
         </div>
     </div>
 </div>

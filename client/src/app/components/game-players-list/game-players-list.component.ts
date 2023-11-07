@@ -17,7 +17,7 @@ interface AddPointsResponse {
     styleUrls: ['./game-players-list.component.scss'],
 })
 export class GamePlayersListComponent implements OnInit {
-    @Input() roomId: string;
+    @Input() roomId: string | null;
     playerResults: Results[];
     private isResultsRoute: boolean;
     private quizId: string;
@@ -45,7 +45,7 @@ export class GamePlayersListComponent implements OnInit {
 
     async fetchPlayersList() {
         if (!this.isResultsRoute) {
-            const roomPlayers = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId));
+            const roomPlayers = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string));
             roomPlayers.forEach((name) => {
                 const player: Results = {
                     name,
@@ -56,7 +56,7 @@ export class GamePlayersListComponent implements OnInit {
                 this.playerResults.push(player);
             });
         } else {
-            this.playerResults = await firstValueFrom(this.roomCommunicationService.getPlayerResults(this.roomId));
+            this.playerResults = await firstValueFrom(this.roomCommunicationService.getPlayerResults(this.roomId as string));
         }
     }
 
@@ -79,7 +79,7 @@ export class GamePlayersListComponent implements OnInit {
         });
 
         this.socketService.on(GameEvents.SendResults, async () => {
-            await firstValueFrom(this.roomCommunicationService.sendPlayerResults(this.roomId, this.playerResults));
+            await firstValueFrom(this.roomCommunicationService.sendPlayerResults(this.roomId as string, this.playerResults));
             this.socketService.send(GameEvents.ShowResults, this.roomId);
             this.router.navigateByUrl(`/results/game/${this.quizId}/room/${this.roomId}`);
         });

@@ -46,6 +46,7 @@ export class ChatComponent implements OnInit {
             this.configureChatSocketFeatures();
         }
         if (this.isResultsRoute) {
+            console.log(this.roomId)
             this.roomMessages = await firstValueFrom(this.roomCommunicationService.getChatMessages(this.roomId as string));
         }
     }
@@ -76,8 +77,8 @@ export class ChatComponent implements OnInit {
             }
         });
 
-        this.socketService.on(GameEvents.ShowResults, async () => {
-            await firstValueFrom(this.roomCommunicationService.sendChatMessages(this.roomId, this.roomMessages));
+        this.socketService.on(GameEvents.SendResults, async () => {
+            await firstValueFrom(this.roomCommunicationService.sendChatMessages(this.roomId as string, this.roomMessages));
         });
     }
 
