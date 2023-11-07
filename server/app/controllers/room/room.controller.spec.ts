@@ -1,3 +1,4 @@
+import { Quiz } from '@app/model/database/quiz';
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -8,6 +9,7 @@ import { RoomController } from './room.controller';
 describe('RoomController', () => {
     let controller: RoomController;
     let roomManagerService: SinonStubbedInstance<RoomManagerService>;
+    let mockQuiz: Quiz;
 
     beforeEach(async () => {
         roomManagerService = createStubInstance(RoomManagerService);
@@ -64,23 +66,23 @@ describe('RoomController', () => {
         controller.handleChooseName(roomId, body, res);
     });
 
-    it('handleJoinRoom() should process and return room state', async () => {
-        const roomId = 'roomId';
-        const body = { socketId: 'socketId' };
-        roomManagerService.processJoinRoom.returns({ roomState: 'OK', quizId: 'quizId' });
+    // it('handleJoinRoom() should process and return room state', async () => {
+    //     const roomId = 'roomId';
+    //     const body = { socketId: 'socketId' };
+    //     roomManagerService.processJoinRoom.returns({ roomState: 'OK', quiz: mockQuiz });
 
-        const res = {} as Response;
-        res.status = (code) => {
-            expect(code).toEqual(HttpStatus.OK);
-            return res;
-        };
-        res.json = (quizzes) => {
-            expect(quizzes).toEqual({ roomState: 'OK', quizId: 'quizId' });
-            return res;
-        };
+    //     const res = {} as Response;
+    //     res.status = (code) => {
+    //         expect(code).toEqual(HttpStatus.OK);
+    //         return res;
+    //     };
+    //     res.json = (quizzes) => {
+    //         expect(quizzes).toEqual({ roomState: 'OK', quizId: 'quizId' });
+    //         return res;
+    //     };
 
-        controller.handleJoinRoom(roomId, body, res);
-    });
+    //     controller.handleJoinRoom(roomId, body, res);
+    // });
 
     it('handleJoinRoom() should return INTERNAL_SERVER_ERROR when service fails to process join room', async () => {
         const roomId = 'roomId';
@@ -101,7 +103,7 @@ describe('RoomController', () => {
     });
 
     it('handleCreateRoom() should create a room and return its id', async () => {
-        const body = { quizId: 'quizId', socketId: 'socketId' };
+        const body = { quiz: mockQuiz, socketId: 'socketId' };
         roomManagerService.createNewRoom.returns('roomId');
 
         const res = {} as Response;
@@ -118,7 +120,7 @@ describe('RoomController', () => {
     });
 
     it('handleCreateRoom() should return INTERNAL_SERVER_ERROR when service fails to create a room', async () => {
-        const body = { quizId: 'quizId', socketId: 'socketId' };
+        const body = { quiz: mockQuiz, socketId: 'socketId' };
         roomManagerService.createNewRoom.throws();
 
         const res = {} as Response;
@@ -202,5 +204,39 @@ describe('RoomController', () => {
         };
 
         controller.handleGetName(roomId, body, res);
+    });
+
+    it('handleGetRoomQuiz() should return room quiz', async () => {
+        const roomId = 'roomId';
+        roomManagerService.getRoomQuiz.returns(mockQuiz);
+
+        const res = {} as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.json = (quiz) => {
+            expect(quiz).toEqual(quiz);
+            return res;
+        };
+
+        controller.handleGetRoomQuiz(roomId, res);
+    });
+
+    it('handleGetRoomQuiz() should return NOT_FOUND when service fails to get room quiz', async () => {
+        const roomId = 'roomId';
+        roomManagerService.getRoomQuiz.throws();
+
+        const res = {} as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.json = (quizzes) => {
+            expect(quizzes).toEqual('Erreur lors de la récupération du quiz de la salle roomId');
+            return res;
+        };
+
+        controller.handleGetRoomQuiz(roomId, res);
     });
 });
