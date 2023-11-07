@@ -1,8 +1,9 @@
 // Raison: On est à des mockQuiz qui prennent beaucoup de place, mais on ne vaut pas les déplacer dans un fichier séparé
 /* eslint-disable max-lines */
 import { DebugElement } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
+import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
 import { SocketClientService } from '@app/services/socket-client.service';
@@ -96,21 +97,11 @@ describe('QuestionZoneComponent', () => {
         expect(changeSubmitButtonStateSpy).toHaveBeenCalled();
     });
 
-    it('should fetch the quiz ', () => {
-        const id = '123';
-        const getQuizByIdSpy = spyOn(gameService, 'getQuizById');
-        component.getQuiz();
-        expect(getQuizByIdSpy).toHaveBeenCalledWith(id);
-    });
-
-    it('should fetch the quiz and the first question', fakeAsync(() => {
-        const getQuizSpy = spyOn(component, 'getQuiz');
+    it('should fetch the first question', () => {
         const getQuestionSpy = spyOn(component, 'getQuestion');
-        component.loadQuiz();
-        tick();
-        expect(getQuizSpy).toHaveBeenCalled();
+        component.ngOnInit();
         expect(getQuestionSpy).toHaveBeenCalled();
-    }));
+    });
 
     it('should focus on the buttons when the question zone container is clicked', () => {
         const focusOnButtonSpy = spyOn(component, 'focusOnButton');
@@ -211,7 +202,7 @@ describe('QuestionZoneComponent', () => {
         expect(choiceArray).toBeUndefined();
 
         const validIndex = 0;
-        component.quiz = null;
+        component.quiz = null as unknown as Quiz;
         component.getQuestion(validIndex);
         expect(choiceArray).toBeUndefined();
     });

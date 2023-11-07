@@ -88,7 +88,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.loadQuiz();
+        this.getQuestion(this.currentQuestionIndex);
         this.subscribeToTimer();
         this.detectEndGame();
         this.handleTransitionClockFinished();
@@ -101,10 +101,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             if (this.timerSubscription) this.timerSubscription.unsubscribe();
             if (this.gameServiceSubscription) this.gameServiceSubscription.unsubscribe();
         }
-    }
-
-    async loadQuiz() {
-        this.getQuestion(this.currentQuestionIndex);
     }
 
     focusOnButton() {

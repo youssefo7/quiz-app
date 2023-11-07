@@ -82,6 +82,7 @@ export class HostGamePageComponent implements OnInit {
         this.roomId = this.route.snapshot.paramMap.get('roomId') as string;
         this.quiz = await firstValueFrom(this.roomCommunicationService.getRoomQuiz(this.roomId));
     }
+
     private async leaveGamePage() {
         await this.router.navigateByUrl('/game/new');
     }

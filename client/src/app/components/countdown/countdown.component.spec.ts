@@ -88,13 +88,6 @@ describe('CountdownComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should get the quiz ', waitForAsync(() => {
-        const id = '123';
-        component['getQuiz']();
-        gameServiceMock.getQuizById.and.returnValue(Promise.resolve(mockQuiz));
-        expect(gameServiceMock.getQuizById).toHaveBeenCalledWith(id);
-    }));
-
     it('should display the transition clock with the correct message and style', waitForAsync(() => {
         const transitionTime = 3;
         component['transitionClock']();
@@ -114,8 +107,11 @@ describe('CountdownComponent', () => {
     }));
 
     it('should switch the clock color to red on three seconds', waitForAsync(() => {
+        const setClockColorToRedSpy = spyOn<any>(component, 'setClockColorToRed').and.callThrough();
         component['switchColorToRedOnThreeSeconds']();
+        component['isQuestionTransitioning'] = false;
         expect(timeServiceMock.getTime).toHaveBeenCalled();
+        expect(setClockColorToRedSpy).toHaveBeenCalled();
         expect(component.clockStyle).toEqual({ backgroundColor: '#FF4D4D' });
     }));
 
@@ -135,6 +131,7 @@ describe('CountdownComponent', () => {
         const leaveSpy = spyOn<any>(component, 'leaveGame');
 
         component['lastQuestionIndex'] = 3;
+        component['isTestGame'] = true;
         component['testGameClock']();
 
         fixture.whenStable().then(() => {
@@ -156,13 +153,12 @@ describe('CountdownComponent', () => {
     }));
 
     it('should load the timer for the test game', waitForAsync(() => {
-        const getQuizSpy = spyOn<any>(component, 'getQuiz').and.returnValue(Promise.resolve());
         const testGameClockSpy = spyOn<any>(component, 'testGameClock').and.returnValue(Promise.resolve());
+        component.quiz = mockQuiz;
         component['isTestGame'] = true;
         component['loadTimer']();
 
         fixture.whenStable().then(() => {
-            expect(getQuizSpy).toHaveBeenCalled();
             expect(testGameClockSpy).toHaveBeenCalled();
         });
     }));

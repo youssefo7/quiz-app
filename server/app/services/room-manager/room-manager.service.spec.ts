@@ -1,6 +1,7 @@
 // La raison du disable est pour pouvoir mettre un Spy sur une méthodes qui est privée qui est appelé dans la fonction processJoinRoom()
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Room } from '@app/interfaces/room';
+import { Quiz } from '@app/model/database/quiz';
 import { Test, TestingModule } from '@nestjs/testing';
 import { RoomManagerService } from './room-manager.service';
 
@@ -8,6 +9,16 @@ describe('RoomManagerService', () => {
     let roomId: string;
     let room: Room;
     let roomManagerServiceMock: RoomManagerService;
+
+    const roomQuiz: Quiz = {
+        id: '2',
+        title: 'quiz',
+        duration: 20,
+        lastModification: '',
+        description: 'description',
+        visibility: true,
+        questions: [],
+    };
 
     beforeEach(() => {
         roomId = 'testId';
@@ -22,7 +33,7 @@ describe('RoomManagerService', () => {
         roomManagerServiceMock.rooms = [
             {
                 id: roomId,
-                quizId: '1',
+                quiz: roomQuiz,
                 organizer: { socketId: 'organizerId', name: 'Organisateur' },
                 players: [
                     { socketId: 'playerId1', name: 'name1', points: 50, bonusCount: 0 },
@@ -44,14 +55,14 @@ describe('RoomManagerService', () => {
     });
 
     it('should create a new room with a unique id', () => {
-        const quizId = '1';
+        const quiz: Quiz = { ...roomQuiz, id: '2' };
         const organizerId = 'organizerId';
-        const newRoomId = roomManagerServiceMock.createNewRoom(quizId, organizerId);
+        const newRoomId = roomManagerServiceMock.createNewRoom(quiz, organizerId);
 
         expect(newRoomId).toBeDefined();
         const roomToFind = roomManagerServiceMock.findRoom(newRoomId);
         expect(roomToFind).toBeDefined();
-        expect(roomToFind.quizId).toBe(quizId);
+        expect(roomToFind.quiz).toBe(quiz);
         expect(roomToFind.organizer.socketId).toBe(organizerId);
         expect(roomToFind.players).toHaveLength(0);
         expect(roomToFind.isLocked).toBe(false);
@@ -175,7 +186,7 @@ describe('RoomManagerService', () => {
         const addPlayerToRoomSpy = jest.spyOn(roomManagerServiceMock as any, 'addPlayerToRoom');
         const result = roomManagerServiceMock.processJoinRoom(data);
         expect(result.roomState).toBe('OK');
-        expect(result.quizId).toBe('1');
+        expect(result.quiz).toBe(roomQuiz);
         expect(room.players.length).toBe(3);
         expect(addPlayerToRoomSpy).toHaveBeenCalled();
     });
@@ -186,7 +197,7 @@ describe('RoomManagerService', () => {
         const result = roomManagerServiceMock.processJoinRoom({ socketId: 'playerId3', roomId });
 
         expect(result.roomState).toBe('INVALID');
-        expect(result.quizId).toBe(null);
+        expect(result.quiz).toBe(null);
         expect(addPlayerToRoomSpy).not.toHaveBeenCalled();
     });
 
@@ -196,7 +207,7 @@ describe('RoomManagerService', () => {
         const result = roomManagerServiceMock.processJoinRoom({ socketId: 'playerId3', roomId });
 
         expect(result.roomState).toBe('IS_LOCKED');
-        expect(result.quizId).toBe(null);
+        expect(result.quiz).toBe(null);
         expect(addPlayerToRoomSpy).not.toHaveBeenCalled();
     });
 

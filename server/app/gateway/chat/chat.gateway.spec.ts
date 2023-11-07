@@ -1,3 +1,4 @@
+import { Quiz } from '@app/model/database/quiz';
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -33,7 +34,7 @@ describe('ChatGateway', () => {
         roomManagerServiceMock = module.get<RoomManagerService>(RoomManagerService);
         roomManagerServiceMock.rooms.push({
             id: 'testId',
-            quizId: '1',
+            quiz: {} as Quiz,
             organizer: { socketId: 'organizerId', name: 'Organisateur' },
             players: [
                 { socketId: 'playerId1', name: 'name1', points: 50, bonusCount: 0 },
