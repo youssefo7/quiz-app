@@ -326,9 +326,9 @@ describe('QuestionZoneComponent', () => {
     });
 
     it('should show results', () => {
+        component['isTestGame'] = true;
         spyOn(component, 'setSubmitButtonToDisabled');
         spyOn(component, 'displayCorrectAnswer');
-        spyOn(component, 'givePoints');
         component.showResult();
         expect(component.setSubmitButtonToDisabled).toHaveBeenCalledWith(true, { backgroundColor: 'grey' });
         expect(component.displayCorrectAnswer).toHaveBeenCalled();
