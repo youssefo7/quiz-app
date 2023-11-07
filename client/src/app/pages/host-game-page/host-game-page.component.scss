@@ -63,14 +63,9 @@
         justify-content: space-between;
         margin-left: 25px;
 
-        #profile-container {
-            flex-basis: 10%;
-        }
-
         #chat-container {
-            max-height: 350px;
-            flex-basis: 90%;
-            overflow-y: auto;
+            max-height: 400px;
+            min-height: 400px;
         }
     }
 
