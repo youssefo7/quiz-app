@@ -83,6 +83,7 @@ export class GameGateway {
             const player = this.roomManager.findPlayer(quickestPlayer.userId, room);
             player.bonusCount++;
             this.server.to(quickestPlayer.userId).emit(GameEvents.GiveBonus);
+            this.server.to(room.organizer.socketId).emit(GameEvents.BonusUpdate, player.name);
         }
     }
 
@@ -111,6 +112,12 @@ export class GameGateway {
     @SubscribeMessage(GameEvents.ShowResults)
     handleShowResults(_: Socket, roomId: string) {
         this.server.to(roomId).emit(GameEvents.ShowResults);
+    }
+
+    @SubscribeMessage(GameEvents.SendResults)
+    handleSendResults(_: Socket, roomId: string) {
+        const room = this.roomManager.findRoom(roomId);
+        this.server.to(room.organizer.socketId).emit(GameEvents.SendResults);
     }
 
     @SubscribeMessage(GameEvents.SubmitQuestion)

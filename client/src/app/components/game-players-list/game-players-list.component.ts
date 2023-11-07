@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GameEvents } from '@app/events/game.events';
-import { PlayerInfo } from '@app/interfaces/player-info';
+import { Results } from '@app/interfaces/player-info';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { firstValueFrom } from 'rxjs';
@@ -17,22 +17,26 @@ interface AddPointsResponse {
     styleUrls: ['./game-players-list.component.scss'],
 })
 export class GamePlayersListComponent implements OnInit {
-    @Input() roomId: string;
-    playersList: PlayerInfo[];
+    @Input() roomId: string | null;
+    playerResults: Results[];
     private isResultsRoute: boolean;
-
+    private quizId: string;
+    // Raison: Les quatres injections sont nécessaires pour ma composante
+    // eslint-disable-next-line max-params
     constructor(
         private socketService: SocketClientService,
         private roomCommunicationService: RoomCommunicationService,
         private router: Router,
+        private route: ActivatedRoute,
     ) {
         this.isResultsRoute = this.router.url.includes('results');
-        this.playersList = [];
+        this.playerResults = [];
+        this.quizId = this.route.snapshot.paramMap.get('quizId') as string;
     }
 
     async ngOnInit() {
         await this.fetchPlayersList();
-        const canSort = this.isResultsRoute && this.playersList.length > 0;
+        const canSort = this.isResultsRoute && this.playerResults.length > 0;
         if (canSort) {
             this.sortPlayers();
         }
@@ -40,19 +44,19 @@ export class GamePlayersListComponent implements OnInit {
     }
 
     async fetchPlayersList() {
-        const roomPlayersObservable = this.roomCommunicationService.getRoomPlayers(this.roomId);
-
-        if (roomPlayersObservable) {
-            const roomPlayers = await firstValueFrom(roomPlayersObservable);
+        if (!this.isResultsRoute) {
+            const roomPlayers = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string));
             roomPlayers.forEach((name) => {
-                const player: PlayerInfo = {
+                const player: Results = {
                     name,
-                    score: 0,
+                    points: 0,
                     hasAbandoned: false,
                     bonusCount: 0,
                 };
-                this.playersList.push(player);
+                this.playerResults.push(player);
             });
+        } else {
+            this.playerResults = await firstValueFrom(this.roomCommunicationService.getPlayerResults(this.roomId as string));
         }
     }
 
@@ -69,32 +73,44 @@ export class GamePlayersListComponent implements OnInit {
             this.updatePlayerScore(response);
         });
 
-        // TODO : gerer l'ajout de bonus aux joueurs
-        //  this.socketService.on(GameEvents.GiveBonus, () => {
-        //     this.updatePlayerBonusCount(response);
-        // });
+        this.socketService.on(GameEvents.BonusUpdate, (playerName: string) => {
+            this.updatePlayerBonusCount(playerName);
+        });
+
+        this.socketService.on(GameEvents.SendResults, async () => {
+            await firstValueFrom(this.roomCommunicationService.sendPlayerResults(this.roomId as string, this.playerResults));
+            this.socketService.send(GameEvents.ShowResults, this.roomId);
+            this.router.navigateByUrl(`/results/game/${this.quizId}/room/${this.roomId}`);
+        });
     }
 
     private updatePlayerStatus(playerName: string) {
-        const playerToUpdate = this.playersList.find((player) => player.name === playerName);
+        const playerToUpdate = this.playerResults.find((player) => player.name === playerName);
         if (playerToUpdate) {
             playerToUpdate.hasAbandoned = true;
         }
     }
 
     private updatePlayerScore(response: AddPointsResponse) {
-        const playerToUpdate = this.playersList.find((player) => player.name === response.name);
+        const playerToUpdate = this.playerResults.find((player) => player.name === response.name);
         if (playerToUpdate) {
-            playerToUpdate.score += response.pointsToAdd;
+            playerToUpdate.points += response.pointsToAdd;
+        }
+    }
+
+    private updatePlayerBonusCount(playerName: string) {
+        const wantedPlayer = this.playerResults.find((player) => player.name === playerName);
+        if (wantedPlayer) {
+            wantedPlayer.bonusCount++;
         }
     }
 
     private sortPlayers() {
-        this.playersList.sort((a, b) => {
-            if (a.score === b.score) {
+        this.playerResults.sort((a, b) => {
+            if (a.points === b.points) {
                 return a.name.localeCompare(b.name);
             }
-            return b.score - a.score;
+            return b.points - a.points;
         });
     }
 }

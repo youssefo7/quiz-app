@@ -1,13 +1,13 @@
-<div id="player-list">
-  <div id="titles">
-    <span>Nom</span>
-    <span *ngIf="!isResultsPage()">Score</span>
-    <span *ngIf="isResultsPage()">Score final</span>
-    <span *ngIf="isResultsPage()">Bonus</span>
-  </div>
-  <div *ngFor="let player of playersList" class="player-entry">
-    <span class="player-name" [ngClass]="{ 'abandoned': player.hasAbandoned }">{{ player.name }}</span>
-    <span class="player-score">{{ player.score }} points</span>
-    <span *ngIf="isResultsPage()" class="player-bonus">{{ player.bonusCount }} fois</span>
-  </div>
+<div id="player-list" *ngIf="playerResults">
+    <div id="titles">
+        <span>Nom</span>
+        <span *ngIf="!isResultsPage()">Score</span>
+        <span *ngIf="isResultsPage()">Score final</span>
+        <span *ngIf="isResultsPage()">Bonus</span>
+    </div>
+    <div *ngFor="let player of playerResults" class="player-entry">
+        <span class="player-name" [ngClass]="{ abandoned: player.hasAbandoned }">{{ player.name }}</span>
+        <span class="player-score">{{ player.points }} points</span>
+        <span *ngIf="isResultsPage()" class="player-bonus">{{ player.bonusCount }} fois</span>
+    </div>
 </div>

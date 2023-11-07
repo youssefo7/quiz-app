@@ -11,7 +11,7 @@ export class QuizzesController {
 
     @ApiOkResponse({
         description: 'Returns Quizzes list',
-        type: Quiz,
+        type: Array<Quiz>,
         isArray: true,
     })
     @ApiNotFoundResponse({

@@ -6,29 +6,28 @@ import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { ResultsPageComponent } from './results-page.component';
+import { ChatComponent } from '@app/components/chat/chat.component';
+import { FormsModule } from '@angular/forms';
 
 describe('ResultsPageComponent', () => {
     let component: ResultsPageComponent;
     let fixture: ComponentFixture<ResultsPageComponent>;
     let clientSocketServiceMock: jasmine.SpyObj<SocketClientService>;
     let roomCommunicationServiceMock: jasmine.SpyObj<RoomCommunicationService>;
-    const activatedRouteMock = jasmine.createSpyObj<ActivatedRoute>;
 
     beforeEach(() => {
         clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
         roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', ['getRoomPlayers']);
         TestBed.configureTestingModule({
-            declarations: [ResultsPageComponent, GamePlayersListComponent, MatIcon, TopBarComponent],
+            declarations: [ResultsPageComponent, GamePlayersListComponent, MatIcon, TopBarComponent, ChatComponent],
+            imports: [FormsModule],
             providers: [
                 {
                     provide: SocketClientService,
                     useValue: clientSocketServiceMock,
                 },
                 { provide: RoomCommunicationService, useValue: roomCommunicationServiceMock },
-                {
-                    provide: ActivatedRoute,
-                    useValue: activatedRouteMock,
-                },
+                { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'results' }] } } },
             ],
         });
         fixture = TestBed.createComponent(ResultsPageComponent);

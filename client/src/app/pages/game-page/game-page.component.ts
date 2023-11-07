@@ -100,8 +100,7 @@ export class GamePageComponent implements OnInit {
 
     private socketClientServiceConfig() {
         this.socketClientService.on(GameEvents.ShowResults, () => {
-            // TODO: changer pour la page de résultat
-            this.router.navigateByUrl('/home');
+            this.router.navigateByUrl(`/results/game/${this.quiz?.id}/room/${this.roomId}`);
         });
 
         this.socketClientService.on(GameEvents.AddPointsToPlayer, (pointsObject: PlayerPoints) => {

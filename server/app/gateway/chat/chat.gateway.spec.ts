@@ -44,6 +44,8 @@ describe('ChatGateway', () => {
             bannedNames: [],
             answerTimes: [],
             timer: null,
+            results: [],
+            chatMessage: [],
         });
         gateway['server'] = server;
     });
