@@ -22,10 +22,16 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     private lastQuestionIndex: number;
     private isEndOfQuestionTime: boolean;
     private timeServiceSubscription: Subscription;
-    private submittedQuestionCount: number;
     private playerCount: number;
     private hasTimerBeenInterrupted: boolean;
     private socketTime: number;
+    private submittedQuestionOnClickCount: number;
+    private goodAnswerOnClickCount: number;
+    private goodAnswerOnFinishedTimerCount: number;
+    private badAnswerOnClickCount: number;
+    private badAnswerOnFinishedTimerCount: number;
+    private totalBadAnswers: number;
+    private totalGoodAnswers: number;
 
     constructor(
         private readonly socketClientService: SocketClientService,
@@ -37,8 +43,13 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         this.nextQuestionButtonStyle = { backgroundColor: '' };
         this.isEndOfQuestionTime = false;
         this.hasTimerBeenInterrupted = false;
-        this.submittedQuestionCount = 0;
         this.socketTime = 0;
+        this.submittedQuestionOnClickCount = 0;
+        this.goodAnswerOnClickCount = 0;
+        this.badAnswerOnClickCount = 0;
+        this.badAnswerOnFinishedTimerCount = 0;
+        this.totalBadAnswers = 0;
+        this.totalGoodAnswers = 0;
     }
 
     async ngOnInit() {
@@ -74,11 +85,15 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         this.handleSubmittedQuestion();
         this.handlePlayerLeaveGame();
         this.handleNextQuestion();
+        this.handleAnswers();
     }
 
     private getQuestion(index: number) {
         if (this.quiz && index < this.quiz.questions.length) {
             this.question = this.quiz.questions[index];
+            if (this.currentQuestionIndex === this.lastQuestionIndex) {
+                this.nextQuestionButtonText = 'Voir les résultats';
+            }
         }
     }
 
@@ -100,10 +115,18 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
 
     private detectEndOfQuestion(time: number) {
         if (time === 0) {
-            if (this.submittedQuestionCount >= 1 && !this.hasTimerBeenInterrupted) {
+            if (this.hasTimerBeenInterrupted && this.submittedQuestionOnClickCount === this.playerCount) {
                 this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
-            } else if (this.hasTimerBeenInterrupted) {
-                this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
+            } else {
+                this.totalGoodAnswers = this.goodAnswerOnClickCount + this.goodAnswerOnFinishedTimerCount;
+                this.totalBadAnswers = this.badAnswerOnClickCount + this.badAnswerOnFinishedTimerCount;
+                if (this.totalGoodAnswers + this.totalBadAnswers === this.playerCount) {
+                    if (this.goodAnswerOnClickCount >= 1) {
+                        this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
+                    } else if (this.goodAnswerOnFinishedTimerCount === 1) {
+                        this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
+                    }
+                }
             }
 
             this.isEndOfQuestionTime = !this.isEndOfQuestionTime;
@@ -119,31 +142,73 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     private showNextQuestion() {
         if (!this.isEndOfQuestionTime && this.quiz) {
             this.currentQuestionIndex++;
+            this.resetAnswerCount();
             this.getQuestion(this.currentQuestionIndex);
-            if (this.currentQuestionIndex === this.lastQuestionIndex) {
-                this.nextQuestionButtonText = 'Voir les résultats';
-            }
         }
     }
 
+    private resetAnswerCount() {
+        this.submittedQuestionOnClickCount = 0;
+        this.goodAnswerOnClickCount = 0;
+        this.badAnswerOnClickCount = 0;
+        this.badAnswerOnFinishedTimerCount = 0;
+        this.totalBadAnswers = 0;
+        this.totalGoodAnswers = 0;
+    }
+
     private handleSubmittedQuestion() {
-        this.socketClientService.on(GameEvents.SubmitQuestion, () => {
-            this.submittedQuestionCount++;
-            if (this.submittedQuestionCount === this.playerCount && this.socketTime !== 0) {
-                this.socketClientService.send(TimeEvents.TimerInterrupted, this.roomId);
-            }
+        this.socketClientService.on(GameEvents.SubmitQuestionOnClick, () => {
+            this.submittedQuestionOnClickCount++;
         });
     }
 
     private handleNextQuestion() {
         this.socketClientService.on(GameEvents.NextQuestion, () => {
-            this.submittedQuestionCount = 0;
+            this.submittedQuestionOnClickCount = 0;
         });
     }
 
     private handlePlayerLeaveGame() {
         this.socketClientService.on(GameEvents.PlayerLeaveGame, () => {
             this.playerCount--;
+        });
+    }
+
+    private handleAnswers() {
+        this.socketClientService.on(GameEvents.GoodAnswerOnClick, () => {
+            this.goodAnswerOnClickCount++;
+            if (this.submittedQuestionOnClickCount === this.playerCount && this.socketTime !== 0) {
+                this.socketClientService.send(TimeEvents.TimerInterrupted, this.roomId);
+            } else {
+                this.detectEndOfQuestion(0);
+            }
+        });
+
+        this.socketClientService.on(GameEvents.GoodAnswerOnFinishedTimer, () => {
+            this.goodAnswerOnFinishedTimerCount++;
+            if (this.submittedQuestionOnClickCount === this.playerCount && this.socketTime !== 0) {
+                this.socketClientService.send(TimeEvents.TimerInterrupted, this.roomId);
+            } else {
+                this.detectEndOfQuestion(0);
+            }
+        });
+
+        this.socketClientService.on(GameEvents.BadAnswerOnClick, () => {
+            this.badAnswerOnClickCount++;
+            if (this.submittedQuestionOnClickCount === this.playerCount && this.socketTime !== 0) {
+                this.socketClientService.send(TimeEvents.TimerInterrupted, this.roomId);
+            } else {
+                this.detectEndOfQuestion(0);
+            }
+        });
+
+        this.socketClientService.on(GameEvents.BadAnswerOnFinishedTimer, () => {
+            this.badAnswerOnFinishedTimerCount++;
+            if (this.submittedQuestionOnClickCount === this.playerCount && this.socketTime !== 0) {
+                this.socketClientService.send(TimeEvents.TimerInterrupted, this.roomId);
+            } else {
+                this.detectEndOfQuestion(0);
+            }
         });
     }
 }
