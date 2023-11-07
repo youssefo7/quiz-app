@@ -12,7 +12,6 @@ import { JoinEvents } from '@app/events/join.events';
 import { TimeEvents } from '@app/events/time.events';
 import { WaitingEvents } from '@app/events/waiting.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
-import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { Socket } from 'socket.io-client';
 import { PlayerListComponent } from './player-list.component';
@@ -31,7 +30,6 @@ describe('PlayerListComponent', () => {
     let mockDialog: SpyObj<MatDialog>;
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
     let mockSocketClientService: MockSocketClientService;
-    let mockRoomCommunicationService: RoomCommunicationService;
     let routerSpy: SpyObj<Router>;
     let socketHelper: SocketTestHelper;
 
@@ -56,7 +54,6 @@ describe('PlayerListComponent', () => {
                     useValue: { snapshot: { paramMap: convertToParamMap({ quizId: '123', roomId: '456' }), url: [] } },
                 },
                 { provide: SocketClientService, useValue: mockSocketClientService },
-                { provide: RoomCommunicationService, useValue: mockRoomCommunicationService },
                 { provide: Router, useValue: routerSpy },
             ],
             imports: [HttpClientTestingModule],
