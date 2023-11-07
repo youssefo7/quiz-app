@@ -1,6 +1,7 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { JoinRoomResponse } from '@app/interfaces/join-room-response';
+import { Quiz } from '@app/interfaces/quiz';
 import { RoomCommunicationService } from './room-communication.service';
 
 describe('RoomCommunicationService', () => {
@@ -48,7 +49,7 @@ describe('RoomCommunicationService', () => {
         const joinData = { socketId: 'mockSocketId' };
         const mockJoinRoomResponse: JoinRoomResponse = {
             roomState: 'mockState',
-            quizId: 'mockId',
+            quiz: {} as Quiz,
         };
 
         service.joinRoom(roomId, joinData).subscribe({
@@ -65,7 +66,7 @@ describe('RoomCommunicationService', () => {
 
     it('should create a room when sending POST request with quiz and socket id in body (HttpClient called once)', () => {
         const mockRoomId = '1234';
-        const createData = { quizId: 'mockQuizId', socketId: 'mockSocketId' };
+        const createData = { quiz: {} as Quiz, socketId: 'mockSocketId' };
 
         service.createRoom(createData).subscribe({
             next: (response) => {

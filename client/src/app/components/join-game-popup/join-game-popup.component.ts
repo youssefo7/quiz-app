@@ -84,9 +84,7 @@ export class JoinGamePopupComponent {
                     this.showUsernameField = true;
                     this.isCodeValidated = true;
                     this.roomCodeErrorMessage = '';
-                    if (joinRoomResponse.quizId) {
-                        this.quizId = joinRoomResponse.quizId;
-                    }
+                    this.quizId = joinRoomResponse.quiz.id;
                     this.socketClientService.send(JoinEvents.JoinRoom, this.givenRoomCode);
                     break;
                 }

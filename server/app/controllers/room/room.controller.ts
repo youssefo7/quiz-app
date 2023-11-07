@@ -1,3 +1,4 @@
+import { Quiz } from '@app/model/database/quiz';
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
 import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
 import { ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
@@ -50,9 +51,9 @@ export class RoomController {
         description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
     })
     @Post('/new')
-    handleCreateRoom(@Body() data: { quizId: string; socketId: string }, @Res() response: Response) {
+    handleCreateRoom(@Body() data: { quiz: Quiz; socketId: string }, @Res() response: Response) {
         try {
-            const roomId = this.roomManagerService.createNewRoom(data.quizId, data.socketId);
+            const roomId = this.roomManagerService.createNewRoom(data.quiz, data.socketId);
             response.status(HttpStatus.OK).send(roomId);
         } catch (error) {
             response.status(HttpStatus.INTERNAL_SERVER_ERROR).json('Erreur lors de la création de la salle');
@@ -90,6 +91,23 @@ export class RoomController {
             response.status(HttpStatus.OK).json(name);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).json(`Erreur lors de la récupération du nom du joueur ${data.socketId} de la salle ${roomId}`);
+        }
+    }
+
+    @ApiOkResponse({
+        description: 'Returns room quiz',
+        type: Quiz,
+    })
+    @ApiNotFoundResponse({
+        description: 'Return NOT_FOUND http status when request fails',
+    })
+    @Get('/:roomId/quiz')
+    handleGetRoomQuiz(@Param('roomId') roomId: string, @Res() response: Response) {
+        try {
+            const quiz = this.roomManagerService.getRoomQuiz(roomId);
+            response.status(HttpStatus.OK).json(quiz);
+        } catch (error) {
+            response.status(HttpStatus.NOT_FOUND).json(`Erreur lors de la récupération du quiz de la salle ${roomId}`);
         }
     }
 }

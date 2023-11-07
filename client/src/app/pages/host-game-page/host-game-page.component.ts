@@ -5,8 +5,9 @@ import { PopupMessageComponent } from '@app/components/popup-message/popup-messa
 import { GameEvents } from '@app/events/game.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
-import { GameService } from '@app/services/game.service';
+import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-host-game-page',
@@ -14,18 +15,19 @@ import { SocketClientService } from '@app/services/socket-client.service';
     styleUrls: ['./host-game-page.component.scss', '../../../assets/shared.scss'],
 })
 export class HostGamePageComponent implements OnInit {
-    quiz: Quiz | null;
+    quiz: Quiz;
     title: string;
+    roomId: string;
 
     // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
     constructor(
-        private gameService: GameService,
         private popup: MatDialog,
-        private readonly route: ActivatedRoute,
         private readonly router: Router,
+        private readonly route: ActivatedRoute,
         private readonly elementRef: ElementRef,
         private readonly socketClientService: SocketClientService,
+        private readonly roomCommunicationService: RoomCommunicationService,
     ) {
         this.title = 'Partie: ';
     }
@@ -77,9 +79,10 @@ export class HostGamePageComponent implements OnInit {
     }
 
     private async getQuiz() {
-        const quizId = this.route.snapshot.paramMap.get('quizId');
-        this.quiz = await this.gameService.getQuizById(quizId);
+        this.roomId = this.route.snapshot.paramMap.get('roomId') as string;
+        this.quiz = await firstValueFrom(this.roomCommunicationService.getRoomQuiz(this.roomId));
     }
+
     private async leaveGamePage() {
         await this.router.navigateByUrl('/game/new');
     }

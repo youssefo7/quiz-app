@@ -1,6 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { JoinRoomResponse } from '@app/interfaces/join-room-response';
+import { Quiz } from '@app/interfaces/quiz';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -21,7 +22,7 @@ export class RoomCommunicationService {
         return this.http.post<JoinRoomResponse>(`${this.baseUrl}/rooms/${roomId}/join`, data).pipe(catchError(this.receiveError<JoinRoomResponse>()));
     }
 
-    createRoom(data: { quizId: string; socketId: string }): Observable<string> {
+    createRoom(data: { quiz: Quiz; socketId: string }): Observable<string> {
         return this.http.post<string>(`${this.baseUrl}/rooms/new`, data).pipe(catchError(this.receiveError<string>()));
     }
 
@@ -31,6 +32,10 @@ export class RoomCommunicationService {
 
     getPlayerName(roomId: string, data: { socketId: string }): Observable<string> {
         return this.http.post<string>(`${this.baseUrl}/rooms/${roomId}/playerName`, data).pipe(catchError(this.receiveError<string>()));
+    }
+
+    getRoomQuiz(roomId: string): Observable<Quiz> {
+        return this.http.get<Quiz>(`${this.baseUrl}/rooms/${roomId}/quiz`).pipe(catchError(this.receiveError<Quiz>()));
     }
 
     private receiveError<T>() {

@@ -1,4 +1,5 @@
 import { Player } from '@app/interfaces/room';
+import { Quiz } from '@app/model/database/quiz';
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -41,7 +42,7 @@ describe('WaitingGateway', () => {
         roomManagerServiceMock = module.get<RoomManagerService>(RoomManagerService);
         roomManagerServiceMock.rooms.push({
             id: roomId,
-            quizId: '1',
+            quiz: {} as Quiz,
             organizer: { socketId: 'organizerId', name: 'Organisateur' },
             players: [
                 { socketId: 'playerId1', name: 'name1', points: 0, bonusCount: 0 },

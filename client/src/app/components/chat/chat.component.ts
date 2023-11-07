@@ -12,13 +12,13 @@ import { SocketClientService } from '@app/services/socket-client.service';
 })
 export class ChatComponent implements OnInit {
     @Input() isOrganizer: boolean;
+    @Input() roomId: string | null;
     chatMessage: ChatMessage;
     characterCounterDisplay: string;
     currentInputLength: number;
     maxInputLength: number;
     roomMessages: ChatMessage[];
     userMessage: string;
-    roomId: string;
     private isTestGame: boolean;
 
     constructor(
@@ -29,10 +29,8 @@ export class ChatComponent implements OnInit {
         this.currentInputLength = 0;
         this.characterCounterDisplay = `${this.currentInputLength} / ${this.maxInputLength}`;
         this.roomMessages = [];
-        this.roomId = '';
         this.userMessage = '';
         this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
-        this.roomId = this.route.snapshot.paramMap.get('roomId') as string;
     }
 
     ngOnInit() {

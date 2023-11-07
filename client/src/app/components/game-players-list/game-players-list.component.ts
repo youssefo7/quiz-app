@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, Input, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { GameEvents } from '@app/events/game.events';
 import { PlayerInfo } from '@app/interfaces/player-info';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
@@ -17,16 +17,14 @@ interface AddPointsResponse {
     styleUrls: ['./game-players-list.component.scss'],
 })
 export class GamePlayersListComponent implements OnInit {
+    @Input() roomId: string;
     playersList: PlayerInfo[];
     private isResultsRoute: boolean;
 
-    // Raison: Nous avons besoin de 4 d'injecter 4 objets dans cette classe
-    // eslint-disable-next-line max-params
     constructor(
         private socketService: SocketClientService,
         private roomCommunicationService: RoomCommunicationService,
         private router: Router,
-        private route: ActivatedRoute,
     ) {
         this.isResultsRoute = this.router.url.includes('results');
         this.playersList = [];
@@ -42,8 +40,7 @@ export class GamePlayersListComponent implements OnInit {
     }
 
     async fetchPlayersList() {
-        const roomId = this.route.snapshot.paramMap.get('roomId') as string;
-        const roomPlayersObservable = this.roomCommunicationService.getRoomPlayers(roomId);
+        const roomPlayersObservable = this.roomCommunicationService.getRoomPlayers(this.roomId);
 
         if (roomPlayersObservable) {
             const roomPlayers = await firstValueFrom(roomPlayersObservable);
