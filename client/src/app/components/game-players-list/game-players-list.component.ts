@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameEvents } from '@app/events/game.events';
-import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { Results } from '@app/interfaces/player-info';
+import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { firstValueFrom } from 'rxjs';
 
@@ -78,8 +78,9 @@ export class GamePlayersListComponent implements OnInit {
             this.updatePlayerBonusCount(playerName);
         });
 
-        this.socketService.on(GameEvents.ShowResults, async () => {
+        this.socketService.on(GameEvents.SendResults, async () => {
             await firstValueFrom(this.roomCommunicationService.sendPlayerResults(this.roomId, this.playerResults));
+            this.socketService.send(GameEvents.ShowResults, this.roomId);
             this.router.navigateByUrl(`/results/game/${this.quizId}/room/${this.roomId}`);
         });
     }

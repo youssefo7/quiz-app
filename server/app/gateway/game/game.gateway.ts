@@ -115,6 +115,12 @@ export class GameGateway {
         this.server.to(roomId).emit(GameEvents.ShowResults);
     }
 
+    @SubscribeMessage(GameEvents.SendResults)
+    handleSendResults(_: Socket, roomId: string) {
+        const room = this.roomManager.findRoom(roomId);
+        this.server.to(room.organizer.socketId).emit(GameEvents.SendResults);
+    }
+
     @SubscribeMessage(GameEvents.SubmitQuestion)
     handleSubmitQuestion(_: Socket, roomId: string) {
         const organizer = this.roomManager.findRoom(roomId).organizer.socketId;
