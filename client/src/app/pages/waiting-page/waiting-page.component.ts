@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
@@ -13,7 +13,7 @@ import { firstValueFrom } from 'rxjs';
     templateUrl: './waiting-page.component.html',
     styleUrls: ['./waiting-page.component.scss'],
 })
-export class WaitingPageComponent implements OnInit {
+export class WaitingPageComponent implements OnInit, OnDestroy {
     isHost: boolean;
     roomId: string | null;
     private players: string[];
@@ -32,16 +32,47 @@ export class WaitingPageComponent implements OnInit {
         this.roomId = this.route.snapshot.paramMap.get('roomId');
     }
 
-    @HostListener('window:beforeunload')
-    beforeUnload() {
+    @HostListener('window:beforeunload', ['$event'])
+    beforeUnloadHandler() {
+        this.handleNavigation();
+    }
+
+    ngOnDestroy() {
+        this.handleNavigation();
+    }
+
+    handleNavigation() {
+        const currentUrl = this.router.url;
+        const gameUrl = `/game/${this.route.snapshot.paramMap.get('quizId')}/room/${this.roomId}`;
         if (this.isHost) {
-            this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: true });
+            if (currentUrl !== gameUrl + '/host') {
+                this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: true });
+            }
         } else {
-            this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
+            if (currentUrl !== gameUrl) {
+                this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
+            }
         }
     }
 
     async ngOnInit() {
+        if (!this.socketClientService.socketExists()) {
+            if (this.isHost) {
+                this.socketClientService.connect();
+                if (this.socketClientService.socketExists()) {
+                    this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: true });
+                    this.socketClientService.disconnect();
+                }
+            } else {
+                this.socketClientService.connect();
+                if (this.socketClientService.socketExists()) {
+                    this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
+                    this.socketClientService.disconnect();
+                }
+            }
+            this.router.navigateByUrl('home/');
+            return;
+        }
         this.listenToSocketEvents();
         this.players = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string));
     }

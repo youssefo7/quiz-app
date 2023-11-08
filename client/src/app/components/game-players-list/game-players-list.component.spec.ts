@@ -31,7 +31,8 @@ describe('GamePlayersListComponent', () => {
 
     beforeEach(waitForAsync(() => {
         roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', ['getRoomPlayers', 'getPlayerResults', 'sendPlayerResults']);
-        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
+        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'socketExists']);
+        clientSocketServiceMock.socketExists.and.returnValue(true);
         TestBed.configureTestingModule({
             declarations: [GamePlayersListComponent],
             providers: [

@@ -1,4 +1,3 @@
-import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
@@ -6,6 +5,7 @@ import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { ChatEvents } from '@app/events/chat.events';
 import { GameEvents } from '@app/events/game.events';
+import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { Socket } from 'socket.io-client';
 import { ChatComponent } from './chat.component';
@@ -13,6 +13,9 @@ import { ChatComponent } from './chat.component';
 class SocketClientServiceMock extends SocketClientService {
     override connect() {
         // vide
+    }
+    override socketExists() {
+        return true;
     }
 }
 
@@ -24,7 +27,7 @@ describe('ChatComponent', () => {
     let roomCommunicationServiceMock: RoomCommunicationService;
 
     beforeEach(() => {
-        socketClientServiceMock = jasmine.createSpyObj('SocketClientService', ['connect', 'disconnect', 'send', 'on']);
+        socketClientServiceMock = jasmine.createSpyObj('SocketClientService', ['connect', 'disconnect', 'send', 'on', 'socketExists']);
     });
 
     beforeEach(() => {

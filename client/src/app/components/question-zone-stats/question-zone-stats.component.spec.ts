@@ -27,7 +27,8 @@ describe('QuestionZoneStatsComponent', () => {
     };
 
     beforeEach(() => {
-        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
+        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'socketExists']);
+        clientSocketServiceMock.socketExists.and.returnValue(true);
         roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', ['getRoomPlayers']);
         roomCommunicationServiceMock.getRoomPlayers.and.returnValue(
             of([

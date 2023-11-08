@@ -2,7 +2,7 @@
     <app-top-bar [title]="title"></app-top-bar>
     <div id="grid-container">
         <div id="exit-button-grid">
-            <mat-icon title="Quitter la Partie" inline="true">exit_to_app</mat-icon>
+            <mat-icon title="Quitter la Partie" inline="true" routerLink="/home">exit_to_app</mat-icon>
         </div>
         <app-game-players-list id="player-list-grid" [roomId]="roomId"></app-game-players-list>
         <div id="chat-player-flex">

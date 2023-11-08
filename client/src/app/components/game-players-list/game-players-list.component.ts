@@ -35,6 +35,10 @@ export class GamePlayersListComponent implements OnInit {
     }
 
     async ngOnInit() {
+        if (!this.socketService.socketExists()) {
+            return;
+        }
+
         await this.fetchPlayersList();
         const canSort = this.isResultsRoute && this.playerResults.length > 0;
         if (canSort) {
@@ -80,7 +84,7 @@ export class GamePlayersListComponent implements OnInit {
         this.socketService.on(GameEvents.SendResults, async () => {
             await firstValueFrom(this.roomCommunicationService.sendPlayerResults(this.roomId as string, this.playerResults));
             this.socketService.send(GameEvents.ShowResults, this.roomId);
-            this.router.navigateByUrl(`/results/game/${this.quizId}/room/${this.roomId}`);
+            this.router.navigateByUrl(`/results/game/${this.quizId}/room/${this.roomId}/host`);
         });
     }
 

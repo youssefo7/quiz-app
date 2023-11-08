@@ -35,6 +35,7 @@ describe('GamePageComponent in test game route', () => {
     let gameService: GameService;
     let clientSocketServiceMock: jasmine.SpyObj<SocketClientService>;
     let roomCommunicationServiceMock: jasmine.SpyObj<RoomCommunicationService>;
+
     const mockedQuiz = {
         $schema: 'test.json',
         id: '123',
@@ -47,7 +48,8 @@ describe('GamePageComponent in test game route', () => {
     };
 
     beforeEach(async () => {
-        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
+        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'socketExists', 'connect', 'disconnect', 'send']);
+        clientSocketServiceMock.socketExists.and.returnValue(true);
         roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', ['getPlayerName']);
         communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
         communicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
@@ -153,7 +155,8 @@ describe('GamePageComponent in regular game route', () => {
     let roomCommunicationServiceMock: jasmine.SpyObj<RoomCommunicationService>;
 
     beforeEach(() => {
-        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
+        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'socketExists', 'connect', 'disconnect', 'send']);
+        clientSocketServiceMock.socketExists.and.returnValue(true);
         roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', ['getPlayerName']);
         communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
     });
@@ -175,6 +178,7 @@ describe('GamePageComponent in regular game route', () => {
                 { provide: CommunicationService, useValue: communicationServiceMock },
                 { provide: SocketClientService, useValue: clientSocketServiceMock },
                 { provide: RoomCommunicationService, useValue: roomCommunicationServiceMock },
+                { provide: SocketClientService, useValue: clientSocketServiceMock },
             ],
         }).compileComponents();
 
