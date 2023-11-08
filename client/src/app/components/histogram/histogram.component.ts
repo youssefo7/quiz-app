@@ -1,6 +1,7 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { GameEvents } from '@app/events/game.events';
 import { TimeEvents } from '@app/events/time.events';
+import { PlayerChoices } from '@app/interfaces/player-choices';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { Chart } from 'chart.js';
@@ -93,6 +94,15 @@ export class HistogramComponent implements OnInit, OnDestroy {
         });
         this.socketClientService.on(GameEvents.QuestionChoiceUnselect, (deselectionIndex: number) => {
             this.choicesSelectionCounts[deselectionIndex]--;
+            this.chart.update();
+        });
+        this.socketClientService.on(GameEvents.RemoveSubmitOnAbandoned, (playerChoices: PlayerChoices) => {
+            console.log('player left updating chart');
+            playerChoices.questionChoices.forEach((choice, index) => {
+                if (choice) {
+                    this.choicesSelectionCounts[index]--;
+                }
+            });
             this.chart.update();
         });
     }

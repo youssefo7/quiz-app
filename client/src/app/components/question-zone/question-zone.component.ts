@@ -96,6 +96,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.detectEndGame();
         this.handleTransitionClockFinished();
         this.handleBonusPoints();
+        this.handlePlayerAbandonedGame();
     }
 
     ngOnDestroy() {
@@ -302,5 +303,16 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
                 this.getQuestion(this.currentQuestionIndex);
             }
         }
+    }
+
+    private handlePlayerAbandonedGame() {
+        this.socketClientService.on(GameEvents.PlayerAbandonedGame, () => {
+            console.log('has detected player leaving in question-zone');
+            this.socketClientService.send(GameEvents.RemoveSubmitOnAbandoned, {
+                roomId: this.roomId,
+                questionsChoices: this.chosenChoices,
+                isGoodAnswer: this.isAnswerGood(),
+            });
+        });
     }
 }

@@ -1,6 +1,7 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { GameEvents } from '@app/events/game.events';
 import { TimeEvents } from '@app/events/time.events';
+import { PlayerChoices } from '@app/interfaces/player-choices';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
@@ -174,8 +175,19 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     }
 
     private handlePlayerLeaveGame() {
-        this.socketClientService.on(GameEvents.PlayerLeaveGame, () => {
+        // this.socketClientService.on(GameEvents.PlayerLeaveGame, () => {
+        //     this.playerCount--;
+        // });
+
+        this.socketClientService.on(GameEvents.RemoveSubmitOnAbandoned, (playerChoices: PlayerChoices) => {
+            console.log('remove submit on abandoned');
             this.playerCount--;
+            this.submittedQuestionOnClickCount--;
+            if (playerChoices.isGoodAnswer) {
+                this.totalGoodAnswers--;
+            } else {
+                this.totalBadAnswers--;
+            }
         });
     }
 

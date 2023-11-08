@@ -156,4 +156,12 @@ export class GameGateway {
         const organizer = this.roomManager.findRoom(roomId).organizer.socketId;
         this.server.to(organizer).emit(GameEvents.SubmitQuestionOnFinishedTimer);
     }
+
+    @SubscribeMessage(GameEvents.RemoveSubmitOnAbandoned)
+    handleRemoveSubmitOnAbandoned(_: Socket, data: { roomId: string; questionChoices: boolean[]; isGoodAnswer: boolean }) {
+        const organizer = this.roomManager.findRoom(data.roomId).organizer.socketId;
+        this.server
+            .to(organizer)
+            .emit(GameEvents.RemoveSubmitOnAbandoned, { questionChoices: data.questionChoices, isGoodAnswer: data.isGoodAnswer });
+    }
 }

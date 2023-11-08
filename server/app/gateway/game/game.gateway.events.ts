@@ -18,4 +18,5 @@ export enum GameEvents {
     SubmitQuestionOnFinishedTimer = 'submitQuestionOnFinishedTimer',
     BonusUpdate = 'bonusUpdate',
     SendResults = 'sendResults',
+    RemoveSubmitOnAbandoned = 'removeSubmitOnAbandoned',
 }
