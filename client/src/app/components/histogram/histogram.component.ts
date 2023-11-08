@@ -33,7 +33,7 @@ export class HistogramComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.loadChart();
         this.updateSelections();
-        this.reactToNextQuestionEvent();
+        this.reactToTransitionClockFinishedEvent();
     }
 
     ngOnDestroy() {
@@ -57,7 +57,7 @@ export class HistogramComponent implements OnInit, OnDestroy {
         }
     }
 
-    private reactToNextQuestionEvent() {
+    private reactToTransitionClockFinishedEvent() {
         this.socketClientService.on(TimeEvents.TransitionClockFinished, () => {
             this.currentQuestionIndex++;
             this.resetArrays();

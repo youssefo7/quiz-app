@@ -58,7 +58,7 @@ describe('CountdownComponent', () => {
         timeServiceMock.getTime.and.returnValue(of(0));
         routerMock = jasmine.createSpyObj('Router', ['navigateByUrl']);
         gameServiceMock = jasmine.createSpyObj('GameService', ['setGameEndState', 'getQuizById']);
-        socketClientServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'connect', 'disconnect', 'socketExists', 'send']);
+        socketClientServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
     });
 
     beforeEach(waitForAsync(() => {
