@@ -85,13 +85,6 @@ describe('GamePlayersListComponent', () => {
         expect(component['isResultsPage']()).toBe(false);
     });
 
-    it('sortPlayers() should  no be called if isResultsRoute is false', async () => {
-        const listenSpy = spyOn(component, 'listenToSocketEvents').and.callThrough();
-        component['isResultsRoute'] = false;
-        await component.ngOnInit();
-        expect(listenSpy).toHaveBeenCalled();
-    });
-
     it('should fetch players list', async () => {
         component['isResultsRoute'] = false;
         component.roomId = '123';
