@@ -129,6 +129,7 @@ export class QuizManagerService {
                 this.quizToModify.questions[i].points !== quiz.questions[i].points ||
                 this.quizToModify.questions[i].choices.length !== quiz.questions[i].choices.length
             ) {
+                //  && this.quizToModify.questions[i].type === 'QCM'
                 return true;
             }
 

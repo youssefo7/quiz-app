@@ -33,8 +33,8 @@
                         <p>Question : {{ question.text }}</p>
                         <p>Type : {{ question.type }}</p>
                         <p>Points : {{ question.points }}</p>
-                        <p>Choix de réponse :</p>
-                        <ul>
+                        <p *ngIf="question.type === 'QCM'">Choix de réponse :</p>
+                        <ul *ngIf="question.type === 'QCM'">
                             <li *ngFor="let choice of question.choices; let j = index">
                                 <span>Choix {{ j + 1 }} : {{ choice.text }}</span>
                                 <mat-icon *ngIf="choice.isCorrect" [style.color]="'#2f8832'" [inline]="true">check_circle</mat-icon>
