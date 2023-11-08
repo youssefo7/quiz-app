@@ -59,7 +59,11 @@ export class QuizzesService {
                 `Les points de la question ${index + 1} sont manquants ou invalides (doivent être des multiples de 10 entre 10 et 100 inclusivement)`,
             );
 
-        if (!Array.isArray(question.choices) || question.choices.length < Constants.MIN_CHOICES || question.choices.length > Constants.MAX_CHOICES)
+        const isChoiceArray = Array.isArray(question.choices);
+        const hasMinChoices = isChoiceArray && question.choices.length >= Constants.MIN_CHOICES;
+        const hasMaxChoices = isChoiceArray && question.choices.length <= Constants.MAX_CHOICES;
+
+        if (!hasMinChoices || !hasMaxChoices)
             errors.push(`Les choix de la question ${index + 1} sont manquants ou invalides (minimum 2 et maximum 4)`);
         else {
             this.verifyChoices(question.choices, index, errors);
