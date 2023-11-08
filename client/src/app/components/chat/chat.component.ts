@@ -13,8 +13,8 @@ import { SocketClientService } from './../../services/socket-client.service';
     styleUrls: ['./chat.component.scss'],
 })
 export class ChatComponent implements OnInit {
-    @Input() isOrganizer: boolean;
     @Input() roomId: string | null;
+    isOrganizer: boolean;
     chatMessage: ChatMessage;
     characterCounterDisplay: string;
     currentInputLength: number;
@@ -39,6 +39,7 @@ export class ChatComponent implements OnInit {
         this.userMessage = '';
         this.isResultsRoute = this.router.url.includes('results');
         this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
+        this.isOrganizer = this.router.url.endsWith('/host');
     }
 
     async ngOnInit() {
