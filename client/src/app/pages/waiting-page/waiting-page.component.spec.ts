@@ -1,9 +1,9 @@
 // any est utilisé pour les tests, car les fonctions sont privées et ne peuvent pas être testées autrement
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ActivatedRoute, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { GameEvents } from '@app/events/game.events';
@@ -26,8 +26,10 @@ describe('WaitingPageComponent', () => {
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
     let clientSocketServiceMock: jasmine.SpyObj<SocketClientService>;
     let mockRoomCommunicationService: jasmine.SpyObj<RoomCommunicationService>;
+    let routerSpy: SpyObj<Router>;
 
     beforeEach(() => {
+        routerSpy = jasmine.createSpyObj('Router', ['navigateByUrl']);
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
         mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['componentInstance']);
         clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'send', 'socketExists', 'connect', 'disconnect']);
@@ -41,6 +43,7 @@ describe('WaitingPageComponent', () => {
             providers: [
                 { provide: MatDialog, useValue: mockDialog },
                 { provide: MatDialogRef, useValue: mockDialogRef },
+                { provide: Router, useValue: routerSpy },
                 { provide: SocketClientService, useValue: clientSocketServiceMock },
                 { provide: RoomCommunicationService, useValue: mockRoomCommunicationService },
                 {
@@ -85,6 +88,59 @@ describe('WaitingPageComponent', () => {
         component.isHost = false;
         component.beforeUnloadHandler();
         expect(clientSocketServiceMock.send).toHaveBeenCalledWith(GameEvents.PlayerLeaveGame, { roomId: component.roomId, isInGame: true });
+    });
+
+    it('should listen to socket events and fetch players if socket exists', fakeAsync(() => {
+        clientSocketServiceMock.socketExists.and.returnValue(true);
+        const listenToSocketEventsSpy = spyOn(component, 'listenToSocketEvents');
+        component.roomId = 'someRoomId';
+        mockRoomCommunicationService.getRoomPlayers.and.returnValue(of(component['players']));
+
+        component.ngOnInit();
+        tick();
+
+        expect(listenToSocketEventsSpy).toHaveBeenCalled();
+        expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
+    }));
+
+    it('should connect and handle host or player actions if no socket exists', async () => {
+        clientSocketServiceMock.socketExists.and.returnValue(false);
+        clientSocketServiceMock.connect.and.callThrough();
+
+        component.isHost = true;
+        component.roomId = '1234';
+        mockRoomCommunicationService.getRoomPlayers.and.returnValue(of(['testPlayer']));
+
+        await component.ngOnInit();
+
+        if (component.isHost) {
+            clientSocketServiceMock.socketExists.and.returnValue(true);
+            expect(clientSocketServiceMock.connect).toHaveBeenCalled();
+        } else {
+            expect(clientSocketServiceMock.connect).toHaveBeenCalled();
+            expect(clientSocketServiceMock.send).toHaveBeenCalledWith(GameEvents.PlayerLeaveGame, { roomId: component.roomId, isInGame: true });
+            expect(clientSocketServiceMock.disconnect).toHaveBeenCalled();
+        }
+
+        expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('home/');
+    });
+
+    it('should connect and handle host or player actions if no socket exists', async () => {
+        clientSocketServiceMock.socketExists.and.returnValue(false);
+        clientSocketServiceMock.connect.and.callThrough();
+
+        component.isHost = false;
+        component.roomId = '1234';
+        mockRoomCommunicationService.getRoomPlayers.and.returnValue(of(['testPlayer']));
+
+        await component.ngOnInit();
+
+        if (component.isHost) {
+            expect(clientSocketServiceMock.connect).toHaveBeenCalled();
+            clientSocketServiceMock.socketExists.and.returnValue(true);
+        }
+
+        expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('home/');
     });
 
     it('should show the hostQuitPopup with the right configuratio when host quits', () => {
