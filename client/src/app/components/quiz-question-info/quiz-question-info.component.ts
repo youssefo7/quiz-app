@@ -42,7 +42,7 @@ export class QuizQuestionInfoComponent implements OnInit {
             type: ['', Validators.required],
             text: ['', Validators.required],
             points: [this.defaultPoints, Validators.required],
-            choices: this.fb.array([], [this.questionChoicesValidator()]),
+            choices: this.fb.array([], []),
         });
 
         for (let i = 0; i < Constants.MIN_CHOICES; i++) {
@@ -108,15 +108,20 @@ export class QuizQuestionInfoComponent implements OnInit {
     }
 
     manageQuestion() {
+        let choicesArray: Choice[] = [];
         const questionType: string = this.questionInfoForm.get('type')?.value;
         const questionText: string = this.questionInfoForm.get('text')?.value;
         const questionPoints: number = this.questionInfoForm.get('points')?.value;
 
-        const choicesArray: Choice[] = this.choices.controls.map((control: AbstractControl) => {
-            const text: string = control.get('text')?.value;
-            const isCorrect: boolean = control.get('isCorrect')?.value;
-            return { text, isCorrect };
-        });
+        if (questionType === 'QRL') {
+            choicesArray = [];
+        } else {
+            choicesArray = this.choices.controls.map((control: AbstractControl) => {
+                const text: string = control.get('text')?.value;
+                const isCorrect: boolean = control.get('isCorrect')?.value;
+                return { text, isCorrect };
+            });
+        }
 
         const newQuestion: Question = {
             type: questionType,
@@ -145,6 +150,24 @@ export class QuizQuestionInfoComponent implements OnInit {
             const choiceGroup = choiceControl as FormGroup;
             choiceGroup.get('isCorrect')?.setValue(false);
         });
+    }
+
+    onTypeChange() {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const questionType = this.questionInfoForm.get('type') as AbstractControl;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const choices = this.questionInfoForm.get('choices') as AbstractControl;
+        if (questionType.value === 'QCM' || questionType.value === undefined) {
+            choices.clearValidators();
+            choices.updateValueAndValidity();
+            choices.setValidators([this.questionChoicesValidator()]);
+        } else {
+            choices.clearValidators();
+            // this.questionInfoForm.controls.choices.removeValidators(this.questionChoicesValidator());
+            // choices.removeValidators([this.questionChoicesValidator()]);
+        }
+        choices.updateValueAndValidity();
+        this.questionInfoForm.controls.choices.removeValidators(this.questionChoicesValidator());
     }
 
     questionChoicesValidator(): ValidatorFn {
@@ -176,12 +199,13 @@ export class QuizQuestionInfoComponent implements OnInit {
                 }
                 differentChoices.add(text);
             }
-
             return null;
         };
     }
 
     adjustPadding() {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const questionType = this.questionInfoForm.get('type') as unknown as AbstractControl<any, any>;
         if (
             this.questionInfoForm.controls.text.invalid &&
             (this.questionInfoForm.controls.text.dirty || this.questionInfoForm.controls.text.touched)
@@ -197,13 +221,15 @@ export class QuizQuestionInfoComponent implements OnInit {
             this.isPointsValid = true;
         }
 
-        if (
-            this.questionInfoForm.controls.choices.invalid &&
-            (this.questionInfoForm.controls.choices.dirty || this.questionInfoForm.controls.choices.touched)
-        ) {
-            this.isChoicesValid = false;
-        } else {
-            this.isChoicesValid = true;
+        if (questionType.value === 'QCM') {
+            if (
+                this.questionInfoForm.controls.choices.invalid &&
+                (this.questionInfoForm.controls.choices.dirty || this.questionInfoForm.controls.choices.touched)
+            ) {
+                this.isChoicesValid = false;
+            } else {
+                this.isChoicesValid = true;
+            }
         }
     }
 }
