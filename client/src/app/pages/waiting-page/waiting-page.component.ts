@@ -59,13 +59,13 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
         if (!this.socketClientService.socketExists()) {
             if (this.isHost) {
                 this.socketClientService.connect();
-                while (this.socketClientService.socketExists()) {
+                if (this.socketClientService.socketExists()) {
                     this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: true });
                     this.socketClientService.disconnect();
                 }
             } else {
                 this.socketClientService.connect();
-                while (this.socketClientService.socketExists()) {
+                if (this.socketClientService.socketExists()) {
                     this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
                     this.socketClientService.disconnect();
                 }
