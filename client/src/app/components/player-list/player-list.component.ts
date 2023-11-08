@@ -44,6 +44,9 @@ export class PlayerListComponent implements OnInit {
     }
 
     async ngOnInit() {
+        if (!this.socketClientService.socketExists()) {
+            return;
+        }
         this.listenToSocketEvents();
         this.players = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string));
     }

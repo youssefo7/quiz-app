@@ -32,8 +32,10 @@ export class TimeGateway {
     @SubscribeMessage(TimeEvents.StopTimer)
     handleStopTimer(_: Socket, roomId: string) {
         const room = this.roomManagerService.findRoom(roomId);
-        clearInterval(room.timer);
-        room.timer = null;
+        if (room) {
+            clearInterval(room.timer);
+            room.timer = null;
+        }
     }
 
     @SubscribeMessage(TimeEvents.TransitionClockFinished)

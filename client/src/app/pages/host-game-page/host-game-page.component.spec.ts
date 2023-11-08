@@ -12,6 +12,7 @@ import { QuestionZoneStatsComponent } from '@app/components/question-zone-stats/
 import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
+import { SocketClientService } from '@app/services/socket-client.service';
 import { NgChartsModule } from 'ng2-charts';
 import { of } from 'rxjs';
 import { HostGamePageComponent } from './host-game-page.component';
@@ -32,6 +33,7 @@ describe('HostGamePageComponent', () => {
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
     let router: Router;
     let roomCommunicationServiceMock: jasmine.SpyObj<RoomCommunicationService>;
+    let clientSocketServiceMock: jasmine.SpyObj<SocketClientService>;
 
     const mockedQuiz = {
         $schema: 'test.json',
@@ -45,6 +47,8 @@ describe('HostGamePageComponent', () => {
     };
 
     beforeEach(() => {
+        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'socketExists', 'connect', 'disconnect', 'send']);
+        clientSocketServiceMock.socketExists.and.returnValue(true);
         roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', ['getRoomPlayers', 'getRoomQuiz']);
         roomCommunicationServiceMock.getRoomPlayers.and.returnValue(
             of([
@@ -76,6 +80,7 @@ describe('HostGamePageComponent', () => {
                 { provide: MatDialog, useValue: mockDialog },
                 { provide: MatDialogRef, useValue: mockDialogRef },
                 { provide: RoomCommunicationService, useValue: roomCommunicationServiceMock },
+                { provide: SocketClientService, useValue: clientSocketServiceMock },
             ],
         }).compileComponents();
         fixture = TestBed.createComponent(HostGamePageComponent);

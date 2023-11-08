@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
+import { GameEvents } from '@app/events/game.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
+import { SocketClientService } from '@app/services/socket-client.service';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -12,7 +14,7 @@ import { firstValueFrom } from 'rxjs';
     templateUrl: './host-game-page.component.html',
     styleUrls: ['./host-game-page.component.scss', '../../../assets/shared.scss'],
 })
-export class HostGamePageComponent implements OnInit {
+export class HostGamePageComponent implements OnInit, OnDestroy {
     quiz: Quiz;
     title: string;
     roomId: string;
@@ -22,21 +24,44 @@ export class HostGamePageComponent implements OnInit {
     constructor(
         private popup: MatDialog,
         private roomCommunicationService: RoomCommunicationService,
+        private socketClientService: SocketClientService,
         private readonly router: Router,
         private readonly route: ActivatedRoute,
     ) {
         this.title = 'Partie: ';
+        this.roomId = this.route.snapshot.paramMap.get('roomId') as string;
     }
 
-    // TODO : deconnecter lors de refresh
-    // @HostListener('window:beforeunload', ['$event'])
-    // unloadNotification($event: BeforeUnloadEvent): void {
-    //     $event.returnValue = false;
-    //     this.leaveGamePage();
-    // }
+    @HostListener('window:beforeunload', ['$event'])
+    beforeUnloadHandler() {
+        this.handleNavigation();
+    }
+
+    ngOnDestroy() {
+        this.handleNavigation();
+    }
+
+    handleNavigation() {
+        const currentUrl = this.router.url;
+        const gameUrl = `/results/game/${this.route.snapshot.paramMap.get('quizId')}/room/${this.roomId}/host`;
+        if (currentUrl !== gameUrl) {
+            this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: true });
+            this.socketClientService.disconnect();
+        }
+    }
 
     async ngOnInit() {
-        this.loadQuiz();
+        if (!this.socketClientService.socketExists()) {
+            this.socketClientService.connect();
+            if (this.socketClientService.socketExists()) {
+                this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: true });
+                this.socketClientService.disconnect();
+            }
+            this.router.navigateByUrl('home/');
+            return;
+        } else {
+            this.loadQuiz();
+        }
     }
 
     openQuitPopUp() {

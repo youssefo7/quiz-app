@@ -42,6 +42,9 @@ export class ChatComponent implements OnInit {
     }
 
     async ngOnInit() {
+        if (!this.socketService.socketExists()) {
+            return;
+        }
         if (!this.isTestGame) {
             this.configureChatSocketFeatures();
         }

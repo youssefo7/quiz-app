@@ -22,6 +22,9 @@ class MockSocketClientService extends SocketClientService {
     override connect() {
         // vide
     }
+    override socketExists() {
+        return true;
+    }
 }
 
 describe('QuestionZoneComponent', () => {
@@ -37,7 +40,7 @@ describe('QuestionZoneComponent', () => {
     let socketHelper: SocketTestHelper;
 
     beforeEach(() => {
-        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'send']);
+        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'send', 'socketExists']);
         communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
         communicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
         timeServiceMock = jasmine.createSpyObj('TimeService', ['getTime', 'stopTimer']);

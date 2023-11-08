@@ -37,22 +37,22 @@ export class GameGateway {
     @SubscribeMessage(GameEvents.EndGame)
     async handleEndGame(socket: Socket, data: { roomId: string; gameAborted: boolean }) {
         const room = this.roomManager.findRoom(data.roomId);
-        const sockets = await this.server.sockets.fetchSockets();
-        if (data.gameAborted) {
-            socket.to(room.id).emit(GameEvents.GameAborted);
-            sockets.forEach((playerSocket) => {
-                playerSocket.leave(room.id);
-                playerSocket.disconnect();
-            });
-            this.roomManager.deleteRoom(room);
-        } else {
-            if (room.players.length > 0) {
-                room.organizer.socketId = '';
-            } else {
+        if (room) {
+            if (data.gameAborted) {
+                clearInterval(room.timer);
+                socket.to(room.id).emit(GameEvents.GameAborted);
+                this.server.socketsLeave(data.roomId);
+                this.server.in(data.roomId).disconnectSockets(true);
                 this.roomManager.deleteRoom(room);
+            } else {
+                if (room.players.length > 0) {
+                    room.organizer.socketId = '';
+                } else {
+                    this.roomManager.deleteRoom(room);
+                }
+                socket.leave(room.id);
+                socket.disconnect();
             }
-            socket.leave(room.id);
-            socket.disconnect();
         }
     }
 
@@ -75,14 +75,14 @@ export class GameGateway {
     }
 
     @SubscribeMessage(GameEvents.BadAnswerOnClick)
-    handleBadAnswerOnClick(socket: Socket, roomId: string) {
+    handleBadAnswerOnClick(_: Socket, roomId: string) {
         const room = this.roomManager.findRoom(roomId);
         const organizer = room.organizer.socketId;
         this.server.to(organizer).emit(GameEvents.BadAnswerOnClick);
     }
 
     @SubscribeMessage(GameEvents.BadAnswerOnFinishedTimer)
-    handleBadAnswerOnFinishedTimer(socket: Socket, roomId: string) {
+    handleBadAnswerOnFinishedTimer(_: Socket, roomId: string) {
         const room = this.roomManager.findRoom(roomId);
         const organizer = room.organizer.socketId;
         this.server.to(organizer).emit(GameEvents.BadAnswerOnFinishedTimer);

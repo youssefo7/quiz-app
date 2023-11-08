@@ -30,7 +30,8 @@ describe('WaitingPageComponent', () => {
     beforeEach(() => {
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
         mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['componentInstance']);
-        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'send']);
+        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'send', 'socketExists', 'connect', 'disconnect']);
+        clientSocketServiceMock.socketExists.and.returnValue(true);
         mockRoomCommunicationService = jasmine.createSpyObj('RoomCommunicationService', ['getRoomPlayers']);
     });
 
@@ -76,13 +77,13 @@ describe('WaitingPageComponent', () => {
 
     it('should send EndGame if the user is the host on beforeUnload', () => {
         component.isHost = true;
-        component.beforeUnload();
+        component.beforeUnloadHandler();
         expect(clientSocketServiceMock.send).toHaveBeenCalledWith(GameEvents.EndGame, { roomId: component.roomId, gameAborted: true });
     });
 
     it('should send PlayerEndGame if the user is a player on beforeUnload', () => {
         component.isHost = false;
-        component.beforeUnload();
+        component.beforeUnloadHandler();
         expect(clientSocketServiceMock.send).toHaveBeenCalledWith(GameEvents.PlayerLeaveGame, { roomId: component.roomId, isInGame: true });
     });
 

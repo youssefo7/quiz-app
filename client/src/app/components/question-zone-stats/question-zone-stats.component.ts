@@ -54,6 +54,9 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     }
 
     async ngOnInit() {
+        if (!this.socketClientService.socketExists()) {
+            return;
+        }
         this.lastQuestionIndex = this.quiz.questions.length - 1;
         this.playerCount = (await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string))).length;
         this.setEvents();
