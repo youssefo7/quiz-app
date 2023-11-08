@@ -22,7 +22,6 @@ describe('HistogramComponent', () => {
     let socketClientServiceMock: MockSocketClientService;
     let socketHelper: SocketTestHelper;
     const mockedQuiz: Quiz = {
-        $schema: 'test.json',
         id: '123',
         title: 'Test quiz',
         description: 'Test quiz description',
@@ -50,7 +49,7 @@ describe('HistogramComponent', () => {
                 ],
             },
         ],
-    };
+    } as Quiz;
 
     beforeEach(() => {
         socketClientServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
