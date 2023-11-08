@@ -45,8 +45,8 @@ describe('WaitingGateway', () => {
             quiz: {} as Quiz,
             organizer: { socketId: 'organizerId', name: 'Organisateur' },
             players: [
-                { socketId: 'playerId1', name: 'name1', points: 0, bonusCount: 0 },
-                { socketId: 'playerId2', name: 'name2', points: 0, bonusCount: 0 },
+                { socketId: 'playerId1', name: 'name1', points: 0, bonusCount: 0, canChat: true },
+                { socketId: 'playerId2', name: 'name2', points: 0, bonusCount: 0, canChat: true },
             ],
             isLocked: false,
             bannedNames: [],
@@ -102,7 +102,7 @@ describe('WaitingGateway', () => {
         const playerNameToBan = 'bannedName';
         stub(socket, 'rooms').value(new Set([roomId]));
 
-        roomManagerServiceMock.rooms[0].players.push({ socketId: socket.id, name: playerNameToBan, points: 0, bonusCount: 0 });
+        roomManagerServiceMock.rooms[0].players.push({ socketId: socket.id, name: playerNameToBan, points: 0, bonusCount: 0, canChat: true });
 
         const serverEmitMock = jest.spyOn(gateway['server'], 'emit');
         gateway.handleBanName(socket, { roomId, name: playerNameToBan });

@@ -37,8 +37,8 @@ describe('ChatGateway', () => {
             quiz: {} as Quiz,
             organizer: { socketId: 'organizerId', name: 'Organisateur' },
             players: [
-                { socketId: 'playerId1', name: 'name1', points: 50, bonusCount: 0 },
-                { socketId: 'playerId2', name: 'name2', points: 200, bonusCount: 1 },
+                { socketId: 'playerId1', name: 'name1', points: 50, bonusCount: 0, canChat: true },
+                { socketId: 'playerId2', name: 'name2', points: 200, bonusCount: 1, canChat: true },
             ],
             isLocked: false,
             bannedNames: [],
@@ -72,5 +72,39 @@ describe('ChatGateway', () => {
         gateway.handleRoomMessage(socket, { roomId: 'testId', message: 'Test Message' });
         expect(socket.emit.called).toBeFalsy();
         expect(socket.to.called).toBeFalsy();
+    });
+
+    it('handleToggleChattingRights() should deny player permission to interact in the chat with others if the player can currently chat', () => {
+        const name = 'name1';
+        const room = roomManagerServiceMock.findRoom('testId');
+        const player = roomManagerServiceMock.findPlayerByName(room, name);
+        player.canChat = true;
+        stub(socket, 'rooms').value(new Set(['testId']));
+        server.to.returns({
+            emit: (event: string, canChat: boolean) => {
+                expect(event).toEqual(ChatEvents.ToggleChattingRights);
+                expect(canChat).toEqual(player.canChat);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.handleToggleChattingRights(socket, { roomId: 'testId', playerName: 'name1' });
+        expect(server.to.withArgs(player.socketId).called).toBeTruthy();
+        expect(player.canChat).toEqual(false);
+    });
+
+    it('handleToggleChattingRights() should grant player permission to interact chat with others in chat if player can currently cannot chat', () => {
+        const name = 'name1';
+        const room = roomManagerServiceMock.findRoom('testId');
+        const player = roomManagerServiceMock.findPlayerByName(room, name);
+        player.canChat = false;
+        stub(socket, 'rooms').value(new Set(['testId']));
+        server.to.returns({
+            emit: (event: string, canChat: boolean) => {
+                expect(event).toEqual(ChatEvents.ToggleChattingRights);
+                expect(canChat).toEqual(player.canChat);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.handleToggleChattingRights(socket, { roomId: 'testId', playerName: 'name1' });
+        expect(server.to.withArgs(player.socketId).called).toBeTruthy();
+        expect(player.canChat).toEqual(true);
     });
 });
