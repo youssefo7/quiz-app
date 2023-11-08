@@ -4,6 +4,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
+import { JoinEvents } from '@app/events/join.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
@@ -128,6 +129,14 @@ describe('CreateGameListComponent', () => {
         expect(component.visibleQuizList).toEqual([]);
     });
 
+    it('should not disconnect socket if current URL contains "waiting"', () => {
+        const disconnectSpy = spyOn(mockSocketClientService, 'disconnect');
+        const mockRoute = '/waiting/game/123/room/0000/host';
+        routerSpy.navigateByUrl(mockRoute);
+        component.ngOnDestroy();
+        expect(disconnectSpy).not.toHaveBeenCalled();
+    });
+
     it('should show toggle button when the quiz is visible', async () => {
         communicationServiceSpy.getQuizzes.and.returnValue(of(visibleQuizMock));
         await component.getVisibleQuizListFromServer();
@@ -166,20 +175,48 @@ describe('CreateGameListComponent', () => {
         expect(questions.length).toEqual(visibleQuizMock[0].questions.length);
     });
 
-    // it('should navigate to waiting page of the correct quiz and room when calling redirectHost', async () => {
-    //     const mockRoomId = '1234';
-    //     const connectSpy = spyOn(component['socketClientService'], 'connect').and.callThrough();
-    //     const sendSpy = spyOn(component['socketClientService'], 'send').and.callThrough();
+    it('should create a room and navigate to it if the quiz is available and visible', async () => {
+        const mockSocketId = 'socketId';
+        const mockRoomId = '1234';
+        const joinRoomSpy = spyOn(mockSocketClientService, 'send');
 
-    //     communicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
-    //     communicationServiceSpy.checkQuizVisibility.and.returnValue(of(true));
-    //     mockRoomCommunicationService.createRoom.and.returnValue(of(mockRoomId));
+        communicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
+        communicationServiceSpy.checkQuizVisibility.and.returnValue(of(true));
+        mockRoomCommunicationService.createRoom.and.returnValue(of(mockRoomId));
 
-    //     await component.checkAndCreateRoom(visibleQuizMock[0]);
-    //     expect(connectSpy).toHaveBeenCalled();
-    //     expect(sendSpy).toHaveBeenCalledWith(JoinEvents.JoinRoom, JSON.stringify(mockRoomId));
-    //     expect(routerSpy.navigateByUrl).toHaveBeenCalledWith(`/waiting/game/${visibleQuizMock[0].id}/room/${mockRoomId}/host`);
-    // });
+        spyOn(mockSocketClientService, 'socketExists').and.returnValue(true);
+        Object.defineProperty(mockSocketClientService, 'socket', {
+            value: { id: mockSocketId },
+        });
+
+        component.selectedQuizId = visibleQuizMock[0].id;
+        await component.checkAndCreateRoom(visibleQuizMock[0]);
+
+        expect(joinRoomSpy).toHaveBeenCalledWith(JoinEvents.JoinRoom, JSON.stringify(mockRoomId));
+        expect(routerSpy.navigateByUrl).toHaveBeenCalledWith(`/waiting/game/${visibleQuizMock[0].id}/room/${mockRoomId}/host`);
+    });
+
+    it('should call openConnectionPopUp if socketExists is false', async () => {
+        const mockSocketId = 'socketId';
+        const mockRoomId = '1234';
+        const openConnectionPopUpSpy = spyOn(component, 'openConnectionPopUp');
+
+        communicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
+        communicationServiceSpy.checkQuizVisibility.and.returnValue(of(true));
+        mockRoomCommunicationService.createRoom.and.returnValue(of(mockRoomId));
+
+        spyOn(mockSocketClientService, 'socketExists').and.returnValue(false);
+        const joinRoomSpy = spyOn(mockSocketClientService, 'send');
+
+        Object.defineProperty(mockSocketClientService, 'socket', {
+            value: { id: mockSocketId },
+        });
+        component.selectedQuizId = visibleQuizMock[0].id;
+        await component.checkAndCreateRoom(visibleQuizMock[0]);
+
+        expect(openConnectionPopUpSpy).toHaveBeenCalled();
+        expect(joinRoomSpy).not.toHaveBeenCalled();
+    });
 
     it('should navigate to test game page if quiz is available and visible', async () => {
         communicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
@@ -257,5 +294,19 @@ describe('CreateGameListComponent', () => {
         expect(config.message).toEqual(mockConfig.message);
         expect(config.hasCancelButton).toEqual(mockConfig.hasCancelButton);
         expect(config.okButtonFunction).toBeDefined();
+    });
+
+    it('should show the openConnection popUp with the right configuration', () => {
+        const mockConfig: PopupMessageConfig = {
+            message: "Vous n'êtes pas connecté. Veuillez réessayer.",
+            hasCancelButton: false,
+        };
+
+        component.openConnectionPopUp();
+        const config = mockDialogRef.componentInstance.config;
+
+        expect(config.message).toEqual(mockConfig.message);
+        expect(config.hasCancelButton).toEqual(mockConfig.hasCancelButton);
+        expect(config.okButtonFunction).not.toBeDefined();
     });
 });
