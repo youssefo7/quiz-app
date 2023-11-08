@@ -44,9 +44,9 @@ describe('GameGateway', () => {
                 quiz: {} as Quiz,
                 organizer: { socketId: 'organizerId', name: 'Organisateur' },
                 players: [
-                    { socketId: 'playerId1', name: 'name1', points: 50, bonusCount: 0 },
-                    { socketId: 'playerId2', name: 'name2', points: 200, bonusCount: 1 },
-                    { socketId: socket.id, name: 'testName', points: 0, bonusCount: 0 },
+                    { socketId: 'playerId1', name: 'name1', points: 50, bonusCount: 0, canChat: true },
+                    { socketId: 'playerId2', name: 'name2', points: 200, bonusCount: 1, canChat: false },
+                    { socketId: socket.id, name: 'testName', points: 0, bonusCount: 0, canChat: true },
                 ],
                 isLocked: false,
                 bannedNames: [],
@@ -80,7 +80,7 @@ describe('GameGateway', () => {
     });
 
     it('handlePlayerLeaveGame() should delete the room if there are no more players in an active game', () => {
-        roomManagerServiceMock.rooms[0].players = [{ socketId: socket.id, name: 'testName', points: 0, bonusCount: 0 }];
+        roomManagerServiceMock.rooms[0].players = [{ socketId: socket.id, name: 'testName', points: 0, bonusCount: 0, canChat: true }];
         roomManagerServiceMock.rooms[0].organizer.socketId = '';
         roomManagerServiceMock.rooms[0].answerTimes = [];
         const removePlayerSpy = jest.spyOn(roomManagerServiceMock, 'removePlayer');

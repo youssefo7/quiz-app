@@ -20,6 +20,7 @@ export class ChatComponent implements OnInit {
     maxInputLength: number;
     roomMessages: ChatMessage[];
     userMessage: string;
+    canChat: boolean;
     private isResultsRoute: boolean;
     private isTestGame: boolean;
 
@@ -39,6 +40,7 @@ export class ChatComponent implements OnInit {
         this.isResultsRoute = this.router.url.includes('results');
         this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
         this.isOrganizer = this.router.url.endsWith('/host');
+        this.canChat = true;
     }
 
     async ngOnInit() {
@@ -79,6 +81,10 @@ export class ChatComponent implements OnInit {
             }
         });
 
+        this.socketService.on(ChatEvents.ToggleChattingRights, (canWrite: boolean) => {
+            this.canChat = canWrite;
+        });
+
         this.socketService.on(GameEvents.SendResults, async () => {
             await firstValueFrom(this.roomCommunicationService.sendChatMessages(this.roomId as string, this.roomMessages));
         });
@@ -95,6 +101,17 @@ export class ChatComponent implements OnInit {
         const inputValue = (event.target as HTMLInputElement).value;
         this.currentInputLength = inputValue.length;
         this.characterCounterDisplay = `${this.currentInputLength} / ${this.maxInputLength}`;
+    }
+
+    canPlayerChat(): boolean {
+        return this.canChat;
+    }
+
+    getPlaceholder(): string {
+        if (this.canChat) {
+            return 'Écrivez votre message...';
+        }
+        return '';
     }
 
     keyUpEvent($event: KeyboardEvent) {

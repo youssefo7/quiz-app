@@ -16,17 +16,23 @@
             </div>
         </div>
     </div>
+    <span class="chat-disabled" *ngIf="!canPlayerChat()">L'oganisateur a limité vos droits de clavardage.</span>
     <div id="text-input">
         <textarea
             id="message"
-            placeholder="Écrivez votre message..."
+            [placeholder]="getPlaceholder()"
             maxlength="200"
             (input)="expandTextArea($event)"
             (input)="detectCharacterLengthOnInput($event)"
             (keyup)="keyUpEvent($event)"
             [(ngModel)]="userMessage"
-        ></textarea>
-        <mat-icon inline="true" (click)="sendMessageToRoom()" (keyup.enter)="sendMessageToRoom()">send</mat-icon>
+            [disabled]="!canPlayerChat()"
+            [ngClass]="{
+                'disable-messageBox': !canPlayerChat()
+            }"
+        >
+        </textarea>
+        <mat-icon inline="true" (click)="sendMessageToRoom()" (keyup.enter)="sendMessageToRoom()" [attr.disabled]="!canPlayerChat()">send</mat-icon>
     </div>
     <span id="counter">{{ characterCounterDisplay }}</span>
 </div>
