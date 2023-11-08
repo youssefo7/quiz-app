@@ -182,38 +182,30 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     private handleAnswers() {
         this.socketClientService.on(GameEvents.GoodAnswerOnClick, () => {
             this.goodAnswerOnClickCount++;
-            if (this.submittedQuestionOnClickCount === this.playerCount && this.socketTime !== 0) {
-                this.socketClientService.send(TimeEvents.TimerInterrupted, this.roomId);
-            } else {
-                this.detectEndOfQuestion(0);
-            }
+            this.detectIfAllPlayersSubmitted();
         });
 
         this.socketClientService.on(GameEvents.GoodAnswerOnFinishedTimer, () => {
             this.goodAnswerOnFinishedTimerCount++;
-            if (this.submittedQuestionOnClickCount === this.playerCount && this.socketTime !== 0) {
-                this.socketClientService.send(TimeEvents.TimerInterrupted, this.roomId);
-            } else {
-                this.detectEndOfQuestion(0);
-            }
+            this.detectIfAllPlayersSubmitted();
         });
 
         this.socketClientService.on(GameEvents.BadAnswerOnClick, () => {
             this.badAnswerOnClickCount++;
-            if (this.submittedQuestionOnClickCount === this.playerCount && this.socketTime !== 0) {
-                this.socketClientService.send(TimeEvents.TimerInterrupted, this.roomId);
-            } else {
-                this.detectEndOfQuestion(0);
-            }
+            this.detectIfAllPlayersSubmitted();
         });
 
         this.socketClientService.on(GameEvents.BadAnswerOnFinishedTimer, () => {
             this.badAnswerOnFinishedTimerCount++;
-            if (this.submittedQuestionOnClickCount === this.playerCount && this.socketTime !== 0) {
-                this.socketClientService.send(TimeEvents.TimerInterrupted, this.roomId);
-            } else {
-                this.detectEndOfQuestion(0);
-            }
+            this.detectIfAllPlayersSubmitted();
         });
+    }
+
+    private detectIfAllPlayersSubmitted() {
+        if (this.submittedQuestionOnClickCount === this.playerCount && this.socketTime !== 0) {
+            this.socketClientService.send(TimeEvents.TimerInterrupted, this.roomId);
+        } else {
+            this.detectEndOfQuestion(0);
+        }
     }
 }
