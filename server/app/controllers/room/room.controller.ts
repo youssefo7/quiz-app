@@ -1,5 +1,5 @@
-import { Quiz } from '@app/model/database/quiz';
 import { ChatMessage, Results } from '@app/interfaces/room';
+import { Quiz } from '@app/model/database/quiz';
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
 import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
 import { ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
