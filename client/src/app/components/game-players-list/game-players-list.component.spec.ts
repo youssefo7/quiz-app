@@ -98,6 +98,7 @@ describe('GamePlayersListComponent', () => {
         await component.fetchPlayersList();
         roomCommunicationServiceMock.getPlayerResults.and.returnValue(of(playersListMock));
         expect(component.playerResults).toEqual(playersListMock);
+        expect(roomCommunicationServiceMock.getPlayerResults).toHaveBeenCalled();
     });
 
     it('sortPlayers() should sort playersList by score in ascending order', () => {
