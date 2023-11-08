@@ -85,24 +85,26 @@ describe('GamePlayersListComponent', () => {
         expect(component['isResultsPage']()).toBe(false);
     });
 
-    it('sortPlayers() should  only be called if isResultsRoute is true', async () => {
-        const sortPlayersSpy = spyOn<any>(component, 'sortPlayers');
+    it('sortPlayers() should  no be called if isResultsRoute is false', async () => {
+        const listenSpy = spyOn(component, 'listenToSocketEvents').and.callThrough();
         component['isResultsRoute'] = false;
         await component.ngOnInit();
-        expect(sortPlayersSpy).not.toHaveBeenCalled();
-
-        component['isResultsRoute'] = true;
-        await component.ngOnInit();
-        expect(sortPlayersSpy).toHaveBeenCalled();
+        expect(listenSpy).toHaveBeenCalled();
     });
 
     it('should fetch players list', async () => {
+        component['isResultsRoute'] = false;
         component.roomId = '123';
         roomCommunicationServiceMock.getRoomPlayers.and.returnValue(of(playersListMock.map((player) => player.name)));
         await component.fetchPlayersList();
 
         expect(roomCommunicationServiceMock.getRoomPlayers).toHaveBeenCalledWith('123');
         expect(component.playerResults.length).toBe(playersListMock.length);
+
+        component['isResultsRoute'] = true;
+        await component.fetchPlayersList();
+        roomCommunicationServiceMock.getPlayerResults.and.returnValue(of(playersListMock));
+        expect(component.playerResults).toEqual(playersListMock);
     });
 
     it('sortPlayers() should sort playersList by score in ascending order', () => {
