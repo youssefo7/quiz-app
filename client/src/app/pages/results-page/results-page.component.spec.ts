@@ -1,13 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute } from '@angular/router';
+import { ChatComponent } from '@app/components/chat/chat.component';
 import { GamePlayersListComponent } from '@app/components/game-players-list/game-players-list.component';
 import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { ResultsPageComponent } from './results-page.component';
-import { ChatComponent } from '@app/components/chat/chat.component';
-import { FormsModule } from '@angular/forms';
 
 describe('ResultsPageComponent', () => {
     let component: ResultsPageComponent;
@@ -16,7 +16,8 @@ describe('ResultsPageComponent', () => {
     let roomCommunicationServiceMock: jasmine.SpyObj<RoomCommunicationService>;
 
     beforeEach(() => {
-        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
+        clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'socketExists', 'connect', 'disconnect', 'send']);
+        clientSocketServiceMock.socketExists.and.returnValue(true);
         roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', ['getRoomPlayers']);
         TestBed.configureTestingModule({
             declarations: [ResultsPageComponent, GamePlayersListComponent, MatIcon, TopBarComponent, ChatComponent],
