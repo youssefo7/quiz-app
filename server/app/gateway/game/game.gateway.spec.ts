@@ -101,7 +101,6 @@ describe('GameGateway', () => {
         expect(socket.disconnect.calledOnce).toBeTruthy();
     });
 
-    // // TODO add emit event
     it('handleGoodAnswerOnClick() should be called with a click and added to the list of answerTimes and emit', () => {
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
