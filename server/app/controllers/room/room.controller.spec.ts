@@ -65,24 +65,6 @@ describe('RoomController', () => {
         controller.handleChooseName(roomId, body, res);
     });
 
-    // it('handleJoinRoom() should process and return room state', async () => {
-    //     const roomId = 'roomId';
-    //     const body = { socketId: 'socketId' };
-    //     roomManagerService.processJoinRoom.returns({ roomState: 'OK', quiz: { id: '123' } as Quiz });
-
-    //     const res = {} as Response;
-    //     res.status = (code) => {
-    //         expect(code).toEqual(HttpStatus.OK);
-    //         return res;
-    //     };
-    //     res.json = (quizzes) => {
-    //         expect(quizzes).toEqual({ roomState: 'OK', quizId: 'quizId' });
-    //         return res;
-    //     };
-
-    //     controller.handleJoinRoom(roomId, body, res);
-    // });
-
     it('handleJoinRoom() should return INTERNAL_SERVER_ERROR when service fails to process join room', async () => {
         const roomId = 'roomId';
         const body = { socketId: 'socketId' };

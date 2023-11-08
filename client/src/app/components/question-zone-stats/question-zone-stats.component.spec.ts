@@ -108,27 +108,6 @@ describe('QuestionZoneStatsComponent', () => {
         expect(component.nextQuestionButtonStyle).toEqual({ backgroundColor: '' });
     });
 
-    // it('should listen to socket events', () => {
-    //     const currentQuestionIndex = 0;
-    //     component['currentQuestionIndex'] = currentQuestionIndex;
-    //     const getQuestionSpy = spyOn<any>(component, 'getQuestion');
-    //     const enableNextQuestionButton = spyOn<any>(component, 'enableNextQuestionButton');
-    //     const reactToNextQuestonEventSpy = spyOn<any>(component, 'reactToNextQuestionEvent');
-    //     const handleSubmittedQuestionSpy = spyOn<any>(component, 'hanleSubmittedQuestionSpy');
-    //     const handlePlayerLeaveGameSpy = spyOn<any>(component, 'handlePlayerLeaveGameSpy');
-    //     const handleNextQuestionSpy = spyOn<any>(component, 'handleNextQuestion');
-    //     const handleAnswersSpy = spyOn<any>(component, 'handleAnswers');
-
-    //     component['setEvents']();
-    //     expect(getQuestionSpy).toHaveBeenCalledWith(currentQuestionIndex);
-    //     expect(enableNextQuestionButton).toHaveBeenCalled();
-    //     expect(reactToNextQuestonEventSpy).toHaveBeenCalled();
-    //     expect(handleSubmittedQuestionSpy).toHaveBeenCalled();
-    //     expect(handlePlayerLeaveGameSpy).toHaveBeenCalled();
-    //     expect(handleNextQuestionSpy).toHaveBeenCalled();
-    //     expect(handleAnswersSpy).toHaveBeenCalled();
-    // });
-
     it('should change button text if is at last question', () => {
         component.quiz = mockedQuiz;
         component['currentQuestionIndex'] = 0;
