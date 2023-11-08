@@ -71,7 +71,6 @@ export class HistogramComponent implements OnInit, OnDestroy {
         });
     }
 
-    // TODO: Call this function when transitioning to the next question
     private resetArrays() {
         this.playersChoices = [];
         this.choicesSelectionCounts = [];

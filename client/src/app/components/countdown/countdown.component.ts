@@ -125,7 +125,6 @@ export class CountdownComponent implements OnInit, OnDestroy {
         }
     }
 
-    // TODO: Revoir l'affichage de la question suivante après la transition
     private async transitionClock() {
         const transitionTime = 3;
         this.isQuestionTransitioning = true;

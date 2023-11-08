@@ -95,7 +95,6 @@ describe('PopupMessageComponent', () => {
     });
 
     it('should call given function when the ok button is clicked and close the popup', () => {
-        // Only way since we could't make a spy for this function without an error
         let okFunctionCalled = false;
         const newConfig = {
             ...basicPopupConfig,
@@ -116,7 +115,6 @@ describe('PopupMessageComponent', () => {
     });
 
     it('should call given function when the cancel button is clicked and close the popup', () => {
-        // Only way since we could't make a spy for this function without an error
         let cancelFunctionCalled = false;
         const newConfig = {
             ...basicPopupConfig,

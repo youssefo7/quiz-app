@@ -17,7 +17,6 @@ export class SocketClientService {
     }
 
     disconnect() {
-        // TODO : Check if the connections have to be managed when closing tabs for players and organizers
         this.socket.disconnect();
     }
 
