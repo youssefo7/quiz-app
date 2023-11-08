@@ -45,7 +45,7 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
     async ngOnInit() {
         if (!this.socketClientService.socketExists()) {
             this.socketClientService.connect();
-            while (this.socketClientService.socketExists()) {
+            if (this.socketClientService.socketExists()) {
                 if (this.isHost) {
                     this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: false });
                 } else {

@@ -14,6 +14,9 @@ class MockSocketClientService extends SocketClientService {
     override connect() {
         // vide
     }
+    override socketExists() {
+        return true;
+    }
 }
 
 describe('HistogramComponent', () => {

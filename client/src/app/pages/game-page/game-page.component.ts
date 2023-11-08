@@ -61,7 +61,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     async ngOnInit() {
         if (!this.socketClientService.socketExists() && !this.isTestGame) {
             this.socketClientService.connect();
-            while (this.socketClientService.socketExists()) {
+            if (this.socketClientService.socketExists()) {
                 this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
                 this.socketClientService.disconnect();
             }
