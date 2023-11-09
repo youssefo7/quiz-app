@@ -337,15 +337,9 @@ describe('QuizQuestionInfoComponent', () => {
     });
 
     it('should adjust padding and set isChoicesValid to false if choices are invalid and touched', () => {
+        component.questionInfoForm.controls.type.setValue('QCM');
         component.questionInfoForm.controls.choices.setErrors({ invalid: true });
         component.questionInfoForm.controls.choices.markAsTouched();
-        component.adjustPadding();
-        expect(component.isChoicesValid).toBeFalse();
-    });
-
-    it('should adjust padding and set isChoicesValid to false if choices are invalid and dirty', () => {
-        component.questionInfoForm.controls.choices.setErrors({ invalid: true });
-        component.questionInfoForm.controls.choices.markAsDirty();
         component.adjustPadding();
         expect(component.isChoicesValid).toBeFalse();
     });

@@ -40,7 +40,7 @@ export class QuizQuestionInfoComponent implements OnInit {
     initializeForm() {
         this.questionInfoForm = this.fb.group({
             type: ['', Validators.required],
-            text: ['', Validators.required],
+            text: ['', [Validators.required, this.isQuestionTextValid()]],
             points: [this.defaultPoints, Validators.required],
             choices: this.fb.array([], []),
         });
@@ -153,21 +153,30 @@ export class QuizQuestionInfoComponent implements OnInit {
     }
 
     onTypeChange() {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const questionType = this.questionInfoForm.get('type') as AbstractControl;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const choices = this.questionInfoForm.get('choices') as AbstractControl;
+
         if (questionType.value === 'QCM' || questionType.value === undefined) {
-            choices.clearValidators();
-            choices.updateValueAndValidity();
-            choices.setValidators([this.questionChoicesValidator()]);
+            if (!choices.hasValidator(this.questionChoicesValidator())) {
+                choices.setValidators(this.questionChoicesValidator());
+                choices.updateValueAndValidity();
+            }
         } else {
             choices.clearValidators();
-            // this.questionInfoForm.controls.choices.removeValidators(this.questionChoicesValidator());
-            // choices.removeValidators([this.questionChoicesValidator()]);
+            choices.reset();
+            questionType.updateValueAndValidity();
+            choices.updateValueAndValidity();
         }
-        choices.updateValueAndValidity();
-        this.questionInfoForm.controls.choices.removeValidators(this.questionChoicesValidator());
+    }
+
+    isQuestionTextValid(): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+            const textValue = control as unknown as AbstractControl;
+            if (textValue.value?.trim().length === 0) {
+                return { invalidText: true };
+            }
+            return null;
+        };
     }
 
     questionChoicesValidator(): ValidatorFn {
@@ -204,7 +213,6 @@ export class QuizQuestionInfoComponent implements OnInit {
     }
 
     adjustPadding() {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const questionType = this.questionInfoForm.get('type') as unknown as AbstractControl;
 
         if (
