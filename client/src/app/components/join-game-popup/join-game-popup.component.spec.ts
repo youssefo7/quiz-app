@@ -4,11 +4,11 @@ import { MatDialogActions, MatDialogContent, MatDialogRef } from '@angular/mater
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
-import { GameEvents } from '@app/events/game.events';
-import { JoinEvents } from '@app/events/join.events';
 import { Quiz } from '@app/interfaces/quiz';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { GameEvents } from '@common/game.events';
+import { JoinEvents } from '@common/join.events';
 import { of } from 'rxjs';
 import { JoinGamePopupComponent } from './join-game-popup.component';
 import SpyObj = jasmine.SpyObj;
@@ -134,7 +134,6 @@ describe('JoinGamePopupComponent', () => {
         expect(component.showUsernameField).toBeTrue();
         expect(component.isCodeValidated).toBeTrue();
         expect(component.roomCodeErrorMessage).toBe('');
-        expect(mockSocketClientService.send).toHaveBeenCalledWith(JoinEvents.JoinRoom, roomIdMock);
     });
 
     it('should display an error message if room is locked', async () => {

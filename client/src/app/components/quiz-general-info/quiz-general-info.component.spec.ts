@@ -26,7 +26,6 @@ describe('QuizGeneralInfoComponent', () => {
     } as unknown as Event;
 
     const mockQuiz: Quiz = {
-        $schema: 'quiz-schema.json',
         id: '',
         title: '',
         description: '',
@@ -63,7 +62,6 @@ describe('QuizGeneralInfoComponent', () => {
         });
 
         component.newQuiz = {
-            $schema: 'quiz-schema.json',
             id: '1',
             title: 'test',
             description: 'test',

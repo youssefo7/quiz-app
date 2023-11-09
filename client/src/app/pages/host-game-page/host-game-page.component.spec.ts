@@ -36,7 +36,6 @@ describe('HostGamePageComponent', () => {
     let clientSocketServiceMock: jasmine.SpyObj<SocketClientService>;
 
     const mockedQuiz = {
-        $schema: 'test.json',
         id: '123',
         title: 'Test quiz',
         description: 'Test quiz description',

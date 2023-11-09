@@ -1,8 +1,8 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { GameEvents } from '@app/events/game.events';
-import { TimeEvents } from '@app/events/time.events';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { GameEvents } from '@common/game.events';
+import { TimeEvents } from '@common/time.events';
 import { Chart } from 'chart.js';
 
 @Component({

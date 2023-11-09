@@ -55,7 +55,8 @@ describe('JoinGateway', () => {
 
     it('handleJoinRoom() should not allow joining a locked room', () => {
         const roomId = 'testId';
-        gateway.handleJoinRoom(socket, roomId);
+        const name = 'newPlayer';
+        gateway.handleJoinRoom(socket, { roomId, name });
         expect(socket.join.calledWith(roomId)).toBeTruthy();
     });
 

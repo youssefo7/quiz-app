@@ -1,12 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ChatEvents } from '@app/events/chat.events';
-import { GameEvents } from '@app/events/game.events';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
+import { SocketClientService } from '@app/services/socket-client.service';
+import { ChatEvents } from '@common/chat.events';
+import { GameEvents } from '@common/game.events';
 import { firstValueFrom } from 'rxjs';
-import { SocketClientService } from './../../services/socket-client.service';
-
 @Component({
     selector: 'app-chat',
     templateUrl: './chat.component.html',

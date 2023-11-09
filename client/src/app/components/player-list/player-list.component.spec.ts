@@ -7,12 +7,12 @@ import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
-import { GameEvents } from '@app/events/game.events';
-import { JoinEvents } from '@app/events/join.events';
-import { TimeEvents } from '@app/events/time.events';
-import { WaitingEvents } from '@app/events/waiting.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { GameEvents } from '@common/game.events';
+import { JoinEvents } from '@common/join.events';
+import { TimeEvents } from '@common/time.events';
+import { WaitingEvents } from '@common/waiting.events';
 import { Socket } from 'socket.io-client';
 import { PlayerListComponent } from './player-list.component';
 
@@ -88,7 +88,7 @@ describe('PlayerListComponent', () => {
 
     it('should listen on event BanNotification and call banPopUp function', () => {
         const banPopupSpy = spyOn<any>(component, 'banPopup');
-        socketHelper.peerSideEmit(GameEvents.BanNotification, 'playerToBan');
+        socketHelper.peerSideEmit(WaitingEvents.BanNotification, 'playerToBan');
         expect(banPopupSpy).toHaveBeenCalled();
     });
 

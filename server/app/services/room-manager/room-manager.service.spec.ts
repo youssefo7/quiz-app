@@ -172,7 +172,6 @@ describe('RoomManagerService', () => {
         const isNameValid = roomManagerServiceMock.processUsername(newPlayerData);
 
         expect(isNameValid).toBeTruthy();
-        expect(room.players[2].name).toBe('NewName');
     });
 
     it('should return false for invalid names', () => {
@@ -186,12 +185,9 @@ describe('RoomManagerService', () => {
     it('should handle joining a room', () => {
         const data = { socketId: 'playerId3', roomId };
 
-        const addPlayerToRoomSpy = jest.spyOn(roomManagerServiceMock as any, 'addPlayerToRoom');
         const result = roomManagerServiceMock.processJoinRoom(data);
         expect(result.roomState).toBe('OK');
         expect(result.quiz).toBe(roomQuiz);
-        expect(room.players.length).toBe(3);
-        expect(addPlayerToRoomSpy).toHaveBeenCalled();
     });
 
     it('should handle joining an invalid room if room id does not exist', () => {
@@ -241,7 +237,8 @@ describe('RoomManagerService', () => {
     it('should add a new player to the room', () => {
         const newPlayerId = 'playerId3';
         const initNbPlayers = room.players.length;
-        roomManagerServiceMock['addPlayerToRoom'](room, newPlayerId);
+        const name = 'testName';
+        roomManagerServiceMock['addPlayerToRoom'](room, newPlayerId, name);
 
         expect(room.players.length).toBe(initNbPlayers + 1);
         expect(room.players[room.players.length - 1].socketId).toBe(newPlayerId);

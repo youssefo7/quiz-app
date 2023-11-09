@@ -2,12 +2,12 @@
  des méthode privées */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
+import { TimeEvents } from '@common/time.events';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { TimeGateway } from './time.gateway';
-import { TimeEvents } from './time.gateway.events';
 
 describe('TimeGateway', () => {
     let roomId: string;

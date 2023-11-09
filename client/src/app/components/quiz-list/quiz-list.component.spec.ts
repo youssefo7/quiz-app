@@ -25,7 +25,6 @@ describe('QuizListComponent', () => {
 
     const mockQuizList: Quiz[] = [
         {
-            $schema: 'quiz-schema.json',
             id: '546',
             title: 'Connaissez-vous bien le JavaScript ?',
             duration: 10,
@@ -35,7 +34,6 @@ describe('QuizListComponent', () => {
             questions: [],
         },
         {
-            $schema: 'quiz-schema.json',
             id: '986',
             title: 'Histoire et culture generale',
             duration: 15,
@@ -47,7 +45,6 @@ describe('QuizListComponent', () => {
     ];
 
     const propQuiz: Quiz = {
-        $schema: 'quiz-schema.json',
         id: '986',
         title: 'Histoire et culture generale',
         duration: 15,

@@ -4,11 +4,11 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
-import { GameEvents } from '@app/events/game.events';
-import { TimeEvents } from '@app/events/time.events';
 import { GameService } from '@app/services/game.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
+import { GameEvents } from '@common/game.events';
+import { TimeEvents } from '@common/time.events';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import { CountdownComponent } from './countdown.component';
@@ -30,7 +30,6 @@ describe('CountdownComponent', () => {
     let socketHelper: SocketTestHelper;
 
     const mockQuiz = {
-        $schema: 'quiz-schema.json',
         id: '123',
         title: 'mock quiz',
         duration: 60,

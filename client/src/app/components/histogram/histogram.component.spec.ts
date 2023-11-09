@@ -2,10 +2,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
-import { GameEvents } from '@app/events/game.events';
-import { TimeEvents } from '@app/events/time.events';
 import { Quiz } from '@app/interfaces/quiz';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { GameEvents } from '@common/game.events';
+import { TimeEvents } from '@common/time.events';
 import { NgChartsModule } from 'ng2-charts';
 import { Socket } from 'socket.io-client';
 import { HistogramComponent } from './histogram.component';
@@ -52,7 +52,7 @@ describe('HistogramComponent', () => {
                 ],
             },
         ],
-    } as Quiz;
+    };
 
     beforeEach(() => {
         socketClientServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'socketExists']);

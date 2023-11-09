@@ -29,6 +29,13 @@ export class RoomManagerService {
         return roomId;
     }
 
+    addPlayerToRoom(room: Room, playerId: string, name: string) {
+        const res = this.findPlayer(playerId, room);
+        if (!res) {
+            room.players.push({ socketId: playerId, name, points: 0, bonusCount: 0 });
+        }
+    }
+
     addBannedNameToRoom(room: Room, name: string) {
         room.bannedNames.push(name);
     }
@@ -89,14 +96,9 @@ export class RoomManagerService {
 
     processUsername(data: { name: string; roomId: string; socketId: string }) {
         const room = this.findRoom(data.roomId);
-        const wantedPlayer = this.findPlayer(data.socketId, room);
         const nameExists = this.isNameTaken(room, data.name);
         const isBannedName = this.isBannedName(room, data.name);
         const isNameValid = !nameExists && !isBannedName;
-
-        if (isNameValid && !room.isLocked) {
-            wantedPlayer.name = data.name;
-        }
 
         return isNameValid;
     }
@@ -112,7 +114,6 @@ export class RoomManagerService {
             return { roomState: 'IS_LOCKED', quiz: null };
         }
 
-        this.addPlayerToRoom(room, data.socketId);
         return { roomState: 'OK', quiz: room.quiz };
     }
 
@@ -163,14 +164,6 @@ export class RoomManagerService {
 
         return roomId;
     }
-
-    private addPlayerToRoom(room: Room, playerId: string) {
-        const res = this.findPlayer(playerId, room);
-        if (!res) {
-            room.players.push({ socketId: playerId, name: '', points: 0, bonusCount: 0 });
-        }
-    }
-
     private isNameTaken(room: Room, name: string) {
         if (name.toLowerCase() === 'organisateur') {
             return true;

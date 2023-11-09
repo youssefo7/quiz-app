@@ -3,10 +3,10 @@ import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
-import { ChatEvents } from '@app/events/chat.events';
-import { GameEvents } from '@app/events/game.events';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { ChatEvents } from '@common/chat.events';
+import { GameEvents } from '@common/game.events';
 import { Socket } from 'socket.io-client';
 import { ChatComponent } from './chat.component';
 

@@ -1,8 +1,8 @@
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
+import { ChatEvents } from '@common/chat.events';
 import { Injectable } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
-import { ChatEvents } from './chat.gateway.events';
 
 @WebSocketGateway({ cors: true })
 @Injectable()

@@ -37,7 +37,6 @@ describe('GamePageComponent in test game route', () => {
     let roomCommunicationServiceMock: jasmine.SpyObj<RoomCommunicationService>;
 
     const mockedQuiz = {
-        $schema: 'test.json',
         id: '123',
         title: 'Test quiz',
         description: 'Test quiz description',

@@ -1,5 +1,4 @@
 export interface Quiz {
-    $schema: string;
     id: string;
     title: string;
     duration: number;
