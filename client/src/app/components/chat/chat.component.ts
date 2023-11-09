@@ -50,8 +50,18 @@ export class ChatComponent implements OnInit {
             this.configureChatSocketFeatures();
         }
         if (this.isResultsRoute) {
-            this.roomMessages = await firstValueFrom(this.roomCommunicationService.getChatMessages(this.roomId as string));
+            await this.displayOldChat();
         }
+    }
+
+    async displayOldChat() {
+        const socketId = this.socketService.socket.id;
+        this.roomMessages = await firstValueFrom(this.roomCommunicationService.getChatMessages(this.roomId as string));
+        const playerName = (await firstValueFrom(this.roomCommunicationService.getPlayerName(this.roomId as string, { socketId }))) ?? 'Organisateur';
+
+        this.roomMessages.forEach((data) => {
+            data.sentByUser = data.authorName === playerName;
+        });
     }
 
     configureChatSocketFeatures() {
