@@ -129,16 +129,17 @@ export class QuizManagerService {
                 this.quizToModify.questions[i].points !== quiz.questions[i].points ||
                 this.quizToModify.questions[i].choices.length !== quiz.questions[i].choices.length
             ) {
-                //  && this.quizToModify.questions[i].type === 'QCM'
                 return true;
             }
 
-            for (let j = 0; j < this.quizToModify.questions[i].choices.length; j++) {
-                if (
-                    this.quizToModify.questions[i].choices[j].text.trim() !== quiz.questions[i].choices[j].text.trim() ||
-                    this.quizToModify.questions[i].choices[j].isCorrect !== quiz.questions[i].choices[j].isCorrect
-                ) {
-                    return true;
+            if (this.quizToModify.questions[i].type === 'QCM') {
+                for (let j = 0; j < this.quizToModify.questions[i].choices.length; j++) {
+                    if (
+                        this.quizToModify.questions[i].choices[j].text.trim() !== quiz.questions[i].choices[j].text.trim() ||
+                        this.quizToModify.questions[i].choices[j].isCorrect !== quiz.questions[i].choices[j].isCorrect
+                    ) {
+                        return true;
+                    }
                 }
             }
         }
