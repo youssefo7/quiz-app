@@ -1,10 +1,10 @@
 import { Component, HostListener } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { GameEvents } from '@app/events/game.events';
-import { JoinEvents } from '@app/events/join.events';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { GameEvents } from '@common/game.events';
+import { JoinEvents } from '@common/join.events';
 import { firstValueFrom } from 'rxjs';
 
 const CODE_LENGTH = 4;
@@ -85,7 +85,6 @@ export class JoinGamePopupComponent {
                     this.isCodeValidated = true;
                     this.roomCodeErrorMessage = '';
                     this.quizId = joinRoomResponse.quiz.id;
-                    this.socketClientService.send(JoinEvents.JoinRoom, this.givenRoomCode);
                     break;
                 }
                 case RoomState.IsLocked: {
@@ -122,6 +121,7 @@ export class JoinGamePopupComponent {
         }
         const isUsernameValid = await this.isUsernameValid();
         if (isUsernameValid) {
+            this.socketClientService.send(JoinEvents.JoinRoom, { roomId: this.givenRoomCode, name: this.givenUsername.trim() });
             this.socketClientService.send(JoinEvents.SuccessfulJoin, {
                 roomId: this.givenRoomCode,
                 name: this.givenUsername,

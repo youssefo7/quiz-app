@@ -4,12 +4,12 @@
 /* eslint-disable max-lines */
 import { Quiz } from '@app/model/database/quiz';
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
+import { GameEvents } from '@common/game.events';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { GameGateway } from './game.gateway';
-import { GameEvents } from './game.gateway.events';
 
 describe('GameGateway', () => {
     let roomId: string;
@@ -276,9 +276,10 @@ describe('GameGateway', () => {
     it('handleAddPointsToPlayer() should give points to the player if the question is answered correctly', () => {
         const room = roomManagerServiceMock.findRoom(roomId);
         const goodAnswerPoints = 100;
+        const name = 'testName';
         const addPointsToPlayerSpy = jest.spyOn(roomManagerServiceMock, 'addPointsToPlayer');
 
-        roomManagerServiceMock['addPlayerToRoom'](room, socket.id);
+        roomManagerServiceMock['addPlayerToRoom'](room, socket.id, name);
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
@@ -337,9 +338,10 @@ describe('GameGateway', () => {
 
     it('handlePlayerLeaveGame() remove the players from the room, disconnect them from the server and emit if the game has started', () => {
         const room = roomManagerServiceMock.findRoom(roomId);
+        const name = 'testName';
         const removePlayerSpy = jest.spyOn(roomManagerServiceMock, 'removePlayer');
         socket.join(roomId);
-        roomManagerServiceMock['addPlayerToRoom'](room, socket.id);
+        roomManagerServiceMock['addPlayerToRoom'](room, socket.id, name);
 
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
@@ -357,9 +359,10 @@ describe('GameGateway', () => {
 
     it('handlePlayerLeaveGame() remove the players from the room, disconnect them from the server and not emit if the game has started', () => {
         const room = roomManagerServiceMock.findRoom(roomId);
+        const name = 'testName';
         const removePlayerSpy = jest.spyOn(roomManagerServiceMock, 'removePlayer');
 
-        roomManagerServiceMock['addPlayerToRoom'](room, socket.id);
+        roomManagerServiceMock['addPlayerToRoom'](room, socket.id, name);
 
         stub(socket, 'rooms').value(new Set([roomId]));
         gateway.handlePlayerLeaveGame(socket, { roomId, isInGame: false });

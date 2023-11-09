@@ -4,12 +4,12 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
-import { JoinEvents } from '@app/events/join.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { JoinEvents } from '@common/join.events';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import { CreateGameListComponent } from './create-game-list.component';
@@ -34,7 +34,6 @@ describe('CreateGameListComponent', () => {
 
     const visibleQuizMock: Quiz[] = [
         {
-            $schema: 'quiz-schema.json',
             id: '123',
             title: 'mock1',
             duration: 60,
@@ -54,7 +53,6 @@ describe('CreateGameListComponent', () => {
 
     const hiddenQuizMock: Quiz[] = [
         {
-            $schema: 'quiz-schema.json',
             id: '456',
             title: 'mock2',
             duration: 60,
@@ -192,7 +190,7 @@ describe('CreateGameListComponent', () => {
         component.selectedQuizId = visibleQuizMock[0].id;
         await component.checkAndCreateRoom(visibleQuizMock[0]);
 
-        expect(joinRoomSpy).toHaveBeenCalledWith(JoinEvents.JoinRoom, JSON.stringify(mockRoomId));
+        expect(joinRoomSpy).toHaveBeenCalledWith(JoinEvents.OrganizerJoined, JSON.stringify(mockRoomId));
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith(`/waiting/game/${visibleQuizMock[0].id}/room/${mockRoomId}/host`);
     });
 

@@ -6,10 +6,11 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
-import { GameEvents } from '@app/events/game.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
+import { Quiz } from '@app/interfaces/quiz';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { GameEvents } from '@common/game.events';
 import { of } from 'rxjs';
 import { WaitingPageComponent } from './waiting-page.component';
 import SpyObj = jasmine.SpyObj;
@@ -34,7 +35,7 @@ describe('WaitingPageComponent', () => {
         mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['componentInstance']);
         clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'send', 'socketExists', 'connect', 'disconnect']);
         clientSocketServiceMock.socketExists.and.returnValue(true);
-        mockRoomCommunicationService = jasmine.createSpyObj('RoomCommunicationService', ['getRoomPlayers']);
+        mockRoomCommunicationService = jasmine.createSpyObj('RoomCommunicationService', ['getRoomPlayers', 'getRoomQuiz']);
     });
 
     beforeEach(waitForAsync(() => {
@@ -91,10 +92,12 @@ describe('WaitingPageComponent', () => {
     });
 
     it('should listen to socket events and fetch players if socket exists', fakeAsync(() => {
+        const quiz = {} as Quiz;
         clientSocketServiceMock.socketExists.and.returnValue(true);
         const listenToSocketEventsSpy = spyOn(component, 'listenToSocketEvents');
         component.roomId = 'someRoomId';
         mockRoomCommunicationService.getRoomPlayers.and.returnValue(of(component['players']));
+        mockRoomCommunicationService.getRoomQuiz.and.returnValue(of(quiz));
 
         component.ngOnInit();
         tick();

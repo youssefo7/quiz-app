@@ -2,10 +2,10 @@ import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
-import { GameEvents } from '@app/events/game.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { GameEvents } from '@common/game.events';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -16,6 +16,7 @@ import { firstValueFrom } from 'rxjs';
 export class WaitingPageComponent implements OnInit, OnDestroy {
     isHost: boolean;
     roomId: string | null;
+    title: string;
     private players: string[];
 
     // Raison: J'injecte les services nécessaires dans mon constructeur
@@ -75,6 +76,7 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
         }
         this.listenToSocketEvents();
         this.players = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string));
+        this.getQuizTitle();
     }
 
     listenToSocketEvents() {
@@ -92,6 +94,14 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
             this.playerQuitPopup();
         } else {
             this.hostQuitPopup();
+        }
+    }
+
+    private async getQuizTitle() {
+        const roomId = this.route.snapshot.paramMap.get('roomId') as string;
+        const quiz = await firstValueFrom(this.roomCommunicationService.getRoomQuiz(roomId));
+        if (quiz) {
+            this.title = `Vue d'attente: ${quiz.title}`;
         }
     }
 

@@ -9,7 +9,6 @@ describe('ImportService', () => {
     let service: ImportService;
     let mockCommunicationService: jasmine.SpyObj<CommunicationService>;
     const mockQuiz = {
-        $schema: '',
         id: '',
         title: '',
         duration: 0,

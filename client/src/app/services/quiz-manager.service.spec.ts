@@ -27,7 +27,6 @@ describe('QuizManagerService', () => {
 
     const quizListMock: Quiz[] = [
         {
-            $schema: 'quiz-schema.json',
             id: '01',
             title: 'Quiz1',
             description: 'first quiz of the list',
@@ -47,7 +46,6 @@ describe('QuizManagerService', () => {
             ],
         },
         {
-            $schema: 'quiz-schema.json',
             id: '02',
             title: 'Quiz2',
             description: 'second quiz of the list',
@@ -88,7 +86,6 @@ describe('QuizManagerService', () => {
         service = TestBed.inject(QuizManagerService);
 
         quizToEditMock = {
-            $schema: 'quiz-schema.json',
             id: '1',
             title: 'test',
             description: 'dummy description',

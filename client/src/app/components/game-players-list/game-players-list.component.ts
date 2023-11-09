@@ -1,9 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { GameEvents } from '@app/events/game.events';
 import { Results } from '@app/interfaces/player-info';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { GameEvents } from '@common/game.events';
 import { firstValueFrom } from 'rxjs';
 
 interface AddPointsResponse {
@@ -19,7 +19,7 @@ interface AddPointsResponse {
 export class GamePlayersListComponent implements OnInit {
     @Input() roomId: string | null;
     playerResults: Results[];
-    private isResultsRoute: boolean;
+    isResultsRoute: boolean;
     private quizId: string;
     // Raison: Les quatres injections sont nécessaires pour ma composante
     // eslint-disable-next-line max-params
@@ -62,10 +62,6 @@ export class GamePlayersListComponent implements OnInit {
         } else {
             this.playerResults = await firstValueFrom(this.roomCommunicationService.getPlayerResults(this.roomId as string));
         }
-    }
-
-    isResultsPage() {
-        return this.isResultsRoute;
     }
 
     listenToSocketEvents() {

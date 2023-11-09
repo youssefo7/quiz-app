@@ -7,13 +7,13 @@ import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
-import { GameEvents } from '@app/events/game.events';
-import { TimeEvents } from '@app/events/time.events';
 import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
+import { GameEvents } from '@common/game.events';
+import { TimeEvents } from '@common/time.events';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import { QuestionZoneComponent } from './question-zone.component';
@@ -500,7 +500,6 @@ describe('QuestionZoneComponent', () => {
 });
 
 const invalidMockedQuiz = {
-    $schema: 'test.json',
     id: '123',
     title: 'Test quiz',
     description: 'Test quiz description',
@@ -511,7 +510,6 @@ const invalidMockedQuiz = {
 };
 
 const validMockQuiz = {
-    $schema: 'test.json',
     id: '123',
     title: 'Test quiz',
     description: 'Test quiz description',
@@ -546,7 +544,6 @@ const validMockQuiz = {
 };
 
 const mockedQuiz = {
-    $schema: 'test.json',
     id: '123',
     title: 'Test quiz',
     description: 'Test quiz description',

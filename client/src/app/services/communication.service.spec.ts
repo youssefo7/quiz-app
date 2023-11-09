@@ -168,7 +168,6 @@ describe('CommunicationService', () => {
 
 const quizList: Quiz[] = [
     {
-        $schema: 'quiz-schema.json',
         id: '1a2b3c',
         title: 'Questionnaire sur le JS',
         duration: 60,

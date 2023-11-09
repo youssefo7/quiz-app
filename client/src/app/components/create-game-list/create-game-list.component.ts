@@ -2,12 +2,12 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
-import { JoinEvents } from '@app/events/join.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { JoinEvents } from '@common/join.events';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -74,7 +74,7 @@ export class CreateGameListComponent implements OnInit, OnDestroy {
                                         socketId: this.socketClientService.socket.id,
                                     }),
                                 );
-                                this.socketClientService.send(JoinEvents.JoinRoom, JSON.stringify(roomId));
+                                this.socketClientService.send(JoinEvents.OrganizerJoined, JSON.stringify(roomId));
                                 this.router.navigateByUrl(`/waiting/game/${this.selectedQuizId}/room/${roomId}/host`);
                             } else {
                                 this.openConnectionPopUp();

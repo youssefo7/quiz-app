@@ -2,13 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
-import { GameEvents } from '@app/events/game.events';
-import { JoinEvents } from '@app/events/join.events';
-import { TimeEvents } from '@app/events/time.events';
-import { WaitingEvents } from '@app/events/waiting.events';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { GameEvents } from '@common/game.events';
+import { JoinEvents } from '@common/join.events';
+import { TimeEvents } from '@common/time.events';
+import { WaitingEvents } from '@common/waiting.events';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -65,7 +65,7 @@ export class PlayerListComponent implements OnInit {
             this.removePlayer(name);
         });
 
-        this.socketClientService.on(GameEvents.BanNotification, () => {
+        this.socketClientService.on(WaitingEvents.BanNotification, () => {
             this.banPopup();
         });
 

@@ -11,17 +11,20 @@
 
 #titles {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     margin-bottom: 10px;
     font-size: 1em;
     width: 100%;
     font-weight: bold;
     border-bottom: 1px solid #ccc;
+    :first-child {
+        width: 30%;
+    }
 }
 
 .player-entry {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     margin-bottom: 10px;
     font-size: 1em;
     width: 100%;
@@ -36,6 +39,7 @@
     font-weight: bold;
     text-overflow: ellipsis;
     overflow: hidden;
+    width: 30%;
 }
 
 .player-score {

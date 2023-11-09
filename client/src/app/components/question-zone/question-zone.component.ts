@@ -1,11 +1,11 @@
 import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { GameEvents } from '@app/events/game.events';
-import { TimeEvents } from '@app/events/time.events';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
+import { GameEvents } from '@common/game.events';
+import { TimeEvents } from '@common/time.events';
 import { Subscription } from 'rxjs';
 
 const BONUS_20_PERCENT = 0.2;

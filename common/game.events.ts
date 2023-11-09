@@ -14,8 +14,9 @@ export enum GameEvents {
     PlayerAbandonedGame = 'abandonedGame',
     GameAborted = 'gameAborted',
     ShowResults = 'showResults',
-    SubmitQuestionOnClick = 'submitQuestionOnClick',
-    SubmitQuestionOnFinishedTimer = 'submitQuestionOnFinishedTimer',
+    SubmitQuestion = 'submitQuestion',
     BonusUpdate = 'bonusUpdate',
     SendResults = 'sendResults',
+    SubmitQuestionOnClick = 'submitQuestionOnClick',
+    SubmitQuestionOnFinishedTimer = 'submitQuestionOnFinishedTimer',
 }

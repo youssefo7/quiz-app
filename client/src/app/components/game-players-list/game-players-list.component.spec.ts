@@ -3,10 +3,10 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
-import { GameEvents } from '@app/events/game.events';
 import { Results } from '@app/interfaces/player-info';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { GameEvents } from '@common/game.events';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import { GamePlayersListComponent } from './game-players-list.component';
@@ -77,16 +77,8 @@ describe('GamePlayersListComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('isResultsPage() should return isResultsRoute value', () => {
-        component['isResultsRoute'] = true;
-        expect(component['isResultsPage']()).toBe(true);
-
-        component['isResultsRoute'] = false;
-        expect(component['isResultsPage']()).toBe(false);
-    });
-
     it('should fetch players list', async () => {
-        component['isResultsRoute'] = false;
+        component.isResultsRoute = false;
         component.roomId = '123';
         roomCommunicationServiceMock.getRoomPlayers.and.returnValue(of(playersListMock.map((player) => player.name)));
         await component.fetchPlayersList();
@@ -94,7 +86,7 @@ describe('GamePlayersListComponent', () => {
         expect(roomCommunicationServiceMock.getRoomPlayers).toHaveBeenCalledWith('123');
         expect(component.playerResults.length).toBe(playersListMock.length);
 
-        component['isResultsRoute'] = true;
+        component.isResultsRoute = true;
         await component.fetchPlayersList();
         roomCommunicationServiceMock.getPlayerResults.and.returnValue(of(playersListMock));
         expect(component.playerResults).toEqual(playersListMock);

@@ -6,10 +6,10 @@ import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { GamePlayersListComponent } from '@app/components/game-players-list/game-players-list.component';
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
-import { GameEvents } from '@app/events/game.events';
-import { TimeEvents } from '@app/events/time.events';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { GameEvents } from '@common/game.events';
+import { TimeEvents } from '@common/time.events';
 import { NgChartsModule } from 'ng2-charts';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
@@ -32,7 +32,6 @@ describe('QuestionZoneStatsComponent', () => {
     let roomCommunicationServiceMock: jasmine.SpyObj<RoomCommunicationService>;
     let socketHelper: SocketTestHelper;
     const mockedQuiz = {
-        $schema: 'test.json',
         id: '123',
         title: 'Test quiz',
         description: 'Test quiz description',

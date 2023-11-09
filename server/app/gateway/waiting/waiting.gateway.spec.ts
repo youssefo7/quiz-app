@@ -1,12 +1,12 @@
 import { Player } from '@app/interfaces/room';
 import { Quiz } from '@app/model/database/quiz';
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
+import { WaitingEvents } from '@common/waiting.events';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
 import { Server, Socket } from 'socket.io';
 import { WaitingGateway } from './waiting.gateway';
-import { WaitingEvents } from './waiting.gateway.events';
 
 describe('WaitingGateway', () => {
     let roomId: string;

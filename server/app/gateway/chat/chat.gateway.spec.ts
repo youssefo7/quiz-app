@@ -1,11 +1,11 @@
 import { Quiz } from '@app/model/database/quiz';
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
+import { ChatEvents } from '@common/chat.events';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, match, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { ChatGateway } from './chat.gateway';
-import { ChatEvents } from './chat.gateway.events';
 
 describe('ChatGateway', () => {
     let gateway: ChatGateway;
