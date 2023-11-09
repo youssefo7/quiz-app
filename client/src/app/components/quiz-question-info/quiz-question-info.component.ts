@@ -205,7 +205,8 @@ export class QuizQuestionInfoComponent implements OnInit {
 
     adjustPadding() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const questionType = this.questionInfoForm.get('type') as unknown as AbstractControl<any, any>;
+        const questionType = this.questionInfoForm.get('type') as unknown as AbstractControl;
+
         if (
             this.questionInfoForm.controls.text.invalid &&
             (this.questionInfoForm.controls.text.dirty || this.questionInfoForm.controls.text.touched)
