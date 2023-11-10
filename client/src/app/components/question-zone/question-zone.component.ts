@@ -141,8 +141,8 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     getQuestion(index: number) {
         if (this.quiz && index < this.quiz.questions.length) {
             this.question = this.quiz.questions[index];
-            this.chosenChoices = new Array(this.question.choices.length).fill(false);
-            this.question.choices.forEach((choice, buttonIndex) => {
+            this.chosenChoices = new Array(this.question.choices?.length).fill(false);
+            this.question.choices?.forEach((choice, buttonIndex) => {
                 this.setButtonToInitState(buttonIndex);
             });
         }
@@ -184,7 +184,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
 
     setButtonStateOnSubmit(index: number) {
         this.choiceButtonStyle[index] = {
-            backgroundColor: this.question.choices[index].isCorrect ? 'rgb(97, 207, 72)' : 'red',
+            backgroundColor: this.question.choices?.[index].isCorrect ? 'rgb(97, 207, 72)' : 'red',
         };
         this.isChoiceButtonDisabled = true;
     }
@@ -220,12 +220,12 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     isAnswerGood() {
-        const isAnswerGood = this.chosenChoices?.every((answer, index) => answer === this.question.choices[index].isCorrect);
+        const isAnswerGood = this.chosenChoices?.every((answer, index) => answer === this.question.choices?.[index].isCorrect);
         return isAnswerGood;
     }
 
     displayCorrectAnswer() {
-        this.question.choices.forEach((choice, index) => {
+        this.question.choices?.forEach((choice, index) => {
             this.setButtonStateOnSubmit(index);
         });
         this.doesDisplayPoints = true;

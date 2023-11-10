@@ -2,11 +2,10 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Question, Quiz } from '@app/interfaces/quiz';
+import { Choice, Question, Quiz } from '@app/interfaces/quiz';
 import { of, throwError } from 'rxjs';
 import { CommunicationService } from './communication.service';
 import { QuizManagerService } from './quiz-manager.service';
-
 import SpyObj = jasmine.SpyObj;
 
 describe('QuizManagerService', () => {
@@ -14,7 +13,6 @@ describe('QuizManagerService', () => {
     let communicationServiceSpy: SpyObj<CommunicationService>;
     let routerSpy: SpyObj<Router>;
     let quizToEditMock: Quiz;
-
     const newQuestion: Question = {
         type: 'QCM',
         text: 'Q2',
@@ -24,7 +22,6 @@ describe('QuizManagerService', () => {
             { text: 'c2', isCorrect: false },
         ],
     };
-
     const quizListMock: Quiz[] = [
         {
             $schema: 'quiz-schema.json',
@@ -67,13 +64,11 @@ describe('QuizManagerService', () => {
             ],
         },
     ];
-
     beforeEach(() => {
         communicationServiceSpy = jasmine.createSpyObj(CommunicationService, ['getQuizzes', 'addQuiz', 'updateQuiz', 'getQuiz']);
         communicationServiceSpy.getQuizzes.and.returnValue(of([]));
         routerSpy = jasmine.createSpyObj(Router, ['navigateByUrl']);
     });
-
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
@@ -83,10 +78,8 @@ describe('QuizManagerService', () => {
             ],
         }).compileComponents();
     });
-
     beforeEach(() => {
         service = TestBed.inject(QuizManagerService);
-
         quizToEditMock = {
             $schema: 'quiz-schema.json',
             id: '1',
@@ -107,7 +100,6 @@ describe('QuizManagerService', () => {
                 },
             ],
         };
-
         service.quizToModify = quizToEditMock;
     });
 
@@ -123,7 +115,6 @@ describe('QuizManagerService', () => {
 
     it('should redirect to the admin page when a new quiz is added', () => {
         communicationServiceSpy.addQuiz.and.returnValue(of(quizToEditMock));
-
         service.addQuizToServer(quizToEditMock);
         expect(communicationServiceSpy.addQuiz).toHaveBeenCalledWith(quizToEditMock);
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('admin');
@@ -131,7 +122,6 @@ describe('QuizManagerService', () => {
 
     it('should redirect to admin page when a quiz is updated', () => {
         communicationServiceSpy.updateQuiz.and.returnValue(of(quizToEditMock));
-
         service.updateQuizOnServer(quizToEditMock.id, quizToEditMock);
         expect(communicationServiceSpy.updateQuiz).toHaveBeenCalledWith(quizToEditMock.id, quizToEditMock);
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('admin');
@@ -140,7 +130,6 @@ describe('QuizManagerService', () => {
     it('should create a new quiz when updating a deleted quiz', () => {
         communicationServiceSpy.updateQuiz.and.returnValue(throwError(() => new Error(`Quiz ${quizToEditMock.id} not found`)));
         const addQuizToServerSpy = spyOn(service, 'addQuizToServer');
-
         service.updateQuizOnServer(quizToEditMock.id, quizToEditMock);
         expect(addQuizToServerSpy).toHaveBeenCalledWith(quizToEditMock);
     });
@@ -175,7 +164,6 @@ describe('QuizManagerService', () => {
         service.modifyQuestion(newQuestion, upperOutOfBoundsIndex, quizToEditMock);
         expect(quizToEditMock.questions.length).toEqual(1);
         expect(quizToEditMock.questions[0]).not.toEqual(newQuestion);
-
         const lowerOutOfBoundsIndex = -1;
         service.modifyQuestion(newQuestion, lowerOutOfBoundsIndex, quizToEditMock);
         expect(quizToEditMock.questions.length).toEqual(1);
@@ -185,7 +173,6 @@ describe('QuizManagerService', () => {
     it('should delete the question at a given index', () => {
         service.addNewQuestion(newQuestion, quizToEditMock);
         const nQuestions = quizToEditMock.questions.length;
-
         service.deleteQuestion(0, quizToEditMock);
         expect(quizToEditMock.questions.length).toEqual(nQuestions - 1);
         expect(quizToEditMock.questions[0]).toEqual(newQuestion);
@@ -195,7 +182,6 @@ describe('QuizManagerService', () => {
         const lowerOutOfBoundsIndex = -1;
         service.deleteQuestion(lowerOutOfBoundsIndex, quizToEditMock);
         expect(quizToEditMock.questions.length).toEqual(1);
-
         const upperOutOfBoundsIndex = 3;
         service.deleteQuestion(upperOutOfBoundsIndex, quizToEditMock);
         expect(quizToEditMock.questions.length).toEqual(1);
@@ -211,7 +197,6 @@ describe('QuizManagerService', () => {
     it('should create a new quiz on server when handling a brand new one', () => {
         quizToEditMock.id = '';
         const addQuizToServerSpy = spyOn(service, 'addQuizToServer');
-
         service.saveQuiz(quizToEditMock);
         expect(addQuizToServerSpy).toHaveBeenCalled();
         expect(addQuizToServerSpy).toHaveBeenCalledWith(quizToEditMock);
@@ -219,7 +204,6 @@ describe('QuizManagerService', () => {
 
     it('should correctly move a question up', () => {
         const previousFirstQuestion = quizToEditMock.questions[0];
-
         service.addNewQuestion(newQuestion, quizToEditMock);
         service.moveQuestionUp(1, quizToEditMock);
         expect(quizToEditMock.questions.length).toEqual(2);
@@ -233,14 +217,12 @@ describe('QuizManagerService', () => {
 
         service.moveQuestionUp(0, quizToEditMock);
         expect(quizToEditMock.questions).toEqual(quizQuestions);
-
         service.moveQuestionUp(3, quizToEditMock);
         expect(quizToEditMock.questions).toEqual(quizQuestions);
     });
 
     it('should correctly move a question down', () => {
         const previousFirstQuestion = quizToEditMock.questions[0];
-
         service.addNewQuestion(newQuestion, quizToEditMock);
         service.moveQuestionDown(0, quizToEditMock);
         expect(quizToEditMock.questions.length).toEqual(2);
@@ -251,23 +233,19 @@ describe('QuizManagerService', () => {
     it('should not move question down when index is the last or out of bounds', () => {
         service.addNewQuestion(newQuestion, quizToEditMock);
         const quizQuestions = [...quizToEditMock.questions];
-
         service.moveQuestionDown(1, quizToEditMock);
         expect(quizToEditMock.questions).toEqual(quizQuestions);
-
         service.moveQuestionDown(3, quizToEditMock);
         expect(quizToEditMock.questions).toEqual(quizQuestions);
     });
 
     it('should correctly update name, title and description', () => {
         const newQuizDuration = 50;
-
         const generalInfoFormMock = new FormGroup({
             title: new FormControl('new title'),
             description: new FormControl('dummy description edited'),
             duration: new FormControl(newQuizDuration),
         });
-
         service.updateGeneralInfo(quizToEditMock, generalInfoFormMock);
         expect(quizToEditMock.title).toEqual('new title');
         expect(quizToEditMock.description).toEqual('dummy description edited');
@@ -295,15 +273,15 @@ describe('QuizManagerService', () => {
                 },
             ],
         });
-
         expect(result).toBe(true);
     });
 
     it('should return true if quiz form is valid and the amount of choices of a question has been modified (when newQuiz.id is not empty)', () => {
         const modifiedQuestions = [...quizToEditMock.questions];
+        const modifiedChoiceIndex = modifiedQuestions[0].choices as Choice[];
         modifiedQuestions[0] = {
             ...modifiedQuestions[0],
-            choices: [...modifiedQuestions[0].choices, { text: 'Choice 3', isCorrect: true }],
+            choices: [...modifiedChoiceIndex, { text: 'Choice 3', isCorrect: true }],
         };
         const result = service.hasQuizBeenModified({ ...quizToEditMock, questions: modifiedQuestions });
         expect(result).toBe(true);
@@ -311,15 +289,33 @@ describe('QuizManagerService', () => {
 
     it('should return true if quiz form is valid and the information of a question choice was modified (when newQuiz.id is not empty)', () => {
         const modifiedQuestions = [...quizToEditMock.questions];
-        modifiedQuestions[0] = {
-            ...modifiedQuestions[0],
-            choices: [
-                {
-                    ...modifiedQuestions[0].choices[0],
+        const modifiedQuestionIndex = 0;
+        if (modifiedQuestions[modifiedQuestionIndex].choices) {
+            const modifiedChoices = modifiedQuestions[modifiedQuestionIndex].choices.slice(1);
+            const modifiedChoiceIndex = 0;
+            if (modifiedChoices[modifiedChoiceIndex]) {
+                modifiedChoices[modifiedChoiceIndex] = {
+                    ...modifiedChoices[modifiedChoiceIndex],
                     text: 'Modified Choice 1',
-                },
-                ...modifiedQuestions[0].choices.slice(1),
-            ],
+                };
+            }
+            modifiedQuestions[modifiedQuestionIndex] = {
+                ...modifiedQuestions[modifiedQuestionIndex],
+                choices: modifiedChoices,
+            };
+        }
+        const result = service.hasQuizBeenModified({ ...quizToEditMock, questions: modifiedQuestions });
+        expect(result).toBe(true);
+    });
+
+    it('should return true if quiz form is valid and the information of a question was modified (when newQuiz.id is not empty)', () => {
+        const modifiedQuestions = [...quizToEditMock.questions];
+        const modifiedQuestionIndex = 0;
+        modifiedQuestions[modifiedQuestionIndex] = {
+            ...modifiedQuestions[modifiedQuestionIndex],
+            type: 'ModifiedType',
+            text: 'Modified Question Text',
+            points: 20,
         };
         const result = service.hasQuizBeenModified({ ...quizToEditMock, questions: modifiedQuestions });
         expect(result).toBe(true);

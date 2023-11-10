@@ -13,7 +13,11 @@
     <div id="questions-container">
         <h2>Liste des questions</h2>
         <ol>
-            <li class="question" *ngFor="let question of newQuiz.questions; let i = index">
+            <li
+                class="question"
+                *ngFor="let question of newQuiz.questions; let i = index"
+                [ngClass]="{ qrl: question.type === 'QRL', qcm: question.type === 'QCM' }"
+            >
                 <div class="question-content">
                     <div class="question-actions">
                         <button type="button" (click)="moveQuestionUp(i)" [disabled]="i === 0">
