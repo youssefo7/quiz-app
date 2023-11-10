@@ -123,10 +123,14 @@
     background: #c5c5c5;
 }
 
-.chat-disabled {
-    align-self: center;
-    font-size: 11px;
-    color: red;
+.lost-chat-perks {
+    background-color: red;
+    font-size: 12px;
+}
+
+.granted-chat-perks {
+    background-color: rgb(8, 180, 71);
+    font-size: 12px;
 }
 
 // Code tiré de https://www.w3schools.com/howto/howto_css_custom_scrollbar.asp

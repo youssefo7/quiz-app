@@ -4,8 +4,10 @@
             <div
                 class="chat-message"
                 [ngClass]="{
-                    sent: message.sentByUser && message.authorName !== 'System',
-                    'system-sent': message.authorName === 'System' && this.isOrganizer
+                    sent: message.authorName === playerName && message.authorName !== 'System',
+                    'system-sent': message.authorName === 'System' && this.isOrganizer,
+                    'lost-chat-perks': message.authorName === 'System' && message.message === lostChatPermissionMessage,
+                    'granted-chat-perks': message.authorName === 'System' && message.message === grantedChatPermissionMessage
                 }"
             >
                 <div class="message-info">
@@ -16,7 +18,6 @@
             </div>
         </div>
     </div>
-    <span class="chat-disabled" *ngIf="!canPlayerChat()">L'oganisateur a limité vos droits de clavardage.</span>
     <div id="text-input">
         <textarea
             id="message"
@@ -26,13 +27,13 @@
             (input)="detectCharacterLengthOnInput($event)"
             (keyup)="keyUpEvent($event)"
             [(ngModel)]="userMessage"
-            [disabled]="!canPlayerChat()"
+            [disabled]="!canChat"
             [ngClass]="{
-                'disable-messageBox': !canPlayerChat()
+                'disable-messageBox': !canChat
             }"
         >
         </textarea>
-        <mat-icon inline="true" (click)="sendMessageToRoom()" (keyup.enter)="sendMessageToRoom()" [attr.disabled]="!canPlayerChat()">send</mat-icon>
+        <mat-icon inline="true" (click)="sendMessageToRoom()" (keyup.enter)="sendMessageToRoom()" [attr.disabled]="!canChat">send</mat-icon>
     </div>
     <span id="counter">{{ characterCounterDisplay }}</span>
 </div>

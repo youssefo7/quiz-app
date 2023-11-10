@@ -4,6 +4,7 @@ import { ChatMessage } from '@app/interfaces/chat-message';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { ChatEvents } from '@common/chat.events';
+import { Constants } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { firstValueFrom } from 'rxjs';
 @Component({
@@ -21,6 +22,9 @@ export class ChatComponent implements OnInit {
     roomMessages: ChatMessage[];
     userMessage: string;
     canChat: boolean;
+    playerName: string;
+    lostChatPermissionMessage: string;
+    grantedChatPermissionMessage: string;
     private isResultsRoute: boolean;
     private isTestGame: boolean;
 
@@ -41,9 +45,11 @@ export class ChatComponent implements OnInit {
         this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
         this.isOrganizer = this.router.url.endsWith('/host');
         this.canChat = true;
+        this.lostChatPermissionMessage = Constants.LOST_CHAT_PERMISSION_MESSAGE;
+        this.grantedChatPermissionMessage = Constants.GRANTED_CHAT_PERMISSION_MESSAGE;
     }
 
-    async ngOnInit() {
+    async ngOnInit(): Promise<void> {
         if (!this.socketService.socketExists()) {
             return;
         }
@@ -53,41 +59,11 @@ export class ChatComponent implements OnInit {
         if (this.isResultsRoute) {
             this.roomMessages = await firstValueFrom(this.roomCommunicationService.getChatMessages(this.roomId as string));
         }
-    }
 
-    configureChatSocketFeatures() {
-        const addMessage = (data: { authorName: string; timeString: string; message: string; sentByUser: boolean }) => {
-            const chatMessage: ChatMessage = {
-                authorName: data.authorName,
-                time: data.timeString,
-                message: data.message,
-                sentByUser: data.sentByUser,
-            };
-            this.roomMessages.push(chatMessage);
-        };
-
-        this.socketService.on(ChatEvents.NewRoomMessage, addMessage);
-
-        this.socketService.on(GameEvents.PlayerAbandonedGame, (playerName: string) => {
-            if (this.isOrganizer) {
-                const leftTime = new Date();
-                const playerLeftMessage: ChatMessage = {
-                    authorName: 'System',
-                    time: leftTime.getHours() + ':' + leftTime.getMinutes() + ':' + leftTime.getSeconds(),
-                    message: playerName + ' a quitté la partie.',
-                    sentByUser: false,
-                };
-                this.roomMessages.push(playerLeftMessage);
-            }
-        });
-
-        this.socketService.on(ChatEvents.ToggleChattingRights, (canWrite: boolean) => {
-            this.canChat = canWrite;
-        });
-
-        this.socketService.on(GameEvents.SendResults, async () => {
-            await firstValueFrom(this.roomCommunicationService.sendChatMessages(this.roomId as string, this.roomMessages));
-        });
+        const player = await firstValueFrom(
+            this.roomCommunicationService.getPlayerName(this.roomId as string, { socketId: this.socketService.socket.id }),
+        );
+        this.playerName = this.isOrganizer ? 'Organisateur' : player;
     }
 
     expandTextArea(event: Event) {
@@ -103,15 +79,8 @@ export class ChatComponent implements OnInit {
         this.characterCounterDisplay = `${this.currentInputLength} / ${this.maxInputLength}`;
     }
 
-    canPlayerChat(): boolean {
-        return this.canChat;
-    }
-
-    getPlaceholder(): string {
-        if (this.canChat) {
-            return 'Écrivez votre message...';
-        }
-        return '';
+    getPlaceholder() {
+        return this.canChat ? 'Écrivez votre message...' : '';
     }
 
     keyUpEvent($event: KeyboardEvent) {
@@ -126,5 +95,48 @@ export class ChatComponent implements OnInit {
             this.socketService.send(ChatEvents.RoomMessage, { roomId: this.roomId, message: this.userMessage.trim() });
             this.userMessage = '';
         }
+    }
+
+    private configureChatSocketFeatures() {
+        const addMessage = (data: { authorName: string; timeString: string; message: string }) => {
+            const chatMessage: ChatMessage = {
+                authorName: data.authorName,
+                time: data.timeString,
+                message: data.message,
+            };
+            this.roomMessages.push(chatMessage);
+        };
+
+        this.socketService.on(ChatEvents.NewRoomMessage, addMessage);
+
+        this.socketService.on(GameEvents.PlayerAbandonedGame, (playerName: string) => {
+            if (this.isOrganizer) {
+                const messageTime = new Date();
+                const playerLeftMessage: ChatMessage = {
+                    authorName: 'System',
+                    time: messageTime.getHours() + ':' + messageTime.getMinutes() + ':' + messageTime.getSeconds(),
+                    message: playerName + ' a quitté la partie.',
+                };
+                this.roomMessages.push(playerLeftMessage);
+            }
+        });
+
+        this.socketService.on(ChatEvents.ToggleChattingRights, async (canWrite: boolean) => {
+            this.canChat = canWrite;
+            const messageTime = new Date();
+            const chatPermissionMessage: ChatMessage = {
+                authorName: 'System',
+                time: messageTime.getHours() + ':' + messageTime.getMinutes() + ':' + messageTime.getSeconds(),
+                message: '',
+            };
+
+            chatPermissionMessage.message = !this.canChat ? this.lostChatPermissionMessage : this.grantedChatPermissionMessage;
+
+            this.roomMessages.push(chatPermissionMessage);
+        });
+
+        this.socketService.on(GameEvents.SendResults, async () => {
+            await firstValueFrom(this.roomCommunicationService.sendChatMessages(this.roomId as string, this.roomMessages));
+        });
     }
 }

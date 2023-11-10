@@ -16,11 +16,10 @@ export class ChatGateway {
         const user = this.roomManager.findUser(socket.id, room);
         const time = new Date();
         const timeString = time.getHours() + ':' + time.getMinutes() + ':' + time.getSeconds();
-        let messageData = { authorName: user.name, timeString, message: data.message, sentByUser: false };
+        const messageData = { authorName: user.name, timeString, message: data.message };
 
         if (socket.rooms.has(data.roomId)) {
-            socket.to(data.roomId).emit(ChatEvents.NewRoomMessage, messageData);
-            socket.emit(ChatEvents.NewRoomMessage, (messageData = { ...messageData, sentByUser: true }));
+            this.server.to(data.roomId).emit(ChatEvents.NewRoomMessage, messageData);
         }
     }
 
