@@ -3,7 +3,7 @@ import { RoomManagerService } from '@app/services/room-manager/room-manager.serv
 import { ChatEvents } from '@common/chat.events';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { SinonStubbedInstance, createStubInstance, match, stub } from 'sinon';
+import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { ChatGateway } from './chat.gateway';
 
@@ -38,7 +38,7 @@ describe('ChatGateway', () => {
             organizer: { socketId: 'organizerId', name: 'Organisateur' },
             players: [
                 { socketId: 'playerId1', name: 'name1', points: 50, bonusCount: 0, canChat: true },
-                { socketId: 'playerId2', name: 'name2', points: 200, bonusCount: 1, canChat: true },
+                { socketId: socket.id, name: 'name2', points: 200, bonusCount: 1, canChat: true },
             ],
             isLocked: false,
             bannedNames: [],
@@ -55,26 +55,33 @@ describe('ChatGateway', () => {
     });
 
     it('handleRoomMessage() should send message if socket in the room', () => {
-        stub(socket, 'rooms').value(new Set(['testId']));
-        socket.to.returns({
-            emit: (event: string) => {
+        const name = 'name2';
+        const message = 'Test Message';
+        const room = roomManagerServiceMock.findRoom('testId');
+        const time = new Date();
+        const timeString = time.getHours() + ':' + time.getMinutes() + ':' + time.getSeconds();
+        stub(socket, 'rooms').value(new Set([room.id]));
+        server.to.returns({
+            emit: (event: string, data: { authorName: string; timeString: string; message: string }) => {
                 expect(event).toEqual(ChatEvents.NewRoomMessage);
+                expect(data.authorName).toEqual(name);
+                expect(data.timeString).toEqual(timeString);
+                expect(data.message).toEqual(message);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.handleRoomMessage(socket, { roomId: 'testId', message: 'Test Message' });
-        expect(socket.to.withArgs(roomManagerServiceMock.rooms[0].id)).toBeTruthy();
-        expect(socket.emit.calledWith(ChatEvents.NewRoomMessage, match.object)).toBeTruthy();
+        gateway.handleRoomMessage(socket, { roomId: 'testId', message });
+        expect(server.to.withArgs(roomManagerServiceMock.rooms[0].id)).toBeTruthy();
     });
 
     it('handleRoomMessage() should not send message if socket not in the room', () => {
         socket.disconnect();
         stub(socket, 'rooms').value(new Set());
         gateway.handleRoomMessage(socket, { roomId: 'testId', message: 'Test Message' });
-        expect(socket.emit.called).toBeFalsy();
-        expect(socket.to.called).toBeFalsy();
+        expect(server.emit.called).toBeFalsy();
+        expect(server.to.called).toBeFalsy();
     });
 
-    it('handleToggleChattingRights() should deny player permission to interact in the chat with others if the player can currently chat', () => {
+    it('handleToggleChattingRights() should grant or deny player permission to interact in the chat with others depending on the player', () => {
         const name = 'name1';
         const room = roomManagerServiceMock.findRoom('testId');
         const player = roomManagerServiceMock.findPlayerByName(room, name);
@@ -89,20 +96,8 @@ describe('ChatGateway', () => {
         gateway.handleToggleChattingRights(socket, { roomId: 'testId', playerName: 'name1' });
         expect(server.to.withArgs(player.socketId).called).toBeTruthy();
         expect(player.canChat).toEqual(false);
-    });
 
-    it('handleToggleChattingRights() should grant player permission to interact chat with others in chat if player can currently cannot chat', () => {
-        const name = 'name1';
-        const room = roomManagerServiceMock.findRoom('testId');
-        const player = roomManagerServiceMock.findPlayerByName(room, name);
         player.canChat = false;
-        stub(socket, 'rooms').value(new Set(['testId']));
-        server.to.returns({
-            emit: (event: string, canChat: boolean) => {
-                expect(event).toEqual(ChatEvents.ToggleChattingRights);
-                expect(canChat).toEqual(player.canChat);
-            },
-        } as BroadcastOperator<unknown, unknown>);
         gateway.handleToggleChattingRights(socket, { roomId: 'testId', playerName: 'name1' });
         expect(server.to.withArgs(player.socketId).called).toBeTruthy();
         expect(player.canChat).toEqual(true);

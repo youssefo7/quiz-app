@@ -8,4 +8,6 @@ export const Constants = {
     MIN_POINTS: 10,
     MAX_CHOICES: 4,
     MIN_CHOICES: 2,
-  } as const;
+    LOST_CHAT_PERMISSION_MESSAGE: "L'oganisateur a limité vos droits de clavardage",
+    GRANTED_CHAT_PERMISSION_MESSAGE: "L'oganisateur a rétabli vos droits de clavardage",
+} as const;
