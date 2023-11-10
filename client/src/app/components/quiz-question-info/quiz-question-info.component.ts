@@ -55,17 +55,26 @@ export class QuizQuestionInfoComponent implements OnInit {
         this.quizManagerService.modifiedIndex = index;
         const resetChoices = this.choices;
 
-        while (resetChoices.length < question.choices.length) {
-            this.addChoice();
-        }
-
+        const questionChoicesLength = question.choices?.length as number;
         this.quizManagerService.isModifiedQuestion = true;
-        this.questionInfoForm.patchValue({
-            text: question.text,
-            type: question.type,
-            points: question.points,
-            choices: question.choices,
-        });
+        if (question.type === 'QCM') {
+            while (resetChoices.length < questionChoicesLength) {
+                this.addChoice();
+            }
+
+            this.questionInfoForm.patchValue({
+                text: question.text,
+                type: question.type,
+                points: question.points,
+                choices: question.choices,
+            });
+        } else {
+            this.questionInfoForm.patchValue({
+                text: question.text,
+                type: question.type,
+                points: question.points,
+            });
+        }
     }
 
     roundToNearest10() {
@@ -107,28 +116,56 @@ export class QuizQuestionInfoComponent implements OnInit {
         this.resetForm();
     }
 
+    // manageQuestion() {
+    //     let choicesArray: Choice[] = [];
+    //     const questionType: string = this.questionInfoForm.get('type')?.value;
+    //     const questionText: string = this.questionInfoForm.get('text')?.value;
+    //     const questionPoints: number = this.questionInfoForm.get('points')?.value;
+
+    //     if (questionType === 'QRL') {
+    //         choicesArray = [];
+    //     } else {
+    //         choicesArray = this.choices.controls.map((control: AbstractControl) => {
+    //             const text: string = control.get('text')?.value;
+    //             const isCorrect: boolean = control.get('isCorrect')?.value;
+    //             return { text, isCorrect };
+    //         });
+    //     }
+
+    //     const newQuestion: Question = {
+    //         type: questionType,
+    //         text: questionText,
+    //         points: questionPoints,
+    //         choices: choicesArray,
+    //     };
+
+    //     if (this.quizManagerService.isModifiedQuestion) {
+    //         this.quizManagerService.modifyQuestion(newQuestion, this.quizManagerService.modifiedIndex, this.newQuiz);
+    //     } else {
+    //         this.quizManagerService.addNewQuestion(newQuestion, this.newQuiz);
+    //     }
+    // }
+
     manageQuestion() {
-        let choicesArray: Choice[] = [];
         const questionType: string = this.questionInfoForm.get('type')?.value;
         const questionText: string = this.questionInfoForm.get('text')?.value;
         const questionPoints: number = this.questionInfoForm.get('points')?.value;
-
-        if (questionType === 'QRL') {
-            choicesArray = [];
-        } else {
-            choicesArray = this.choices.controls.map((control: AbstractControl) => {
-                const text: string = control.get('text')?.value;
-                const isCorrect: boolean = control.get('isCorrect')?.value;
-                return { text, isCorrect };
-            });
-        }
 
         const newQuestion: Question = {
             type: questionType,
             text: questionText,
             points: questionPoints,
-            choices: choicesArray,
-        };
+        } as Question;
+
+        if (questionType === 'QCM') {
+            const choicesArray: Choice[] = this.choices.controls.map((control: AbstractControl) => {
+                const text: string = control.get('text')?.value;
+                const isCorrect: boolean = control.get('isCorrect')?.value;
+                return { text, isCorrect };
+            });
+
+            newQuestion.choices = choicesArray;
+        }
 
         if (this.quizManagerService.isModifiedQuestion) {
             this.quizManagerService.modifyQuestion(newQuestion, this.quizManagerService.modifiedIndex, this.newQuiz);

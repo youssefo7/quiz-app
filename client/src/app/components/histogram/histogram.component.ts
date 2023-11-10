@@ -1,8 +1,8 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Question, Quiz } from '@app/interfaces/quiz';
+import { GameEvents } from '@app/events/game.events';
+import { TimeEvents } from '@app/events/time.events';
+import { Choice, Question, Quiz } from '@app/interfaces/quiz';
 import { SocketClientService } from '@app/services/socket-client.service';
-import { GameEvents } from '@common/game.events';
-import { TimeEvents } from '@common/time.events';
 import { Chart } from 'chart.js';
 
 @Component({
@@ -53,7 +53,8 @@ export class HistogramComponent implements OnInit, OnDestroy {
     private getQuestion(index: number) {
         if (this.quiz && index < this.quiz.questions.length) {
             this.question = this.quiz.questions[index];
-            for (let i = 0; i < this.question.choices.length; i++) {
+            const choices = (this.question.choices as Choice[]) || undefined;
+            for (let i = 0; i < choices?.length; i++) {
                 this.playersChoices.push(`Choix ${i + 1}`);
                 this.choicesSelectionCounts.push(0);
                 this.chartBorderColors.push('black');
@@ -80,9 +81,9 @@ export class HistogramComponent implements OnInit, OnDestroy {
     }
 
     private setBackgroundColors(choiceIndex: number) {
-        const choice = this.question.choices[choiceIndex];
-        this.chartBackgroundColors.push(choice.isCorrect ? 'green' : 'red');
-        this.goodBadChoices.push(choice.isCorrect);
+        const choice = this.question.choices?.[choiceIndex] as Choice;
+        this.chartBackgroundColors.push(choice?.isCorrect ? 'green' : 'red');
+        this.goodBadChoices.push(choice?.isCorrect);
     }
 
     private updateSelections() {

@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -126,23 +127,68 @@ export class QuizManagerService {
             if (
                 this.quizToModify.questions[i].type !== quiz.questions[i].type ||
                 this.quizToModify.questions[i].text.trim() !== quiz.questions[i].text.trim() ||
-                this.quizToModify.questions[i].points !== quiz.questions[i].points ||
-                this.quizToModify.questions[i].choices.length !== quiz.questions[i].choices.length
+                this.quizToModify.questions[i].points !== quiz.questions[i].points
             ) {
                 return true;
             }
+            const thisChoices = this.quizToModify.questions[i].choices || [];
+            const quizChoices = quiz.questions[i].choices || [];
 
-            if (this.quizToModify.questions[i].type === 'QCM') {
-                for (let j = 0; j < this.quizToModify.questions[i].choices.length; j++) {
-                    if (
-                        this.quizToModify.questions[i].choices[j].text.trim() !== quiz.questions[i].choices[j].text.trim() ||
-                        this.quizToModify.questions[i].choices[j].isCorrect !== quiz.questions[i].choices[j].isCorrect
-                    ) {
-                        return true;
-                    }
+            if (thisChoices.length !== quizChoices.length) {
+                return true;
+            }
+
+            for (let j = 0; j < thisChoices.length; j++) {
+                const thisChoice = thisChoices[j];
+                const quizChoice = quizChoices[j];
+
+                if (
+                    (thisChoice && !quizChoice) ||
+                    (!thisChoice && quizChoice) ||
+                    (thisChoice && quizChoice && (thisChoice.text.trim() !== quizChoice.text.trim() || thisChoice.isCorrect !== quizChoice.isCorrect))
+                ) {
+                    return true;
                 }
             }
         }
+
         return false;
     }
+
+    // hasQuizBeenModified(quiz: Quiz): boolean {
+    //     if (
+    //         this.quizToModify.title.trim() !== quiz.title.trim() ||
+    //         this.quizToModify.description.trim() !== quiz.description.trim() ||
+    //         this.quizToModify.duration !== quiz.duration
+    //     ) {
+    //         return true;
+    //     }
+
+    //     if (this.quizToModify.questions.length !== quiz.questions.length) {
+    //         return true;
+    //     }
+
+    //     for (let i = 0; i < this.quizToModify.questions.length; i++) {
+    //         if (
+    //             this.quizToModify.questions[i].type !== quiz.questions[i].type ||
+    //             this.quizToModify.questions[i].text.trim() !== quiz.questions[i].text.trim() ||
+    //             this.quizToModify.questions[i].points !== quiz.questions[i].points ||
+    //             this.quizToModify.questions[i].choices.length !== quiz.questions[i].choices.length
+    //         ) {
+    //             return true;
+    //         }
+
+    //         if (this.quizToModify.questions[i].type === 'QCM') {
+    //             for (let j = 0; j < this.quizToModify.questions[i].choices.length; j++) {
+    //                 if (
+    //                     this.quizToModify.questions[i].choices[j].text.trim() !== quiz.questions[i].choices[j].text.trim() ||
+    //                     this.quizToModify.questions[i].choices[j].isCorrect !== quiz.questions[i].choices[j].isCorrect
+    //                 ) {
+    //                     return true;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return false;
+    // }
 }
