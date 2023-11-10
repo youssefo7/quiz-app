@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Question, Quiz } from '@app/interfaces/quiz';
+import { Question, Quiz, Choice } from '@app/interfaces/quiz';
 import { CommunicationService } from './communication.service';
 
 @Injectable({
@@ -67,14 +67,14 @@ export class QuizManagerService {
     }
 
     modifyQuestion(question: Question, index: number, quiz: Quiz) {
-        if (index >= 0 && index < quiz.questions.length) {
+        if (this.isValidIndex(index, quiz)) {
             quiz.questions[index] = question;
         }
         this.isModifiedQuestion = false;
     }
 
     deleteQuestion(index: number, quiz: Quiz) {
-        if (index >= 0 && index < quiz.questions.length) {
+        if (this.isValidIndex(index, quiz)) {
             quiz.questions.splice(index, 1);
         }
     }
@@ -88,7 +88,8 @@ export class QuizManagerService {
     }
 
     moveQuestionUp(index: number, quiz: Quiz) {
-        if (index > 0 && index < quiz.questions.length) {
+        const canMoveUp = index > 0 && index < quiz.questions.length;
+        if (canMoveUp) {
             const tmp = quiz.questions[index - 1];
             quiz.questions[index - 1] = quiz.questions[index];
             quiz.questions[index] = tmp;
@@ -96,7 +97,8 @@ export class QuizManagerService {
     }
 
     moveQuestionDown(index: number, quiz: Quiz) {
-        if (index < quiz.questions.length - 1 && index >= 0) {
+        const canMoveDown = index < quiz.questions.length - 1 && index >= 0;
+        if (canMoveDown) {
             const tmp = quiz.questions[index + 1];
             quiz.questions[index + 1] = quiz.questions[index];
             quiz.questions[index] = tmp;
@@ -110,36 +112,59 @@ export class QuizManagerService {
     }
 
     hasQuizBeenModified(quiz: Quiz): boolean {
-        if (
-            this.quizToModify.title.trim() !== quiz.title.trim() ||
-            this.quizToModify.description.trim() !== quiz.description.trim() ||
-            this.quizToModify.duration !== quiz.duration
-        ) {
+        if (this.isQuizModified(this.quizToModify, quiz)) {
             return true;
         }
 
-        if (this.quizToModify.questions.length !== quiz.questions.length) {
+        const isQuestionCountDifferent = this.quizToModify.questions.length !== quiz.questions.length;
+        if (isQuestionCountDifferent) {
             return true;
         }
 
         for (let i = 0; i < this.quizToModify.questions.length; i++) {
-            if (
-                this.quizToModify.questions[i].type !== quiz.questions[i].type ||
-                this.quizToModify.questions[i].text.trim() !== quiz.questions[i].text.trim() ||
-                this.quizToModify.questions[i].points !== quiz.questions[i].points ||
-                this.quizToModify.questions[i].choices.length !== quiz.questions[i].choices.length
-            ) {
+            if (this.isQuizQuestionsModified(this.quizToModify.questions[i], quiz.questions[i])) {
                 return true;
             }
 
             for (let j = 0; j < this.quizToModify.questions[i].choices.length; j++) {
-                if (
-                    this.quizToModify.questions[i].choices[j].text.trim() !== quiz.questions[i].choices[j].text.trim() ||
-                    this.quizToModify.questions[i].choices[j].isCorrect !== quiz.questions[i].choices[j].isCorrect
-                ) {
+                if (this.isQuizChoicesModified(this.quizToModify.questions[i].choices[j], quiz.questions[i].choices[j])) {
                     return true;
                 }
             }
+        }
+        return false;
+    }
+
+    private isValidIndex(index: number, quiz: Quiz): boolean {
+        return index >= 0 && index < quiz.questions.length;
+    }
+
+    private isQuizModified(quizBefore: Quiz, quizAfter: Quiz): boolean {
+        const isQuizTitleDifferent = quizBefore.title.trim() !== quizAfter.title.trim();
+        const isQuizDescriptionDifferent = quizBefore.description.trim() !== quizAfter.description.trim();
+        const isQuizDurationDifferent = quizBefore.duration !== quizAfter.duration;
+        if (isQuizTitleDifferent || isQuizDescriptionDifferent || isQuizDurationDifferent) {
+            return true;
+        }
+        return false;
+    }
+
+    private isQuizQuestionsModified(questionBefore: Question, questionAfter: Question): boolean {
+        const isQuestionTypeDifferent = questionBefore.type !== questionAfter.type;
+        const isQuestionTextDifferent = questionBefore.text.trim() !== questionAfter.text.trim();
+        const isQuestionPointsDifferent = questionBefore.points !== questionAfter.points;
+        const isQuesiontChoicesDifferent = questionBefore.choices.length !== questionAfter.choices.length;
+        if (isQuestionTypeDifferent || isQuestionTextDifferent || isQuestionPointsDifferent || isQuesiontChoicesDifferent) {
+            return true;
+        }
+        return false;
+    }
+
+    private isQuizChoicesModified(choiceBefore: Choice, choiceAfter: Choice): boolean {
+        const isChoicesTextDifferent = choiceBefore.text.trim() !== choiceAfter.text.trim();
+        const isChoicesValidDifferent = choiceBefore.isCorrect !== choiceAfter.isCorrect;
+        if (isChoicesTextDifferent || isChoicesValidDifferent) {
+            return true;
         }
         return false;
     }

@@ -32,14 +32,17 @@ export class TimeService {
     }
 
     async startTimer(startValue: number): Promise<void | Observable<number | undefined>> {
-        if (this.interval) return new Observable<number | undefined>();
+        if (this.interval) {
+            return new Observable<number | undefined>();
+        }
 
         this.time = startValue;
 
         return new Promise<void>((resolve) => {
             this.interval = window.setInterval(() => {
                 this.timer.next(this.time);
-                if (this.time > 0 && !this.isButtonPressed) {
+                const isTimeRemaining = this.time > 0;
+                if (isTimeRemaining && !this.isButtonPressed) {
                     this.time--;
                 } else {
                     this.stopTimer();
