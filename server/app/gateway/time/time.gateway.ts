@@ -15,6 +15,7 @@ export class TimeGateway {
         let counter = data.initialTime;
         const room = this.roomManagerService.findRoom(data.roomId);
         if (room.timer) return;
+
         this.server.to(data.roomId).emit(TimeEvents.CurrentTimer, counter);
         counter--;
 
@@ -47,5 +48,20 @@ export class TimeGateway {
     handleTimerInterrupted(socket: Socket, roomId: string) {
         this.handleStopTimer(socket, roomId);
         this.server.to(roomId).emit(TimeEvents.TimerInterrupted);
+    }
+
+    @SubscribeMessage(TimeEvents.PauseTimer)
+    handlePauseStartTimer(socket: Socket, data) {
+        if (data.isPaused) {
+            this.handleStopTimer(socket, data.roomId);
+        } else {
+            this.handleStartTimer(socket, { initialTime: data.currentTime, tickRate: 1000, roomId: data.roomId });
+        }
+    }
+
+    @SubscribeMessage(TimeEvents.PanicMode)
+    handlePanicTimer(socket: Socket, data) {
+        this.handleStopTimer(socket, data.roomId);
+        this.handleStartTimer(socket, { initialTime: data.currentTime, tickRate: 250, roomId: data.roomId });
     }
 }

@@ -21,6 +21,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
     @Input() roomId: string | null;
     message: string;
     clockStyle: { backgroundColor: string };
+    isPaused: boolean;
     private socketTime: number;
     private timerSubscription: Subscription;
     private isQuestionTransitioning: boolean;
@@ -29,6 +30,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
     private isTestGame: boolean;
     private gameServiceSubscription: Subscription;
     private hasFinishedTransitionClock: boolean;
+    private isInPanicMode: boolean;
 
     // Tous ces paramètres sont nécessaires pour que la composante fonctionne bien
     // eslint-disable-next-line max-params
@@ -41,6 +43,8 @@ export class CountdownComponent implements OnInit, OnDestroy {
     ) {
         this.currentQuestionIndex = 0;
         this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
+        this.isPaused = false;
+        this.isInPanicMode = false;
     }
 
     get time() {
@@ -57,6 +61,23 @@ export class CountdownComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         if (this.timerSubscription) this.timerSubscription.unsubscribe();
         if (this.gameServiceSubscription) this.gameServiceSubscription.unsubscribe();
+    }
+
+    pauseTimer() {
+        const currentTime = this.time;
+        this.isPaused = !this.isPaused;
+        if (!this.isInPanicMode) {
+            this.socketClientService.send(TimeEvents.PauseTimer, { roomId: this.roomId, isPaused: this.isPaused, currentTime });
+        }
+    }
+
+    panicMode() {
+        this.isInPanicMode = true;
+        const minTimeToPanic = 10;
+        const currentTime = this.time;
+        if (currentTime > minTimeToPanic && !this.isPaused) {
+            this.socketClientService.send(TimeEvents.PanicMode, { currentTime, roomId: this.roomId });
+        }
     }
 
     private async loadTimer() {

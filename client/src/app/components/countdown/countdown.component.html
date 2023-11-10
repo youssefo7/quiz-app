@@ -3,6 +3,7 @@
     <p *ngIf="time >= 0" id="countdown">{{ time }}</p>
 </div>
 <div *ngIf="isHost" id="countdown-options">
-    <button id="pause-button"><mat-icon>pause</mat-icon></button>
-    <button id="panic-button" title="Mode Panique"><mat-icon>error_outline</mat-icon></button>
+    <button id="pause-button" (click)="pauseTimer()" *ngIf="!isPaused"><mat-icon>pause</mat-icon></button>
+    <button id="pause-button" (click)="pauseTimer()" *ngIf="isPaused"><mat-icon>play_arrow</mat-icon></button>
+    <button id="panic-button" title="Mode Panique" (click)="panicMode()"><mat-icon>error_outline</mat-icon></button>
 </div>
