@@ -90,6 +90,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         this.handlePlayerLeaveGame();
         this.handleNextQuestion();
         this.handleAnswers();
+        this.handleUnSubmitQuestion();
     }
 
     private getQuestion(index: number) {
@@ -103,8 +104,8 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
 
     private enableNextQuestionButton() {
         this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
-            this.detectEndOfQuestion(time);
             this.socketTime = time;
+            this.detectEndOfQuestion(time);
         });
 
         this.socketClientService.on(TimeEvents.TimerInterrupted, () => {
@@ -119,7 +120,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
 
     private detectEndOfQuestion(time: number) {
         if (time === 0) {
-            if (this.hasTimerBeenInterrupted && this.submittedQuestionOnClickCount === this.playerCount) {
+            if (this.hasTimerBeenInterrupted) {
                 this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
             } else {
                 this.totalGoodAnswers = this.goodAnswerOnClickCount + this.goodAnswerOnFinishedTimerCount;
@@ -174,7 +175,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     }
 
     private handlePlayerLeaveGame() {
-        this.socketClientService.on(GameEvents.PlayerLeaveGame, () => {
+        this.socketClientService.on(GameEvents.PlayerAbandonedGame, () => {
             this.playerCount--;
         });
     }
@@ -204,8 +205,16 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     private detectIfAllPlayersSubmitted() {
         if (this.submittedQuestionOnClickCount === this.playerCount && this.socketTime !== 0) {
             this.socketClientService.send(TimeEvents.TimerInterrupted, this.roomId);
-        } else {
-            this.detectEndOfQuestion(0);
+        } else if (this.socketTime === 0) {
+            this.detectEndOfQuestion(this.socketTime);
         }
+    }
+
+    private handleUnSubmitQuestion() {
+        this.socketClientService.on(GameEvents.UnSubmitAnswer, () => {
+            this.submittedQuestionOnClickCount--;
+            this.goodAnswerOnClickCount--;
+            this.detectIfAllPlayersSubmitted();
+        });
     }
 }

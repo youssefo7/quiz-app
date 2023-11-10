@@ -101,54 +101,69 @@ describe('GameGateway', () => {
         expect(socket.disconnect.calledOnce).toBeTruthy();
     });
 
-    it('handleGoodAnswerOnClick() should be called with a click and added to the list of answerTimes and emit', () => {
+    it('handleGoodAnswer() should add the timestamp to the list of answerTimes and emit GoodAnswerOnClick if timer is not finished', () => {
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual(GameEvents.GoodAnswerOnClick);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.handleGoodAnswerOnClick(socket, roomId);
+        gateway.handleGoodAnswer(socket, { roomId, isTimerFinished: false });
         expect(roomManagerServiceMock.rooms[0].answerTimes.length).toBeGreaterThan(2);
         expect(roomManagerServiceMock.rooms[0].answerTimes[2].userId).toBe(socket.id);
         expect(roomManagerServiceMock.rooms[0].answerTimes[2].timeStamp).toBeDefined();
     });
 
-    it('handleGoodAnswerOnFinishedTimer() should add the timestamp of the good answer to the answersTime list and emitted to organizer', () => {
+    it('handleGoodAnswer() should add the timestamp to the list of answerTimes and emit GoodAnswerOnTimerFinished if timer is finished', () => {
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual(GameEvents.GoodAnswerOnFinishedTimer);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.handleGoodAnswerOnFinishedTimer(socket, roomId);
+        gateway.handleGoodAnswer(socket, { roomId, isTimerFinished: true });
         expect(roomManagerServiceMock.rooms[0].answerTimes.length).toBeGreaterThan(2);
         expect(roomManagerServiceMock.rooms[0].answerTimes[2].userId).toBe(socket.id);
         expect(roomManagerServiceMock.rooms[0].answerTimes[2].timeStamp).toBeDefined();
     });
 
-    it('handleBadAnswerOnClick() should emit when good answer submitted on click to organizer that a bad answer was submitted', () => {
+    it('handleRemoveAnswerTime() should remove the timestamp from the list of answerTimes', () => {
+        const userIdToRemove = 'playerId1';
+        stub(socket, 'rooms').value(new Set([roomId]));
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual(GameEvents.UnSubmitAnswer);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.handleRemoveAnswerTime(socket, { roomId, userIdToRemove });
+        expect(roomManagerServiceMock.rooms[0].answerTimes.length).toBe(2);
+        expect(roomManagerServiceMock.rooms[0].answerTimes[0].userId).toBe('playerId2');
+        expect(roomManagerServiceMock.rooms[0].answerTimes[1].userId).toBe(socket.id);
+    });
+
+    it('handleBadAnswer() should emit to organizer that a bad answer was submitted on click', () => {
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual(GameEvents.BadAnswerOnClick);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.handleBadAnswerOnClick(socket, roomId);
+        gateway.handleBadAnswer(socket, { roomId, isTimerFinished: false });
         expect(server.to.calledWith(roomManagerServiceMock.rooms[0].organizer.socketId)).toBeTruthy();
     });
 
-    it('handleBadAnswerOnFinishedTimer() should emit to organizer that a bad answer was submitted when timer runs out', () => {
+    it('handleBadAnswer() should emit to organizer that a bad answer was submitted when timer runs out', () => {
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual(GameEvents.BadAnswerOnFinishedTimer);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.handleBadAnswerOnFinishedTimer(socket, roomId);
+        gateway.handleBadAnswer(socket, { roomId, isTimerFinished: true });
+        expect(server.to.calledWith(roomManagerServiceMock.rooms[0].organizer.socketId)).toBeTruthy();
     });
 
-    it('handleQuestionChoiceSelect() should show the organizer the total answer choice counts of players of a given question', () => {
+    it('handleChoiceToggle() should show the organizer the total answer choice count when selecting', () => {
         const questionChoiceIndex = 1;
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
@@ -157,11 +172,11 @@ describe('GameGateway', () => {
                 expect(index).toEqual(questionChoiceIndex);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.handleQuestionChoiceSelect(socket, { roomId, questionChoiceIndex });
+        gateway.handleToggleChoice(socket, { roomId, questionChoiceIndex, isSelect: true });
         expect(server.to.calledWith(roomManagerServiceMock.rooms[0].organizer.socketId)).toBeTruthy();
     });
 
-    it('handleQuestionChoiceUnelect() should show the organizer the total answer choice counts of players of a given question', () => {
+    it('handleToggleChoice() should show the organizer the total answer choice count when unselecting', () => {
         const questionChoiceIndex = 1;
         stub(socket, 'rooms').value(new Set([roomId]));
         socket.join(roomId);
@@ -171,11 +186,11 @@ describe('GameGateway', () => {
                 expect(index).toEqual(questionChoiceIndex);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.handleQuestionChoiceUnselect(socket, { roomId, questionChoiceIndex });
+        gateway.handleToggleChoice(socket, { roomId, questionChoiceIndex, isSelect: false });
         expect(server.to.calledWith(roomManagerServiceMock.rooms[0].organizer.socketId)).toBeTruthy();
     });
 
-    it('handleQuestionChoiceSelect() should emit the selected choice index', () => {
+    it('handleToggleChoice() should emit the selected choice index', () => {
         const questionChoiceIndex = 2;
         stub(socket, 'rooms').value(new Set([roomId]));
 
@@ -186,10 +201,10 @@ describe('GameGateway', () => {
             },
         } as BroadcastOperator<unknown, unknown>);
 
-        gateway.handleQuestionChoiceSelect(socket, { roomId, questionChoiceIndex });
+        gateway.handleToggleChoice(socket, { roomId, questionChoiceIndex, isSelect: true });
     });
 
-    it('handleQuestionChoiceUnselect() should emit the unselected choice index', () => {
+    it('handleToggleChoice() should emit the unselected choice index', () => {
         const questionChoiceIndex = 1;
         stub(socket, 'rooms').value(new Set([roomId]));
 
@@ -200,10 +215,30 @@ describe('GameGateway', () => {
             },
         } as BroadcastOperator<unknown, unknown>);
 
-        gateway.handleQuestionChoiceUnselect(socket, { roomId, questionChoiceIndex });
+        gateway.handleToggleChoice(socket, { roomId, questionChoiceIndex, isSelect: false });
     });
 
-    it('handleSubmitQuestionOnClick() should emit to organizer when a question was submitted by click from player', () => {
+    it('handleChoiceArrayUnselect() should emit the unselected choice indexes', () => {
+        const questionChoiceIndexes = [1, 2];
+        stub(socket, 'rooms').value(new Set([roomId]));
+
+        const emittedEvents = [];
+        server.to.returns({
+            emit: (event: string, index: number) => {
+                emittedEvents.push({ event, index });
+            },
+        } as BroadcastOperator<unknown, unknown>);
+
+        gateway.handleChoiceArrayUnselect(socket, { roomId, questionChoiceIndexes });
+        expect(emittedEvents.length).toEqual(questionChoiceIndexes.length);
+
+        questionChoiceIndexes.forEach((choiceIndex, i) => {
+            expect(emittedEvents[i].event).toEqual(GameEvents.QuestionChoiceUnselect);
+            expect(emittedEvents[i].index).toEqual(choiceIndex);
+        });
+    });
+
+    it('handleSubmitQuestion() should emit to organizer when a question was submitted by click from player', () => {
         stub(socket, 'rooms').value(new Set([roomId]));
         roomManagerServiceMock.rooms[0].organizer.socketId = socket.id;
         const organizerId = roomManagerServiceMock.rooms[0].organizer.socketId;
@@ -212,20 +247,7 @@ describe('GameGateway', () => {
                 expect(event).toEqual(GameEvents.SubmitQuestionOnClick);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.handleSubmitQuestionOnClick(socket, roomId);
-        expect(server.to.calledWith(organizerId)).toBeTruthy();
-    });
-
-    it('handleSubmitQuestionOnFinishedTimer() should emit to organizer when a question was submitted by timer ended', () => {
-        stub(socket, 'rooms').value(new Set([roomId]));
-        roomManagerServiceMock.rooms[0].organizer.socketId = socket.id;
-        const organizerId = roomManagerServiceMock.rooms[0].organizer.socketId;
-        server.to.returns({
-            emit: (event: string) => {
-                expect(event).toEqual(GameEvents.SubmitQuestionOnFinishedTimer);
-            },
-        } as BroadcastOperator<unknown, unknown>);
-        gateway.handleSubmitQuestionOnFinishedTimer(socket, roomId);
+        gateway.handleSubmitQuestion(socket, roomId);
         expect(server.to.calledWith(organizerId)).toBeTruthy();
     });
 

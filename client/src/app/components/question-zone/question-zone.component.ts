@@ -97,7 +97,9 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        if (this.isTestGame) {
+        if (!this.isTestGame) {
+            this.sendUnselectChoices();
+        } else {
             this.timeService.stopTimer();
             if (this.timerSubscription) this.timerSubscription.unsubscribe();
             if (this.gameServiceSubscription) this.gameServiceSubscription.unsubscribe();
@@ -112,10 +114,13 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         const isIndexInbound = index >= 0 && index < this.chosenChoices.length;
         if (!isNaN(index) && isIndexInbound) {
             this.chosenChoices[index] = !this.chosenChoices[index];
-            if (this.chosenChoices[index]) {
-                this.socketClientService.send(GameEvents.QuestionChoiceSelect, { roomId: this.roomId, questionChoiceIndex: index });
-            } else {
-                this.socketClientService.send(GameEvents.QuestionChoiceUnselect, { roomId: this.roomId, questionChoiceIndex: index });
+            const isIndexSelected = this.chosenChoices[index];
+            if (!this.isTestGame) {
+                this.socketClientService.send(GameEvents.ToggleSelect, {
+                    roomId: this.roomId,
+                    questionChoiceIndex: index,
+                    isSelect: isIndexSelected,
+                });
             }
         }
     }
@@ -136,15 +141,8 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             this.givePoints();
             this.isQuestionTransitioning = true;
         } else {
-            this.setSubmitButtonToDisabled(true, { backgroundColor: 'grey' });
-            this.socketClientService.send(GameEvents.SubmitQuestionOnClick, this.roomId);
-            if (this.isAnswerGood()) {
-                this.points = this.question.points;
-                this.socketClientService.send(GameEvents.GoodAnswerOnClick, this.roomId);
-            } else {
-                this.socketClientService.send(GameEvents.BadAnswerOnClick, this.roomId);
-            }
-            this.hasSentAnswer = true;
+            this.handleAnswerSubmission(false);
+            this.isChoiceButtonDisabled = true;
         }
     }
 
@@ -203,18 +201,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             backgroundColor: this.question.choices[index].isCorrect ? 'rgb(97, 207, 72)' : 'red',
         };
         this.isChoiceButtonDisabled = true;
-    }
-
-    private submitAnswerOnFinishedTimer() {
-        this.setSubmitButtonToDisabled(true, { backgroundColor: 'grey' });
-        this.socketClientService.send(GameEvents.SubmitQuestionOnFinishedTimer, this.roomId);
-        this.hasSentAnswer = true;
-        if (this.isAnswerGood()) {
-            this.points = this.question.points;
-            this.socketClientService.send(GameEvents.GoodAnswerOnFinishedTimer, this.roomId);
-        } else {
-            this.socketClientService.send(GameEvents.BadAnswerOnFinishedTimer, this.roomId);
-        }
     }
 
     private isAnswerGood() {
@@ -289,8 +275,8 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     private detectEndOfQuestion(time: number) {
         if (!this.hasGameEnded && time === 0) {
             if (!this.isQuestionTransitioning) {
-                if (!this.hasSentAnswer) {
-                    this.submitAnswerOnFinishedTimer();
+                if (!this.hasSentAnswer && !this.isTestGame) {
+                    this.handleAnswerSubmission(true);
                 }
                 this.isQuestionTransitioning = true;
                 this.givePoints();
@@ -299,6 +285,36 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
                 ++this.currentQuestionIndex;
                 this.getQuestion(this.currentQuestionIndex);
             }
+        }
+    }
+
+    private sendUnselectChoices() {
+        if (this.chosenChoices) {
+            const choicesToUnselect = this.chosenChoices.map((isSelected, index) => (isSelected ? index : null)).filter((index) => index !== null);
+            if (choicesToUnselect.length > 0) {
+                this.socketClientService.send(GameEvents.QuestionChoicesUnselect, { roomId: this.roomId, questionChoiceIndexes: choicesToUnselect });
+                if (this.hasSentAnswer) {
+                    this.socketClientService.send(GameEvents.RemoveAnswerTime, {
+                        roomId: this.roomId,
+                        userIdToRemove: this.socketClientService.socket.id,
+                    });
+                }
+            }
+        }
+    }
+
+    private handleAnswerSubmission(isTimerFinished: boolean) {
+        this.setSubmitButtonToDisabled(true, { backgroundColor: 'grey' });
+        if (!isTimerFinished) {
+            this.socketClientService.send(GameEvents.SubmitAnswer, this.roomId);
+        }
+        this.hasSentAnswer = true;
+
+        if (this.isAnswerGood()) {
+            this.points = this.question.points;
+            this.socketClientService.send(GameEvents.GoodAnswer, { roomId: this.roomId, isTimerFinished });
+        } else {
+            this.socketClientService.send(GameEvents.BadAnswer, { roomId: this.roomId, isTimerFinished });
         }
     }
 }
