@@ -58,7 +58,7 @@ export class JoinGamePopupComponent {
     async isUsernameValid(): Promise<boolean> {
         let isNameValid = false;
         const trimmedUsername = this.givenUsername.trim();
-        if (trimmedUsername.length === 0) {
+        if (!trimmedUsername) {
             this.nameErrorMessage = 'Veuillez entrer un nom d’utilisateur valide.';
         } else {
             isNameValid = await firstValueFrom(

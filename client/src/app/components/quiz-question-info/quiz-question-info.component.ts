@@ -87,7 +87,7 @@ export class QuizQuestionInfoComponent implements OnInit {
     }
 
     moveChoiceUp(index: number) {
-        if (index > 0) {
+        if (index) {
             const choice = this.choices.at(index);
             this.choices.removeAt(index);
             this.choices.insert(index - 1, choice);
@@ -182,28 +182,12 @@ export class QuizQuestionInfoComponent implements OnInit {
     }
 
     adjustPadding() {
-        if (
-            this.questionInfoForm.controls.text.invalid &&
-            (this.questionInfoForm.controls.text.dirty || this.questionInfoForm.controls.text.touched)
-        ) {
-            this.isTextValid = false;
-        } else {
-            this.isTextValid = true;
-        }
+        const hasTextBeenTouched = this.questionInfoForm.controls.text.dirty || this.questionInfoForm.controls.text.touched;
+        this.isTextValid = this.questionInfoForm.controls.text.invalid && hasTextBeenTouched ? false : true;
 
-        if (this.questionInfoForm.controls.points.invalid) {
-            this.isPointsValid = false;
-        } else {
-            this.isPointsValid = true;
-        }
+        this.isPointsValid = this.questionInfoForm.controls.points.invalid ? false : true;
 
-        if (
-            this.questionInfoForm.controls.choices.invalid &&
-            (this.questionInfoForm.controls.choices.dirty || this.questionInfoForm.controls.choices.touched)
-        ) {
-            this.isChoicesValid = false;
-        } else {
-            this.isChoicesValid = true;
-        }
+        const hasChoicesBeenTouched = this.questionInfoForm.controls.choices.dirty || this.questionInfoForm.controls.choices.touched;
+        this.isChoicesValid = this.questionInfoForm.controls.text.invalid && hasChoicesBeenTouched ? false : true;
     }
 }
