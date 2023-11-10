@@ -46,11 +46,6 @@ export class CreateGameListComponent implements OnInit, OnDestroy {
         }
     }
 
-    async getVisibleQuizListFromServer(): Promise<void> {
-        const quizzes = await firstValueFrom(this.communicationService.getQuizzes());
-        this.visibleQuizList = quizzes.filter((quiz) => quiz.visibility);
-    }
-
     toggleDetails(id: string) {
         if (this.selectedQuizId === id) {
             this.selectedQuizId = null;
@@ -103,7 +98,17 @@ export class CreateGameListComponent implements OnInit, OnDestroy {
         popupInstance.config = config;
     }
 
-    openHiddenPopUp() {
+    openConnectionPopUp() {
+        const config: PopupMessageConfig = {
+            message: "Vous n'êtes pas connecté. Veuillez réessayer.",
+            hasCancelButton: false,
+        };
+        const dialogRef = this.popUp.open(PopupMessageComponent);
+        const popupInstance = dialogRef.componentInstance;
+        popupInstance.config = config;
+    }
+
+    private openHiddenPopUp() {
         const config: PopupMessageConfig = {
             message: "Le jeu n'est plus disponible. Veuillez en choisir un autre dans la liste.",
             hasCancelButton: false,
@@ -116,14 +121,9 @@ export class CreateGameListComponent implements OnInit, OnDestroy {
         popupInstance.config = config;
     }
 
-    openConnectionPopUp() {
-        const config: PopupMessageConfig = {
-            message: "Vous n'êtes pas connecté. Veuillez réessayer.",
-            hasCancelButton: false,
-        };
-        const dialogRef = this.popUp.open(PopupMessageComponent);
-        const popupInstance = dialogRef.componentInstance;
-        popupInstance.config = config;
+    private async getVisibleQuizListFromServer(): Promise<void> {
+        const quizzes = await firstValueFrom(this.communicationService.getQuizzes());
+        this.visibleQuizList = quizzes.filter((quiz) => quiz.visibility);
     }
 
     private findSelectedQuizInVisibleList(): Quiz | undefined {

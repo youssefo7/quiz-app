@@ -1,3 +1,5 @@
+// any est nécessaire pour espionner les méthodes privées
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -110,7 +112,7 @@ describe('AdminPopupComponent', () => {
 
     it('should submit entered password when clicking on the enter key', () => {
         const mockEnterKeyUpEvent = new KeyboardEvent('keyup', { key: 'Enter' });
-        const verifyAccessSpy = spyOn(component, 'verifyAccess');
+        const verifyAccessSpy = spyOn<any>(component, 'verifyAccess');
         component.submitPasswordOnEnter(mockEnterKeyUpEvent);
 
         expect(verifyAccessSpy).toHaveBeenCalled();

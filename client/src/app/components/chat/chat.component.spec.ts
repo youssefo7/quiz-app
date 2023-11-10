@@ -90,7 +90,7 @@ describe('ChatComponent', () => {
         const event = { target: { value: 'test' } };
         const inputLength = 4;
         component.detectCharacterLengthOnInput(event as unknown as Event);
-        expect(component.currentInputLength).toEqual(inputLength);
+        expect(component['currentInputLength']).toEqual(inputLength);
         expect(component.characterCounterDisplay).toBe('4 / 200');
     });
 

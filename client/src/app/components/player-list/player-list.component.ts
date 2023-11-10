@@ -51,34 +51,6 @@ export class PlayerListComponent implements OnInit {
         this.players = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string));
     }
 
-    listenToSocketEvents() {
-        this.socketClientService.on(JoinEvents.PlayerHasJoined, (name: string) => {
-            this.players.push(name);
-        });
-
-        this.socketClientService.on(WaitingEvents.BanName, (name: string) => {
-            this.bannedPlayers.push(name);
-            this.removePlayer(name);
-        });
-
-        this.socketClientService.on(GameEvents.PlayerAbandonedGame, (name: string) => {
-            this.removePlayer(name);
-        });
-
-        this.socketClientService.on(WaitingEvents.BanNotification, () => {
-            this.banPopup();
-        });
-
-        this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
-            this.showCountdown = true;
-            this.countdown(time);
-        });
-
-        this.socketClientService.on(TimeEvents.TimerFinished, () => {
-            this.gameBeginsRedirection();
-        });
-    }
-
     lockGame() {
         this.socketClientService.send(WaitingEvents.LockRoom, this.roomId);
         this.isLocked = true;
@@ -127,5 +99,33 @@ export class PlayerListComponent implements OnInit {
         const dialogRef = this.popUp.open(PopupMessageComponent);
         const popupInstance = dialogRef.componentInstance;
         popupInstance.config = config;
+    }
+
+    private listenToSocketEvents() {
+        this.socketClientService.on(JoinEvents.PlayerHasJoined, (name: string) => {
+            this.players.push(name);
+        });
+
+        this.socketClientService.on(WaitingEvents.BanName, (name: string) => {
+            this.bannedPlayers.push(name);
+            this.removePlayer(name);
+        });
+
+        this.socketClientService.on(GameEvents.PlayerAbandonedGame, (name: string) => {
+            this.removePlayer(name);
+        });
+
+        this.socketClientService.on(WaitingEvents.BanNotification, () => {
+            this.banPopup();
+        });
+
+        this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
+            this.showCountdown = true;
+            this.countdown(time);
+        });
+
+        this.socketClientService.on(TimeEvents.TimerFinished, () => {
+            this.gameBeginsRedirection();
+        });
     }
 }

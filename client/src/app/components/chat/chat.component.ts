@@ -4,8 +4,10 @@ import { ChatMessage } from '@app/interfaces/chat-message';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { ChatEvents } from '@common/chat.events';
+import { Constants } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { firstValueFrom } from 'rxjs';
+
 @Component({
     selector: 'app-chat',
     templateUrl: './chat.component.html',
@@ -16,12 +18,11 @@ export class ChatComponent implements OnInit {
     isOrganizer: boolean;
     chatMessage: ChatMessage;
     characterCounterDisplay: string;
-    currentInputLength: number;
-    maxInputLength: number;
     roomMessages: ChatMessage[];
     userMessage: string;
     private isResultsRoute: boolean;
     private isTestGame: boolean;
+    private currentInputLength: number;
 
     // Raison: Les 4 injections sont nécessaires  dans le constructeur
     // eslint-disable-next-line max-params
@@ -31,9 +32,8 @@ export class ChatComponent implements OnInit {
         private router: Router,
         private roomCommunicationService: RoomCommunicationService,
     ) {
-        this.maxInputLength = 200;
         this.currentInputLength = 0;
-        this.characterCounterDisplay = `${this.currentInputLength} / ${this.maxInputLength}`;
+        this.characterCounterDisplay = `${this.currentInputLength} / ${Constants.MAX_CHAT_MESSAGE_LENGTH}`;
         this.roomMessages = [];
         this.userMessage = '';
         this.isResultsRoute = this.router.url.includes('results');
@@ -94,7 +94,7 @@ export class ChatComponent implements OnInit {
     detectCharacterLengthOnInput(event: Event) {
         const inputValue = (event.target as HTMLInputElement).value;
         this.currentInputLength = inputValue.length;
-        this.characterCounterDisplay = `${this.currentInputLength} / ${this.maxInputLength}`;
+        this.characterCounterDisplay = `${this.currentInputLength} / ${Constants.MAX_CHAT_MESSAGE_LENGTH}`;
     }
 
     keyUpEvent($event: KeyboardEvent) {

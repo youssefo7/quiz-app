@@ -55,25 +55,6 @@ export class JoinGamePopupComponent {
         }
     }
 
-    async isUsernameValid(): Promise<boolean> {
-        let isNameValid = false;
-        const trimmedUsername = this.givenUsername.trim();
-        if (trimmedUsername.length === 0) {
-            this.nameErrorMessage = 'Veuillez entrer un nom d’utilisateur valide.';
-        } else {
-            isNameValid = await firstValueFrom(
-                this.roomCommunicationService.processUsername(this.givenRoomCode, {
-                    name: trimmedUsername,
-                    socketId: this.socketClientService.socket.id,
-                }),
-            );
-            if (!isNameValid) {
-                this.nameErrorMessage = `Le nom ${this.givenUsername} n'est pas autorisé ou déjà pris!`;
-            }
-        }
-        return isNameValid;
-    }
-
     async checkCode() {
         if (this.givenRoomCode.length === CODE_LENGTH) {
             const joinRoomResponse = await firstValueFrom(
@@ -143,5 +124,24 @@ export class JoinGamePopupComponent {
         if (!allowedInput) {
             event.preventDefault();
         }
+    }
+
+    private async isUsernameValid(): Promise<boolean> {
+        let isNameValid = false;
+        const trimmedUsername = this.givenUsername.trim();
+        if (trimmedUsername.length === 0) {
+            this.nameErrorMessage = 'Veuillez entrer un nom d’utilisateur valide.';
+        } else {
+            isNameValid = await firstValueFrom(
+                this.roomCommunicationService.processUsername(this.givenRoomCode, {
+                    name: trimmedUsername,
+                    socketId: this.socketClientService.socket.id,
+                }),
+            );
+            if (!isNameValid) {
+                this.nameErrorMessage = `Le nom ${this.givenUsername} n'est pas autorisé ou déjà pris!`;
+            }
+        }
+        return isNameValid;
     }
 }
