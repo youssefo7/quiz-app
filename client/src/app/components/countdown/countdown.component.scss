@@ -35,3 +35,9 @@ p {
         font-size: large;
     }
 }
+.disabled-button {
+    pointer-events: none; 
+    color: gray;
+    background-color: #ccc; 
+  }
+  

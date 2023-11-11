@@ -9,6 +9,7 @@ import { TimeService } from '@app/services/time.service';
 import { Subscription } from 'rxjs';
 
 const ONE_SECOND_INTERVAL = 1000;
+const MIN_TIME_TO_PANIC = 10;
 
 @Component({
     selector: 'app-countdown',
@@ -22,15 +23,17 @@ export class CountdownComponent implements OnInit, OnDestroy {
     message: string;
     clockStyle: { backgroundColor: string };
     isPaused: boolean;
+    isInPanicMode: boolean;
+    canTogglePanicMode: boolean;
+    isQuestionTransitioning: boolean;
     private socketTime: number;
     private timerSubscription: Subscription;
-    private isQuestionTransitioning: boolean;
     private currentQuestionIndex: number;
     private lastQuestionIndex: number;
     private isTestGame: boolean;
     private gameServiceSubscription: Subscription;
     private hasFinishedTransitionClock: boolean;
-    private isInPanicMode: boolean;
+    private panicAudio: HTMLAudioElement;
 
     // Tous ces paramètres sont nécessaires pour que la composante fonctionne bien
     // eslint-disable-next-line max-params
@@ -45,6 +48,8 @@ export class CountdownComponent implements OnInit, OnDestroy {
         this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
         this.isPaused = false;
         this.isInPanicMode = false;
+        this.canTogglePanicMode = true;
+        this.panicAudio = new Audio('../../assets/audio/panic-mode.mp3');
     }
 
     get time() {
@@ -72,11 +77,22 @@ export class CountdownComponent implements OnInit, OnDestroy {
     }
 
     panicMode() {
+        this.panicAudio.play();
+
         this.isInPanicMode = true;
-        const minTimeToPanic = 10;
+        this.canTogglePanicMode = false;
         const currentTime = this.time;
-        if (currentTime > minTimeToPanic && !this.isPaused) {
+        if (currentTime > MIN_TIME_TO_PANIC && !this.isPaused) {
             this.socketClientService.send(TimeEvents.PanicMode, { currentTime, roomId: this.roomId });
+        }
+    }
+
+    nextQuestionPanicModeAccess() {
+        if (this.isInPanicMode && !this.isQuestionTransitioning) {
+            this.canTogglePanicMode = false;
+            this.isInPanicMode = false;
+        } else if (!this.isInPanicMode && !this.isQuestionTransitioning) {
+            this.canTogglePanicMode = true;
         }
     }
 
@@ -100,6 +116,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
     private reactToTimerEvent() {
         const switchColorTime = 3;
         this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
+            if (time < MIN_TIME_TO_PANIC) this.canTogglePanicMode = false;
             this.socketTime = time;
             this.setClockColorToRed(this.socketTime, switchColorTime);
         });
@@ -166,6 +183,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
             if (this.isTestGame) {
                 await this.timeService.startTimer(this.quiz.duration);
             } else {
+                this.nextQuestionPanicModeAccess();
                 this.socketClientService.send(TimeEvents.StartTimer, {
                     initialTime: this.quiz.duration,
                     roomId: this.roomId,
