@@ -120,9 +120,9 @@ describe('CreateGameListComponent', () => {
         expect(paragraphElement).toBeNull();
     });
 
-    it('should show visible games', () => {
+    it('should show visible games', async () => {
         communicationServiceSpy.getQuizzes.and.returnValue(of(hiddenQuizMock));
-        component.getVisibleQuizListFromServer();
+        await component.getVisibleQuizListFromServer();
 
         expect(component.visibleQuizList).toEqual([]);
     });

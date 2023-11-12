@@ -85,6 +85,7 @@ describe('QuizListComponent', () => {
 
     it('should successfully import quiz', async () => {
         const mockEvent = new Event('change');
+        spyOn(communicationService, 'getQuizzes').and.returnValue(of(mockQuizList));
         spyOn(component, 'importSuccessPopup').and.callThrough();
 
         await component.handleImport(mockEvent);
@@ -108,6 +109,7 @@ describe('QuizListComponent', () => {
 
     it('should catch error from selectQuiz', async () => {
         const error = new Error('test');
+        spyOn(communicationService, 'getQuizzes').and.returnValue(of(mockQuizList));
         mockImportService.selectQuiz.and.throwError(error);
 
         const mockEvent = new Event('change');
@@ -120,6 +122,7 @@ describe('QuizListComponent', () => {
 
     it('should catch error from importQuiz', async () => {
         const error = new Error('test');
+        spyOn(communicationService, 'getQuizzes').and.returnValue(of(mockQuizList));
         mockImportService.importQuiz.and.throwError(error);
 
         const mockEvent = new Event('change');
@@ -140,18 +143,19 @@ describe('QuizListComponent', () => {
         expect(communicationService.getQuizzes).toHaveBeenCalled();
     }));
 
-    it('should call delete quiz service with the correct quiz', () => {
+    it('should call delete quiz service with the correct quiz', async () => {
+        spyOn(communicationService, 'getQuizzes').and.returnValue(of(mockQuizList));
         spyOn(communicationService, 'deleteQuiz').and.returnValue(of(propQuiz.id));
 
-        component.deleteQuiz(propQuiz);
+        await component.deleteQuiz(propQuiz);
 
         expect(communicationService.deleteQuiz).toHaveBeenCalledWith(propQuiz.id);
     });
 
-    it('should call update quiz service with the correct quiz', () => {
+    it('should call update quiz service with the correct quiz', async () => {
         spyOn(communicationService, 'updateQuiz').and.returnValue(of(propQuiz));
 
-        component.toggleVisibility(propQuiz);
+        await component.toggleVisibility(propQuiz);
 
         expect(communicationService.updateQuiz).toHaveBeenCalledWith(propQuiz.id, propQuiz);
     });
@@ -204,21 +208,21 @@ describe('QuizListComponent', () => {
         expect(config.okButtonFunction).toBeDefined();
     });
 
-    it('should popup a warning message when the user tries to delete a quiz that is already deleted', () => {
+    it('should popup a warning message when the user tries to delete a quiz that is already deleted', async () => {
         spyOn(component, 'openPopupWarning');
         spyOn(communicationService, 'deleteQuiz').and.returnValue(throwError(() => HttpStatusCode.NotFound));
-        component.deleteQuiz(propQuiz);
+        await component.deleteQuiz(propQuiz);
 
         expect(component.openPopupWarning).toHaveBeenCalled();
     });
 
-    it('should navigate to edit page when editing a quiz that is available', () => {
+    it('should navigate to edit page when editing a quiz that is available', async () => {
         spyOn(communicationService, 'checkQuizAvailability').and.returnValue(of(true));
-        component.editQuiz(propQuiz);
+        await component.editQuiz(propQuiz);
         expect(router.navigate).toHaveBeenCalledWith([`/quiz/${propQuiz.id}`]);
     });
 
-    it('should popup a warning message when the user tries to edit a quiz that is already deleted', () => {
+    it('should popup a warning message when the user tries to edit a quiz that is already deleted', async () => {
         const mockConfig: PopupMessageConfig = {
             message: 'Le quiz que vous souhaitez modifier a été supprimé.',
             hasCancelButton: false,
@@ -226,7 +230,7 @@ describe('QuizListComponent', () => {
 
         spyOn(communicationService, 'checkQuizAvailability').and.returnValue(of(false));
         spyOn(component, 'openPopupWarning').and.callThrough();
-        component.editQuiz(propQuiz);
+        await component.editQuiz(propQuiz);
         expect(component.openPopupWarning).toHaveBeenCalledWith(mockConfig.message);
         const config = mockDialogRef.componentInstance.config;
         expect(config.message).toEqual(mockConfig.message);

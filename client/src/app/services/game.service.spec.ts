@@ -42,9 +42,9 @@ describe('GameService', () => {
         expect(spy).toHaveBeenCalledWith(testValue);
     });
 
-    it('should return null if quiz id is null', () => {
-        service.getQuizById(null);
+    it('should return null if quiz id is null', async () => {
         const getQuizSpy = spyOn(communicationService, 'getQuiz');
+        await service.getQuizById(null);
         expect(getQuizSpy).not.toHaveBeenCalled();
     });
 });

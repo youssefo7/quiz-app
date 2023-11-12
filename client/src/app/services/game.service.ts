@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Quiz } from '@app/interfaces/quiz';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, firstValueFrom } from 'rxjs';
 import { CommunicationService } from './communication.service';
 
 @Injectable({
@@ -35,11 +35,7 @@ export class GameService {
 
     async getQuizById(id: string | null): Promise<Quiz | null> {
         if (id) {
-            return new Promise<Quiz | null>((resolve) => {
-                this.communicationService.getQuiz(id).subscribe((quiz) => {
-                    resolve(quiz);
-                });
-            });
+            return await firstValueFrom(this.communicationService.getQuiz(id));
         }
         return null;
     }

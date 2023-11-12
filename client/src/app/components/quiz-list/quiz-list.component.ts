@@ -7,6 +7,7 @@ import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
 import { ImportService } from '@app/services/import.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-quiz-list',
@@ -29,30 +30,26 @@ export class QuizListComponent implements OnInit {
         this.quizList = [];
     }
 
-    ngOnInit(): void {
-        this.fetchQuizzes();
+    async ngOnInit(): Promise<void> {
+        await this.fetchQuizzes();
     }
 
-    fetchQuizzes(): void {
-        this.communicationService.getQuizzes().subscribe((quizzes: Quiz[]) => {
-            this.quizList = quizzes;
-        });
+    async fetchQuizzes(): Promise<void> {
+        this.quizList = await firstValueFrom(this.communicationService.getQuizzes());
     }
 
-    deleteQuiz(quiz: Quiz): void {
-        this.communicationService.deleteQuiz(quiz.id).subscribe({
-            next: () => {
-                this.fetchQuizzes();
-            },
-            error: () => {
-                this.message = 'Ce quiz a déjà été supprimé par un autre administrateur.';
-                this.openPopupWarning(this.message);
-            },
-        });
+    async deleteQuiz(quiz: Quiz): Promise<void> {
+        try {
+            await firstValueFrom(this.communicationService.deleteQuiz(quiz.id));
+            await this.fetchQuizzes();
+        } catch (error) {
+            this.message = 'Ce quiz a déjà été supprimé par un autre administrateur.';
+            this.openPopupWarning(this.message);
+        }
     }
 
     //  https://stackoverflow.com/questions/57922872/angular-save-blob-in-local-text-file
-    exportQuiz(quiz: Quiz): void {
+    exportQuiz(quiz: Quiz) {
         const exportedQuiz = { ...quiz };
         delete exportedQuiz.visibility;
         const quizName: string = quiz.title;
@@ -68,19 +65,19 @@ export class QuizListComponent implements OnInit {
         window.URL.revokeObjectURL(blobUrl);
     }
 
-    toggleVisibility(quiz: Quiz): void {
+    async toggleVisibility(quiz: Quiz): Promise<void> {
         quiz.visibility = !quiz.visibility;
-        this.communicationService.updateQuiz(quiz.id, quiz).subscribe();
+        await firstValueFrom(this.communicationService.updateQuiz(quiz.id, quiz));
     }
 
-    openPopupDelete(quiz: Quiz): void {
+    openPopupDelete(quiz: Quiz) {
         const config: PopupMessageConfig = {
             message: "Êtes-vous sûr de vouloir supprimer ce quiz? Cette action n'est pas réversible.",
             hasCancelButton: true,
             okButtonText: 'Supprimer',
             cancelButtonText: 'Annuler',
-            okButtonFunction: () => {
-                this.deleteQuiz(quiz);
+            okButtonFunction: async () => {
+                await this.deleteQuiz(quiz);
             },
         };
         const dialogRef = this.popup.open(PopupMessageComponent);
@@ -88,12 +85,12 @@ export class QuizListComponent implements OnInit {
         popupInstance.config = config;
     }
 
-    openPopupWarning(message: string): void {
+    openPopupWarning(message: string) {
         const config: PopupMessageConfig = {
             message,
             hasCancelButton: false,
-            okButtonFunction: () => {
-                this.fetchQuizzes();
+            okButtonFunction: async () => {
+                await this.fetchQuizzes();
             },
         };
         const dialogRef = this.popup.open(PopupMessageComponent);
@@ -103,7 +100,7 @@ export class QuizListComponent implements OnInit {
 
     async handleImport(event: Event) {
         try {
-            await this.importService.selectQuiz(event);
+            this.importService.selectQuiz(event);
             await this.importService.importQuiz();
             this.importSuccessPopup();
         } catch (error) {
@@ -113,11 +110,11 @@ export class QuizListComponent implements OnInit {
             });
         } finally {
             this.importService.resetInput(event);
-            this.fetchQuizzes();
+            await this.fetchQuizzes();
         }
     }
 
-    importSuccessPopup(): void {
+    importSuccessPopup() {
         const config: PopupMessageConfig = {
             message: 'Importation réussie',
             hasCancelButton: false,
@@ -127,16 +124,14 @@ export class QuizListComponent implements OnInit {
         popupInstance.config = config;
     }
 
-    editQuiz(quiz: Quiz): void {
-        this.communicationService.checkQuizAvailability(quiz.id).subscribe({
-            next: (isAvailable: boolean) => {
-                if (isAvailable) {
-                    this.router.navigate([`/quiz/${quiz.id}`]);
-                } else {
-                    this.message = 'Le quiz que vous souhaitez modifier a été supprimé.';
-                    this.openPopupWarning(this.message);
-                }
-            },
-        });
+    async editQuiz(quiz: Quiz): Promise<void> {
+        const isQuizAvailable = await firstValueFrom(this.communicationService.checkQuizAvailability(quiz.id));
+
+        if (isQuizAvailable) {
+            this.router.navigate([`/quiz/${quiz.id}`]);
+        } else {
+            this.message = 'Le quiz que vous souhaitez modifier a été supprimé.';
+            this.openPopupWarning(this.message);
+        }
     }
 }

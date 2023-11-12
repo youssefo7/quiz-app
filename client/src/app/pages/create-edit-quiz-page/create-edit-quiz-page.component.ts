@@ -39,8 +39,8 @@ export class CreateEditQuizPageComponent implements OnInit {
         this.isQuizSaved = false;
     }
 
-    ngOnInit() {
-        this.loadQuiz();
+    async ngOnInit() {
+        await this.loadQuiz();
         this.adminGuardService.grantAccess();
     }
 
@@ -88,8 +88,8 @@ export class CreateEditQuizPageComponent implements OnInit {
             hasCancelButton: true,
             cancelButtonText: 'Non',
             okButtonText: 'Oui',
-            okButtonFunction: () => {
-                this.saveQuiz();
+            okButtonFunction: async () => {
+                await this.saveQuiz();
             },
         };
         const dialogRef = this.confirmationDialogReference.open(PopupMessageComponent);
@@ -115,10 +115,10 @@ export class CreateEditQuizPageComponent implements OnInit {
         return this.canExitCreateEditQuizPage;
     }
 
-    saveQuiz() {
+    async saveQuiz() {
         if (this.newQuiz) {
             this.isQuizSaved = true;
-            this.quizManagerService.saveQuiz(this.newQuiz);
+            await this.quizManagerService.saveQuiz(this.newQuiz);
         }
     }
 }

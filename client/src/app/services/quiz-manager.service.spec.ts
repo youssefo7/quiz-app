@@ -118,27 +118,27 @@ describe('QuizManagerService', () => {
         expect(service.quizzes).toEqual(quizListMock);
     });
 
-    it('should redirect to the admin page when a new quiz is added', () => {
+    it('should redirect to the admin page when a new quiz is added', async () => {
         communicationServiceSpy.addQuiz.and.returnValue(of(quizToEditMock));
 
-        service.addQuizToServer(quizToEditMock);
+        await service.addQuizToServer(quizToEditMock);
         expect(communicationServiceSpy.addQuiz).toHaveBeenCalledWith(quizToEditMock);
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('admin');
     });
 
-    it('should redirect to admin page when a quiz is updated', () => {
+    it('should redirect to admin page when a quiz is updated', async () => {
         communicationServiceSpy.updateQuiz.and.returnValue(of(quizToEditMock));
 
-        service.updateQuizOnServer(quizToEditMock.id, quizToEditMock);
+        await service.updateQuizOnServer(quizToEditMock.id, quizToEditMock);
         expect(communicationServiceSpy.updateQuiz).toHaveBeenCalledWith(quizToEditMock.id, quizToEditMock);
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('admin');
     });
 
-    it('should create a new quiz when updating a deleted quiz', () => {
+    it('should create a new quiz when updating a deleted quiz', async () => {
         communicationServiceSpy.updateQuiz.and.returnValue(throwError(() => new Error(`Quiz ${quizToEditMock.id} not found`)));
         const addQuizToServerSpy = spyOn(service, 'addQuizToServer');
 
-        service.updateQuizOnServer(quizToEditMock.id, quizToEditMock);
+        await service.updateQuizOnServer(quizToEditMock.id, quizToEditMock);
         expect(addQuizToServerSpy).toHaveBeenCalledWith(quizToEditMock);
     });
 
@@ -198,18 +198,18 @@ describe('QuizManagerService', () => {
         expect(quizToEditMock.questions.length).toEqual(1);
     });
 
-    it('should update a quiz on server when handling an existing one', () => {
+    it('should update a quiz on server when handling an existing one', async () => {
         const updateQuizOnServerSpy = spyOn(service, 'updateQuizOnServer');
-        service.saveQuiz(quizToEditMock);
+        await service.saveQuiz(quizToEditMock);
         expect(updateQuizOnServerSpy).toHaveBeenCalled();
         expect(updateQuizOnServerSpy).toHaveBeenCalledWith(quizToEditMock.id, quizToEditMock);
     });
 
-    it('should create a new quiz on server when handling a brand new one', () => {
+    it('should create a new quiz on server when handling a brand new one', async () => {
         quizToEditMock.id = '';
         const addQuizToServerSpy = spyOn(service, 'addQuizToServer');
 
-        service.saveQuiz(quizToEditMock);
+        await service.saveQuiz(quizToEditMock);
         expect(addQuizToServerSpy).toHaveBeenCalled();
         expect(addQuizToServerSpy).toHaveBeenCalledWith(quizToEditMock);
     });
