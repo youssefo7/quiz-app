@@ -37,7 +37,7 @@ export class QuizGeneralInfoComponent implements OnInit, AfterViewInit {
     }
 
     ngOnInit(): void {
-        if (!this.newQuiz.id) {
+        if (this.newQuiz.id === '') {
             this.generalInfoForm = this.fb.group({
                 title: ['', [Validators.required, Validators.minLength(1)]],
                 description: ['', [Validators.required, Validators.minLength(1)]],

@@ -15,8 +15,7 @@ export class QuizGuardService {
         const navigation = this.router.getCurrentNavigation();
         let prevUrl: string | null = null;
 
-        const isImperative = navigation?.trigger === 'imperative';
-        if (isImperative) {
+        if (navigation?.trigger === 'imperative') {
             const previousNavigation = navigation.previousNavigation;
             if (previousNavigation) {
                 prevUrl = previousNavigation.extractedUrl.toString();

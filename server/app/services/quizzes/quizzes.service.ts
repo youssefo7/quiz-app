@@ -74,9 +74,9 @@ export class QuizzesService {
         const isChoiceArray = Array.isArray(question.choices);
         const hasMinChoices = isChoiceArray && question.choices.length >= Constants.MIN_CHOICES;
         const hasMaxChoices = isChoiceArray && question.choices.length <= Constants.MAX_CHOICES;
-        if (!hasMinChoices || !hasMaxChoices)
+        if (!hasMinChoices || !hasMaxChoices) {
             errors.push(`Les choix de la question ${index + 1} sont manquants ou invalides (minimum 2 et maximum 4)`);
-        else {
+        } else {
             this.verifyChoices(question.choices, index, errors);
         }
     }
@@ -93,6 +93,7 @@ export class QuizzesService {
             if (typeof choice.isCorrect !== 'boolean') {
                 choice.isCorrect = false;
             }
+
             if (choice.isCorrect) {
                 correctChoiceCount++;
             } else {

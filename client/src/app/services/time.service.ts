@@ -41,8 +41,7 @@ export class TimeService {
         return new Promise<void>((resolve) => {
             this.interval = window.setInterval(() => {
                 this.timer.next(this.time);
-                const isTimeRemaining = this.time > 0;
-                if (isTimeRemaining && !this.isButtonPressed) {
+                if (this.time > 0 && !this.isButtonPressed) {
                     this.time--;
                 } else {
                     this.stopTimer();

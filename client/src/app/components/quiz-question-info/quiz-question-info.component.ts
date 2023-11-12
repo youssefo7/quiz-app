@@ -87,7 +87,7 @@ export class QuizQuestionInfoComponent implements OnInit {
     }
 
     moveChoiceUp(index: number) {
-        if (index) {
+        if (index > 0) {
             const choice = this.choices.at(index);
             this.choices.removeAt(index);
             this.choices.insert(index - 1, choice);
@@ -183,11 +183,11 @@ export class QuizQuestionInfoComponent implements OnInit {
 
     adjustPadding() {
         const hasTextBeenTouched = this.questionInfoForm.controls.text.dirty || this.questionInfoForm.controls.text.touched;
-        this.isTextValid = this.questionInfoForm.controls.text.invalid && hasTextBeenTouched ? false : true;
+        this.isTextValid = !(this.questionInfoForm.controls.text.invalid && hasTextBeenTouched);
 
-        this.isPointsValid = this.questionInfoForm.controls.points.invalid ? false : true;
+        this.isPointsValid = !this.questionInfoForm.controls.points.invalid;
 
         const hasChoicesBeenTouched = this.questionInfoForm.controls.choices.dirty || this.questionInfoForm.controls.choices.touched;
-        this.isChoicesValid = this.questionInfoForm.controls.text.invalid && hasChoicesBeenTouched ? false : true;
+        this.isChoicesValid = !(this.questionInfoForm.controls.text.invalid && hasChoicesBeenTouched);
     }
 }

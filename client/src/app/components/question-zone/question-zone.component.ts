@@ -290,7 +290,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     private detectEndOfQuestion(time: number) {
-        if (!this.hasGameEnded && !time) {
+        if (!this.hasGameEnded && time === 0) {
             if (!this.isQuestionTransitioning) {
                 if (!this.hasSentAnswer) {
                     this.submitAnswerOnFinishedTimer();

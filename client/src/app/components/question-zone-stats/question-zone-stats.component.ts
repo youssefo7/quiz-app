@@ -120,18 +120,18 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     }
 
     private detectEndOfQuestion(time: number) {
-        if (!time) {
+        if (time === 0) {
             const allPlayersSubmitted = this.submittedQuestionOnClickCount === this.playerCount;
             if (this.hasTimerBeenInterrupted && allPlayersSubmitted) {
                 this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
             } else {
                 this.totalGoodAnswers = this.goodAnswerOnClickCount + this.goodAnswerOnFinishedTimerCount;
                 this.totalBadAnswers = this.badAnswerOnClickCount + this.badAnswerOnFinishedTimerCount;
-                const allPlayersAnswered = this.totalGoodAnswers + this.totalBadAnswers;
-                if (allPlayersAnswered === this.playerCount) {
+                const totalPlayersAnswers = this.totalGoodAnswers + this.totalBadAnswers;
+                if (totalPlayersAnswers === this.playerCount) {
                     if (this.goodAnswerOnClickCount >= 1) {
                         this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
-                    } else if (this.goodAnswerOnFinishedTimerCount) {
+                    } else if (this.goodAnswerOnFinishedTimerCount === 1) {
                         this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
                     }
                 }
@@ -207,7 +207,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
 
     private detectIfAllPlayersSubmitted() {
         const allPlayersSubmitted = this.submittedQuestionOnClickCount === this.playerCount;
-        if (allPlayersSubmitted && this.socketTime) {
+        if (allPlayersSubmitted && this.socketTime !== 0) {
             this.socketClientService.send(TimeEvents.TimerInterrupted, this.roomId);
         } else {
             this.detectEndOfQuestion(0);
