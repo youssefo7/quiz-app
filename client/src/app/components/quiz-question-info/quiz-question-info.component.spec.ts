@@ -1,7 +1,7 @@
-/* Raison : on n'a besoin de beaucoup de lignes pour set le formulaire
-dans le bon état initial dépendamment du test */
 // any est nécessaire pour espionner les méthodes privées
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* Raison : on n'a besoin de beaucoup de lignes pour set le formulaire
+dans le bon état initial dépendamment du test */
 /* eslint-disable max-lines */
 
 import { HttpClientTestingModule } from '@angular/common/http/testing';

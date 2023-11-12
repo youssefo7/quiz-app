@@ -3,11 +3,10 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { Constants } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { JoinEvents } from '@common/join.events';
 import { firstValueFrom } from 'rxjs';
-
-const CODE_LENGTH = 4;
 
 enum RoomState {
     OK = 'OK',
@@ -56,7 +55,7 @@ export class JoinGamePopupComponent {
     }
 
     async checkCode() {
-        if (this.givenRoomCode.length === CODE_LENGTH) {
+        if (this.givenRoomCode.length === Constants.ROOM_CODE_LENGTH) {
             const joinRoomResponse = await firstValueFrom(
                 this.roomCommunicationService.joinRoom(this.givenRoomCode, { socketId: this.socketClientService.socket.id }),
             );

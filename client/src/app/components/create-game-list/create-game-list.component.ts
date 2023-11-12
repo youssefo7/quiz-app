@@ -98,7 +98,7 @@ export class CreateGameListComponent implements OnInit, OnDestroy {
         popupInstance.config = config;
     }
 
-    openConnectionPopUp() {
+    private openConnectionPopUp() {
         const config: PopupMessageConfig = {
             message: "Vous n'êtes pas connecté. Veuillez réessayer.",
             hasCancelButton: false,

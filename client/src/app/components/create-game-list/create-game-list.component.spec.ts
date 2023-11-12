@@ -199,7 +199,7 @@ describe('CreateGameListComponent', () => {
     it('should call openConnectionPopUp if socketExists is false', async () => {
         const mockSocketId = 'socketId';
         const mockRoomId = '1234';
-        const openConnectionPopUpSpy = spyOn(component, 'openConnectionPopUp');
+        const openConnectionPopUpSpy = spyOn<any>(component, 'openConnectionPopUp');
 
         communicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
         communicationServiceSpy.checkQuizVisibility.and.returnValue(of(true));
@@ -302,7 +302,7 @@ describe('CreateGameListComponent', () => {
             hasCancelButton: false,
         };
 
-        component.openConnectionPopUp();
+        component['openConnectionPopUp']();
         const config = mockDialogRef.componentInstance.config;
 
         expect(config.message).toEqual(mockConfig.message);

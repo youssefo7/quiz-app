@@ -4,12 +4,10 @@ import { Question, Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
+import { Constants } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { TimeEvents } from '@common/time.events';
 import { Subscription } from 'rxjs';
-
-const BONUS_20_PERCENT = 0.2;
-const BONUS_120_PERCENT = 1.2;
 
 @Component({
     selector: 'app-question-zone',
@@ -232,8 +230,8 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     private giveBonus() {
-        const bonus = this.isTestGame ? BONUS_120_PERCENT : BONUS_20_PERCENT;
-        this.pointsToDisplay = this.question.points * BONUS_120_PERCENT;
+        const bonus = this.isTestGame ? Constants.BONUS_120_PERCENT : Constants.BONUS_20_PERCENT;
+        this.pointsToDisplay = this.question.points * Constants.BONUS_120_PERCENT;
         this.points = this.question.points * bonus;
         this.bonusMessage = '(20% bonus Woohoo!)';
     }

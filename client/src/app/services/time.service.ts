@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { GameService } from '@app/services/game.service';
+import { Constants } from '@common/constants';
 import { Observable, Subject } from 'rxjs';
 
 @Injectable({
@@ -8,14 +9,12 @@ import { Observable, Subject } from 'rxjs';
 export class TimeService {
     private timer: Subject<number>;
     private interval: number | undefined;
-    private readonly tick: number;
     private counter: number;
     private isButtonPressed: boolean;
 
     constructor(private readonly gameService: GameService) {
         this.timer = new Subject<number>();
         this.isButtonPressed = false;
-        this.tick = 1000;
         this.counter = 0;
         this.subscribeToGameService();
     }
@@ -45,7 +44,7 @@ export class TimeService {
                     this.stopTimer();
                     resolve();
                 }
-            }, this.tick);
+            }, Constants.ONE_SECOND_INTERVAL);
         });
     }
 

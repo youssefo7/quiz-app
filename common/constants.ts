@@ -9,4 +9,8 @@ export const Constants = {
     MAX_CHOICES: 4,
     MIN_CHOICES: 2,
     MAX_CHAT_MESSAGE_LENGTH: 200,
+    ONE_SECOND_INTERVAL: 1000,
+    ROOM_CODE_LENGTH: 4,
+    BONUS_20_PERCENT: 0.2,
+    BONUS_120_PERCENT: 1.2,
 } as const;
