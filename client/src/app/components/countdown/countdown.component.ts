@@ -18,7 +18,6 @@ export class CountdownComponent implements OnInit, OnDestroy {
     @Input() isHost: boolean;
     @Input() quiz: Quiz;
     @Input() roomId: string | null;
-    timerState: TimerState
     message: string;
     clockStyle: { backgroundColor: string };
     isPaused: boolean;
