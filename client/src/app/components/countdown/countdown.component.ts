@@ -147,6 +147,8 @@ export class CountdownComponent implements OnInit, OnDestroy {
     private reactToTimerInterruptedEvent() {
         this.socketClientService.on(TimeEvents.TimerInterrupted, () => {
             this.socketTime = 0;
+            this.canToggleTimer = false;
+            this.canTogglePanicMode = false;
         });
     }
 
