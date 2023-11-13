@@ -68,7 +68,7 @@ describe('GameGateway', () => {
         expect(gateway).toBeDefined();
     });
 
-    it('handleStartGame() should emit a message to the server when the game is about to begin', () => {
+    it('handleStartGame() should emit a message to the room when the game is about to begin', () => {
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
@@ -101,7 +101,7 @@ describe('GameGateway', () => {
         expect(socket.disconnect.calledOnce).toBeTruthy();
     });
 
-    it('handleGoodAnswerOnClick() should be called with a click and added to the list of answerTimes and emit', () => {
+    it('handleGoodAnswerOnClick() should be called with a click when a player selects a good answer and emit', () => {
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
@@ -114,7 +114,7 @@ describe('GameGateway', () => {
         expect(roomManagerServiceMock.rooms[0].answerTimes[2].timeStamp).toBeDefined();
     });
 
-    it('handleGoodAnswerOnFinishedTimer() should add the timestamp of the good answer to the answersTime list and emitted to organizer', () => {
+    it('handleGoodAnswerOnFinishedTimer() should emit to the organizer that a good answer was clicked when timer runs out', () => {
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
@@ -127,7 +127,7 @@ describe('GameGateway', () => {
         expect(roomManagerServiceMock.rooms[0].answerTimes[2].timeStamp).toBeDefined();
     });
 
-    it('handleBadAnswerOnClick() should emit when good answer submitted on click to organizer that a bad answer was submitted', () => {
+    it('handleBadAnswerOnClick() should be called when a bad answer is clicked and emitted to organizer', () => {
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
@@ -148,7 +148,7 @@ describe('GameGateway', () => {
         gateway.handleBadAnswerOnFinishedTimer(socket, roomId);
     });
 
-    it('handleQuestionChoiceSelect() should show the organizer the total answer choice counts of players of a given question', () => {
+    it('handleQuestionChoiceSelect() should emit the organizer that a certain answer choice was selected', () => {
         const questionChoiceIndex = 1;
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
@@ -161,7 +161,7 @@ describe('GameGateway', () => {
         expect(server.to.calledWith(roomManagerServiceMock.rooms[0].organizer.socketId)).toBeTruthy();
     });
 
-    it('handleQuestionChoiceUnelect() should show the organizer the total answer choice counts of players of a given question', () => {
+    it('handleQuestionChoiceUnelect() should emit to the organizer that an answer choice was unselected', () => {
         const questionChoiceIndex = 1;
         stub(socket, 'rooms').value(new Set([roomId]));
         socket.join(roomId);
@@ -175,7 +175,7 @@ describe('GameGateway', () => {
         expect(server.to.calledWith(roomManagerServiceMock.rooms[0].organizer.socketId)).toBeTruthy();
     });
 
-    it('handleQuestionChoiceSelect() should emit the selected choice index', () => {
+    it('handleQuestionChoiceSelect() should emit the selected choice index to the organizer on choice selection', () => {
         const questionChoiceIndex = 2;
         stub(socket, 'rooms').value(new Set([roomId]));
 
@@ -189,7 +189,7 @@ describe('GameGateway', () => {
         gateway.handleQuestionChoiceSelect(socket, { roomId, questionChoiceIndex });
     });
 
-    it('handleQuestionChoiceUnselect() should emit the unselected choice index', () => {
+    it('handleQuestionChoiceUnselect() should emit the unselected choice index to the organizer on choice unselection', () => {
         const questionChoiceIndex = 1;
         stub(socket, 'rooms').value(new Set([roomId]));
 
@@ -203,7 +203,7 @@ describe('GameGateway', () => {
         gateway.handleQuestionChoiceUnselect(socket, { roomId, questionChoiceIndex });
     });
 
-    it('handleSubmitQuestionOnClick() should emit to organizer when a question was submitted by click from player', () => {
+    it('handleSubmitQuestionOnClick() should emit to organizer when the choices selected by a player were submitted', () => {
         stub(socket, 'rooms').value(new Set([roomId]));
         roomManagerServiceMock.rooms[0].organizer.socketId = socket.id;
         const organizerId = roomManagerServiceMock.rooms[0].organizer.socketId;
@@ -216,7 +216,7 @@ describe('GameGateway', () => {
         expect(server.to.calledWith(organizerId)).toBeTruthy();
     });
 
-    it('handleSubmitQuestionOnFinishedTimer() should emit to organizer when a question was submitted by timer ended', () => {
+    it('handleSubmitQuestionOnFinishedTimer() should emit to organizer the select answer choices by a player when timer has ended', () => {
         stub(socket, 'rooms').value(new Set([roomId]));
         roomManagerServiceMock.rooms[0].organizer.socketId = socket.id;
         const organizerId = roomManagerServiceMock.rooms[0].organizer.socketId;
@@ -273,7 +273,7 @@ describe('GameGateway', () => {
         expect(getQuickestTimeSpy).toHaveReturnedWith(undefined);
     });
 
-    it('handleAddPointsToPlayer() should give points to the player if the question is answered correctly', () => {
+    it('handleAddPointsToPlayer() should give points to the player if player answered the question correctly', () => {
         const room = roomManagerServiceMock.findRoom(roomId);
         const goodAnswerPoints = 100;
         const name = 'testName';
@@ -293,7 +293,7 @@ describe('GameGateway', () => {
         expect(roomManagerServiceMock.rooms[0].players[2].points).toEqual(goodAnswerPoints);
     });
 
-    it('handleAddPointsToPlayer() should not add points if room is not found', () => {
+    it('handleAddPointsToPlayer() should not add points to a player if room does not exist', () => {
         const addPointsToPlayerSpy = jest.spyOn(roomManagerServiceMock, 'addPointsToPlayer');
         const invalidRoomId = 'nonexistentRoomId';
         const pointsToAdd = 10;
@@ -304,7 +304,7 @@ describe('GameGateway', () => {
         expect(server.to.withArgs(roomManagerServiceMock.rooms[0].organizer.socketId).called).toBeFalsy();
     });
 
-    it('handleAddPointsToPlayer() should not add points if points are negative', () => {
+    it('handleAddPointsToPlayer() should not add points to a player if the points for a given question are negative', () => {
         const addPointsToPlayerSpy = jest.spyOn(roomManagerServiceMock, 'addPointsToPlayer');
         const invalidPoints = -100;
         stub(socket, 'rooms').value(new Set([roomId]));
@@ -319,7 +319,7 @@ describe('GameGateway', () => {
         expect(server.to.called).toBeFalsy();
     });
 
-    it('handleNextQuestion() should reset players answersTimes list going into a new question', () => {
+    it('handleNextQuestion() should reset all players answersTimes when transitioning into a new question', () => {
         const room = roomManagerServiceMock.findRoom(roomId);
         const resetAnswerTimesSpy = jest.spyOn(roomManagerServiceMock, 'resetAnswerTimes');
 
@@ -336,7 +336,7 @@ describe('GameGateway', () => {
         expect(server.to.calledWith()).toBeTruthy();
     });
 
-    it('handlePlayerLeaveGame() remove the players from the room, disconnect them from the server and emit if the game has started', () => {
+    it('handlePlayerLeaveGame() should remove the player from the room, disconnect them and emit to the organizer if the game has started', () => {
         const room = roomManagerServiceMock.findRoom(roomId);
         const name = 'testName';
         const removePlayerSpy = jest.spyOn(roomManagerServiceMock, 'removePlayer');
@@ -357,23 +357,7 @@ describe('GameGateway', () => {
         expect(socket.disconnect.called).toBeTruthy();
     });
 
-    it('handlePlayerLeaveGame() remove the players from the room, disconnect them from the server and not emit if the game has started', () => {
-        const room = roomManagerServiceMock.findRoom(roomId);
-        const name = 'testName';
-        const removePlayerSpy = jest.spyOn(roomManagerServiceMock, 'removePlayer');
-
-        roomManagerServiceMock['addPlayerToRoom'](room, socket.id, name);
-
-        stub(socket, 'rooms').value(new Set([roomId]));
-        gateway.handlePlayerLeaveGame(socket, { roomId, isInGame: false });
-        expect(server.to.called).toBeFalsy();
-
-        expect(removePlayerSpy).toHaveBeenCalledWith(room, socket.id);
-        expect(socket.leave.calledOnceWith(roomId)).toBeTruthy();
-        expect(socket.disconnect.called).toBeTruthy();
-    });
-
-    it('handleShowResults() should send emit game results event to the specified room', () => {
+    it('handleShowResults() should emit the game results to the specified room when game has ended', () => {
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
@@ -384,7 +368,7 @@ describe('GameGateway', () => {
         expect(server.to.calledWith(roomId)).toBeTruthy();
     });
 
-    it('handleSendResults() should emit to organizer when the results are ready to be displayed', () => {
+    it('handleSendResults() should emit to organizer when the game results are ready to be displayed', () => {
         stub(socket, 'rooms').value(new Set([roomId]));
         roomManagerServiceMock.rooms[0].organizer.socketId = socket.id;
         const organizerId = roomManagerServiceMock.rooms[0].organizer.socketId;

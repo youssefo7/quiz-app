@@ -29,7 +29,7 @@ describe('RoomController', () => {
         expect(controller).toBeDefined();
     });
 
-    it('handleChooseName() should validate and return name status', async () => {
+    it('handleChooseName() should validate a given name and return name status', async () => {
         const roomId = 'roomId';
         const body = { name: 'TestName', socketId: 'socketId' };
         roomManagerService.processUsername.returns(true);
@@ -83,7 +83,7 @@ describe('RoomController', () => {
         controller.handleJoinRoom(roomId, body, res);
     });
 
-    it('handleCreateRoom() should create a room and return its id', async () => {
+    it('handleCreateRoom() should create a room with a unique id and return its id', async () => {
         const body = { quiz: { id: 'mockedId' } as Quiz, socketId: 'socketId' };
         roomManagerService.createNewRoom.returns('roomId');
 
@@ -151,7 +151,7 @@ describe('RoomController', () => {
         controller.handleGetPlayers(roomId, res);
     });
 
-    it('handleGetName() should return player name in room', async () => {
+    it('handleGetName() should return a valid player name in a given room', async () => {
         const roomId = 'roomId';
         const body = { socketId: 'socketId' };
         roomManagerService.getPlayerName.returns('playerName');
@@ -187,7 +187,7 @@ describe('RoomController', () => {
         controller.handleGetName(roomId, body, res);
     });
 
-    it('handleGetRoomQuiz() should return room quiz', async () => {
+    it('handleGetRoomQuiz() should return the quiz id of the game in a given room', async () => {
         const roomId = 'roomId';
         roomManagerService.getRoomQuiz.returns({ id: 'quizId' } as Quiz);
 
@@ -204,7 +204,7 @@ describe('RoomController', () => {
         controller.handleGetRoomQuiz(roomId, res);
     });
 
-    it('handleGetRoomQuiz() should return NOT_FOUND when service fails to get room quiz', async () => {
+    it('handleGetRoomQuiz() should return NOT_FOUND when service fails to get the quiz of a given room', async () => {
         const roomId = 'roomId';
         roomManagerService.getRoomQuiz.throws();
 
@@ -291,7 +291,7 @@ describe('RoomController', () => {
         controller.handleSendResults(roomId, body, res);
     });
 
-    // it('handleGetChatMessages() should return chat messages in room', async () => {
+    // it('handleGetChatMessages() should return the chat messages in room', async () => {
     //     const roomId = 'roomId';
     //     roomManagerService.getChatMessages.returns([{ authorName: 'playerName', time: 'time', message: 'message', sentByUser: true }]);
 
