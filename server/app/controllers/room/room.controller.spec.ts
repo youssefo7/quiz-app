@@ -1,3 +1,5 @@
+// Raison: Tests unitaires du contrôleur nécessaires pour couvrir le code dépassent la limite de lignes
+/* eslint-disable max-lines */
 import { Quiz } from '@app/model/database/quiz';
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
 import { HttpStatus } from '@nestjs/common';
@@ -65,6 +67,27 @@ describe('RoomController', () => {
         controller.handleChooseName(roomId, body, res);
     });
 
+    it('handleJoinRoom() should validate and return room state', async () => {
+        const roomId = 'roomId';
+        const quiz = {} as Quiz;
+        const body = { socketId: 'socketId' };
+        const roomStateResponse = { roomState: 'OK', quiz };
+
+        roomManagerService.processJoinRoom.returns(roomStateResponse);
+
+        const res = {} as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.json = (roomState) => {
+            expect(roomState).toEqual(roomStateResponse);
+            return res;
+        };
+
+        controller.handleJoinRoom(roomId, body, res);
+    });
+
     it('handleJoinRoom() should return INTERNAL_SERVER_ERROR when service fails to process join room', async () => {
         const roomId = 'roomId';
         const body = { socketId: 'socketId' };
@@ -117,22 +140,22 @@ describe('RoomController', () => {
         controller.handleCreateRoom(body, res);
     });
 
-    // it('handleGetPlayers() should return player names in room', async () => {
-    //     const roomId = 'roomId';
-    //     roomManagerService.getRoomPlayers.returns(['player1', 'player2']);
+    it('handleGetPlayers() should return player names in room', async () => {
+        const roomId = 'roomId';
+        roomManagerService.getRoomPlayers.returns(['player1', 'player2']);
 
-    //     const res = {} as Response;
-    //     res.status = (code) => {
-    //         expect(code).toEqual(HttpStatus.OK);
-    //         return res;
-    //     };
-    //     res.json = (players) => {
-    //         expect(players).toEqual(['player1', 'player2']);
-    //         return res;
-    //     };
+        const res = {} as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.send = (players) => {
+            expect(players).toEqual(['player1', 'player2']);
+            return res;
+        };
 
-    //     controller.handleGetPlayers(roomId, res);
-    // });
+        controller.handleGetPlayers(roomId, res);
+    });
 
     it('handleGetPlayers() should return NOT_FOUND when service fails to get players', async () => {
         const roomId = 'roomId';
@@ -221,22 +244,23 @@ describe('RoomController', () => {
         controller.handleGetRoomQuiz(roomId, res);
     });
 
-    // it('handleGetResults() should return player results in room', async () => {
-    //     const roomId = 'roomId';
-    //     roomManagerService.getResults.returns([{ name: 'playerName', points: 2, hasAbandoned: true, bonusCount: 1 }]);
+    it('handleGetResults() should return player results in room', async () => {
+        const roomId = 'roomId';
+        const roomResults = [{ name: 'playerName', points: 2, hasAbandoned: true, bonusCount: 1 }];
+        roomManagerService.getResults.returns(roomResults);
 
-    //     const res = {} as Response;
-    //     res.status = (code) => {
-    //         expect(code).toEqual(HttpStatus.OK);
-    //         return res;
-    //     };
-    //     res.json = (results) => {
-    //         expect(results).toEqual([{ name: 'playerName' }]);
-    //         return res;
-    //     };
+        const res = {} as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.json = (results) => {
+            expect(results).toEqual(roomResults);
+            return res;
+        };
 
-    //     controller.handleGetResults(roomId, res);
-    // });
+        controller.handleGetResults(roomId, res);
+    });
 
     it('handleGetResults() should return NOT_FOUND when service fails to get player results', async () => {
         const roomId = 'roomId';
@@ -255,23 +279,23 @@ describe('RoomController', () => {
         controller.handleGetResults(roomId, res);
     });
 
-    // it('handleSendResults() should return posted player results in room', async () => {
-    //     const roomId = 'roomId';
-    //     const body = [{ name: 'playerName', points: 2, hasAbandoned: true, bonusCount: 1 }];
-    //     roomManagerService.postResults.returns();
+    it('handleSendResults() should return posted player results in room', async () => {
+        const roomId = 'roomId';
+        const body = [{ name: 'playerName', points: 2, hasAbandoned: true, bonusCount: 1 }];
+        roomManagerService.postResults.returns();
 
-    //     const res = {} as Response;
-    //     res.status = (code) => {
-    //         expect(code).toEqual(HttpStatus.OK);
-    //         return res;
-    //     };
-    //     res.json = (results) => {
-    //         expect(results).toEqual([{ name: 'playerName' }]);
-    //         return res;
-    //     };
+        const res = {} as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.json = (results) => {
+            expect(results).toEqual(body);
+            return res;
+        };
 
-    //     controller.handleSendResults(roomId, body, res);
-    // });
+        controller.handleSendResults(roomId, body, res);
+    });
 
     it('handleSendResults() should return INTERNAL_SERVER_ERROR when service fails to post player results', async () => {
         const roomId = 'roomId';
@@ -291,22 +315,23 @@ describe('RoomController', () => {
         controller.handleSendResults(roomId, body, res);
     });
 
-    // it('handleGetChatMessages() should return chat messages in room', async () => {
-    //     const roomId = 'roomId';
-    //     roomManagerService.getChatMessages.returns([{ authorName: 'playerName', time: 'time', message: 'message', sentByUser: true }]);
+    it('handleGetChatMessages() should return chat messages in room', async () => {
+        const roomId = 'roomId';
+        const chatMessages = [{ authorName: 'playerName', time: 'time', message: 'message', sentByUser: true }];
+        roomManagerService.getChatMessages.returns(chatMessages);
 
-    //     const res = {} as Response;
-    //     res.status = (code) => {
-    //         expect(code).toEqual(HttpStatus.OK);
-    //         return res;
-    //     };
-    //     res.json = (messages) => {
-    //         expect(messages).toEqual([{ authorName: 'playerName' }]);
-    //         return res;
-    //     };
+        const res = {} as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.json = (messages) => {
+            expect(messages).toEqual(chatMessages);
+            return res;
+        };
 
-    //     controller.handleGetMessages(roomId, res);
-    // });
+        controller.handleGetMessages(roomId, res);
+    });
 
     it('handleGetChatMessages() should return NOT_FOUND when service fails to get chat messages', async () => {
         const roomId = 'roomId';
@@ -323,5 +348,41 @@ describe('RoomController', () => {
         };
 
         controller.handleGetMessages(roomId, res);
+    });
+
+    it('handleSendMessages() should return chat messages in room', async () => {
+        const roomId = 'roomId';
+        const body = [{ authorName: 'playerName', time: 'time', message: 'message', sentByUser: true }];
+        roomManagerService.postChatMessages.returns();
+
+        const res = {} as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.json = (messages) => {
+            expect(messages).toEqual(body);
+            return res;
+        };
+
+        controller.handleSendMessages(roomId, body, res);
+    });
+
+    it('handleSendMessages() should return INTERNAL_SERVER_ERROR when service fails to post chat messages', async () => {
+        const roomId = 'roomId';
+        const body = [{ authorName: 'playerName', time: 'time', message: 'message', sentByUser: true }];
+        roomManagerService.postChatMessages.throws();
+
+        const res = {} as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.INTERNAL_SERVER_ERROR);
+            return res;
+        };
+        res.json = (quizzes) => {
+            expect(quizzes).toEqual("Erreur lors de l'envoi des messages de la salle roomId");
+            return res;
+        };
+
+        controller.handleSendMessages(roomId, body, res);
     });
 });
