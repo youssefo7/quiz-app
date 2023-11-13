@@ -1,4 +1,5 @@
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
+import { Constants } from '@common/constants';
 import { TimeEvents } from '@common/time.events';
 import { Injectable } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -49,5 +50,20 @@ export class TimeGateway {
     handleTimerInterrupted(socket: Socket, roomId: string) {
         this.handleStopTimer(socket, roomId);
         this.server.to(roomId).emit(TimeEvents.TimerInterrupted);
+    }
+
+    @SubscribeMessage(TimeEvents.ToggleTimer)
+    handlePauseStartTimer(socket: Socket, data) {
+        if (data.isPaused) {
+            this.handleStopTimer(socket, data.roomId);
+        } else {
+            this.handleStartTimer(socket, { initialTime: data.currentTime, tickRate: Constants.ONE_SECOND_INTERVAL, roomId: data.roomId });
+        }
+    }
+
+    @SubscribeMessage(TimeEvents.PanicMode)
+    handlePanicTimer(socket: Socket, data) {
+        this.handleStopTimer(socket, data.roomId);
+        this.handleStartTimer(socket, { initialTime: data.currentTime, tickRate: Constants.QUARTER_SECOND_INTERVAL, roomId: data.roomId });
     }
 }

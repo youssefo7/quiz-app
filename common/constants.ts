@@ -13,6 +13,8 @@ export const Constants = {
     ROOM_CODE_LENGTH: 4,
     BONUS_20_PERCENT: 0.2,
     BONUS_120_PERCENT: 1.2,
+    QUARTER_SECOND_INTERVAL: 250,
+    MIN_TIME_TO_PANIC: 10,
 } as const;
 
 export const enum QTypes {
