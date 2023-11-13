@@ -54,11 +54,13 @@ export class HistogramComponent implements OnInit, OnDestroy {
         if (this.quiz && index < this.quiz.questions.length) {
             this.question = this.quiz.questions[index];
             const choices = (this.question.choices as Choice[]) || undefined;
-            for (let i = 0; i < choices?.length; i++) {
-                this.playersChoices.push(`Choix ${i + 1}`);
-                this.choicesSelectionCounts.push(0);
-                this.chartBorderColors.push('black');
-                this.setBackgroundColors(i);
+            if (choices) {
+                for (let i = 0; i < choices.length; i++) {
+                    this.playersChoices.push(`Choix ${i + 1}`);
+                    this.choicesSelectionCounts.push(0);
+                    this.chartBorderColors.push('black');
+                    this.setBackgroundColors(i);
+                }
             }
         }
     }
@@ -81,9 +83,12 @@ export class HistogramComponent implements OnInit, OnDestroy {
     }
 
     private setBackgroundColors(choiceIndex: number) {
-        const choice = this.question.choices?.[choiceIndex] as Choice;
-        this.chartBackgroundColors.push(choice?.isCorrect ? 'green' : 'red');
-        this.goodBadChoices.push(choice?.isCorrect);
+        const choices = this.question.choices as Choice[];
+        if (choices) {
+            const choice = this.question.choices?.[choiceIndex] as Choice;
+            this.chartBackgroundColors.push(choice?.isCorrect ? 'green' : 'red');
+            this.goodBadChoices.push(choice?.isCorrect);
+        }
     }
 
     private updateSelections() {
