@@ -141,10 +141,12 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     getQuestion(index: number) {
         if (this.quiz && index < this.quiz.questions.length) {
             this.question = this.quiz.questions[index];
-            this.chosenChoices = new Array(this.question.choices?.length).fill(false);
-            this.question.choices?.forEach((choice, buttonIndex) => {
-                this.setButtonToInitState(buttonIndex);
-            });
+            if (this.question.choices) {
+                this.chosenChoices = new Array(this.question.choices?.length).fill(false);
+                this.question.choices?.forEach((choice, buttonIndex) => {
+                    this.setButtonToInitState(buttonIndex);
+                });
+            }
         }
     }
 
@@ -183,10 +185,12 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     setButtonStateOnSubmit(index: number) {
-        this.choiceButtonStyle[index] = {
-            backgroundColor: this.question.choices?.[index].isCorrect ? 'rgb(97, 207, 72)' : 'red',
-        };
-        this.isChoiceButtonDisabled = true;
+        if (this.question.choices) {
+            this.choiceButtonStyle[index] = {
+                backgroundColor: this.question.choices?.[index].isCorrect ? 'rgb(97, 207, 72)' : 'red',
+            };
+            this.isChoiceButtonDisabled = true;
+        }
     }
 
     submitAnswerOnClick() {
@@ -220,15 +224,20 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     isAnswerGood() {
-        const isAnswerGood = this.chosenChoices?.every((answer, index) => answer === this.question.choices?.[index].isCorrect);
+        let isAnswerGood = false;
+        if (this.question.choices) {
+            isAnswerGood = this.chosenChoices?.every((answer, index) => answer === this.question.choices?.[index].isCorrect);
+        }
         return isAnswerGood;
     }
 
     displayCorrectAnswer() {
-        this.question.choices?.forEach((choice, index) => {
-            this.setButtonStateOnSubmit(index);
-        });
-        this.doesDisplayPoints = true;
+        if (this.question.choices) {
+            this.question.choices?.forEach((choice, index) => {
+                this.setButtonStateOnSubmit(index);
+            });
+            this.doesDisplayPoints = true;
+        }
     }
 
     giveBonus() {
