@@ -53,7 +53,7 @@ export class TimeGateway {
     }
 
     @SubscribeMessage(TimeEvents.ToggleTimer)
-    handlePauseStartTimer(socket: Socket, data) {
+    handlePauseStartTimer(socket: Socket, data: { isPaused: boolean; roomId: string; currentTime: number }) {
         if (data.isPaused) {
             this.handleStopTimer(socket, data.roomId);
         } else {
@@ -62,7 +62,7 @@ export class TimeGateway {
     }
 
     @SubscribeMessage(TimeEvents.PanicMode)
-    handlePanicTimer(socket: Socket, data) {
+    handlePanicTimer(socket: Socket, data: { roomId: string; currentTime: number }) {
         this.handleStopTimer(socket, data.roomId);
         this.handleStartTimer(socket, { initialTime: data.currentTime, tickRate: Constants.QUARTER_SECOND_INTERVAL, roomId: data.roomId });
     }
