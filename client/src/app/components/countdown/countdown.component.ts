@@ -6,7 +6,7 @@ import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
 import { Constants } from '@common/constants';
 import { GameEvents } from '@common/game.events';
-import { TimeEvents, TimerState } from '@common/time.events';
+import { TimeEvents } from '@common/time.events';
 import { Subscription } from 'rxjs';
 
 @Component({
