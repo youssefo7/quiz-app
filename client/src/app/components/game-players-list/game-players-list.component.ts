@@ -12,7 +12,7 @@ interface AddPointsResponse {
     name: string;
 }
 
-const playerStates = {
+const playerStatePriorities = {
     hasNotinteracted: 0,
     hasInteracted: 1,
     hasConfirmed: 2,
@@ -115,15 +115,15 @@ export class GamePlayersListComponent implements OnInit {
 
     getPlayerPriority(player: Results) {
         if (player.hasConfirmedAnswer) {
-            return playerStates.hasConfirmed;
+            return playerStatePriorities.hasConfirmed;
         }
         if (player.hasClickedOnAnswerField) {
-            return playerStates.hasInteracted;
+            return playerStatePriorities.hasInteracted;
         }
         if (player.hasAbandoned) {
-            return playerStates.hasAbandonned;
+            return playerStatePriorities.hasAbandonned;
         }
-        return playerStates.hasNotinteracted;
+        return playerStatePriorities.hasNotinteracted;
     }
 
     private listenToSocketEvents() {
