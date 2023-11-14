@@ -54,16 +54,6 @@ describe('TimeGateway', () => {
         expect(gateway).toBeDefined();
     });
 
-    it('handleStartTimer() should handle starting the timer and emitting timer updates', () => {
-        jest.useFakeTimers();
-        const data = { initialTime: 60, tickRate: 1000, roomId };
-        const emitMock = jest.fn();
-        gateway['server'].to = jest.fn().mockReturnValue({ emit: emitMock });
-        gateway.handleStartTimer(socket, data);
-        jest.advanceTimersByTime(data.tickRate);
-        expect(emitMock).toHaveBeenCalledWith(TimeEvents.CurrentTimer, expect.any(Number));
-    });
-
     it('handleStopTimer() should handle stopping the timer for a given room', () => {
         const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
         gateway.handleStopTimer(socket, roomId);
@@ -82,7 +72,7 @@ describe('TimeGateway', () => {
         expect(emitMock).toHaveBeenCalledWith(TimeEvents.CurrentTimer, counter);
     });
 
-    it('handleTransitionClockFinished() should emit to users when the timer has ended and will start again', () => {
+    it('handleTransitionClockFinished() should emit TransitionClockFinished event to users in a room when timer ended and will start again', () => {
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
@@ -92,7 +82,7 @@ describe('TimeGateway', () => {
         gateway.handleTransitionClockFinished(socket, roomId);
     });
 
-    it('handleStartTimer() should handle the timer finishing and emit that it has ended to users in a room', async () => {
+    it('handleStartTimer() should handle the timer finishing and emit TimerFinished event to the users in the room', async () => {
         jest.useFakeTimers();
 
         const data = { initialTime: 60, tickRate: 1000, roomId };

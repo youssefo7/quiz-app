@@ -90,7 +90,7 @@ describe('JoinGamePopupComponent', () => {
         expect(verifyAndAccessSpy).toHaveBeenCalled();
     });
 
-    it('should return false and set error message if username is empty', async () => {
+    it('should return false and set error message if username of a player is empty', async () => {
         component.givenUsername = '';
         const isValid = await component.isUsernameValid();
         expect(isValid).toBeFalse();
@@ -125,7 +125,7 @@ describe('JoinGamePopupComponent', () => {
         });
     });
 
-    it('should validate code and show username field if code is OK', async () => {
+    it('should validate the room code and show username field if code is OK', async () => {
         component.givenRoomCode = roomIdMock;
 
         mockRoomCommunicationService.joinRoom.and.returnValue(of(mockJoinRoomResponseOK));
@@ -136,7 +136,7 @@ describe('JoinGamePopupComponent', () => {
         expect(component.roomCodeErrorMessage).toBe('');
     });
 
-    it('should display an error message if room is locked', async () => {
+    it('should display an error message if the room is locked', async () => {
         const mockJoinRoomResponseLocked = {
             roomState: 'IS_LOCKED',
             quiz: { id: 'mockedId' } as Quiz,
@@ -149,7 +149,7 @@ describe('JoinGamePopupComponent', () => {
         expect(component.showUsernameField).toBeFalse();
     });
 
-    it('should display an error message if room is invalid', async () => {
+    it('should display an error message if the room does not exist (invalid)', async () => {
         const mockJoinRoomResponseInvalid = {
             roomState: 'INVALID',
             quiz: { id: 'mockedId' } as Quiz,
@@ -171,7 +171,7 @@ describe('JoinGamePopupComponent', () => {
         expect(component.showUsernameField).toBeFalse();
     });
 
-    it('should display an error message if code is longer than 4 numbers', async () => {
+    it('should display an error message if the room code is longer than 4 numbers', async () => {
         component.givenRoomCode = 'codeTooLong';
         await component.checkCode();
 
@@ -195,7 +195,7 @@ describe('JoinGamePopupComponent', () => {
         expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
     });
 
-    it('should navigate if username is valid', async () => {
+    it('should navigate to the room if the username of a player is valid', async () => {
         component.givenRoomCode = roomIdMock;
         component.givenUsername = 'validUsername';
 
@@ -211,7 +211,7 @@ describe('JoinGamePopupComponent', () => {
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith(`/waiting/game/${component['quizId']}/room/${roomIdMock}`);
     });
 
-    it('should close the dialog and send the player a PlayerLeaveGame event if user cancels', () => {
+    it('should close the popup dialog and send a PlayerLeaveGame event if user cancels', () => {
         const cancelButton = fixture.debugElement.nativeElement.querySelector('#cancel');
         spyOn(component, 'closeAdminPopup').and.callThrough();
 

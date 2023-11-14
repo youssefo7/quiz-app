@@ -187,7 +187,7 @@ describe('RoomController', () => {
         controller.handleGetName(roomId, body, res);
     });
 
-    it('handleGetRoomQuiz() should return the quiz id of the game in a given room', async () => {
+    it('handleGetRoomQuiz() should return the quiz that corresponds with the quiz id of the game in a given room', async () => {
         const roomId = 'roomId';
         roomManagerService.getRoomQuiz.returns({ id: 'quizId' } as Quiz);
 

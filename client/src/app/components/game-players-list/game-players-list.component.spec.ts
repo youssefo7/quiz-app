@@ -77,7 +77,7 @@ describe('GamePlayersListComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should fetch players list', async () => {
+    it('should fetch the player list for a given room', async () => {
         component.isResultsRoute = false;
         component.roomId = '123';
         roomCommunicationServiceMock.getRoomPlayers.and.returnValue(of(playersListMock.map((player) => player.name)));

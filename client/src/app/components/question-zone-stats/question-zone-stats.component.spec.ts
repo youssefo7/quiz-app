@@ -137,7 +137,7 @@ describe('QuestionZoneStatsComponent', () => {
         expect(showNextQuestionSpy).toHaveBeenCalled();
     });
 
-    it('should show next question', () => {
+    it('should show the next question', () => {
         const currentQuestionIndex = 0;
         const resetAnswerCountSpy = spyOn<any>(component, 'resetAnswerCount');
         const getQuestionSpy = spyOn<any>(component, 'getQuestion');
@@ -163,13 +163,13 @@ describe('QuestionZoneStatsComponent', () => {
         expect(component['submittedQuestionOnClickCount']).toEqual(0);
     });
 
-    it('should decrement player count when a player leaves game', () => {
+    it('should decrement player count when a player leaves a game', () => {
         component['playerCount'] = 1;
         socketHelper.peerSideEmit(GameEvents.PlayerLeaveGame);
         expect(component['playerCount']).toEqual(0);
     });
 
-    it('should increment good answers submit count on GoodAnswerOnClick event and detect if all players submitted', () => {
+    it('should increment good answers submit count on GoodAnswerOnClick event and detect if all players submitted an answer', () => {
         component['goodAnswerOnClickCount'] = 0;
         const detectIfAllPlayersSubmittedSpy = spyOn<any>(component, 'detectIfAllPlayersSubmitted');
         socketHelper.peerSideEmit(GameEvents.GoodAnswerOnClick);
@@ -185,7 +185,7 @@ describe('QuestionZoneStatsComponent', () => {
         expect(detectIfAllPlayersSubmittedSpy).toHaveBeenCalled();
     });
 
-    it('should increment bad answers submit count on BadAnswerOnClick event and detect if all players submitted', () => {
+    it('should increment bad answers submit count on BadAnswerOnClick event and detect if all players submitted an answer', () => {
         component['badAnswerOnClickCount'] = 0;
         const detectIfAllPlayersSubmittedSpy = spyOn<any>(component, 'detectIfAllPlayersSubmitted');
         socketHelper.peerSideEmit(GameEvents.BadAnswerOnClick);
@@ -193,7 +193,7 @@ describe('QuestionZoneStatsComponent', () => {
         expect(detectIfAllPlayersSubmittedSpy).toHaveBeenCalled();
     });
 
-    it('should increment bad answers submit count on BadAnswerOnFinishedTimer event and detect if all players submitted', () => {
+    it('should increment bad answers submit count on BadAnswerOnFinishedTimer event and detect if all players submitted an answer', () => {
         component['badAnswerOnFinishedTimerCount'] = 0;
         const detectIfAllPlayersSubmittedSpy = spyOn<any>(component, 'detectIfAllPlayersSubmitted');
         socketHelper.peerSideEmit(GameEvents.BadAnswerOnFinishedTimer);
@@ -201,7 +201,7 @@ describe('QuestionZoneStatsComponent', () => {
         expect(detectIfAllPlayersSubmittedSpy).toHaveBeenCalled();
     });
 
-    it('should interrupt timer when all players submitted', () => {
+    it('should interrupt timer when all players submitted an answer', () => {
         const roomId = '123';
         component.roomId = roomId;
         component['submittedQuestionOnClickCount'] = 5;
@@ -240,7 +240,7 @@ describe('QuestionZoneStatsComponent', () => {
         expect(component['totalGoodAnswers']).toEqual(0);
     });
 
-    it('should give bonus when time = 0 and all players submitted on click', () => {
+    it('should give bonus when time = 0 and all players submitted an answer on click', () => {
         const roomId = '123';
         component.roomId = roomId;
         component['hasTimerBeenInterrupted'] = true;

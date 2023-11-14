@@ -194,7 +194,7 @@ describe('GamePageComponent in regular game route', () => {
         expect(component).toBeTruthy();
     });
 
-    it('clicking the exit icon should redirect to "/home" page', () => {
+    it('should redirect to "/home" page when clicking the exit icon', () => {
         const navigateSpy = spyOn(router, 'navigateByUrl');
         component.leaveGamePage();
         expect(navigateSpy).toHaveBeenCalledWith('/home');

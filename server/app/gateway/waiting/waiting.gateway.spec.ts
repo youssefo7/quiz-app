@@ -63,7 +63,7 @@ describe('WaitingGateway', () => {
         expect(gateway).toBeDefined();
     });
 
-    it('handleLockRoom() should lock the room when unlockButton is clicked by organizer', () => {
+    it('handleLockRoom() should allow the organizer of a game to lock the room', () => {
         const room = roomManagerServiceMock.rooms[0];
 
         stub(socket, 'rooms').value(new Set([roomId]));
@@ -71,7 +71,7 @@ describe('WaitingGateway', () => {
         expect(room.isLocked).toBe(true);
     });
 
-    it('handleUnlockRoom() should unlock the room when unlockButton is clicked by organizer', () => {
+    it('handleUnlockRoom() should allow the organizer of a game to unlock the room', () => {
         const room = roomManagerServiceMock.rooms[0];
         stub(socket, 'rooms').value(new Set([roomId]));
         room.isLocked = true;

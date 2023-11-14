@@ -164,7 +164,7 @@ describe('RoomManagerService', () => {
         expect(room.answerTimes).toHaveLength(0);
     });
 
-    it('should process the username and return true for if the name is valid', () => {
+    it('should process the username and return true if the name is valid', () => {
         room.isLocked = false;
         const newPlayerData = { name: 'NewName', roomId, socketId: 'playerId3' };
 
