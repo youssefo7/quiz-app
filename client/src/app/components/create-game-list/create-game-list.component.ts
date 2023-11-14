@@ -68,12 +68,17 @@ export class CreateGameListComponent implements OnInit, OnDestroy {
                         if (toTest) this.router.navigateByUrl(`game/${quiz.id}/test`);
                         else {
                             if (this.socketClientService.socketExists()) {
-                                roomId = await firstValueFrom(
-                                    this.roomCommunicationService.createRoom({
-                                        quiz: this.findSelectedQuizInVisibleList() as Quiz,
-                                        socketId: this.socketClientService.socket.id,
-                                    }),
-                                );
+                                try {
+                                    roomId = await firstValueFrom(
+                                        this.roomCommunicationService.createRoom({
+                                            quiz: this.findSelectedQuizInVisibleList() as Quiz,
+                                            socketId: this.socketClientService.socket.id,
+                                        }),
+                                    );
+                                } catch (error) {
+                                    this.openConnectionPopUp();
+                                    return;
+                                }
                                 this.socketClientService.send(JoinEvents.OrganizerJoined, JSON.stringify(roomId));
                                 this.router.navigateByUrl(`/waiting/game/${this.selectedQuizId}/room/${roomId}/host`);
                             } else {
