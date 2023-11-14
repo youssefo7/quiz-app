@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Question, Quiz, Choice } from '@app/interfaces/quiz';
+import { Choice, Question, Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from './communication.service';
 
 @Injectable({
@@ -144,7 +144,6 @@ export class QuizManagerService {
         const isQuizDurationDifferent = quizBefore.duration !== quizAfter.duration;
         const hasQuizDifferences = isQuizTitleDifferent || isQuizDescriptionDifferent || isQuizDurationDifferent;
         return hasQuizDifferences;
-
     }
 
     private isQuizQuestionsModified(questionBefore: Question, questionAfter: Question) {
