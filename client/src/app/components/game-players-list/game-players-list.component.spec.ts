@@ -4,6 +4,8 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { Results } from '@app/interfaces/player-info';
+import { Quiz } from '@app/interfaces/quiz';
+import { HistoryCommunicationService } from '@app/services/history-communication.service';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { GameEvents } from '@common/game.events';
@@ -21,6 +23,7 @@ describe('GamePlayersListComponent', () => {
     let component: GamePlayersListComponent;
     let fixture: ComponentFixture<GamePlayersListComponent>;
     let roomCommunicationServiceMock: jasmine.SpyObj<RoomCommunicationService>;
+    let historyCommunicationServiceMock: jasmine.SpyObj<HistoryCommunicationService>;
     let mockSocketClientService: MockSocketClientService;
     let socketHelper: SocketTestHelper;
 
@@ -44,7 +47,9 @@ describe('GamePlayersListComponent', () => {
             'getPlayerResults',
             'sendPlayerResults',
             'createRoom',
+            'getRoomQuiz',
         ]);
+        historyCommunicationServiceMock = jasmine.createSpyObj('HistoryCommunicationService', ['addHistory']);
         mockSocketClientService = jasmine.createSpyObj('SocketClientService', ['on']);
     });
 
@@ -59,6 +64,7 @@ describe('GamePlayersListComponent', () => {
                 { provide: SocketClientService, useValue: mockSocketClientService },
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'results' }] } } },
                 { provide: RoomCommunicationService, useValue: roomCommunicationServiceMock },
+                { provide: HistoryCommunicationService, useValue: historyCommunicationServiceMock },
             ],
         }).compileComponents();
     }));
@@ -141,5 +147,25 @@ describe('GamePlayersListComponent', () => {
         component.listenToSocketEvents();
         socketHelper.peerSideEmit(GameEvents.BonusUpdate, response.name);
         expect(updatePlayerBonusSpy).toHaveBeenCalled();
+    });
+
+    it('should add to history', async () => {
+        component.roomId = '123';
+        component['currentDateTime'] = '2011-10-05T14:48:00.000Z';
+        const mockQuiz = { title: 'Test Quiz' };
+        const expectedHistory = {
+            name: mockQuiz.title,
+            date: '2011-10-05 14:48:00',
+            numberOfPlayers: component.playerResults.length,
+            maxScore: component.playerResults[0].points,
+        };
+
+        roomCommunicationServiceMock.getRoomQuiz.and.returnValue(of(mockQuiz as Quiz));
+        historyCommunicationServiceMock.addHistory.and.returnValue(of(expectedHistory));
+
+        await component['addGameToHistory']();
+
+        expect(roomCommunicationServiceMock.getRoomQuiz).toHaveBeenCalledWith(component.roomId);
+        expect(historyCommunicationServiceMock.addHistory).toHaveBeenCalledWith(expectedHistory);
     });
 });
