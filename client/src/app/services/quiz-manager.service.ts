@@ -142,20 +142,24 @@ export class QuizManagerService {
         const isQuizTitleDifferent = quizBefore.title.trim() !== quizAfter.title.trim();
         const isQuizDescriptionDifferent = quizBefore.description.trim() !== quizAfter.description.trim();
         const isQuizDurationDifferent = quizBefore.duration !== quizAfter.duration;
-        return isQuizTitleDifferent || isQuizDescriptionDifferent || isQuizDurationDifferent;
+        const hasQuizDifferences = isQuizTitleDifferent || isQuizDescriptionDifferent || isQuizDurationDifferent;
+        return hasQuizDifferences;
+
     }
 
     private isQuizQuestionsModified(questionBefore: Question, questionAfter: Question) {
         const isQuestionTypeDifferent = questionBefore.type !== questionAfter.type;
         const isQuestionTextDifferent = questionBefore.text.trim() !== questionAfter.text.trim();
         const isQuestionPointsDifferent = questionBefore.points !== questionAfter.points;
-        const isQuesiontChoicesDifferent = questionBefore.choices.length !== questionAfter.choices.length;
-        return isQuestionTypeDifferent || isQuestionTextDifferent || isQuestionPointsDifferent || isQuesiontChoicesDifferent;
+        const isQuestionChoicesDifferent = questionBefore.choices.length !== questionAfter.choices.length;
+        const hasQuestionDifferences = isQuestionTypeDifferent || isQuestionTextDifferent || isQuestionPointsDifferent || isQuestionChoicesDifferent;
+        return hasQuestionDifferences;
     }
 
     private isQuizChoicesModified(choiceBefore: Choice, choiceAfter: Choice) {
         const isChoicesTextDifferent = choiceBefore.text.trim() !== choiceAfter.text.trim();
         const isChoicesValidDifferent = choiceBefore.isCorrect !== choiceAfter.isCorrect;
-        return isChoicesTextDifferent || isChoicesValidDifferent;
+        const hasChoiceDifferences = isChoicesTextDifferent || isChoicesValidDifferent;
+        return hasChoiceDifferences;
     }
 }
