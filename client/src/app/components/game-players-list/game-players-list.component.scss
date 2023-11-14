@@ -65,11 +65,19 @@ span {
     padding: 10px;
 }
 
-.sort-icon {
-    color: #007bff;
+#sortingOptions{
+    width: 33%;
+    display: flex;
 }
 
-.sort-icon:hover {
-    color: #007bff;
-    cursor: pointer;
+#orderByName {
+    color: black;
+}
+
+#nameTitle {
+    width: 33%;
+}
+
+#scoreTitle {
+    width: 33%;
 }

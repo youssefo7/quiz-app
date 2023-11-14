@@ -11,6 +11,13 @@ interface AddPointsResponse {
     name: string;
 }
 
+const playerStates = {
+    hasNotinteracted: 0,
+    hasInteracted: 1,
+    hasConfirmed: 2,
+    hasAbandonned: 3,
+};
+
 @Component({
     selector: 'app-game-players-list',
     templateUrl: './game-players-list.component.html',
@@ -21,6 +28,9 @@ export class GamePlayersListComponent implements OnInit {
     playerResults: Results[];
     isResultsRoute: boolean;
     private quizId: string;
+    private isSortNamesAscending: boolean;
+    private isSortPointsAscending: boolean;
+    private isSortStatesAscending: boolean;
     // Raison: Les quatres injections sont nécessaires pour ma composante
     // eslint-disable-next-line max-params
     constructor(
@@ -32,6 +42,9 @@ export class GamePlayersListComponent implements OnInit {
         this.isResultsRoute = this.router.url.includes('results');
         this.playerResults = [];
         this.quizId = this.route.snapshot.paramMap.get('quizId') as string;
+        this.isSortNamesAscending = true;
+        this.isSortPointsAscending = true;
+        this.isSortStatesAscending = true;
     }
 
     async ngOnInit() {
@@ -40,10 +53,7 @@ export class GamePlayersListComponent implements OnInit {
         }
 
         await this.fetchPlayersList();
-        const canSort = this.isResultsRoute && this.playerResults.length > 0;
-        if (canSort) {
-            this.sortPlayers();
-        }
+
         this.listenToSocketEvents();
     }
 
@@ -98,6 +108,48 @@ export class GamePlayersListComponent implements OnInit {
         });
     }
 
+    sortByName() {
+        this.playerResults.sort((a, b) => {
+            return this.isSortNamesAscending ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+        });
+        this.isSortNamesAscending = !this.isSortNamesAscending;
+    }
+
+    sortByPoints() {
+        this.playerResults.sort((a, b) => {
+            if (a.points !== b.points) {
+                return this.isSortPointsAscending ? a.points - b.points : b.points - a.points;
+            }
+            return a.name.localeCompare(b.name);
+        });
+        this.isSortPointsAscending = !this.isSortPointsAscending;
+    }
+
+    sortByState() {
+        this.playerResults.sort((a, b) => {
+            const priorityA = this.getPlayerPriority(a);
+            const priorityB = this.getPlayerPriority(b);
+            if (priorityA !== priorityB) {
+                return this.isSortStatesAscending ? priorityA - priorityB : priorityB - priorityA;
+            }
+            return a.name.localeCompare(b.name);
+        });
+        this.isSortStatesAscending = !this.isSortStatesAscending;
+    }
+
+    getPlayerPriority(player: Results) {
+        if (player.hasConfirmedAnswer) {
+            return playerStates.hasConfirmed;
+        }
+        if (player.hasClickedOnAnswerField) {
+            return playerStates.hasInteracted;
+        }
+        if (player.hasAbandoned) {
+            return playerStates.hasAbandonned;
+        }
+        return playerStates.hasNotinteracted;
+    }
+
     private updatePlayerStatus(playerName: string) {
         const playerToUpdate = this.playerResults.find((player) => player.name === playerName);
         if (playerToUpdate) {
@@ -138,15 +190,6 @@ export class GamePlayersListComponent implements OnInit {
         activePlayers.forEach((player) => {
             player.hasClickedOnAnswerField = false;
             player.hasConfirmedAnswer = false;
-        });
-    }
-
-    private sortPlayers() {
-        this.playerResults.sort((a, b) => {
-            if (a.points === b.points) {
-                return a.name.localeCompare(b.name);
-            }
-            return b.points - a.points;
         });
     }
 }
