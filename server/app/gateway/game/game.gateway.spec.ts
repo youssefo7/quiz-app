@@ -7,7 +7,7 @@ import { RoomManagerService } from '@app/services/room-manager/room-manager.serv
 import { GameEvents } from '@common/game.events';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
+import { createStubInstance, SinonStubbedInstance, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { GameGateway } from './game.gateway';
 
