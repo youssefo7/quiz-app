@@ -6,7 +6,14 @@
         <span *ngIf="isResultsRoute">Bonus</span>
     </div>
     <div *ngFor="let player of playerResults" class="player-entry">
-        <span class="player-name" [ngClass]="{ abandoned: player.hasAbandoned }">{{ player.name }}</span>
+        <span class="player-name" 
+            [ngClass]="{
+            'abandoned': player.hasAbandoned, 
+            'confirmedAnswer': player.hasConfirmedAnswer, 
+            'interacted': player.hasClickedOnAnswerField
+            }">
+            {{ player.name }}
+        </span>
         <span class="player-score">{{ player.points }} points</span>
         <span *ngIf="isResultsRoute" class="player-bonus">{{ player.bonusCount }} fois</span>
     </div>

@@ -55,6 +55,8 @@ export class GamePlayersListComponent implements OnInit {
                     name,
                     points: 0,
                     hasAbandoned: false,
+                    hasClickedOnAnswerField: false,
+                    hasConfirmedAnswer: false,
                     bonusCount: 0,
                 };
                 this.playerResults.push(player);
@@ -82,6 +84,18 @@ export class GamePlayersListComponent implements OnInit {
             this.socketService.send(GameEvents.ShowResults, this.roomId);
             this.router.navigateByUrl(`/results/game/${this.quizId}/room/${this.roomId}/host`);
         });
+
+        this.socketService.on(GameEvents.SubmitQuestionOnClick, (playerName: string) => {
+            this.updateAnswerConfirmation(playerName);
+        });
+
+        this.socketService.on(GameEvents.QuestionChoiceSelect, (playerName: string) => {
+            this.updatePlayerInteraction(playerName);
+        });
+
+        this.socketService.on(GameEvents.NextQuestion, () => {
+            this.resetPlayersInfo();
+        });
     }
 
     private updatePlayerStatus(playerName: string) {
@@ -103,6 +117,28 @@ export class GamePlayersListComponent implements OnInit {
         if (wantedPlayer) {
             wantedPlayer.bonusCount++;
         }
+    }
+
+    private updateAnswerConfirmation(playerName: string) {
+        const playerToUpdate = this.playerResults.find((player) => player.name === playerName);
+        if (playerToUpdate) {
+            playerToUpdate.hasConfirmedAnswer = true;
+        }
+    }
+
+    private updatePlayerInteraction(playerName: string) {
+        const playerToUpdate = this.playerResults.find((player) => player.name === playerName);
+        if (playerToUpdate) {
+            playerToUpdate.hasClickedOnAnswerField = true;
+        }
+    }
+
+    private resetPlayersInfo() {
+        const activePlayers = this.playerResults.filter((player) => !player.hasAbandoned);
+        activePlayers.forEach((player) => {
+            player.hasClickedOnAnswerField = false;
+            player.hasConfirmedAnswer = false;
+        });
     }
 
     private sortPlayers() {

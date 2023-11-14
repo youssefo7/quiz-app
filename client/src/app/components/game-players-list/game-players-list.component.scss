@@ -33,13 +33,23 @@
 
 .player-name.abandoned {
     text-decoration: line-through;
+    color: black;
 }
 
 .player-name {
+    color: red;
     font-weight: bold;
     text-overflow: ellipsis;
     overflow: hidden;
     width: 30%;
+}
+
+.player-name.interacted {
+    color: rgb(225, 225, 30);
+}
+
+.player-name.confirmedAnswer {
+    color: green;
 }
 
 .player-score {

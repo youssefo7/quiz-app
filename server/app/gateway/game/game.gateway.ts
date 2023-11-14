@@ -89,9 +89,12 @@ export class GameGateway {
     }
 
     @SubscribeMessage(GameEvents.QuestionChoiceSelect)
-    handleQuestionChoiceSelect(_: Socket, data: { roomId: string; questionChoiceIndex: number }) {
+    handleQuestionChoiceSelect(socket: Socket, data: { roomId: string; questionChoiceIndex: number }) {
+        const room = this.roomManager.findRoom(data.roomId);
         const organizer = this.roomManager.findRoom(data.roomId).organizer.socketId;
+        const player = this.roomManager.findPlayer(socket.id, room);
         this.server.to(organizer).emit(GameEvents.QuestionChoiceSelect, data.questionChoiceIndex);
+        this.server.to(organizer).emit(GameEvents.QuestionChoiceSelect, player.name);
     }
 
     @SubscribeMessage(GameEvents.QuestionChoiceUnselect)
@@ -146,9 +149,11 @@ export class GameGateway {
     }
 
     @SubscribeMessage(GameEvents.SubmitQuestionOnClick)
-    handleSubmitQuestionOnClick(_: Socket, roomId: string) {
+    handleSubmitQuestionOnClick(socket: Socket, roomId: string) {
+        const room = this.roomManager.findRoom(roomId);
         const organizer = this.roomManager.findRoom(roomId).organizer.socketId;
-        this.server.to(organizer).emit(GameEvents.SubmitQuestionOnClick);
+        const player = this.roomManager.findPlayer(socket.id, room);
+        this.server.to(organizer).emit(GameEvents.SubmitQuestionOnClick, player.name);
     }
 
     @SubscribeMessage(GameEvents.SubmitQuestionOnFinishedTimer)
