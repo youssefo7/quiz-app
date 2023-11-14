@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { Constants } from '@common/constants';
-import { GameEvents } from '@common/game.events';
 import { JoinEvents } from '@common/join.events';
 import { firstValueFrom } from 'rxjs';
 
@@ -112,7 +111,6 @@ export class JoinGamePopupComponent {
 
     closeAdminPopup() {
         this.joinGamePopupRef.close();
-        this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.givenRoomCode, isInGame: false });
     }
 
     allowNumbersOnly(event: KeyboardEvent) {
