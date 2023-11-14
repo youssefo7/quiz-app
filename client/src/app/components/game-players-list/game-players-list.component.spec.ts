@@ -25,10 +25,10 @@ describe('GamePlayersListComponent', () => {
     let socketHelper: SocketTestHelper;
 
     const playersListMock: Results[] = [
-        { name: 'Marc', hasAbandoned: false, points: 10, bonusCount: 0 },
-        { name: 'Liam', hasAbandoned: false, points: 20, bonusCount: 0 },
-        { name: 'Adam', hasAbandoned: false, points: 20, bonusCount: 0 },
-        { name: 'Zane', hasAbandoned: false, points: 50, bonusCount: 0 },
+        { name: 'Marc', hasAbandoned: false, hasConfirmedAnswer: false, hasClickedOnAnswerField: false, points: 10, bonusCount: 0 },
+        { name: 'Liam', hasAbandoned: false, hasConfirmedAnswer: false, hasClickedOnAnswerField: false, points: 20, bonusCount: 0 },
+        { name: 'Adam', hasAbandoned: false, hasConfirmedAnswer: false, hasClickedOnAnswerField: false, points: 20, bonusCount: 0 },
+        { name: 'Zane', hasAbandoned: false, hasConfirmedAnswer: false, hasClickedOnAnswerField: false, points: 50, bonusCount: 0 },
     ];
 
     const roomPlayersNamesMock: string[] = ['Marc', 'Liam', 'Adam', 'Zane'];
