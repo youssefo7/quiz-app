@@ -1,5 +1,5 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Choice, Question, Quiz } from '@app/interfaces/quiz';
+import { Question, Quiz } from '@app/interfaces/quiz';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { GameEvents } from '@common/game.events';
 import { TimeEvents } from '@common/time.events';
@@ -53,7 +53,7 @@ export class HistogramComponent implements OnInit, OnDestroy {
     private getQuestion(index: number) {
         if (this.quiz && index < this.quiz.questions.length) {
             this.question = this.quiz.questions[index];
-            const choices = (this.question.choices as Choice[]) || undefined;
+            const choices = this.question.choices;
             if (choices) {
                 for (let i = 0; i < choices.length; i++) {
                     this.playersChoices.push(`Choix ${i + 1}`);
@@ -83,9 +83,9 @@ export class HistogramComponent implements OnInit, OnDestroy {
     }
 
     private setBackgroundColors(choiceIndex: number) {
-        const choices = this.question.choices as Choice[];
+        const choices = this.question.choices;
         if (choices) {
-            const choice = this.question.choices?.[choiceIndex] as Choice;
+            const choice = choices[choiceIndex];
             this.chartBackgroundColors.push(choice?.isCorrect ? 'green' : 'red');
             this.goodBadChoices.push(choice?.isCorrect);
         }

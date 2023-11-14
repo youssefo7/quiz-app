@@ -42,8 +42,7 @@ describe('QuizQuestionInfoComponent', () => {
     });
 
     it('should add the question and reset the form', () => {
-        // La raison du disable lint est puisque la méthode manageQuestion est privée, pour faire un spy sur cette méthode,
-        // il faut utiliser le type any pour y faire.
+        // La raison du disable lint est que any est nécessaire pour espionner une méthode privé.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         spyOn<any>(component, 'manageQuestion');
         spyOn(component, 'resetForm');

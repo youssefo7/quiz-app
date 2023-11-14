@@ -104,13 +104,13 @@ export class QuizQuestionInfoComponent implements OnInit {
         const questionType = this.questionInfoForm.get('type')?.value as string;
 
         const hasQuestionTextBeenTouched = this.questionInfoForm.controls.text.dirty || this.questionInfoForm.controls.text.touched;
-        this.isTextValid = this.questionInfoForm.controls.text.invalid && hasQuestionTextBeenTouched ? false : true;
+        this.isTextValid = !(this.questionInfoForm.controls.text.invalid && hasQuestionTextBeenTouched);
 
-        this.isPointsValid = this.questionInfoForm.controls.points.invalid ? false : true;
+        this.isPointsValid = !this.questionInfoForm.controls.points.invalid;
 
         if (questionType === 'QCM') {
             const hasChoicesBeenTouched = this.questionInfoForm.controls.choices.dirty || this.questionInfoForm.controls.choices.touched;
-            this.isChoicesValid = this.questionInfoForm.controls.choices.invalid && hasChoicesBeenTouched ? false : true;
+            this.isChoicesValid = !(this.questionInfoForm.controls.choices.invalid && hasChoicesBeenTouched);
         }
     }
 
@@ -244,11 +244,7 @@ export class QuizQuestionInfoComponent implements OnInit {
         let index = 0;
         let length = 0;
         if (choices.length === 0) {
-            if (this.choicesCopy.length === 0) {
-                length = 2;
-            } else {
-                length = this.choicesCopy.length;
-            }
+            length = this.choicesCopy.length === 0 ? 2 : this.choicesCopy.length;
             while (index < length) {
                 this.addChoice();
                 index++;

@@ -1,6 +1,6 @@
 import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Question, Quiz } from '@app/interfaces/quiz';
+import { Choice, Question, Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
@@ -141,9 +141,10 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     getQuestion(index: number) {
         if (this.quiz && index < this.quiz.questions.length) {
             this.question = this.quiz.questions[index];
-            if (this.question.choices) {
-                this.chosenChoices = new Array(this.question.choices?.length).fill(false);
-                this.question.choices?.forEach((choice, buttonIndex) => {
+            if (this.question.type === 'QCM') {
+                const choices = this.question.choices as Choice[];
+                this.chosenChoices = new Array(choices.length).fill(false);
+                choices.forEach((choice, buttonIndex) => {
                     this.setButtonToInitState(buttonIndex);
                 });
             }

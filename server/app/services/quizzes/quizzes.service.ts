@@ -1,3 +1,6 @@
+// La raison du disable est puisque dans la méthode verifyQuestion, il y a beaucoup de vérifications imbriquées qui doivent être fait
+// et la complexité de celui-ci est élevée.
+/* eslint-disable complexity */
 import { ChoiceType, QuestionType, Quiz, QuizDocument } from '@app/model/database/quiz';
 import { Constants } from '@common/constants';
 import { Injectable, Logger } from '@nestjs/common';
@@ -52,21 +55,29 @@ export class QuizzesService {
         if (!question.text || typeof question.text !== 'string') errors.push(`Texte de la question ${index + 1} est invalide ou manquant`);
 
         const isPointsValid = question.points < Constants.MIN_POINTS || question.points % Constants.MIN_POINTS !== 0;
-        const isPointsDurationValid = isPointsValid || question.points > Constants.MAX_DURATION;
+        const isPointsDurationValid = isPointsValid || question.points > Constants.MAX_POINTS;
 
         if (typeof question.points !== 'number' || isPointsDurationValid)
             errors.push(
                 `Les points de la question ${index + 1} sont manquants ou invalides (doivent être des multiples de 10 entre 10 et 100 inclusivement)`,
             );
 
-        const isChoiceArray = Array.isArray(question.choices);
-        const hasMinChoices = isChoiceArray && question.choices.length >= Constants.MIN_CHOICES;
-        const hasMaxChoices = isChoiceArray && question.choices.length <= Constants.MAX_CHOICES;
+        if (question.type === 'QCM') {
+            const isChoiceArray = Array.isArray(question.choices);
+            const hasMinChoices = isChoiceArray && question.choices.length >= Constants.MIN_CHOICES;
+            const hasMaxChoices = isChoiceArray && question.choices.length <= Constants.MAX_CHOICES;
 
-        if (!hasMinChoices || !hasMaxChoices)
-            errors.push(`Les choix de la question ${index + 1} sont manquants ou invalides (minimum 2 et maximum 4)`);
-        else {
-            this.verifyChoices(question.choices, index, errors);
+            if (!hasMinChoices || !hasMaxChoices)
+                errors.push(`Les choix de la question ${index + 1} sont manquants ou invalides (minimum 2 et maximum 4)`);
+            else {
+                this.verifyChoices(question.choices, index, errors);
+            }
+        }
+
+        if (question.type === 'QRL') {
+            if (question.choices) {
+                errors.push(`Les choix de la question ${index + 1} sont invalides. Une question de type 'QRL' ne doit pas avoir de champ 'choices'.`);
+            }
         }
     }
 
