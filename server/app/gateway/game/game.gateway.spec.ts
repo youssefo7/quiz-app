@@ -7,7 +7,7 @@ import { RoomManagerService } from '@app/services/room-manager/room-manager.serv
 import { GameEvents } from '@common/game.events';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
+import { createStubInstance, SinonStubbedInstance, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { GameGateway } from './game.gateway';
 
@@ -150,13 +150,15 @@ describe('GameGateway', () => {
 
     it('handleQuestionChoiceSelect() should show the organizer the total answer choice counts of players of a given question', () => {
         const questionChoiceIndex = 1;
+        const emittedEvents = [];
         stub(socket, 'rooms').value(new Set([roomId]));
+
         server.to.returns({
-            emit: (event: string, index: number) => {
-                expect(event).toEqual(GameEvents.QuestionChoiceSelect);
-                expect(index).toEqual(questionChoiceIndex);
+            emit: (event: string, value: any) => {
+                emittedEvents.push({ event, value });
             },
         } as BroadcastOperator<unknown, unknown>);
+
         gateway.handleQuestionChoiceSelect(socket, { roomId, questionChoiceIndex });
         expect(server.to.calledWith(roomManagerServiceMock.rooms[0].organizer.socketId)).toBeTruthy();
     });
@@ -177,16 +179,20 @@ describe('GameGateway', () => {
 
     it('handleQuestionChoiceSelect() should emit the selected choice index', () => {
         const questionChoiceIndex = 2;
+        const player = { socketId: 'playerId', name: 'testPlayer', points: 50, bonusCount: 0 };
+        const emittedEvents = [];
         stub(socket, 'rooms').value(new Set([roomId]));
+        stub(roomManagerServiceMock, 'findPlayer').returns(player);
 
         server.to.returns({
-            emit: (event: string, index: number) => {
-                expect(event).toEqual(GameEvents.QuestionChoiceSelect);
-                expect(index).toEqual(questionChoiceIndex);
+            emit: (event: string, value: any) => {
+                emittedEvents.push({ event, value });
             },
         } as BroadcastOperator<unknown, unknown>);
 
         gateway.handleQuestionChoiceSelect(socket, { roomId, questionChoiceIndex });
+        expect(emittedEvents).toContainEqual({ event: GameEvents.QuestionChoiceSelect, value: questionChoiceIndex });
+        expect(emittedEvents).toContainEqual({ event: GameEvents.QuestionChoiceSelect, value: player.name });
     });
 
     it('handleQuestionChoiceUnselect() should emit the unselected choice index', () => {
