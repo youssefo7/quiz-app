@@ -51,7 +51,7 @@ describe('CreateEditQuizPageComponent', () => {
             'moveQuestionUp',
             'moveQuestionDown',
             'saveQuiz',
-            'isGeneralInfoModified',
+            'hasQuizBeenModified',
         ]);
         quizQuestionInfoSpy = jasmine.createSpyObj('QuizQuestionInfoComponent', ['loadQuestionInformation', 'resetForm']);
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
@@ -210,17 +210,17 @@ describe('CreateEditQuizPageComponent', () => {
     it('should return true if all conditions are met for a modified quiz', () => {
         component.newQuiz = mockQuiz;
         component.isGeneralInfoFormValid = true;
-        quizManagerServiceSpy.isGeneralInfoModified.and.returnValue(true);
+        quizManagerServiceSpy.hasQuizBeenModified.and.returnValue(true);
 
         component.isQuizFormValid();
-        expect(quizManagerServiceSpy.isGeneralInfoModified).toHaveBeenCalledWith(component.newQuiz);
+        expect(quizManagerServiceSpy.hasQuizBeenModified).toHaveBeenCalledWith(component.newQuiz);
         expect(component.isQuizFormValid()).toBeTrue();
     });
 
     it('should not check modifications for a new quiz', () => {
         component.newQuiz = { ...mockQuiz, id: '' };
         component.isGeneralInfoFormValid = true;
-        expect(quizManagerServiceSpy.isGeneralInfoModified).not.toHaveBeenCalled();
+        expect(quizManagerServiceSpy.hasQuizBeenModified).not.toHaveBeenCalled();
         expect(component.isQuizFormValid()).toBeTrue();
     });
 

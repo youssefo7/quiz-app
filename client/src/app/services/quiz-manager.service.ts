@@ -111,8 +111,8 @@ export class QuizManagerService {
         quiz.duration = generalInfoForm.value.duration;
     }
 
-    isGeneralInfoModified(quiz: Quiz): boolean {
-        if (this.isQuizModified(this.quizToModify, quiz)) {
+    hasQuizBeenModified(quiz: Quiz): boolean {
+        if (this.isGeneralInfoModified(this.quizToModify, quiz)) {
             return true;
         }
 
@@ -138,7 +138,7 @@ export class QuizManagerService {
         return index >= 0 && index < quiz.questions.length;
     }
 
-    private isQuizModified(quizBefore: Quiz, quizAfter: Quiz) {
+    private isGeneralInfoModified(quizBefore: Quiz, quizAfter: Quiz) {
         const isQuizTitleDifferent = quizBefore.title.trim() !== quizAfter.title.trim();
         const isQuizDescriptionDifferent = quizBefore.description.trim() !== quizAfter.description.trim();
         const isQuizDurationDifferent = quizBefore.duration !== quizAfter.duration;
