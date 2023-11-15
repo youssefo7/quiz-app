@@ -27,8 +27,8 @@ export class GameGateway {
             }
             this.roomManager.removePlayer(room, player.socketId);
             const isEmptyRoom = room.players.length === 0;
-            const isEmptySocketId = room.organizer.socketId === '';
-            if (isEmptyRoom && isEmptySocketId) {
+            const isEmptyOrganizerSocketId = room.organizer.socketId === '';
+            if (isEmptyRoom && isEmptyOrganizerSocketId) {
                 this.roomManager.deleteRoom(room);
             }
             socket.leave(room.id);

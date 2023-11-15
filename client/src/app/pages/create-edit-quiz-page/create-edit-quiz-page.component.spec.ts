@@ -1,7 +1,7 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ActivatedRoute, ActivatedRouteSnapshot, RouterStateSnapshot, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, ActivatedRouteSnapshot, convertToParamMap, RouterStateSnapshot } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { QuizGeneralInfoComponent } from '@app/components/quiz-general-info/quiz-general-info.component';
 import { QuizQuestionInfoComponent } from '@app/components/quiz-question-info/quiz-question-info.component';
@@ -51,7 +51,7 @@ describe('CreateEditQuizPageComponent', () => {
             'moveQuestionUp',
             'moveQuestionDown',
             'saveQuiz',
-            'hasQuizBeenModified',
+            'isGeneralInfoModified',
         ]);
         quizQuestionInfoSpy = jasmine.createSpyObj('QuizQuestionInfoComponent', ['loadQuestionInformation', 'resetForm']);
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
@@ -210,17 +210,17 @@ describe('CreateEditQuizPageComponent', () => {
     it('should return true if all conditions are met for a modified quiz', () => {
         component.newQuiz = mockQuiz;
         component.isGeneralInfoFormValid = true;
-        quizManagerServiceSpy.hasQuizBeenModified.and.returnValue(true);
+        quizManagerServiceSpy.isGeneralInfoModified.and.returnValue(true);
 
         component.isQuizFormValid();
-        expect(quizManagerServiceSpy.hasQuizBeenModified).toHaveBeenCalledWith(component.newQuiz);
+        expect(quizManagerServiceSpy.isGeneralInfoModified).toHaveBeenCalledWith(component.newQuiz);
         expect(component.isQuizFormValid()).toBeTrue();
     });
 
     it('should not check modifications for a new quiz', () => {
         component.newQuiz = { ...mockQuiz, id: '' };
         component.isGeneralInfoFormValid = true;
-        expect(quizManagerServiceSpy.hasQuizBeenModified).not.toHaveBeenCalled();
+        expect(quizManagerServiceSpy.isGeneralInfoModified).not.toHaveBeenCalled();
         expect(component.isQuizFormValid()).toBeTrue();
     });
 

@@ -272,12 +272,12 @@ describe('QuizManagerService', () => {
     });
 
     it('should return true if quiz form is valid and either the title, description, or duration is modified (when newQuiz.id is not empty)', () => {
-        const result = service.hasQuizBeenModified({ ...quizToEditMock, title: 'Modified title' });
+        const result = service.isGeneralInfoModified({ ...quizToEditMock, title: 'Modified title' });
         expect(result).toBe(true);
     });
 
     it('should return true if quiz form is valid and there are a different amount of questions (when newQuiz.id is not empty)', () => {
-        const result = service.hasQuizBeenModified({
+        const result = service.isGeneralInfoModified({
             ...quizToEditMock,
             questions: [
                 ...quizToEditMock.questions,
@@ -302,7 +302,7 @@ describe('QuizManagerService', () => {
             ...modifiedQuestions[0],
             choices: [...modifiedQuestions[0].choices, { text: 'Choice 3', isCorrect: true }],
         };
-        const result = service.hasQuizBeenModified({ ...quizToEditMock, questions: modifiedQuestions });
+        const result = service.isGeneralInfoModified({ ...quizToEditMock, questions: modifiedQuestions });
         expect(result).toBe(true);
     });
 
@@ -318,12 +318,12 @@ describe('QuizManagerService', () => {
                 ...modifiedQuestions[0].choices.slice(1),
             ],
         };
-        const result = service.hasQuizBeenModified({ ...quizToEditMock, questions: modifiedQuestions });
+        const result = service.isGeneralInfoModified({ ...quizToEditMock, questions: modifiedQuestions });
         expect(result).toBe(true);
     });
 
     it('should return false if quiz form is not modified (when newQuiz.id is not empty)', () => {
-        const result = service.hasQuizBeenModified(quizToEditMock);
+        const result = service.isGeneralInfoModified(quizToEditMock);
         expect(result).toBe(false);
     });
 });
