@@ -12,12 +12,12 @@ interface AddPointsResponse {
     name: string;
 }
 
-const playerStatePriorities = {
-    hasNotInteracted: 0,
-    hasInteracted: 1,
-    hasConfirmed: 2,
-    hasAbandonned: 3,
-};
+enum PlayerStatePriorities {
+    HasNotInteracted,
+    HasInteracted,
+    HasConfirmed,
+    HasAbandonned,
+}
 
 @Component({
     selector: 'app-game-players-list',
@@ -78,11 +78,6 @@ export class GamePlayersListComponent implements OnInit {
         }
     }
 
-    toggleChattingRights(name: string) {
-        this.socketService.send(ChatEvents.ToggleChattingRights, { roomId: this.roomId, playerName: name });
-    }
-
-
     sortByName() {
         this.playerResults.sort((a, b) => (this.shouldSortNamesAscending ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)));
         this.shouldSortNamesAscending = !this.shouldSortNamesAscending;
@@ -110,17 +105,24 @@ export class GamePlayersListComponent implements OnInit {
         this.shouldSortStatesAscending = !this.shouldSortStatesAscending;
     }
 
+    toggleChattingRights(name: string) {
+        this.socketService.send(ChatEvents.ToggleChattingRights, { roomId: this.roomId, playerName: name });
+    }
+
+
     private getPlayerPriority(player: Results) {
+        let priority;
+
         if (player.hasConfirmedAnswer) {
-            return playerStatePriorities.hasConfirmed;
+            priority = PlayerStatePriorities.HasConfirmed;
+        } else if (player.hasClickedOnAnswerField) {
+            priority = PlayerStatePriorities.HasInteracted;
+        } else if (player.hasAbandoned) {
+            priority = PlayerStatePriorities.HasAbandonned;
+        } else {
+            priority = PlayerStatePriorities.HasNotInteracted;
         }
-        if (player.hasClickedOnAnswerField) {
-            return playerStatePriorities.hasInteracted;
-        }
-        if (player.hasAbandoned) {
-            return playerStatePriorities.hasAbandonned;
-        }
-        return playerStatePriorities.hasNotInteracted;
+        return priority;
     }
 
     private listenToSocketEvents() {

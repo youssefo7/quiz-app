@@ -92,7 +92,7 @@ describe('GamePlayersListComponent', () => {
 
     it('should fetch players list and call listenToSocketEvents() if socket exists', async () => {
         const fetchPlayersListSpy = spyOn(component, 'fetchPlayersList').and.resolveTo();
-        const listenToSocketEventSpy = spyOn(component, 'listenToSocketEvents');
+        const listenToSocketEventSpy = spyOn<any>(component, 'listenToSocketEvents');
 
         await component.ngOnInit();
 
@@ -102,7 +102,7 @@ describe('GamePlayersListComponent', () => {
 
     it('should not fetch players list or call listenToSocketEvents() if socket does not exist', async () => {
         const fetchPlayersListSpy = spyOn(component, 'fetchPlayersList');
-        const listenToSocketEventSpy = spyOn(component, 'listenToSocketEvents');
+        const listenToSocketEventSpy = spyOn<any>(component, 'listenToSocketEvents');
         mockSocketClientService.setSocketExists(false);
 
         await component.ngOnInit();
@@ -130,7 +130,7 @@ describe('GamePlayersListComponent', () => {
         const sendSpy = spyOn(mockSocketClientService, 'send');
         component.roomId = '456';
 
-        component.listenToSocketEvents();
+        component['listenToSocketEvents']();
         socketHelper.peerSideEmit(GameEvents.SendResults);
 
         await component.fetchPlayersList();
@@ -186,7 +186,7 @@ describe('GamePlayersListComponent', () => {
         const oldBonusCount = playersListMock[0].bonusCount;
         const updatePlayerBonusSpy = spyOn<any>(component, 'updatePlayerBonusCount').and.callThrough();
 
-        component.listenToSocketEvents();
+        component['listenToSocketEvents']();
         socketHelper.peerSideEmit(GameEvents.BonusUpdate, playerToUpdate);
         expect(updatePlayerBonusSpy).toHaveBeenCalled();
 
@@ -198,7 +198,7 @@ describe('GamePlayersListComponent', () => {
     it("should call updateAnswerConfirmation() when SubmitQuestionOnClick event is received and update the player's results", () => {
         const playerToUpdate = playersListMock[0].name;
         const updateAnswerConfirmationSpy = spyOn<any>(component, 'updateAnswerConfirmation').and.callThrough();
-        component.listenToSocketEvents();
+        component['listenToSocketEvents']();
         socketHelper.peerSideEmit(GameEvents.SubmitQuestionOnClick, playerToUpdate);
         expect(updateAnswerConfirmationSpy).toHaveBeenCalledWith(playerToUpdate);
         const playerToUpdateIndex = component.playerResults.find((player) => player.name === playerToUpdate) as Results;
@@ -208,7 +208,7 @@ describe('GamePlayersListComponent', () => {
     it("should call updatePlayerInteraction() when QuestionChoiceSelect event is received and update the player's results", () => {
         const playerToUpdate = playersListMock[0].name;
         const updatePlayerInteractionSpy = spyOn<any>(component, 'updatePlayerInteraction').and.callThrough();
-        component.listenToSocketEvents();
+        component['listenToSocketEvents']();
         socketHelper.peerSideEmit(GameEvents.QuestionChoiceSelect, playerToUpdate);
         expect(updatePlayerInteractionSpy).toHaveBeenCalledWith(playerToUpdate);
         const playerToUpdateIndex = component.playerResults.find((player) => player.name === playerToUpdate) as Results;
@@ -217,7 +217,7 @@ describe('GamePlayersListComponent', () => {
 
     it("should call resetPlayersInfo() when NextQuestion event is received and update the player's results", () => {
         const resetPlayerInfoSpy = spyOn<any>(component, 'resetPlayersInfo').and.callThrough();
-        component.listenToSocketEvents();
+        component['listenToSocketEvents']();
         socketHelper.peerSideEmit(GameEvents.NextQuestion);
         expect(resetPlayerInfoSpy).toHaveBeenCalled();
         component.playerResults.forEach((player) => {
