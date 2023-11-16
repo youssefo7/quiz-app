@@ -260,4 +260,26 @@ describe('CountdownComponent', () => {
         component['questionClock']();
         expect(sendSpy).toHaveBeenCalledWith(TimeEvents.StartTimer, { initialTime: mockQuiz.duration, roomId, tickRate: oneSecondInterval });
     });
+
+    it('should toggle timer', () => {
+        const sendSpy = spyOn(component['socketClientService'], 'send');
+        component.isPaused = false;
+        component.toggleTimer();
+        expect(component.isPaused).toBeTruthy();
+
+        component.isPaused = true;
+        component.toggleTimer();
+        expect(component.isPaused).toBeFalsy();
+
+        expect(sendSpy).toHaveBeenCalled();
+    });
+
+    it('should trigger a panic mode', () => {
+        const spyPlay = spyOn(component['panicAudio'], 'play');
+        component.panicMode();
+
+        expect(component.isInPanicMode).toBeTruthy();
+        expect(component.canTogglePanicMode).toBeFalsy();
+        expect(spyPlay).toHaveBeenCalled();
+    });
 });
