@@ -4,7 +4,7 @@ import { RoomCommunicationService } from '@app/services/room-communication.servi
 import { SocketClientService } from '@app/services/socket-client.service';
 import { GameEvents } from '@common/game.events';
 import { TimeEvents } from '@common/time.events';
-import { firstValueFrom, Subscription } from 'rxjs';
+import { Subscription, firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-question-zone-stats',
@@ -92,6 +92,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         this.handlePlayerLeaveGame();
         this.handleNextQuestion();
         this.handleAnswers();
+        this.handleUnSubmitQuestion();
     }
 
     private getQuestion(index: number) {
@@ -105,8 +106,8 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
 
     private enableNextQuestionButton() {
         this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
-            this.detectEndOfQuestion(time);
             this.socketTime = time;
+            this.detectEndOfQuestion(time);
         });
 
         this.socketClientService.on(TimeEvents.TimerInterrupted, () => {
@@ -121,8 +122,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
 
     private detectEndOfQuestion(time: number) {
         if (time === 0) {
-            const allPlayersSubmitted = this.submittedQuestionOnClickCount === this.playerCount;
-            if (this.hasTimerBeenInterrupted && allPlayersSubmitted) {
+            if (this.hasTimerBeenInterrupted) {
                 this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
             } else {
                 this.totalGoodAnswers = this.goodAnswerOnClickCount + this.goodAnswerOnFinishedTimerCount;
@@ -178,7 +178,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     }
 
     private handlePlayerLeaveGame() {
-        this.socketClientService.on(GameEvents.PlayerLeaveGame, () => {
+        this.socketClientService.on(GameEvents.PlayerAbandonedGame, () => {
             this.playerCount--;
         });
     }
@@ -209,8 +209,16 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         const allPlayersSubmitted = this.submittedQuestionOnClickCount === this.playerCount;
         if (allPlayersSubmitted && this.socketTime !== 0) {
             this.socketClientService.send(TimeEvents.TimerInterrupted, this.roomId);
-        } else {
-            this.detectEndOfQuestion(0);
+        } else if (this.socketTime === 0) {
+            this.detectEndOfQuestion(this.socketTime);
         }
+    }
+
+    private handleUnSubmitQuestion() {
+        this.socketClientService.on(GameEvents.UnSubmitAnswer, () => {
+            this.submittedQuestionOnClickCount--;
+            this.goodAnswerOnClickCount--;
+            this.detectIfAllPlayersSubmitted();
+        });
     }
 }

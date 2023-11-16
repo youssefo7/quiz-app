@@ -165,7 +165,7 @@ describe('QuestionZoneStatsComponent', () => {
 
     it('should decrement player count when a player leaves a game', () => {
         component['playerCount'] = 1;
-        socketHelper.peerSideEmit(GameEvents.PlayerLeaveGame);
+        socketHelper.peerSideEmit(GameEvents.PlayerAbandonedGame);
         expect(component['playerCount']).toEqual(0);
     });
 
@@ -212,10 +212,10 @@ describe('QuestionZoneStatsComponent', () => {
         expect(sendSpy).toHaveBeenCalledWith(TimeEvents.TimerInterrupted, roomId);
     });
 
-    it('should call detectEndOfQuestion with time = 0 if not all users submitted before the end of time', () => {
+    it('should call detectEndOfQuestion with time = 0 at end of timer', () => {
         component['playerCount'] = 4;
         component['submittedQuestionOnClickCount'] = 3;
-        component['socketTime'] = 15;
+        component['socketTime'] = 0;
         const detectEndOfQuestionSpy = spyOn<any>(component, 'detectEndOfQuestion');
         component['detectIfAllPlayersSubmitted']();
         expect(detectEndOfQuestionSpy).toHaveBeenCalledWith(0);
