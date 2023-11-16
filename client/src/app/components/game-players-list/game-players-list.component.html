@@ -8,6 +8,7 @@
     <div *ngFor="let player of playerResults" class="player-entry">
         <span class="player-name" [ngClass]="{ abandoned: player.hasAbandoned }">{{ player.name }}</span>
         <span class="player-score">{{ player.points }} points</span>
+        <button *ngIf="isHost" class="chatButton" (click)="toggleChattingRights(player.name)">TogglePerks</button>
         <span *ngIf="isResultsRoute" class="player-bonus">{{ player.bonusCount }} fois</span>
     </div>
 </div>

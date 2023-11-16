@@ -36,8 +36,8 @@ describe('RoomManagerService', () => {
                 quiz: roomQuiz,
                 organizer: { socketId: 'organizerId', name: 'Organisateur' },
                 players: [
-                    { socketId: 'playerId1', name: 'name1', points: 50, bonusCount: 0 },
-                    { socketId: 'playerId2', name: 'name2', points: 200, bonusCount: 1 },
+                    { socketId: 'playerId1', name: 'name1', points: 50, bonusCount: 0, canChat: true },
+                    { socketId: 'playerId2', name: 'name2', points: 200, bonusCount: 1, canChat: false },
                 ],
                 isLocked: false,
                 bannedNames: ['bannedName1'],
@@ -137,7 +137,7 @@ describe('RoomManagerService', () => {
     });
 
     it('should return null if multiple players have the quickest answer time', () => {
-        room.players.push({ socketId: 'playerId3', name: 'name3', points: 200, bonusCount: 1 });
+        room.players.push({ socketId: 'playerId3', name: 'name3', points: 200, bonusCount: 1, canChat: true });
         room.answerTimes.push({ userId: 'playerId3', timeStamp: 90 });
         const quickestTime = roomManagerServiceMock.getQuickestTime(room);
         expect(quickestTime).toBeNull();
@@ -168,7 +168,7 @@ describe('RoomManagerService', () => {
         room.isLocked = false;
         const newPlayerData = { name: 'NewName', roomId, socketId: 'playerId3' };
 
-        room.players.push({ socketId: 'playerId3', name: '', points: 0, bonusCount: 0 });
+        room.players.push({ socketId: 'playerId3', name: '', points: 0, bonusCount: 0, canChat: true });
         const isNameValid = roomManagerServiceMock.processUsername(newPlayerData);
 
         expect(isNameValid).toBeTruthy();

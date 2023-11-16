@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Results } from '@common/player-info';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { ChatEvents } from '@common/chat.events';
 import { GameEvents } from '@common/game.events';
+import { Results } from '@common/player-info';
 import { firstValueFrom } from 'rxjs';
 
 interface AddPointsResponse {
@@ -18,6 +19,7 @@ interface AddPointsResponse {
 })
 export class GamePlayersListComponent implements OnInit {
     @Input() roomId: string | null;
+    isHost: boolean;
     playerResults: Results[];
     isResultsRoute: boolean;
     private quizId: string;
@@ -33,6 +35,7 @@ export class GamePlayersListComponent implements OnInit {
         this.isResultsRoute = this.router.url.includes('results');
         this.playerResults = [];
         this.quizId = this.route.snapshot.paramMap.get('quizId') as string;
+        this.isHost = this.route.snapshot.url.some((segment) => segment.path === 'host');
     }
 
     async ngOnInit() {
@@ -63,6 +66,10 @@ export class GamePlayersListComponent implements OnInit {
         } else {
             this.playerResults = await firstValueFrom(this.roomCommunicationService.getPlayerResults(this.roomId as string));
         }
+    }
+
+    toggleChattingRights(name: string) {
+        this.socketService.send(ChatEvents.ToggleChattingRights, { roomId: this.roomId, playerName: name });
     }
 
     private listenToSocketEvents() {
