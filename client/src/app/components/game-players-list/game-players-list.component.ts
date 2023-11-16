@@ -12,7 +12,7 @@ interface AddPointsResponse {
 }
 
 const playerStatePriorities = {
-    hasNotinteracted: 0,
+    hasNotInteracted: 0,
     hasInteracted: 1,
     hasConfirmed: 2,
     hasAbandonned: 3,
@@ -53,7 +53,6 @@ export class GamePlayersListComponent implements OnInit {
         }
 
         await this.fetchPlayersList();
-
         this.listenToSocketEvents();
     }
 
@@ -137,7 +136,7 @@ export class GamePlayersListComponent implements OnInit {
         this.isSortStatesAscending = !this.isSortStatesAscending;
     }
 
-    getPlayerPriority(player: Results) {
+    private getPlayerPriority(player: Results) {
         if (player.hasConfirmedAnswer) {
             return playerStatePriorities.hasConfirmed;
         }
@@ -147,7 +146,7 @@ export class GamePlayersListComponent implements OnInit {
         if (player.hasAbandoned) {
             return playerStatePriorities.hasAbandonned;
         }
-        return playerStatePriorities.hasNotinteracted;
+        return playerStatePriorities.hasNotInteracted;
     }
 
     private updatePlayerStatus(playerName: string) {
