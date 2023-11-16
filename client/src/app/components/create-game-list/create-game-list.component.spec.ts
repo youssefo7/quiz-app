@@ -190,7 +190,7 @@ describe('CreateGameListComponent', () => {
         component.selectedQuizId = visibleQuizMock[0].id;
         await component.checkAndCreateRoom(visibleQuizMock[0]);
 
-        expect(joinRoomSpy).toHaveBeenCalledWith(JoinEvents.OrganizerJoined, JSON.stringify(mockRoomId));
+        expect(joinRoomSpy).toHaveBeenCalledWith(JoinEvents.OrganizerJoined, mockRoomId);
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith(`/waiting/game/${visibleQuizMock[0].id}/room/${mockRoomId}/host`);
     });
 

@@ -74,7 +74,8 @@ export class CreateGameListComponent implements OnInit, OnDestroy {
                                         socketId: this.socketClientService.socket.id,
                                     }),
                                 );
-                                this.socketClientService.send(JoinEvents.OrganizerJoined, JSON.stringify(roomId));
+                                roomId = '' + roomId;
+                                this.socketClientService.send(JoinEvents.OrganizerJoined, roomId);
                                 this.router.navigateByUrl(`/waiting/game/${this.selectedQuizId}/room/${roomId}/host`);
                             } else {
                                 this.openConnectionPopUp();
