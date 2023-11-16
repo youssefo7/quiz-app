@@ -1,9 +1,9 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ChatMessage } from '@app/interfaces/chat-message';
+import { ChatMessage } from '@common/chat-message';
 import { JoinRoomResponse } from '@app/interfaces/join-room-response';
 import { Quiz } from '@app/interfaces/quiz';
-import { Results } from '@app/interfaces/player-info';
+import { Results } from '@common/player-info';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';

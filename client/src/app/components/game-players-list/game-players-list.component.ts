@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Results } from '@app/interfaces/player-info';
+import { Results } from '@common/player-info';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { GameEvents } from '@common/game.events';
