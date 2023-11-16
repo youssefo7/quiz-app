@@ -41,15 +41,14 @@ export class AdminGuardService {
         const navigation = this.router.getCurrentNavigation();
         let prevUrl: string | null = null;
 
-        if (navigation && navigation.trigger === 'imperative') {
+        if (navigation?.trigger === 'imperative') {
             const previousNavigation = this.router.getCurrentNavigation()?.previousNavigation;
             if (previousNavigation) {
                 prevUrl = previousNavigation.extractedUrl.toString();
             }
         }
 
-        const validURL =
-            prevUrl === '/quiz/new' || (prevUrl && /\/quiz\/\d+/.test(prevUrl)) || prevUrl === null || prevUrl === '/home' || prevUrl === '/';
+        const validURL = [null, '/quiz/new', '/home', '/'].includes(prevUrl) || (prevUrl && /\/quiz\/\d+/.test(prevUrl));
 
         if (this.canAccessAdmin && validURL) {
             return true;

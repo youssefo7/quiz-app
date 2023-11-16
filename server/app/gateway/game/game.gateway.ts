@@ -26,7 +26,9 @@ export class GameGateway {
                 this.server.to(data.roomId).emit(GameEvents.PlayerAbandonedGame, player.name);
             }
             this.roomManager.removePlayer(room, player.socketId);
-            if (room.players.length === 0 && room.organizer.socketId === '') {
+            const isEmptyRoom = room.players.length === 0;
+            const isEmptyOrganizerSocketId = room.organizer.socketId === '';
+            if (isEmptyRoom && isEmptyOrganizerSocketId) {
                 this.roomManager.deleteRoom(room);
             }
             socket.leave(room.id);

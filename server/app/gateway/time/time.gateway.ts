@@ -14,7 +14,9 @@ export class TimeGateway {
     handleStartTimer(socket: Socket, data: { initialTime: number; tickRate: number; roomId: string }) {
         let counter = data.initialTime;
         const room = this.roomManagerService.findRoom(data.roomId);
-        if (room.timer) return;
+        if (room.timer) {
+            return;
+        }
         this.server.to(data.roomId).emit(TimeEvents.CurrentTimer, counter);
         counter--;
 

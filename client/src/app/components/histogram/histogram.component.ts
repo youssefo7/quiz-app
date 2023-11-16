@@ -51,7 +51,8 @@ export class HistogramComponent implements OnInit, OnDestroy {
     }
 
     private getQuestion(index: number) {
-        if (this.quiz && index < this.quiz.questions.length) {
+        const isValidIndex = this.quiz && index < this.quiz.questions.length;
+        if (isValidIndex) {
             this.question = this.quiz.questions[index];
             for (let i = 0; i < this.question.choices.length; i++) {
                 this.playersChoices.push(`Choix ${i + 1}`);
