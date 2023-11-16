@@ -25,7 +25,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
     playerName: string;
     roomId: string | null;
     readonly isTestGame: boolean;
-    roomId: string | null;
     private panicAudio: HTMLAudioElement;
 
     // J'injecte les services nécessaire dans mon constructeur
