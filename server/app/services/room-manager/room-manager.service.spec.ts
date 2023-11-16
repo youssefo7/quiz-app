@@ -1,4 +1,4 @@
-// La raison du disable est pour pouvoir mettre un Spy sur une méthodes qui est privée qui est appelé dans la fonction processJoinRoom()
+// any est nécessaire pour espionner les méthodes privés
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Room } from '@app/interfaces/room';
 import { Quiz } from '@app/model/database/quiz';

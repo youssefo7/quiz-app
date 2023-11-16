@@ -15,7 +15,7 @@ export class AdminPageComponent implements OnInit {
         this.handleAdminPageExit();
     }
 
-    ngOnInit(): void {
+    ngOnInit() {
         const canActivate = !this.adminGuardService.canActivate();
         if (canActivate) {
             this.router.navigateByUrl('/home');
@@ -23,7 +23,7 @@ export class AdminPageComponent implements OnInit {
         this.adminGuardService.pageRefreshState();
     }
 
-    handleAdminPageExit(): void {
+    private handleAdminPageExit() {
         this.router.events.subscribe((event) => {
             if (event instanceof NavigationEnd && event.url !== '/admin') {
                 sessionStorage.removeItem('isRefreshed');

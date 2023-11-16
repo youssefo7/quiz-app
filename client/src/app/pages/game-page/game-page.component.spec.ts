@@ -1,3 +1,5 @@
+// any est nécessaire pour espionner les méthodes privées
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -93,18 +95,18 @@ describe('GamePageComponent in test game route', () => {
     });
 
     it('should call leaveGameaPage when clicking okButton', () => {
-        spyOn(component, 'leaveGamePage');
+        spyOn<any>(component, 'leaveGamePage');
         component.openQuitPopUp();
 
         const config = mockDialogRef.componentInstance.config;
         expect(mockDialog.open).toHaveBeenCalled();
         config.okButtonFunction?.();
-        expect(component.leaveGamePage).toHaveBeenCalled();
+        expect(component['leaveGamePage']).toHaveBeenCalled();
     });
 
     it('clicking the exit icon should redirect to "game/new" page', () => {
         const navigateSpy = spyOn(router, 'navigateByUrl');
-        component.leaveGamePage();
+        component['leaveGamePage']();
         expect(navigateSpy).toHaveBeenCalledWith('/game/new');
     });
 
@@ -119,7 +121,7 @@ describe('GamePageComponent in test game route', () => {
     it('should fetch the quiz ', fakeAsync(() => {
         const id = '123';
         spyOn(gameService, 'getQuizById').and.returnValue(Promise.resolve(mockedQuiz));
-        component.getQuiz();
+        component['getQuiz']();
         tick();
 
         expect(gameService.getQuizById).toHaveBeenCalledWith(id);
@@ -196,7 +198,7 @@ describe('GamePageComponent in regular game route', () => {
 
     it('clicking the exit icon should redirect to "/home" page', () => {
         const navigateSpy = spyOn(router, 'navigateByUrl');
-        component.leaveGamePage();
+        component['leaveGamePage']();
         expect(navigateSpy).toHaveBeenCalledWith('/home');
     });
 });

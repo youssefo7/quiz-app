@@ -21,7 +21,7 @@ export class QuizManagerService {
         this.isModifiedQuestion = false;
     }
 
-    getQuizListFromServer(): void {
+    getQuizListFromServer() {
         this.communicationService.getQuizzes().subscribe({
             next: (quizzes) => {
                 this.quizzes = quizzes;
@@ -109,7 +109,7 @@ export class QuizManagerService {
         quiz.duration = generalInfoForm.value.duration;
     }
 
-    hasQuizBeenModified(quiz: Quiz): boolean {
+    hasQuizBeenModified(quiz: Quiz) {
         if (
             this.quizToModify.title.trim() !== quiz.title.trim() ||
             this.quizToModify.description.trim() !== quiz.description.trim() ||

@@ -21,10 +21,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
     quiz: Quiz | null;
     playerPoints: number;
     playerName: string;
-    readonly isTestGame: boolean;
     roomId: string | null;
+    readonly isTestGame: boolean;
 
-    // Raison: J'injecte les services nécessaire dans mon constructeur
+    // J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
     constructor(
         private popup: MatDialog,
@@ -49,15 +49,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.handleNavigation();
     }
 
-    handleNavigation() {
-        const currentUrl = this.router.url;
-        const gameUrl = `/results/game/${this.route.snapshot.paramMap.get('quizId')}/room/${this.roomId}`;
-        if (currentUrl !== gameUrl) {
-            this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
-            this.socketClientService.disconnect();
-        }
-    }
-
     async ngOnInit() {
         if (!this.socketClientService.socketExists() && !this.isTestGame) {
             this.socketClientService.connect();
@@ -77,35 +68,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
         }
     }
 
-    async loadQuiz() {
-        await this.getQuiz();
-        this.getQuizTitle();
-        if (!this.isTestGame) {
-            this.socketClientServiceConfig();
-        }
-    }
-
-    async getQuiz() {
-        if (this.isTestGame) {
-            const quizId = this.route.snapshot.paramMap.get('quizId');
-            this.quiz = await this.gameService.getQuizById(quizId);
-        } else {
-            const roomId = this.route.snapshot.paramMap.get('roomId') as string;
-            this.quiz = await firstValueFrom(this.roomCommunicationService.getRoomQuiz(roomId));
-        }
-    }
-
-    getQuizTitle() {
-        if (this.quiz) {
-            this.title += this.quiz.title;
-            this.title += this.isTestGame ? ' (Test)' : '';
-        }
-    }
-
-    async leaveGamePage() {
-        await this.router.navigateByUrl(this.isTestGame ? '/game/new' : '/home');
-    }
-
     givePoints(points: number) {
         this.playerPoints += points;
     }
@@ -122,6 +84,44 @@ export class GamePageComponent implements OnInit, OnDestroy {
         const dialogRef = this.popup.open(PopupMessageComponent);
         const popupInstance = dialogRef.componentInstance;
         popupInstance.config = config;
+    }
+
+    private async loadQuiz() {
+        await this.getQuiz();
+        this.getQuizTitle();
+        if (!this.isTestGame) {
+            this.socketClientServiceConfig();
+        }
+    }
+
+    private async getQuiz() {
+        if (this.isTestGame) {
+            const quizId = this.route.snapshot.paramMap.get('quizId');
+            this.quiz = await this.gameService.getQuizById(quizId);
+        } else {
+            const roomId = this.route.snapshot.paramMap.get('roomId') as string;
+            this.quiz = await firstValueFrom(this.roomCommunicationService.getRoomQuiz(roomId));
+        }
+    }
+
+    private getQuizTitle() {
+        if (this.quiz) {
+            this.title += this.quiz.title;
+            this.title += this.isTestGame ? ' (Test)' : '';
+        }
+    }
+
+    private handleNavigation() {
+        const currentUrl = this.router.url;
+        const gameUrl = `/results/game/${this.route.snapshot.paramMap.get('quizId')}/room/${this.roomId}`;
+        if (currentUrl !== gameUrl) {
+            this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
+            this.socketClientService.disconnect();
+        }
+    }
+
+    private async leaveGamePage() {
+        await this.router.navigateByUrl(this.isTestGame ? '/game/new' : '/home');
     }
 
     private socketClientServiceConfig() {

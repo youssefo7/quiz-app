@@ -21,7 +21,7 @@ export class ProfileComponent implements OnInit {
         this.name = this.getProfileName();
     }
 
-    getProfileName() {
+    private getProfileName() {
         const isTestGame = this.route.snapshot.url.some((segment: { path: string }) => segment.path === 'test');
         let profileName = '';
 

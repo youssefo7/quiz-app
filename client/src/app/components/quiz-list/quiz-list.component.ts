@@ -16,9 +16,9 @@ import { ImportService } from '@app/services/import.service';
 export class QuizListComponent implements OnInit {
     @ViewChild('export') anchor: ElementRef<HTMLAnchorElement>;
     quizList: Quiz[];
-    message: string;
+    private message: string;
 
-    // Plus que 3 paramètres sont necessaires pour le fonctionnement de cette composante
+    // Ces services injectés sont nécessaires
     // eslint-disable-next-line max-params
     constructor(
         private communicationService: CommunicationService,
@@ -29,30 +29,12 @@ export class QuizListComponent implements OnInit {
         this.quizList = [];
     }
 
-    ngOnInit(): void {
+    ngOnInit() {
         this.fetchQuizzes();
     }
 
-    fetchQuizzes(): void {
-        this.communicationService.getQuizzes().subscribe((quizzes: Quiz[]) => {
-            this.quizList = quizzes;
-        });
-    }
-
-    deleteQuiz(quiz: Quiz): void {
-        this.communicationService.deleteQuiz(quiz.id).subscribe({
-            next: () => {
-                this.fetchQuizzes();
-            },
-            error: () => {
-                this.message = 'Ce quiz a déjà été supprimé par un autre administrateur.';
-                this.openPopupWarning(this.message);
-            },
-        });
-    }
-
     //  https://stackoverflow.com/questions/57922872/angular-save-blob-in-local-text-file
-    exportQuiz(quiz: Quiz): void {
+    exportQuiz(quiz: Quiz) {
         const exportedQuiz = { ...quiz };
         delete exportedQuiz.visibility;
         const quizName: string = quiz.title;
@@ -68,12 +50,12 @@ export class QuizListComponent implements OnInit {
         window.URL.revokeObjectURL(blobUrl);
     }
 
-    toggleVisibility(quiz: Quiz): void {
+    toggleVisibility(quiz: Quiz) {
         quiz.visibility = !quiz.visibility;
         this.communicationService.updateQuiz(quiz.id, quiz).subscribe();
     }
 
-    openPopupDelete(quiz: Quiz): void {
+    openPopupDelete(quiz: Quiz) {
         const config: PopupMessageConfig = {
             message: "Êtes-vous sûr de vouloir supprimer ce quiz? Cette action n'est pas réversible.",
             hasCancelButton: true,
@@ -81,19 +63,6 @@ export class QuizListComponent implements OnInit {
             cancelButtonText: 'Annuler',
             okButtonFunction: () => {
                 this.deleteQuiz(quiz);
-            },
-        };
-        const dialogRef = this.popup.open(PopupMessageComponent);
-        const popupInstance = dialogRef.componentInstance;
-        popupInstance.config = config;
-    }
-
-    openPopupWarning(message: string): void {
-        const config: PopupMessageConfig = {
-            message,
-            hasCancelButton: false,
-            okButtonFunction: () => {
-                this.fetchQuizzes();
             },
         };
         const dialogRef = this.popup.open(PopupMessageComponent);
@@ -117,7 +86,7 @@ export class QuizListComponent implements OnInit {
         }
     }
 
-    importSuccessPopup(): void {
+    importSuccessPopup() {
         const config: PopupMessageConfig = {
             message: 'Importation réussie',
             hasCancelButton: false,
@@ -127,7 +96,7 @@ export class QuizListComponent implements OnInit {
         popupInstance.config = config;
     }
 
-    editQuiz(quiz: Quiz): void {
+    editQuiz(quiz: Quiz) {
         this.communicationService.checkQuizAvailability(quiz.id).subscribe({
             next: (isAvailable: boolean) => {
                 if (isAvailable) {
@@ -138,5 +107,36 @@ export class QuizListComponent implements OnInit {
                 }
             },
         });
+    }
+
+    private fetchQuizzes() {
+        this.communicationService.getQuizzes().subscribe((quizzes: Quiz[]) => {
+            this.quizList = quizzes;
+        });
+    }
+
+    private deleteQuiz(quiz: Quiz) {
+        this.communicationService.deleteQuiz(quiz.id).subscribe({
+            next: () => {
+                this.fetchQuizzes();
+            },
+            error: () => {
+                this.message = 'Ce quiz a déjà été supprimé par un autre administrateur.';
+                this.openPopupWarning(this.message);
+            },
+        });
+    }
+
+    private openPopupWarning(message: string) {
+        const config: PopupMessageConfig = {
+            message,
+            hasCancelButton: false,
+            okButtonFunction: () => {
+                this.fetchQuizzes();
+            },
+        };
+        const dialogRef = this.popup.open(PopupMessageComponent);
+        const popupInstance = dialogRef.componentInstance;
+        popupInstance.config = config;
     }
 }

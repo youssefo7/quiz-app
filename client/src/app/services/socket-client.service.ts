@@ -20,13 +20,13 @@ export class SocketClientService {
         this.socket.disconnect();
     }
 
-    on<T>(event: string, action: (data: T) => void): void {
+    on<T>(event: string, action: (data: T) => void) {
         this.socket.on(event, action);
     }
 
     // On ne sait pas le type de la fonction préalablement à son appel
     // eslint-disable-next-line @typescript-eslint/ban-types
-    send<T>(event: string, data?: T, callback?: Function): void {
+    send<T>(event: string, data?: T, callback?: Function) {
         this.socket.emit(event, ...[data, callback].filter((x) => x));
     }
 }

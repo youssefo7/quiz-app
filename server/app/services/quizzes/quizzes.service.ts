@@ -45,7 +45,7 @@ export class QuizzesService {
         if (errors.length) throw new Error(errors.join('\n'));
     }
 
-    verifyQuestion(question: QuestionType, index: number, errors: string[]): void {
+    verifyQuestion(question: QuestionType, index: number, errors: string[]) {
         if (!question.type || typeof question.type !== 'string' || (question.type !== 'QCM' && question.type !== 'QRL'))
             errors.push(`Type de la question ${index + 1} invalide ou manquant ('QCM' ou 'QRL'))`);
 
@@ -70,7 +70,7 @@ export class QuizzesService {
         }
     }
 
-    verifyChoices(choices: ChoiceType[], questionIndex: number, errors: string[]): void {
+    verifyChoices(choices: ChoiceType[], questionIndex: number, errors: string[]) {
         let correctChoiceCount = 0;
         let incorrectChoiceCount = 0;
 

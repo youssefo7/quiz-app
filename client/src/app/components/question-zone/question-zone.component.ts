@@ -4,12 +4,10 @@ import { Question, Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
+import { Constants } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { TimeEvents } from '@common/time.events';
 import { Subscription } from 'rxjs';
-
-const BONUS_20_PERCENT = 0.2;
-const BONUS_120_PERCENT = 1.2;
 
 @Component({
     selector: 'app-question-zone',
@@ -20,8 +18,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     @Output() pointsEarned: EventEmitter<number>;
     @Input() quiz: Quiz;
     @Input() roomId: string | null;
-    isQuestionTransitioning: boolean;
-    currentQuestionIndex: number;
     points: number;
     question: Question;
     chosenChoices: boolean[];
@@ -33,6 +29,8 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     isChoiceButtonDisabled: boolean;
     doesDisplayPoints: boolean;
     pointsToDisplay: number;
+    private isQuestionTransitioning: boolean;
+    private currentQuestionIndex: number;
     private isTestGame: boolean;
     private hasGameEnded: boolean;
     private timerSubscription: Subscription;
@@ -110,44 +108,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.elementRef.nativeElement.querySelector('button')?.focus();
     }
 
-    subscribeToTimer() {
-        if (this.isTestGame) {
-            this.timerSubscription = this.timeService.getTime().subscribe((time: number) => {
-                this.detectEndOfQuestion(time);
-            });
-        } else {
-            this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
-                this.detectEndOfQuestion(time);
-            });
-
-            this.socketClientService.on(TimeEvents.TimerInterrupted, () => {
-                this.detectEndOfQuestion(0);
-            });
-        }
-    }
-
-    detectEndGame() {
-        if (this.isTestGame) {
-            this.gameServiceSubscription = this.gameService.hasGameEndedObservable.subscribe((hasEnded: boolean) => {
-                this.hasGameEnded = hasEnded;
-            });
-        } else {
-            this.socketClientService.on(GameEvents.ShowResults, () => {
-                this.hasGameEnded = true;
-            });
-        }
-    }
-
-    getQuestion(index: number) {
-        if (this.quiz && index < this.quiz.questions.length) {
-            this.question = this.quiz.questions[index];
-            this.chosenChoices = new Array(this.question.choices.length).fill(false);
-            this.question.choices.forEach((choice, buttonIndex) => {
-                this.setButtonToInitState(buttonIndex);
-            });
-        }
-    }
-
     toggleChoice(index: number) {
         const isIndexInbound = index >= 0 && index < this.chosenChoices.length;
         if (!isNaN(index) && isIndexInbound) {
@@ -160,11 +120,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         }
     }
 
-    setSubmitButtonToDisabled(isDisabled: boolean, backgroundColor: { backgroundColor: string }) {
-        this.isSubmitDisabled = isDisabled;
-        this.submitButtonStyle = backgroundColor;
-    }
-
     setSubmitButtonStateOnChoices() {
         if (this.chosenChoices.some((choice) => choice === true)) {
             this.isSubmitDisabled = false;
@@ -173,20 +128,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             this.isSubmitDisabled = true;
             this.submitButtonStyle = { backgroundColor: 'grey' };
         }
-    }
-
-    setButtonToInitState(index: number) {
-        this.choiceButtonStyle[index] = { backgroundColor: '' };
-        this.isChoiceButtonDisabled = false;
-        this.submitButtonStyle = { backgroundColor: '' };
-        this.doesDisplayPoints = false;
-    }
-
-    setButtonStateOnSubmit(index: number) {
-        this.choiceButtonStyle[index] = {
-            backgroundColor: this.question.choices[index].isCorrect ? 'rgb(97, 207, 72)' : 'red',
-        };
-        this.isChoiceButtonDisabled = true;
     }
 
     submitAnswerOnClick() {
@@ -207,7 +148,64 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         }
     }
 
-    submitAnswerOnFinishedTimer() {
+    private subscribeToTimer() {
+        if (this.isTestGame) {
+            this.timerSubscription = this.timeService.getTime().subscribe((time: number) => {
+                this.detectEndOfQuestion(time);
+            });
+        } else {
+            this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
+                this.detectEndOfQuestion(time);
+            });
+
+            this.socketClientService.on(TimeEvents.TimerInterrupted, () => {
+                this.detectEndOfQuestion(0);
+            });
+        }
+    }
+
+    private detectEndGame() {
+        if (this.isTestGame) {
+            this.gameServiceSubscription = this.gameService.hasGameEndedObservable.subscribe((hasEnded: boolean) => {
+                this.hasGameEnded = hasEnded;
+            });
+        } else {
+            this.socketClientService.on(GameEvents.ShowResults, () => {
+                this.hasGameEnded = true;
+            });
+        }
+    }
+
+    private getQuestion(index: number) {
+        if (this.quiz && index < this.quiz.questions.length) {
+            this.question = this.quiz.questions[index];
+            this.chosenChoices = new Array(this.question.choices.length).fill(false);
+            this.question.choices.forEach((choice, buttonIndex) => {
+                this.setButtonToInitState(buttonIndex);
+            });
+        }
+    }
+
+    private setSubmitButtonToDisabled(isDisabled: boolean, backgroundColor: { backgroundColor: string }) {
+        this.isSubmitDisabled = isDisabled;
+        this.submitButtonStyle = backgroundColor;
+    }
+
+    private setButtonToInitState(index: number) {
+        this.choiceButtonStyle[index] = { backgroundColor: '' };
+        this.isChoiceButtonDisabled = false;
+        this.submitButtonStyle = { backgroundColor: '' };
+        this.doesDisplayPoints = false;
+    }
+
+    private setButtonStateOnSubmit(index: number) {
+        this.choiceButtonStyle[index] = {
+            backgroundColor: this.question.choices[index].isCorrect ? 'rgb(97, 207, 72)' : 'red',
+        };
+        this.isChoiceButtonDisabled = true;
+    }
+
+    private submitAnswerOnFinishedTimer() {
         this.setSubmitButtonToDisabled(true, { backgroundColor: 'grey' });
         this.socketClientService.send(GameEvents.SubmitQuestionOnFinishedTimer, this.roomId);
         this.hasSentAnswer = true;
@@ -219,26 +217,26 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         }
     }
 
-    isAnswerGood() {
+    private isAnswerGood() {
         const isAnswerGood = this.chosenChoices?.every((answer, index) => answer === this.question.choices[index].isCorrect);
         return isAnswerGood;
     }
 
-    displayCorrectAnswer() {
+    private displayCorrectAnswer() {
         this.question.choices.forEach((choice, index) => {
             this.setButtonStateOnSubmit(index);
         });
         this.doesDisplayPoints = true;
     }
 
-    giveBonus() {
-        const bonus = this.isTestGame ? BONUS_120_PERCENT : BONUS_20_PERCENT;
-        this.pointsToDisplay = this.question.points * BONUS_120_PERCENT;
+    private giveBonus() {
+        const bonus = this.isTestGame ? Constants.BONUS_120_PERCENT : Constants.BONUS_20_PERCENT;
+        this.pointsToDisplay = this.question.points * Constants.BONUS_120_PERCENT;
         this.points = this.question.points * bonus;
         this.bonusMessage = '(20% bonus Woohoo!)';
     }
 
-    givePoints() {
+    private givePoints() {
         if (this.isTestGame) {
             if (this.isAnswerGood()) {
                 this.giveBonus();
@@ -264,7 +262,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.showResult();
     }
 
-    showResult() {
+    private showResult() {
         this.setSubmitButtonToDisabled(true, { backgroundColor: 'grey' });
         this.displayCorrectAnswer();
     }

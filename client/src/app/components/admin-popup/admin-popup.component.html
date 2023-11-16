@@ -1,15 +1,13 @@
 <div class="container">
     <mat-dialog-content>Veuillez entrer le mot de passe pour accéder à la page d'administration.</mat-dialog-content>
-    
-    <mat-dialog-content *ngIf="showErrorMessage" class="error">
-        Mot de passe incorrect. Veuillez réessayer.
-    </mat-dialog-content>
+
+    <mat-dialog-content *ngIf="canShowErrorMessage" class="error"> Mot de passe incorrect. Veuillez réessayer. </mat-dialog-content>
 
     <mat-dialog-actions class="password-container">
         <input matInput [type]="passwordInputType" [(ngModel)]="givenPassword" />
         <div>
             <label for="show-hide">Afficher</label>
-            <mat-checkbox id="show-hide" (click)="togglePasswordVisibility()" color="primary"/>
+            <mat-checkbox id="show-hide" (click)="togglePasswordVisibility()" color="primary" />
         </div>
     </mat-dialog-actions>
 
