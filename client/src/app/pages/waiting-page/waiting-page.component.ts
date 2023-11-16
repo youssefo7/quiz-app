@@ -42,20 +42,6 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
         this.handleNavigation();
     }
 
-    handleNavigation() {
-        const currentUrl = this.router.url;
-        const gameUrl = `/game/${this.route.snapshot.paramMap.get('quizId')}/room/${this.roomId}`;
-        if (this.isHost) {
-            if (currentUrl !== gameUrl + '/host') {
-                this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: true });
-            }
-        } else {
-            if (currentUrl !== gameUrl) {
-                this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
-            }
-        }
-    }
-
     async ngOnInit() {
         if (!this.socketClientService.socketExists()) {
             if (this.isHost) {
@@ -79,7 +65,29 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
         this.getQuizTitle();
     }
 
-    listenToSocketEvents() {
+    quitPopUp() {
+        if (!this.isHost) {
+            this.playerQuitPopup();
+        } else {
+            this.hostQuitPopup();
+        }
+    }
+
+    private handleNavigation() {
+        const currentUrl = this.router.url;
+        const gameUrl = `/game/${this.route.snapshot.paramMap.get('quizId')}/room/${this.roomId}`;
+        if (this.isHost) {
+            if (currentUrl !== gameUrl + '/host') {
+                this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: true });
+            }
+        } else {
+            if (currentUrl !== gameUrl) {
+                this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
+            }
+        }
+    }
+
+    private listenToSocketEvents() {
         this.socketClientService.on(GameEvents.PlayerAbandonedGame, (name: string) => {
             this.removePlayer(name);
         });
@@ -87,14 +95,6 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
         this.socketClientService.on(GameEvents.GameAborted, () => {
             this.gameEndsPopup();
         });
-    }
-
-    quitPopUp() {
-        if (!this.isHost) {
-            this.playerQuitPopup();
-        } else {
-            this.hostQuitPopup();
-        }
     }
 
     private async getQuizTitle() {

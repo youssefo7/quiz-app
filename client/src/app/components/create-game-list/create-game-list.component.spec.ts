@@ -1,3 +1,5 @@
+// any est nécessaire pour espionner les méthodes privées
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -111,7 +113,7 @@ describe('CreateGameListComponent', () => {
 
     it('should not display a message if 1 or more games are available', async () => {
         communicationServiceSpy.getQuizzes.and.returnValue(of(visibleQuizMock));
-        await component.getVisibleQuizListFromServer();
+        await component['getVisibleQuizListFromServer']();
         fixture.detectChanges();
 
         const paragraphElement = fixture.nativeElement.querySelector('p');
@@ -122,7 +124,7 @@ describe('CreateGameListComponent', () => {
 
     it('should show visible games', () => {
         communicationServiceSpy.getQuizzes.and.returnValue(of(hiddenQuizMock));
-        component.getVisibleQuizListFromServer();
+        component['getVisibleQuizListFromServer']();
 
         expect(component.visibleQuizList).toEqual([]);
     });
@@ -137,7 +139,7 @@ describe('CreateGameListComponent', () => {
 
     it('should show toggle button when the quiz is visible', async () => {
         communicationServiceSpy.getQuizzes.and.returnValue(of(visibleQuizMock));
-        await component.getVisibleQuizListFromServer();
+        await component['getVisibleQuizListFromServer']();
         fixture.detectChanges();
 
         const toggleButton = fixture.nativeElement.querySelector('.toggleButton');
@@ -158,7 +160,7 @@ describe('CreateGameListComponent', () => {
 
     it('should toggle the quiz details when the toggle button is clicked', async () => {
         communicationServiceSpy.getQuizzes.and.returnValue(of(visibleQuizMock));
-        await component.getVisibleQuizListFromServer();
+        await component['getVisibleQuizListFromServer']();
         fixture.detectChanges();
 
         const toggleButton = fixture.nativeElement.querySelector('.toggleButton');
@@ -197,7 +199,7 @@ describe('CreateGameListComponent', () => {
     it('should call openConnectionPopUp if socketExists is false', async () => {
         const mockSocketId = 'socketId';
         const mockRoomId = '1234';
-        const openConnectionPopUpSpy = spyOn(component, 'openConnectionPopUp');
+        const openConnectionPopUpSpy = spyOn<any>(component, 'openConnectionPopUp');
 
         communicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
         communicationServiceSpy.checkQuizVisibility.and.returnValue(of(true));
@@ -229,7 +231,7 @@ describe('CreateGameListComponent', () => {
     it('should display popup if quiz is hidden', async () => {
         communicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
         communicationServiceSpy.checkQuizVisibility.and.returnValue(of(false));
-        const hiddenPopUpSpy = spyOn(component, 'openHiddenPopUp').and.callThrough();
+        const hiddenPopUpSpy = spyOn<any>(component, 'openHiddenPopUp').and.callThrough();
         await component.checkAndCreateRoom(hiddenQuizMock[0]);
 
         expect(communicationServiceSpy.checkQuizAvailability).toHaveBeenCalled();
@@ -261,7 +263,7 @@ describe('CreateGameListComponent', () => {
         const popUpInstanceSpy = jasmine.createSpyObj('PopupMessageComponent', ['']);
         mockDialogRef.componentInstance = popUpInstanceSpy;
         mockDialog.open.and.returnValue(mockDialogRef);
-        component.openHiddenPopUp();
+        component['openHiddenPopUp']();
 
         expect(mockDialog.open).toHaveBeenCalled();
     });
@@ -286,7 +288,7 @@ describe('CreateGameListComponent', () => {
             hasCancelButton: false,
         };
 
-        component.openHiddenPopUp();
+        component['openHiddenPopUp']();
         const config = mockDialogRef.componentInstance.config;
 
         expect(config.message).toEqual(mockConfig.message);
@@ -300,7 +302,7 @@ describe('CreateGameListComponent', () => {
             hasCancelButton: false,
         };
 
-        component.openConnectionPopUp();
+        component['openConnectionPopUp']();
         const config = mockDialogRef.componentInstance.config;
 
         expect(config.message).toEqual(mockConfig.message);

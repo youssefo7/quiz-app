@@ -21,6 +21,7 @@ export class GamePlayersListComponent implements OnInit {
     playerResults: Results[];
     isResultsRoute: boolean;
     private quizId: string;
+
     // Raison: Les quatres injections sont nécessaires pour ma composante
     // eslint-disable-next-line max-params
     constructor(
@@ -64,7 +65,7 @@ export class GamePlayersListComponent implements OnInit {
         }
     }
 
-    listenToSocketEvents() {
+    private listenToSocketEvents() {
         this.socketService.on(GameEvents.PlayerAbandonedGame, (playerName: string) => {
             this.updatePlayerStatus(playerName);
         });

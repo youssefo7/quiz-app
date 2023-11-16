@@ -1,3 +1,5 @@
+// any est nécessaire pour espionner les méthodes privées
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpStatusCode } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
@@ -143,7 +145,7 @@ describe('QuizListComponent', () => {
     it('should call delete quiz service with the correct quiz', () => {
         spyOn(communicationService, 'deleteQuiz').and.returnValue(of(propQuiz.id));
 
-        component.deleteQuiz(propQuiz);
+        component['deleteQuiz'](propQuiz);
 
         expect(communicationService.deleteQuiz).toHaveBeenCalledWith(propQuiz.id);
     });
@@ -194,7 +196,7 @@ describe('QuizListComponent', () => {
             hasCancelButton: false,
         };
 
-        component.openPopupWarning(mockConfig.message);
+        component['openPopupWarning'](mockConfig.message);
         const config = mockDialogRef.componentInstance.config;
 
         expect(config.message).toEqual(mockConfig.message);
@@ -205,11 +207,11 @@ describe('QuizListComponent', () => {
     });
 
     it('should popup a warning message when the user tries to delete a quiz that is already deleted', () => {
-        spyOn(component, 'openPopupWarning');
+        spyOn<any>(component, 'openPopupWarning');
         spyOn(communicationService, 'deleteQuiz').and.returnValue(throwError(() => HttpStatusCode.NotFound));
-        component.deleteQuiz(propQuiz);
+        component['deleteQuiz'](propQuiz);
 
-        expect(component.openPopupWarning).toHaveBeenCalled();
+        expect(component['openPopupWarning']).toHaveBeenCalled();
     });
 
     it('should navigate to edit page when editing a quiz that is available', () => {
@@ -225,9 +227,9 @@ describe('QuizListComponent', () => {
         };
 
         spyOn(communicationService, 'checkQuizAvailability').and.returnValue(of(false));
-        spyOn(component, 'openPopupWarning').and.callThrough();
+        spyOn<any>(component, 'openPopupWarning').and.callThrough();
         component.editQuiz(propQuiz);
-        expect(component.openPopupWarning).toHaveBeenCalledWith(mockConfig.message);
+        expect(component['openPopupWarning']).toHaveBeenCalledWith(mockConfig.message);
         const config = mockDialogRef.componentInstance.config;
         expect(config.message).toEqual(mockConfig.message);
     });

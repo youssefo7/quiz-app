@@ -113,7 +113,7 @@ describe('GamePlayersListComponent', () => {
     it('should update player status when abandonedGame event is received', () => {
         const updateStatusSpy = spyOn<any>(component, 'updatePlayerStatus').and.callThrough();
 
-        component.listenToSocketEvents();
+        component['listenToSocketEvents']();
         socketHelper.peerSideEmit(GameEvents.PlayerAbandonedGame, response.name);
 
         const abandonedPlayer = component.playerResults.find((player) => player.name === response.name) as Results;
@@ -129,7 +129,7 @@ describe('GamePlayersListComponent', () => {
         const previousScore = component.playerResults[playerIndex].points;
         const updateScoreSpy = spyOn<any>(component, 'updatePlayerScore').and.callThrough();
 
-        component.listenToSocketEvents();
+        component['listenToSocketEvents']();
         socketHelper.peerSideEmit(GameEvents.AddPointsToPlayer, response);
 
         expect(updateScoreSpy).toHaveBeenCalled();
@@ -138,7 +138,7 @@ describe('GamePlayersListComponent', () => {
 
     it('should call updatePlayerBonusCount when BonusUpdate event is received', () => {
         const updatePlayerBonusSpy = spyOn<any>(component, 'updatePlayerBonusCount').and.callThrough();
-        component.listenToSocketEvents();
+        component['listenToSocketEvents']();
         socketHelper.peerSideEmit(GameEvents.BonusUpdate, response.name);
         expect(updatePlayerBonusSpy).toHaveBeenCalled();
     });

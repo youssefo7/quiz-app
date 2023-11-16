@@ -92,7 +92,7 @@ describe('JoinGamePopupComponent', () => {
 
     it('should return false and set error message if username is empty', async () => {
         component.givenUsername = '';
-        const isValid = await component.isUsernameValid();
+        const isValid = await component['isUsernameValid']();
         expect(isValid).toBeFalse();
         expect(component.nameErrorMessage).toEqual('Veuillez entrer un nom d’utilisateur valide.');
     });
@@ -103,7 +103,7 @@ describe('JoinGamePopupComponent', () => {
         component.givenRoomCode = roomIdMock;
         component.givenUsername = testUsername;
 
-        const isValid = await component.isUsernameValid();
+        const isValid = await component['isUsernameValid']();
         expect(isValid).toBeFalse();
         expect(mockRoomCommunicationService.processUsername).toHaveBeenCalledWith(roomIdMock, {
             name: testUsername,
@@ -117,7 +117,7 @@ describe('JoinGamePopupComponent', () => {
         component.givenRoomCode = roomIdMock;
         component.givenUsername = testUsername;
 
-        const isValid = await component.isUsernameValid();
+        const isValid = await component['isUsernameValid']();
         expect(isValid).toBeTrue();
         expect(mockRoomCommunicationService.processUsername).toHaveBeenCalledWith(roomIdMock, {
             name: testUsername,

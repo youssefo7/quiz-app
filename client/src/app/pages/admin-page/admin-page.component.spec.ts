@@ -54,7 +54,7 @@ describe('AdminPageComponent', () => {
     it('should remove isRefreshed and canAccessAdmin from session storage on NavigationEnd event if URL is not /admin', () => {
         spyOn(sessionStorage, 'removeItem');
         router.events = of(new NavigationEnd(0, '/notAdmin', '/notAdmin_after_redirect'));
-        component.handleAdminPageExit();
+        component['handleAdminPageExit']();
         expect(sessionStorage.removeItem).toHaveBeenCalledWith('isRefreshed');
         expect(sessionStorage.removeItem).toHaveBeenCalledWith('canAccessAdmin');
         expect(adminGuardServiceMock.canAccessAdmin).toBeFalse();
@@ -63,7 +63,7 @@ describe('AdminPageComponent', () => {
     it('should not remove isRefreshed or canAccessAdmin from session storage on NavigationEnd event if URL is /admin', () => {
         spyOn(sessionStorage, 'removeItem');
         router.events = of(new NavigationEnd(0, '/admin', '/url_after_redirect'));
-        component.handleAdminPageExit();
+        component['handleAdminPageExit']();
         expect(sessionStorage.removeItem).not.toHaveBeenCalledWith('isRefreshed');
         expect(sessionStorage.removeItem).not.toHaveBeenCalledWith('canAccessAdmin');
     });

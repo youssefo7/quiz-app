@@ -3,11 +3,10 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { Constants } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { JoinEvents } from '@common/join.events';
 import { firstValueFrom } from 'rxjs';
-
-const CODE_LENGTH = 4;
 
 enum RoomState {
     OK = 'OK',
@@ -55,27 +54,8 @@ export class JoinGamePopupComponent {
         }
     }
 
-    async isUsernameValid(): Promise<boolean> {
-        let isNameValid = false;
-        const trimmedUsername = this.givenUsername.trim();
-        if (trimmedUsername.length === 0) {
-            this.nameErrorMessage = 'Veuillez entrer un nom d’utilisateur valide.';
-        } else {
-            isNameValid = await firstValueFrom(
-                this.roomCommunicationService.processUsername(this.givenRoomCode, {
-                    name: trimmedUsername,
-                    socketId: this.socketClientService.socket.id,
-                }),
-            );
-            if (!isNameValid) {
-                this.nameErrorMessage = `Le nom ${this.givenUsername} n'est pas autorisé ou déjà pris!`;
-            }
-        }
-        return isNameValid;
-    }
-
     async checkCode() {
-        if (this.givenRoomCode.length === CODE_LENGTH) {
+        if (this.givenRoomCode.length === Constants.ROOM_CODE_LENGTH) {
             const joinRoomResponse = await firstValueFrom(
                 this.roomCommunicationService.joinRoom(this.givenRoomCode, { socketId: this.socketClientService.socket.id }),
             );
@@ -143,5 +123,24 @@ export class JoinGamePopupComponent {
         if (!allowedInput) {
             event.preventDefault();
         }
+    }
+
+    private async isUsernameValid(): Promise<boolean> {
+        let isNameValid = false;
+        const trimmedUsername = this.givenUsername.trim();
+        if (trimmedUsername.length === 0) {
+            this.nameErrorMessage = 'Veuillez entrer un nom d’utilisateur valide.';
+        } else {
+            isNameValid = await firstValueFrom(
+                this.roomCommunicationService.processUsername(this.givenRoomCode, {
+                    name: trimmedUsername,
+                    socketId: this.socketClientService.socket.id,
+                }),
+            );
+            if (!isNameValid) {
+                this.nameErrorMessage = `Le nom ${this.givenUsername} n'est pas autorisé ou déjà pris!`;
+            }
+        }
+        return isNameValid;
     }
 }

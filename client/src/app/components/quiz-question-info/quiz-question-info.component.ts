@@ -33,21 +33,8 @@ export class QuizQuestionInfoComponent implements OnInit {
         return this.questionInfoForm.get('choices') as FormArray;
     }
 
-    ngOnInit(): void {
+    ngOnInit() {
         this.initializeForm();
-    }
-
-    initializeForm() {
-        this.questionInfoForm = this.fb.group({
-            type: ['', Validators.required],
-            text: ['', Validators.required],
-            points: [this.defaultPoints, Validators.required],
-            choices: this.fb.array([], [this.questionChoicesValidator()]),
-        });
-
-        for (let i = 0; i < Constants.MIN_CHOICES; i++) {
-            this.addChoice();
-        }
     }
 
     loadQuestionInformation(question: Question, index: number) {
@@ -105,31 +92,6 @@ export class QuizQuestionInfoComponent implements OnInit {
     onSubmit() {
         this.manageQuestion();
         this.resetForm();
-    }
-
-    manageQuestion() {
-        const questionType: string = this.questionInfoForm.get('type')?.value;
-        const questionText: string = this.questionInfoForm.get('text')?.value;
-        const questionPoints: number = this.questionInfoForm.get('points')?.value;
-
-        const choicesArray: Choice[] = this.choices.controls.map((control: AbstractControl) => {
-            const text: string = control.get('text')?.value;
-            const isCorrect: boolean = control.get('isCorrect')?.value;
-            return { text, isCorrect };
-        });
-
-        const newQuestion: Question = {
-            type: questionType,
-            text: questionText,
-            points: questionPoints,
-            choices: choicesArray,
-        };
-
-        if (this.quizManagerService.isModifiedQuestion) {
-            this.quizManagerService.modifyQuestion(newQuestion, this.quizManagerService.modifiedIndex, this.newQuiz);
-        } else {
-            this.quizManagerService.addNewQuestion(newQuestion, this.newQuiz);
-        }
     }
 
     resetForm() {
@@ -204,6 +166,44 @@ export class QuizQuestionInfoComponent implements OnInit {
             this.isChoicesValid = false;
         } else {
             this.isChoicesValid = true;
+        }
+    }
+
+    private initializeForm() {
+        this.questionInfoForm = this.fb.group({
+            type: ['', Validators.required],
+            text: ['', Validators.required],
+            points: [this.defaultPoints, Validators.required],
+            choices: this.fb.array([], [this.questionChoicesValidator()]),
+        });
+
+        for (let i = 0; i < Constants.MIN_CHOICES; i++) {
+            this.addChoice();
+        }
+    }
+
+    private manageQuestion() {
+        const questionType: string = this.questionInfoForm.get('type')?.value;
+        const questionText: string = this.questionInfoForm.get('text')?.value;
+        const questionPoints: number = this.questionInfoForm.get('points')?.value;
+
+        const choicesArray: Choice[] = this.choices.controls.map((control: AbstractControl) => {
+            const text: string = control.get('text')?.value;
+            const isCorrect: boolean = control.get('isCorrect')?.value;
+            return { text, isCorrect };
+        });
+
+        const newQuestion: Question = {
+            type: questionType,
+            text: questionText,
+            points: questionPoints,
+            choices: choicesArray,
+        };
+
+        if (this.quizManagerService.isModifiedQuestion) {
+            this.quizManagerService.modifyQuestion(newQuestion, this.quizManagerService.modifiedIndex, this.newQuiz);
+        } else {
+            this.quizManagerService.addNewQuestion(newQuestion, this.newQuiz);
         }
     }
 }

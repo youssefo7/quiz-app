@@ -25,7 +25,7 @@ describe('ProfileComponent in test game route', () => {
     });
 
     it('should display "Testeur" when the route contains "test"', () => {
-        expect(component.getProfileName()).toEqual('Testeur');
+        expect(component['getProfileName']()).toEqual('Testeur');
         component.ngOnInit();
         expect(component.name).toEqual('Testeur');
     });
@@ -60,7 +60,7 @@ describe('ProfileComponent in regular game route', () => {
 
     it('should display the player name when the route doesn\'\t contain "test"', () => {
         component.playerName = 'The Goat';
-        expect(component.getProfileName()).toBeTruthy();
+        expect(component['getProfileName']()).toBeTruthy();
         component.ngOnInit();
         expect(component.name).toEqual('The Goat');
     });
@@ -95,7 +95,7 @@ describe('ProfileComponent in host game route', () => {
 
     it('should display "Organisateur" when the user is the host', () => {
         component.isHost = true;
-        expect(component.getProfileName()).toEqual('Organisateur');
+        expect(component['getProfileName']()).toEqual('Organisateur');
         component.ngOnInit();
         expect(component.name).toEqual('Organisateur');
     });

@@ -4,11 +4,10 @@ import { Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
+import { Constants } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { TimeEvents } from '@common/time.events';
 import { Subscription } from 'rxjs';
-
-const ONE_SECOND_INTERVAL = 1000;
 
 @Component({
     selector: 'app-countdown',
@@ -133,7 +132,11 @@ export class CountdownComponent implements OnInit, OnDestroy {
         if (this.isTestGame) {
             await this.timeService.startTimer(transitionTime);
         } else {
-            this.socketClientService.send(TimeEvents.StartTimer, { initialTime: transitionTime, roomId: this.roomId, tickRate: ONE_SECOND_INTERVAL });
+            this.socketClientService.send(TimeEvents.StartTimer, {
+                initialTime: transitionTime,
+                roomId: this.roomId,
+                tickRate: Constants.ONE_SECOND_INTERVAL,
+            });
         }
     }
 
@@ -148,7 +151,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
                 this.socketClientService.send(TimeEvents.StartTimer, {
                     initialTime: this.quiz.duration,
                     roomId: this.roomId,
-                    tickRate: ONE_SECOND_INTERVAL,
+                    tickRate: Constants.ONE_SECOND_INTERVAL,
                 });
             }
         }

@@ -11,7 +11,7 @@ export class QuizGuardService {
         private adminGuardService: AdminGuardService,
     ) {}
 
-    canActivate(): boolean {
+    canActivate() {
         const navigation = this.router.getCurrentNavigation();
         let prevUrl: string | null = null;
 

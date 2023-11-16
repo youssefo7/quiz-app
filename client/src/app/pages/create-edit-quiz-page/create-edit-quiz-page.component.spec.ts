@@ -1,3 +1,5 @@
+// any nécessaire pour espionner les méthodes privés
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -91,10 +93,10 @@ describe('CreateEditQuizPageComponent', () => {
     });
 
     it('should load quiz when the page loads', () => {
-        spyOn(component, 'loadQuiz');
+        spyOn<any>(component, 'loadQuiz');
         component.ngOnInit();
 
-        expect(component.loadQuiz).toHaveBeenCalled();
+        expect(component['loadQuiz']).toHaveBeenCalled();
     });
 
     it('should modify question', () => {
@@ -121,11 +123,11 @@ describe('CreateEditQuizPageComponent', () => {
     it('should change isGeneralInfoFormValid correctly', () => {
         let shouldBlockSubmit = true;
         component.setIsGeneralInfoFormValid(shouldBlockSubmit);
-        expect(component.isGeneralInfoFormValid).toEqual(!shouldBlockSubmit);
+        expect(component['isGeneralInfoFormValid']).toEqual(!shouldBlockSubmit);
 
         shouldBlockSubmit = false;
         component.setIsGeneralInfoFormValid(shouldBlockSubmit);
-        expect(component.isGeneralInfoFormValid).toEqual(!shouldBlockSubmit);
+        expect(component['isGeneralInfoFormValid']).toEqual(!shouldBlockSubmit);
     });
 
     it('should delete a question', () => {
@@ -158,20 +160,20 @@ describe('CreateEditQuizPageComponent', () => {
     });
 
     it('should load the correct quiz', fakeAsync(() => {
-        component.loadQuiz();
+        component['loadQuiz']();
         tick();
         expect(quizManagerServiceSpy.fetchQuiz).toHaveBeenCalledWith(mockQuiz.id);
     }));
 
     it("should assign the page title to be 'Créer un jeu questionnaire' if newQuiz is undefined", fakeAsync(() => {
-        component.loadQuiz();
+        component['loadQuiz']();
         tick();
         expect(component.pageTitle).toEqual('Créer un jeu questionnaire');
     }));
 
     it("should assign the page title to be 'Modifier un jeu questionnaire' if newQuiz is defined", fakeAsync(() => {
         quizManagerServiceSpy.fetchQuiz.and.returnValue(firstValueFrom(of(mockQuiz)));
-        component.loadQuiz();
+        component['loadQuiz']();
         tick();
         expect(component.pageTitle).toEqual('Modifier un jeu questionnaire');
     }));
@@ -203,13 +205,13 @@ describe('CreateEditQuizPageComponent', () => {
 
     it('should return false if newQuiz has no questions', () => {
         component.newQuiz = { ...mockQuiz, questions: [] };
-        component.isGeneralInfoFormValid = true;
+        component['isGeneralInfoFormValid'] = true;
         expect(component.isQuizFormValid()).toBeFalse();
     });
 
     it('should return true if all conditions are met for a modified quiz', () => {
         component.newQuiz = mockQuiz;
-        component.isGeneralInfoFormValid = true;
+        component['isGeneralInfoFormValid'] = true;
         quizManagerServiceSpy.hasQuizBeenModified.and.returnValue(true);
 
         component.isQuizFormValid();
@@ -219,7 +221,7 @@ describe('CreateEditQuizPageComponent', () => {
 
     it('should not check modifications for a new quiz', () => {
         component.newQuiz = { ...mockQuiz, id: '' };
-        component.isGeneralInfoFormValid = true;
+        component['isGeneralInfoFormValid'] = true;
         expect(quizManagerServiceSpy.hasQuizBeenModified).not.toHaveBeenCalled();
         expect(component.isQuizFormValid()).toBeTrue();
     });
@@ -236,7 +238,7 @@ describe('CreateEditQuizPageComponent', () => {
 
         config.okButtonFunction?.();
 
-        expect(component.canExitCreateEditQuizPage).toBeTrue();
+        expect(component['canExitCreateEditQuizPage']).toBeTrue();
     }));
 
     it('should show popup when user is trying to exit the page', () => {

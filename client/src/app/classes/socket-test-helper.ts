@@ -7,7 +7,7 @@
 type CallbackSignature = (params: any) => {};
 
 export class SocketTestHelper {
-    on(event: string, callback: CallbackSignature): void {
+    on(event: string, callback: CallbackSignature) {
         if (!this.callbacks.has(event)) {
             this.callbacks.set(event, []);
         }
@@ -16,12 +16,12 @@ export class SocketTestHelper {
         this.callbacks.get(event)!.push(callback);
     }
 
-    disconnect(): void {
+    disconnect() {
         return;
     }
 
     // eslint-disable-next-line no-unused-vars
-    emit(event: string, ...params: any): void {
+    emit(event: string, ...params: any) {
         return;
     }
 

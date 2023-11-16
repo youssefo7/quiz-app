@@ -22,11 +22,11 @@ export class CreateEditQuizPageComponent implements OnInit {
     quizId: string;
     pageTitle: string;
     resetQuiz: Quiz;
-    isGeneralInfoFormValid: boolean;
-    canExitCreateEditQuizPage: boolean;
     isQuizSaved: boolean;
+    private isGeneralInfoFormValid: boolean;
+    private canExitCreateEditQuizPage: boolean;
 
-    // 4 paramètres sont nécessaires pour le constructeur
+    // Paramètres sont nécessaires pour le constructeur
     // eslint-disable-next-line max-params
     constructor(
         private quizManagerService: QuizManagerService,
@@ -42,13 +42,6 @@ export class CreateEditQuizPageComponent implements OnInit {
     ngOnInit() {
         this.loadQuiz();
         this.adminGuardService.grantAccess();
-    }
-
-    async loadQuiz(): Promise<void> {
-        const id = this.route.snapshot.paramMap.get('id');
-        const modifiedQuiz = await this.quizManagerService.fetchQuiz(id);
-        this.newQuiz = modifiedQuiz ?? JSON.parse(JSON.stringify(blankQuiz));
-        this.pageTitle = this.newQuiz.id ? 'Modifier un jeu questionnaire' : 'Créer un jeu questionnaire';
     }
 
     modifyQuestion(selectedQuestion: Question, selectedIndex: number) {
@@ -120,6 +113,13 @@ export class CreateEditQuizPageComponent implements OnInit {
             this.isQuizSaved = true;
             this.quizManagerService.saveQuiz(this.newQuiz);
         }
+    }
+
+    private async loadQuiz(): Promise<void> {
+        const id = this.route.snapshot.paramMap.get('id');
+        const modifiedQuiz = await this.quizManagerService.fetchQuiz(id);
+        this.newQuiz = modifiedQuiz ?? JSON.parse(JSON.stringify(blankQuiz));
+        this.pageTitle = this.newQuiz.id ? 'Modifier un jeu questionnaire' : 'Créer un jeu questionnaire';
     }
 }
 

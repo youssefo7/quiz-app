@@ -1,4 +1,4 @@
-// any est utilisé pour les tests, car les fonctions sont privées et ne peuvent pas être testées autrement
+// any est nécessaire pour espionner les méthodes privées
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
@@ -94,7 +94,7 @@ describe('WaitingPageComponent', () => {
     it('should listen to socket events and fetch players if socket exists', fakeAsync(() => {
         const quiz = {} as Quiz;
         clientSocketServiceMock.socketExists.and.returnValue(true);
-        const listenToSocketEventsSpy = spyOn(component, 'listenToSocketEvents');
+        const listenToSocketEventsSpy = spyOn<any>(component, 'listenToSocketEvents');
         component.roomId = 'someRoomId';
         mockRoomCommunicationService.getRoomPlayers.and.returnValue(of(component['players']));
         mockRoomCommunicationService.getRoomQuiz.and.returnValue(of(quiz));
