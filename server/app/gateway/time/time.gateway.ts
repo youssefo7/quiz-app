@@ -65,5 +65,6 @@ export class TimeGateway {
     handlePanicTimer(socket: Socket, data: { roomId: string; currentTime: number }) {
         this.handleStopTimer(socket, data.roomId);
         this.handleStartTimer(socket, { initialTime: data.currentTime, tickRate: Constants.QUARTER_SECOND_INTERVAL, roomId: data.roomId });
+        this.server.to(data.roomId).emit(TimeEvents.PanicMode);
     }
 }

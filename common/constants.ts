@@ -14,9 +14,12 @@ export const Constants = {
     BONUS_20_PERCENT: 0.2,
     BONUS_120_PERCENT: 1.2,
     QUARTER_SECOND_INTERVAL: 250,
-    MIN_TIME_TO_PANIC: 10,
-} as const;
+    MIN_TIME_TO_PANIC_QCM: 10,
+    MIN_TIME_TO_PANIC_QRL: 20,
+    AUDIO: '../assets/audio/panic-mode.mp3',
+  } as const;
 
+  
 export const enum QTypes {
     QRL = 'QRL',
     QCM = 'QCM',
