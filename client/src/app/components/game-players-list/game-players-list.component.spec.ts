@@ -1,7 +1,8 @@
 // any est necessaire pour pourvoir test les méthodes privées
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { ActivatedRoute } from '@angular/router';
+import { MatIcon } from '@angular/material/icon';
+import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { Results } from '@common/player-info';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
@@ -12,8 +13,18 @@ import { Socket } from 'socket.io-client';
 import { GamePlayersListComponent } from './game-players-list.component';
 
 class MockSocketClientService extends SocketClientService {
+    private mockSocketExists = true;
+
     override connect() {
         // vide
+    }
+
+    override socketExists() {
+        return this.mockSocketExists;
+    }
+
+    setSocketExists(value: boolean) {
+        this.mockSocketExists = value;
     }
 }
 
@@ -25,10 +36,10 @@ describe('GamePlayersListComponent', () => {
     let socketHelper: SocketTestHelper;
 
     const playersListMock: Results[] = [
-        { name: 'Marc', hasAbandoned: false, hasConfirmedAnswer: false, hasClickedOnAnswerField: false, points: 10, bonusCount: 0 },
-        { name: 'Liam', hasAbandoned: false, hasConfirmedAnswer: false, hasClickedOnAnswerField: false, points: 20, bonusCount: 0 },
-        { name: 'Adam', hasAbandoned: false, hasConfirmedAnswer: false, hasClickedOnAnswerField: false, points: 20, bonusCount: 0 },
-        { name: 'Zane', hasAbandoned: false, hasConfirmedAnswer: false, hasClickedOnAnswerField: false, points: 50, bonusCount: 0 },
+        { name: 'Marc', points: 10, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: false, bonusCount: 0 },
+        { name: 'Liam', points: 20, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: false, bonusCount: 0 },
+        { name: 'Adam', points: 20, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: false, bonusCount: 0 },
+        { name: 'Zane', points: 50, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: false, bonusCount: 0 },
     ];
 
     const roomPlayersNamesMock: string[] = ['Marc', 'Liam', 'Adam', 'Zane'];
@@ -45,7 +56,7 @@ describe('GamePlayersListComponent', () => {
             'sendPlayerResults',
             'createRoom',
         ]);
-        mockSocketClientService = jasmine.createSpyObj('SocketClientService', ['on']);
+        mockSocketClientService = jasmine.createSpyObj('SocketClientService', ['on', 'socketExists']);
     });
 
     beforeEach(waitForAsync(() => {
@@ -54,10 +65,13 @@ describe('GamePlayersListComponent', () => {
         mockSocketClientService.socket = socketHelper as unknown as Socket;
 
         TestBed.configureTestingModule({
-            declarations: [GamePlayersListComponent],
+            declarations: [GamePlayersListComponent, MatIcon],
             providers: [
                 { provide: SocketClientService, useValue: mockSocketClientService },
-                { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'results' }] } } },
+                {
+                    provide: ActivatedRoute,
+                    useValue: { snapshot: { paramMap: convertToParamMap({ quizId: '123', roomId: '456' }), url: [{ path: 'results' }] } },
+                },
                 { provide: RoomCommunicationService, useValue: roomCommunicationServiceMock },
             ],
         }).compileComponents();
@@ -77,7 +91,28 @@ describe('GamePlayersListComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should fetch the player list for a given room', async () => {
+    it('should fetch players list and call listenToSocketEvents() if socket exists', async () => {
+        const fetchPlayersListSpy = spyOn(component, 'fetchPlayersList').and.resolveTo();
+        const listenToSocketEventSpy = spyOn(component, 'listenToSocketEvents');
+
+        await component.ngOnInit();
+
+        expect(fetchPlayersListSpy).toHaveBeenCalled();
+        expect(listenToSocketEventSpy).toHaveBeenCalled();
+    });
+
+    it('should not fetch players list or call listenToSocketEvents() if socket does not exist', async () => {
+        const fetchPlayersListSpy = spyOn(component, 'fetchPlayersList');
+        const listenToSocketEventSpy = spyOn(component, 'listenToSocketEvents');
+        mockSocketClientService.setSocketExists(false);
+
+        await component.ngOnInit();
+
+        expect(fetchPlayersListSpy).not.toHaveBeenCalled();
+        expect(listenToSocketEventSpy).not.toHaveBeenCalled();
+    });
+
+    it('should fetch players list', async () => {
         component.isResultsRoute = false;
         component.roomId = '123';
         roomCommunicationServiceMock.getRoomPlayers.and.returnValue(of(playersListMock.map((player) => player.name)));
@@ -91,6 +126,22 @@ describe('GamePlayersListComponent', () => {
         roomCommunicationServiceMock.getPlayerResults.and.returnValue(of(playersListMock));
         expect(component.playerResults).toEqual(playersListMock);
         expect(roomCommunicationServiceMock.getPlayerResults).toHaveBeenCalled();
+    });
+
+    it('should sort by names in ascending and descending order', () => {
+        // TODO
+    });
+
+    it('should sort by points in ascending and descending order', () => {
+        // TODO
+    });
+
+    it('should sort by state in ascending and descending order', () => {
+        // TODO
+    });
+
+    it('should get player priority', () => {
+        // TODO
     });
 
     it('should update player status when abandonedGame event is received', () => {
@@ -119,10 +170,31 @@ describe('GamePlayersListComponent', () => {
         expect(component.playerResults[playerIndex].points).toBe(previousScore + response.pointsToAdd);
     });
 
-    it('should call updatePlayerBonusCount when BonusUpdate event is received', () => {
+    it('should call updatePlayerBonusCount() when BonusUpdate event is received', () => {
         const updatePlayerBonusSpy = spyOn<any>(component, 'updatePlayerBonusCount').and.callThrough();
         component['listenToSocketEvents']();
         socketHelper.peerSideEmit(GameEvents.BonusUpdate, response.name);
         expect(updatePlayerBonusSpy).toHaveBeenCalled();
+    });
+
+    it('should call updateAnswerConfirmation() when SubmitQuestionOnClick event is received', () => {
+        const updateAnswerConfirmationSpy = spyOn<any>(component, 'updateAnswerConfirmation').and.callThrough();
+        component.listenToSocketEvents();
+        socketHelper.peerSideEmit(GameEvents.SubmitQuestionOnClick);
+        expect(updateAnswerConfirmationSpy).toHaveBeenCalled();
+    });
+
+    it('should call updatePlayerInteraction() when QuestionChoiceSelect event is received', () => {
+        const updatePlayerInteractionSpy = spyOn<any>(component, 'updatePlayerInteraction').and.callThrough();
+        component.listenToSocketEvents();
+        socketHelper.peerSideEmit(GameEvents.QuestionChoiceSelect);
+        expect(updatePlayerInteractionSpy).toHaveBeenCalled();
+    });
+
+    it('should call resetPlayersInfo() when NextQuestion event is received', () => {
+        const resetPlayerInfoSpy = spyOn<any>(component, 'resetPlayersInfo').and.callThrough();
+        component.listenToSocketEvents();
+        socketHelper.peerSideEmit(GameEvents.NextQuestion);
+        expect(resetPlayerInfoSpy).toHaveBeenCalled();
     });
 });
