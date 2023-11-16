@@ -3,6 +3,7 @@ import { GameEvents } from '@common/game.events';
 import { Injectable } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { PlayerGameState, PlayerSelection } from '@common/player-info';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
@@ -17,13 +18,13 @@ export class GameGateway {
     }
 
     @SubscribeMessage(GameEvents.PlayerLeaveGame)
-    handlePlayerLeaveGame(socket: Socket, data: { roomId: string; isInGame: boolean }) {
-        const room = this.roomManager.findRoom(data.roomId);
+    handlePlayerLeaveGame(socket: Socket, playerGameState: PlayerGameState) {
+        const room = this.roomManager.findRoom(playerGameState.roomId);
         if (room) {
             const player = this.roomManager.findPlayer(socket.id, room);
 
-            if (data.isInGame) {
-                this.server.to(data.roomId).emit(GameEvents.PlayerAbandonedGame, player.name);
+            if (playerGameState.isInGame) {
+                this.server.to(playerGameState.roomId).emit(GameEvents.PlayerAbandonedGame, player.name);
             }
             this.roomManager.removePlayer(room, player.socketId);
             if (room.players.length === 0 && room.organizer.socketId === '') {
@@ -35,14 +36,14 @@ export class GameGateway {
     }
 
     @SubscribeMessage(GameEvents.EndGame)
-    async handleEndGame(socket: Socket, data: { roomId: string; gameAborted: boolean }) {
-        const room = this.roomManager.findRoom(data.roomId);
+    async handleEndGame(socket: Socket, playerGameState: PlayerGameState) {
+        const room = this.roomManager.findRoom(playerGameState.roomId);
         if (room) {
-            if (data.gameAborted) {
+            if (playerGameState.gameAborted) {
                 clearInterval(room.timer);
                 socket.to(room.id).emit(GameEvents.GameAborted);
-                this.server.socketsLeave(data.roomId);
-                this.server.in(data.roomId).disconnectSockets(true);
+                this.server.socketsLeave(playerGameState.roomId);
+                this.server.in(playerGameState.roomId).disconnectSockets(true);
                 this.roomManager.deleteRoom(room);
             } else {
                 if (room.players.length > 0) {
@@ -89,13 +90,13 @@ export class GameGateway {
     }
 
     @SubscribeMessage(GameEvents.QuestionChoiceSelect)
-    handleQuestionChoiceSelect(_: Socket, data: { roomId: string; questionChoiceIndex: number }) {
+    handleQuestionChoiceSelect(_: Socket, data: PlayerSelection) {
         const organizer = this.roomManager.findRoom(data.roomId).organizer.socketId;
         this.server.to(organizer).emit(GameEvents.QuestionChoiceSelect, data.questionChoiceIndex);
     }
 
     @SubscribeMessage(GameEvents.QuestionChoiceUnselect)
-    handleQuestionChoiceUnselect(_: Socket, data: { roomId: string; questionChoiceIndex: number }) {
+    handleQuestionChoiceUnselect(_: Socket, data: PlayerSelection) {
         const organizer = this.roomManager.findRoom(data.roomId).organizer.socketId;
         this.server.to(organizer).emit(GameEvents.QuestionChoiceUnselect, data.questionChoiceIndex);
     }
@@ -113,17 +114,17 @@ export class GameGateway {
     }
 
     @SubscribeMessage(GameEvents.AddPointsToPlayer)
-    handleAddPointsToPlayer(socket: Socket, data: { roomId: string; points: number }) {
+    handleAddPointsToPlayer(socket: Socket, playerGameState: PlayerGameState) {
         const minPoints = 0;
         const maxPoints = 100;
-        const room = this.roomManager.findRoom(data.roomId);
-        const validPoints = data.points >= minPoints && data.points <= maxPoints;
+        const room = this.roomManager.findRoom(playerGameState.roomId);
+        const validPoints = playerGameState.points >= minPoints && playerGameState.points <= maxPoints;
 
         if (validPoints && room) {
-            this.roomManager.addPointsToPlayer(socket.id, data.points, room);
+            this.roomManager.addPointsToPlayer(socket.id, playerGameState.points, room);
             const player = this.roomManager.findPlayer(socket.id, room);
-            this.server.to(room.organizer.socketId).emit(GameEvents.AddPointsToPlayer, { pointsToAdd: data.points, name: player.name });
-            this.server.to(socket.id).emit(GameEvents.AddPointsToPlayer, { pointsToAdd: data.points, name: player.name });
+            this.server.to(room.organizer.socketId).emit(GameEvents.AddPointsToPlayer, { pointsToAdd: playerGameState.points, name: player.name });
+            this.server.to(socket.id).emit(GameEvents.AddPointsToPlayer, { pointsToAdd: playerGameState.points, name: player.name });
         }
     }
 

@@ -87,6 +87,7 @@ export class ChatComponent implements OnInit {
     expandTextArea(event: Event) {
         const textarea = event.target as HTMLTextAreaElement;
         const heightLimit = 150;
+
         textarea.style.height = '';
         textarea.style.height = Math.min(textarea.scrollHeight, heightLimit) + 'px';
     }

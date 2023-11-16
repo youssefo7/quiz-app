@@ -1,4 +1,5 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChartInfo } from '@app/interfaces/chart-info';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { GameEvents } from '@common/game.events';
@@ -15,19 +16,16 @@ export class HistogramComponent implements OnInit, OnDestroy {
     question: Question;
     chart: Chart;
     goodBadChoices: boolean[];
-    private playersChoices: string[];
-    private choicesSelectionCounts: number[];
-    private chartBorderColors: string[];
-    private chartBackgroundColors: string[];
+    private chartInfo: ChartInfo;
     private currentQuestionIndex: number;
 
     constructor(private readonly socketClientService: SocketClientService) {
-        this.playersChoices = [];
-        this.chartBorderColors = [];
-        this.chartBackgroundColors = [];
+        this.chartInfo.playersChoices = [];
+        this.chartInfo.chartBorderColors = [];
+        this.chartInfo.chartBackgroundColors = [];
         this.goodBadChoices = [];
         this.currentQuestionIndex = 0;
-        this.choicesSelectionCounts = [];
+        this.chartInfo.choicesSelectionCounts = [];
     }
 
     ngOnInit() {
@@ -54,9 +52,9 @@ export class HistogramComponent implements OnInit, OnDestroy {
         if (this.quiz && index < this.quiz.questions.length) {
             this.question = this.quiz.questions[index];
             for (let i = 0; i < this.question.choices.length; i++) {
-                this.playersChoices.push(`Choix ${i + 1}`);
-                this.choicesSelectionCounts.push(0);
-                this.chartBorderColors.push('black');
+                this.chartInfo.playersChoices.push(`Choix ${i + 1}`);
+                this.chartInfo.choicesSelectionCounts.push(0);
+                this.chartInfo.chartBorderColors.push('black');
                 this.setBackgroundColors(i);
             }
         }
@@ -72,26 +70,26 @@ export class HistogramComponent implements OnInit, OnDestroy {
     }
 
     private resetArrays() {
-        this.playersChoices = [];
-        this.choicesSelectionCounts = [];
-        this.chartBorderColors = [];
-        this.chartBackgroundColors = [];
+        this.chartInfo.playersChoices = [];
+        this.chartInfo.choicesSelectionCounts = [];
+        this.chartInfo.chartBorderColors = [];
+        this.chartInfo.chartBackgroundColors = [];
         this.goodBadChoices = [];
     }
 
     private setBackgroundColors(choiceIndex: number) {
         const choice = this.question.choices[choiceIndex];
-        this.chartBackgroundColors.push(choice.isCorrect ? 'green' : 'red');
+        this.chartInfo.chartBackgroundColors.push(choice.isCorrect ? 'green' : 'red');
         this.goodBadChoices.push(choice.isCorrect);
     }
 
     private updateSelections() {
         this.socketClientService.on(GameEvents.QuestionChoiceSelect, (selectionIndex: number) => {
-            this.choicesSelectionCounts[selectionIndex]++;
+            this.chartInfo.choicesSelectionCounts[selectionIndex]++;
             this.chart.update();
         });
         this.socketClientService.on(GameEvents.QuestionChoiceUnselect, (deselectionIndex: number) => {
-            this.choicesSelectionCounts[deselectionIndex]--;
+            this.chartInfo.choicesSelectionCounts[deselectionIndex]--;
             this.chart.update();
         });
     }
@@ -100,13 +98,13 @@ export class HistogramComponent implements OnInit, OnDestroy {
         this.chart = new Chart('canvas', {
             type: 'bar',
             data: {
-                labels: this.playersChoices,
+                labels: this.chartInfo.playersChoices,
                 datasets: [
                     {
-                        data: this.choicesSelectionCounts,
+                        data: this.chartInfo.choicesSelectionCounts,
                         borderWidth: 1,
-                        backgroundColor: this.chartBackgroundColors,
-                        borderColor: this.chartBorderColors,
+                        backgroundColor: this.chartInfo.chartBackgroundColors,
+                        borderColor: this.chartInfo.chartBorderColors,
                     },
                 ],
             },
@@ -133,10 +131,10 @@ export class HistogramComponent implements OnInit, OnDestroy {
     }
 
     private updateChartConfig() {
-        this.chart.data.labels = this.playersChoices;
-        this.chart.data.datasets[0].data = this.choicesSelectionCounts;
-        this.chart.data.datasets[0].backgroundColor = this.chartBackgroundColors;
-        this.chart.data.datasets[0].borderColor = this.chartBorderColors;
+        this.chart.data.labels = this.chartInfo.playersChoices;
+        this.chart.data.datasets[0].data = this.chartInfo.choicesSelectionCounts;
+        this.chart.data.datasets[0].backgroundColor = this.chartInfo.chartBackgroundColors;
+        this.chart.data.datasets[0].borderColor = this.chartInfo.chartBorderColors;
         this.chart.update();
     }
 }

@@ -1,4 +1,6 @@
 import { Quiz } from '@app/model/database/quiz';
+import { ChatMessage } from '@common/chat-message';
+import { Results } from '@common/player-info';
 
 export interface Room {
     id: string;
@@ -28,18 +30,4 @@ export interface Organizer extends User {}
 export interface AnswerTime {
     userId: string;
     timeStamp: number;
-}
-
-export interface Results {
-    name: string;
-    points: number;
-    hasAbandoned: boolean;
-    bonusCount: number;
-}
-
-export interface ChatMessage {
-    authorName: string;
-    time: string;
-    message: string;
-    sentByUser: boolean;
 }
