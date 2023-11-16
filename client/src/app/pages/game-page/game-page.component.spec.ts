@@ -12,7 +12,6 @@ import { QuestionZoneComponent } from '@app/components/question-zone/question-zo
 import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { CommunicationService } from '@app/services/communication.service';
-import { GameService } from '@app/services/game.service';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { of } from 'rxjs';
@@ -34,7 +33,6 @@ describe('GamePageComponent in test game route', () => {
     let mockDialog: SpyObj<MatDialog>;
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
     let router: Router;
-    let gameService: GameService;
     let clientSocketServiceMock: jasmine.SpyObj<SocketClientService>;
     let roomCommunicationServiceMock: jasmine.SpyObj<RoomCommunicationService>;
 
@@ -81,7 +79,6 @@ describe('GamePageComponent in test game route', () => {
         }).compileComponents();
 
         router = TestBed.inject(Router);
-        gameService = TestBed.inject(GameService);
     }));
 
     beforeEach(() => {
@@ -120,11 +117,10 @@ describe('GamePageComponent in test game route', () => {
 
     it('should fetch the quiz ', fakeAsync(() => {
         const id = '123';
-        spyOn(gameService, 'getQuizById').and.returnValue(Promise.resolve(mockedQuiz));
         component['getQuiz']();
         tick();
 
-        expect(gameService.getQuizById).toHaveBeenCalledWith(id);
+        expect(communicationServiceMock.getQuiz).toHaveBeenCalledWith(id);
         expect(component.quiz).toEqual(mockedQuiz);
     }));
 

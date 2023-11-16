@@ -148,14 +148,14 @@ describe('CreateEditQuizPageComponent', () => {
         expect(quizManagerServiceSpy.moveQuestionDown).toHaveBeenCalledWith(2, mockQuiz);
     });
 
-    it('should save a quiz if newQuiz is defined', () => {
+    it('should save a quiz if newQuiz is defined', async () => {
         component.newQuiz = mockQuiz;
-        component.saveQuiz();
+        await component.saveQuiz();
         expect(quizManagerServiceSpy.saveQuiz).toHaveBeenCalledWith(mockQuiz);
     });
 
-    it('should not save a quiz if newQuiz is not defined', () => {
-        component.saveQuiz();
+    it('should not save a quiz if newQuiz is not defined', async () => {
+        await component.saveQuiz();
         expect(quizManagerServiceSpy.saveQuiz).not.toHaveBeenCalled();
     });
 
@@ -249,12 +249,12 @@ describe('CreateEditQuizPageComponent', () => {
         expect(component.openPageExitConfirmation).toHaveBeenCalled();
     });
 
-    it('should not show popup when the user saves the quiz', () => {
+    it('should not show popup when the user saves the quiz', async () => {
         const mockCurrentRoute: ActivatedRouteSnapshot = {} as unknown as ActivatedRouteSnapshot;
         const mockRouterState: RouterStateSnapshot = {} as unknown as RouterStateSnapshot;
         spyOn(component, 'openPageExitConfirmation');
         component.newQuiz = mockQuiz;
-        component.saveQuiz();
+        await component.saveQuiz();
         exitCreateEditQuizPageGuard(component, mockCurrentRoute, mockRouterState, mockRouterState);
         expect(component.openPageExitConfirmation).not.toHaveBeenCalled();
     });

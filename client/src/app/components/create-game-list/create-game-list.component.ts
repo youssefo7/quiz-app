@@ -34,8 +34,8 @@ export class CreateGameListComponent implements OnInit, OnDestroy {
         this.selectedQuizId = null;
     }
 
-    ngOnInit() {
-        this.getVisibleQuizListFromServer();
+    async ngOnInit(): Promise<void> {
+        await this.getVisibleQuizListFromServer();
         this.socketClientService.connect();
     }
 
@@ -55,42 +55,42 @@ export class CreateGameListComponent implements OnInit, OnDestroy {
     }
 
     async checkAndCreateRoom(quiz: Quiz, toTest: boolean = false) {
-        let roomId: string;
-        this.communicationService.checkQuizAvailability(quiz.id).subscribe((isAvailable) => {
-            if (isAvailable) {
-                this.communicationService.checkQuizVisibility(quiz.id).subscribe(async (isVisible) => {
-                    if (isVisible) {
-                        if (toTest) this.router.navigateByUrl(`game/${quiz.id}/test`);
-                        else {
-                            if (this.socketClientService.socketExists()) {
-                                roomId = await firstValueFrom(
-                                    this.roomCommunicationService.createRoom({
-                                        quiz: this.findSelectedQuizInVisibleList() as Quiz,
-                                        socketId: this.socketClientService.socket.id,
-                                    }),
-                                );
-                                this.socketClientService.send(JoinEvents.OrganizerJoined, JSON.stringify(roomId));
-                                this.router.navigateByUrl(`/waiting/game/${this.selectedQuizId}/room/${roomId}/host`);
-                            } else {
-                                this.openConnectionPopUp();
-                            }
-                        }
+        const isQuizAvailable = await firstValueFrom(this.communicationService.checkQuizAvailability(quiz.id));
+
+        if (isQuizAvailable) {
+            const isQuizVisible = await firstValueFrom(this.communicationService.checkQuizVisibility(quiz.id));
+
+            if (isQuizVisible) {
+                if (toTest) {
+                    this.router.navigateByUrl(`game/${quiz.id}/test`);
+                } else {
+                    if (this.socketClientService.socketExists()) {
+                        const roomId = await firstValueFrom(
+                            this.roomCommunicationService.createRoom({
+                                quiz: this.findSelectedQuizInVisibleList() as Quiz,
+                                socketId: this.socketClientService.socket.id,
+                            }),
+                        );
+                        this.socketClientService.send(JoinEvents.OrganizerJoined, JSON.stringify(roomId));
+                        this.router.navigateByUrl(`/waiting/game/${this.selectedQuizId}/room/${roomId}/host`);
                     } else {
-                        this.openHiddenPopUp();
+                        this.openConnectionPopUp();
                     }
-                });
+                }
             } else {
-                this.openUnavailablePopUp();
+                this.openHiddenPopUp();
             }
-        });
+        } else {
+            this.openUnavailablePopUp();
+        }
     }
 
     openUnavailablePopUp() {
         const config: PopupMessageConfig = {
             message: 'Le jeu a été supprimé. Veuillez en choisir un autre dans la liste.',
             hasCancelButton: false,
-            okButtonFunction: () => {
-                this.getVisibleQuizListFromServer();
+            okButtonFunction: async () => {
+                await this.getVisibleQuizListFromServer();
             },
         };
         const dialogRef = this.popUp.open(PopupMessageComponent);
@@ -112,8 +112,8 @@ export class CreateGameListComponent implements OnInit, OnDestroy {
         const config: PopupMessageConfig = {
             message: "Le jeu n'est plus disponible. Veuillez en choisir un autre dans la liste.",
             hasCancelButton: false,
-            okButtonFunction: () => {
-                this.getVisibleQuizListFromServer();
+            okButtonFunction: async () => {
+                await this.getVisibleQuizListFromServer();
             },
         };
         const dialogRef = this.popUp.open(PopupMessageComponent);
