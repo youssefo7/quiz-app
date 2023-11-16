@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatIcon } from '@angular/material/icon';
-import { ActivatedRoute, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { Results } from '@app/interfaces/player-info';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
@@ -11,6 +11,7 @@ import { GameEvents } from '@common/game.events';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import { GamePlayersListComponent } from './game-players-list.component';
+import SpyObj = jasmine.SpyObj;
 
 class MockSocketClientService extends SocketClientService {
     private mockSocketExists = true;
@@ -34,29 +35,26 @@ describe('GamePlayersListComponent', () => {
     let roomCommunicationServiceMock: jasmine.SpyObj<RoomCommunicationService>;
     let mockSocketClientService: MockSocketClientService;
     let socketHelper: SocketTestHelper;
+    let routerSpy: SpyObj<Router>;
 
     const playersListMock: Results[] = [
-        { name: 'Marc', points: 10, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: false, bonusCount: 0 },
+        { name: 'Marie', points: 10, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: false, bonusCount: 0 },
         { name: 'Liam', points: 20, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: false, bonusCount: 0 },
-        { name: 'Adam', points: 20, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: false, bonusCount: 0 },
+        { name: 'Alicia', points: 20, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: false, bonusCount: 0 },
         { name: 'Zane', points: 50, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: false, bonusCount: 0 },
     ];
 
-    const roomPlayersNamesMock: string[] = ['Marc', 'Liam', 'Adam', 'Zane'];
+    const roomPlayersNamesMock: string[] = ['Marie', 'Liam', 'Alicia', 'Zane'];
 
     const response = {
         pointsToAdd: 10,
-        name: 'Marc',
+        name: 'Marie',
     };
 
     beforeEach(() => {
-        roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', [
-            'getRoomPlayers',
-            'getPlayerResults',
-            'sendPlayerResults',
-            'createRoom',
-        ]);
+        roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', ['getRoomPlayers', 'getPlayerResults', 'sendPlayerResults']);
         mockSocketClientService = jasmine.createSpyObj('SocketClientService', ['on', 'socketExists']);
+        routerSpy = jasmine.createSpyObj('Router', ['navigateByUrl']);
     });
 
     beforeEach(waitForAsync(() => {
@@ -70,9 +68,10 @@ describe('GamePlayersListComponent', () => {
                 { provide: SocketClientService, useValue: mockSocketClientService },
                 {
                     provide: ActivatedRoute,
-                    useValue: { snapshot: { paramMap: convertToParamMap({ quizId: '123', roomId: '456' }), url: [{ path: 'results' }] } },
+                    useValue: { snapshot: { paramMap: convertToParamMap({ quizId: '123', roomId: '456' }), url: [] } },
                 },
                 { provide: RoomCommunicationService, useValue: roomCommunicationServiceMock },
+                { provide: Router, useValue: routerSpy },
             ],
         }).compileComponents();
     }));
@@ -115,7 +114,6 @@ describe('GamePlayersListComponent', () => {
     it('should fetch players list', async () => {
         component.isResultsRoute = false;
         component.roomId = '123';
-        roomCommunicationServiceMock.getRoomPlayers.and.returnValue(of(playersListMock.map((player) => player.name)));
         await component.fetchPlayersList();
 
         expect(roomCommunicationServiceMock.getRoomPlayers).toHaveBeenCalledWith('123');
@@ -123,9 +121,22 @@ describe('GamePlayersListComponent', () => {
 
         component.isResultsRoute = true;
         await component.fetchPlayersList();
-        roomCommunicationServiceMock.getPlayerResults.and.returnValue(of(playersListMock));
+
         expect(component.playerResults).toEqual(playersListMock);
         expect(roomCommunicationServiceMock.getPlayerResults).toHaveBeenCalled();
+    });
+
+    it('should send ShowResults event when SendResults event is received and redirect users to the results page', async () => {
+        const sendSpy = spyOn(mockSocketClientService, 'send');
+        component.roomId = '456';
+
+        component.listenToSocketEvents();
+        socketHelper.peerSideEmit(GameEvents.SendResults);
+
+        await component.fetchPlayersList();
+        expect(roomCommunicationServiceMock.sendPlayerResults).toHaveBeenCalled();
+        expect(sendSpy).toHaveBeenCalledWith(GameEvents.ShowResults, '456');
+        expect(routerSpy.navigateByUrl).toHaveBeenCalledWith(`/results/game/${component['quizId']}/room/${component.roomId}/host`);
     });
 
     it('should sort by names in ascending and descending order', () => {
@@ -171,30 +182,47 @@ describe('GamePlayersListComponent', () => {
     });
 
     it('should call updatePlayerBonusCount() when BonusUpdate event is received', () => {
+        const playerToUpdate = playersListMock[0].name;
+        const oldBonusCount = playersListMock[0].bonusCount;
         const updatePlayerBonusSpy = spyOn<any>(component, 'updatePlayerBonusCount').and.callThrough();
+
         component.listenToSocketEvents();
-        socketHelper.peerSideEmit(GameEvents.BonusUpdate, response.name);
+        socketHelper.peerSideEmit(GameEvents.BonusUpdate, playerToUpdate);
         expect(updatePlayerBonusSpy).toHaveBeenCalled();
+
+        component['updatePlayerBonusCount'](playerToUpdate);
+        const playerToUpdateIndex = component.playerResults.find((player) => player.name === playerToUpdate) as Results;
+        expect(playerToUpdateIndex.bonusCount).not.toEqual(oldBonusCount);
     });
 
-    it('should call updateAnswerConfirmation() when SubmitQuestionOnClick event is received', () => {
+    it("should call updateAnswerConfirmation() when SubmitQuestionOnClick event is received and update the player's results", () => {
+        const playerToUpdate = playersListMock[0].name;
         const updateAnswerConfirmationSpy = spyOn<any>(component, 'updateAnswerConfirmation').and.callThrough();
         component.listenToSocketEvents();
-        socketHelper.peerSideEmit(GameEvents.SubmitQuestionOnClick);
-        expect(updateAnswerConfirmationSpy).toHaveBeenCalled();
+        socketHelper.peerSideEmit(GameEvents.SubmitQuestionOnClick, playerToUpdate);
+        expect(updateAnswerConfirmationSpy).toHaveBeenCalledWith(playerToUpdate);
+        const playerToUpdateIndex = component.playerResults.find((player) => player.name === playerToUpdate) as Results;
+        expect(playerToUpdateIndex.hasConfirmedAnswer).toBeTruthy();
     });
 
-    it('should call updatePlayerInteraction() when QuestionChoiceSelect event is received', () => {
+    it("should call updatePlayerInteraction() when QuestionChoiceSelect event is received and update the player's results", () => {
+        const playerToUpdate = playersListMock[0].name;
         const updatePlayerInteractionSpy = spyOn<any>(component, 'updatePlayerInteraction').and.callThrough();
         component.listenToSocketEvents();
-        socketHelper.peerSideEmit(GameEvents.QuestionChoiceSelect);
-        expect(updatePlayerInteractionSpy).toHaveBeenCalled();
+        socketHelper.peerSideEmit(GameEvents.QuestionChoiceSelect, playerToUpdate);
+        expect(updatePlayerInteractionSpy).toHaveBeenCalledWith(playerToUpdate);
+        const playerToUpdateIndex = component.playerResults.find((player) => player.name === playerToUpdate) as Results;
+        expect(playerToUpdateIndex.hasClickedOnAnswerField).toBeTruthy();
     });
 
-    it('should call resetPlayersInfo() when NextQuestion event is received', () => {
+    it("should call resetPlayersInfo() when NextQuestion event is received and update the player's results", () => {
         const resetPlayerInfoSpy = spyOn<any>(component, 'resetPlayersInfo').and.callThrough();
         component.listenToSocketEvents();
         socketHelper.peerSideEmit(GameEvents.NextQuestion);
         expect(resetPlayerInfoSpy).toHaveBeenCalled();
+        component.playerResults.forEach((player) => {
+            expect(player.hasClickedOnAnswerField).toBeFalsy();
+            expect(player.hasConfirmedAnswer).toBeFalsy();
+        });
     });
 });

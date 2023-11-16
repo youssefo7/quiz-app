@@ -1,19 +1,19 @@
 <div id="player-list" *ngIf="playerResults">
     <div id="titles">
-        <span id="nameTitle">Nom
-            <div id="nameOrders">
+        <span>Nom
+            <div *ngIf="!isResultsRoute"  id="name-orders">
                 <button (click)="sortByName()">
-                    <mat-icon id="orderByName">sort_by_alpha</mat-icon>
+                    <mat-icon>sort_by_alpha</mat-icon>
                 </button>
-                <button id="orderByState" (click)="sortByState()">
-                    <mat-icon id="orderByState">swap_vert</mat-icon>
+                <button id="order-by-state" (click)="sortByState()">
+                    <mat-icon>swap_vert</mat-icon>
                 </button>
             </div>
         </span>
         <span *ngIf="!isResultsRoute" id="scoreTitle">Score
             <div>
-                <button id="orderByPoints" (click)="sortByPoints()">
-                    <mat-icon id="orderByPoints">swap_vert</mat-icon>
+                <button (click)="sortByPoints()">
+                    <mat-icon>swap_vert</mat-icon>
                 </button>
             </div>
         </span>
@@ -23,9 +23,9 @@
     <div *ngFor="let player of playerResults" class="player-entry">
         <span class="player-name" 
             [ngClass]="{
-            'abandoned': player.hasAbandoned, 
-            'confirmedAnswer': player.hasConfirmedAnswer, 
-            'interacted': player.hasClickedOnAnswerField
+            abandoned: player.hasAbandoned, 
+            confirmedAnswer: player.hasConfirmedAnswer, 
+            interacted: player.hasClickedOnAnswerField
             }">
             {{ player.name }}
         </span>
