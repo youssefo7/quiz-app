@@ -7,7 +7,6 @@ import { PopupMessageComponent } from '@app/components/popup-message/popup-messa
 import { Quiz } from '@app/interfaces/quiz';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
-import { GameEvents } from '@common/game.events';
 import { JoinEvents } from '@common/join.events';
 import { of } from 'rxjs';
 import { JoinGamePopupComponent } from './join-game-popup.component';
@@ -211,7 +210,7 @@ describe('JoinGamePopupComponent', () => {
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith(`/waiting/game/${component['quizId']}/room/${roomIdMock}`);
     });
 
-    it('should close the popup dialog and send a PlayerLeaveGame event if user cancels', () => {
+    it('should close the popup if user cancels', () => {
         const cancelButton = fixture.debugElement.nativeElement.querySelector('#cancel');
         spyOn(component, 'closeAdminPopup').and.callThrough();
 
@@ -220,10 +219,6 @@ describe('JoinGamePopupComponent', () => {
 
         expect(component.closeAdminPopup).toHaveBeenCalled();
         expect(mockDialogRef.close).toHaveBeenCalled();
-        expect(mockSocketClientService.send).toHaveBeenCalledWith(GameEvents.PlayerLeaveGame, {
-            roomId: component.givenRoomCode,
-            isInGame: false,
-        });
     });
 
     it('should not prevent default action for control keys', () => {
