@@ -144,29 +144,13 @@ export class QuizQuestionInfoComponent implements OnInit {
     }
 
     adjustPadding() {
-        if (
-            this.questionInfoForm.controls.text.invalid &&
-            (this.questionInfoForm.controls.text.dirty || this.questionInfoForm.controls.text.touched)
-        ) {
-            this.isTextValid = false;
-        } else {
-            this.isTextValid = true;
-        }
+        const hasTextBeenTouched = this.questionInfoForm.controls.text.dirty || this.questionInfoForm.controls.text.touched;
+        this.isTextValid = !(this.questionInfoForm.controls.text.invalid && hasTextBeenTouched);
 
-        if (this.questionInfoForm.controls.points.invalid) {
-            this.isPointsValid = false;
-        } else {
-            this.isPointsValid = true;
-        }
+        this.isPointsValid = !this.questionInfoForm.controls.points.invalid;
 
-        if (
-            this.questionInfoForm.controls.choices.invalid &&
-            (this.questionInfoForm.controls.choices.dirty || this.questionInfoForm.controls.choices.touched)
-        ) {
-            this.isChoicesValid = false;
-        } else {
-            this.isChoicesValid = true;
-        }
+        const hasChoicesBeenTouched = this.questionInfoForm.controls.choices.dirty || this.questionInfoForm.controls.choices.touched;
+        this.isChoicesValid = !(this.questionInfoForm.controls.text.invalid && hasChoicesBeenTouched);
     }
 
     private initializeForm() {

@@ -31,7 +31,9 @@ export class TimeService {
     }
 
     async startTimer(startValue: number): Promise<void | Observable<number | undefined>> {
-        if (this.interval) return new Observable<number | undefined>();
+        if (this.interval) {
+            return new Observable<number | undefined>();
+        }
 
         this.time = startValue;
 

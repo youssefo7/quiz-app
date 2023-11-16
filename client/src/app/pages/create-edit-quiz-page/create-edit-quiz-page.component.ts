@@ -53,15 +53,17 @@ export class CreateEditQuizPageComponent implements OnInit {
     }
 
     isQuizFormValid() {
-        if (this.newQuiz.questions.length > 0 && this.isGeneralInfoFormValid) {
-            return this.newQuiz.id !== '' ? this.quizManagerService.hasQuizBeenModified(this.newQuiz) : true;
+        const isValidForm = this.newQuiz.questions.length > 0 && this.isGeneralInfoFormValid;
+        if (isValidForm) {
+            return this.newQuiz.id ? this.quizManagerService.hasQuizBeenModified(this.newQuiz) : true;
         }
         return false;
     }
 
     deleteQuestion(index: number) {
         this.quizManagerService.deleteQuestion(index, this.newQuiz);
-        if (this.quizManagerService.modifiedIndex === index && this.quizManagerService.isModifiedQuestion) {
+        const isModifiedIndex = this.quizManagerService.modifiedIndex === index;
+        if (isModifiedIndex && this.quizManagerService.isModifiedQuestion) {
             this.quizQuestionInfo.resetForm();
             this.quizManagerService.isModifiedQuestion = false;
         }
@@ -124,6 +126,5 @@ export class CreateEditQuizPageComponent implements OnInit {
 }
 
 export const exitCreateEditQuizPageGuard: CanDeactivateFn<CreateEditQuizPageComponent> = async (component: CreateEditQuizPageComponent) => {
-    if (component.isQuizSaved) return true;
-    return await component.openPageExitConfirmation();
+    return component.isQuizSaved || (await component.openPageExitConfirmation());
 };

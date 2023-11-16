@@ -121,7 +121,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     setSubmitButtonStateOnChoices() {
-        if (this.chosenChoices.some((choice) => choice === true)) {
+        if (this.chosenChoices.some((choice) => choice)) {
             this.isSubmitDisabled = false;
             this.submitButtonStyle = { backgroundColor: 'green' };
         } else {
@@ -177,7 +177,8 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     private getQuestion(index: number) {
-        if (this.quiz && index < this.quiz.questions.length) {
+        const isValidIndex = this.quiz && index < this.quiz.questions.length;
+        if (isValidIndex) {
             this.question = this.quiz.questions[index];
             this.chosenChoices = new Array(this.question.choices.length).fill(false);
             this.question.choices.forEach((choice, buttonIndex) => {
