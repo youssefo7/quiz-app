@@ -53,11 +53,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
         if (!this.socketClientService.socketExists() && !this.isTestGame) {
             this.socketClientService.connect();
             if (this.socketClientService.socketExists()) {
-                this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
-                this.socketClientService.disconnect();
+                this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true }, () => {
+                    this.socketClientService.disconnect();
+                });
             }
             this.router.navigateByUrl('home/');
-            return;
         } else {
             this.loadQuiz();
             if (!this.isTestGame) {
@@ -115,8 +115,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
         const currentUrl = this.router.url;
         const gameUrl = `/results/game/${this.route.snapshot.paramMap.get('quizId')}/room/${this.roomId}`;
         if (currentUrl !== gameUrl) {
-            this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
-            this.socketClientService.disconnect();
+            this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true }, () => {
+                this.socketClientService.disconnect();
+            });
         }
     }
 
