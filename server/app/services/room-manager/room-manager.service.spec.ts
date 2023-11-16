@@ -73,14 +73,14 @@ describe('RoomManagerService', () => {
         expect(roomToFind.answerTimes).toHaveLength(0);
     });
 
-    it('should add a banned name to the banned names list of a room', () => {
+    it('should add a banned name to the banned names list of a given room', () => {
         const nameToBan = 'bannedName';
         roomManagerServiceMock.addBannedNameToRoom(roomManagerServiceMock.rooms[0], nameToBan);
 
         expect(roomManagerServiceMock.rooms[0].bannedNames).toContain(nameToBan);
     });
 
-    it('should add points to a player in the room', () => {
+    it('should add points to a player in a given room', () => {
         const playerId = 'playerId2';
         const pointsToAdd = 30;
         const playerCurrentPoints = roomManagerServiceMock.findPlayer(playerId, room).points;
@@ -90,17 +90,17 @@ describe('RoomManagerService', () => {
         expect(player.points).toEqual(playerCurrentPoints + pointsToAdd);
     });
 
-    it('should return the correct room by room id', () => {
+    it('should return the correct room by the room id', () => {
         const foundRoom = roomManagerServiceMock.findRoom(roomId);
         expect(foundRoom.id).toEqual(roomManagerServiceMock.rooms[0].id);
     });
 
-    it('should return the correct user when the user is the organizer of the game', () => {
+    it('should return the correct user when the user to find is the organizer of the game', () => {
         const user = roomManagerServiceMock.findUser('organizerId', room);
         expect(user).toEqual(room.organizer);
     });
 
-    it('should return the correct player when finding the player by their socket id', () => {
+    it('should return the correct player when finding the player by their socket id in a given room', () => {
         const playerIdToFind = 'playerId1';
 
         const player = roomManagerServiceMock.findPlayer(playerIdToFind, room);
@@ -113,7 +113,7 @@ describe('RoomManagerService', () => {
         expect(player?.name).toBe(playerName);
     });
 
-    it('should remove a player from the list of active players of a room', () => {
+    it('should remove a player from the list of active players in a given room', () => {
         const playerIdToRemove = 'playerId2';
         const nbPlayers = room.players.length;
 
@@ -122,7 +122,7 @@ describe('RoomManagerService', () => {
         expect(room.players.length).toEqual(nbPlayers - 1);
     });
 
-    it('should delete a room if room exists', () => {
+    it('should delete a room if the room id exists', () => {
         const roomToDelete = roomManagerServiceMock.rooms[0];
         roomManagerServiceMock.deleteRoom(roomToDelete);
 
@@ -130,7 +130,7 @@ describe('RoomManagerService', () => {
         expect(roomManagerServiceMock.rooms).toHaveLength(0);
     });
 
-    it('should return the quickest answer time of a correct answer of the players in a room', () => {
+    it('should return the quickest answer time of a correct answer by the players of a room', () => {
         const fastestPlayer = roomManagerServiceMock.rooms[0].answerTimes[0];
         const quickestTime = roomManagerServiceMock.getQuickestTime(room);
         expect(quickestTime).toEqual(fastestPlayer);
@@ -149,7 +149,7 @@ describe('RoomManagerService', () => {
         expect(quickestTime).toEqual(undefined);
     });
 
-    it('should return the correct quickest answer time when the first player has the quickest time', () => {
+    it('should return the correct quickest answer time when a player has the quickest time', () => {
         room.answerTimes = [
             { userId: 'playerId1', timeStamp: 90 },
             { userId: 'playerId2', timeStamp: 100 },
@@ -164,7 +164,7 @@ describe('RoomManagerService', () => {
         expect(room.answerTimes).toHaveLength(0);
     });
 
-    it('should process the username and return true for valid names', () => {
+    it('should process the username and return true if the name is valid', () => {
         room.isLocked = false;
         const newPlayerData = { name: 'NewName', roomId, socketId: 'playerId3' };
 
@@ -174,7 +174,7 @@ describe('RoomManagerService', () => {
         expect(isNameValid).toBeTruthy();
     });
 
-    it('should return false for invalid names', () => {
+    it('should return false if the name is invalid', () => {
         const data = { name: 'name2', roomId, socketId: 'playerId3' };
         const isNameValid = roomManagerServiceMock.processUsername(data);
 
@@ -182,7 +182,7 @@ describe('RoomManagerService', () => {
         expect(room.players[1].name).toBe('name2');
     });
 
-    it('should handle joining a room', () => {
+    it('should handle a player joining a specfic room', () => {
         const data = { socketId: 'playerId3', roomId };
 
         const result = roomManagerServiceMock.processJoinRoom(data);
@@ -190,7 +190,7 @@ describe('RoomManagerService', () => {
         expect(result.quiz).toBe(roomQuiz);
     });
 
-    it('should handle joining an invalid room if room id does not exist', () => {
+    it('should not allow player to join a room if the room does not exist', () => {
         roomId = 'invalidRoomId';
         const addPlayerToRoomSpy = jest.spyOn(roomManagerServiceMock as any, 'addPlayerToRoom');
         const result = roomManagerServiceMock.processJoinRoom({ socketId: 'playerId3', roomId });
@@ -200,7 +200,7 @@ describe('RoomManagerService', () => {
         expect(addPlayerToRoomSpy).not.toHaveBeenCalled();
     });
 
-    it('should handle joining a locked room', () => {
+    it('should not let a player join a room if the room is locked', () => {
         const addPlayerToRoomSpy = jest.spyOn(roomManagerServiceMock as any, 'addPlayerToRoom');
         room.isLocked = true;
         const result = roomManagerServiceMock.processJoinRoom({ socketId: 'playerId3', roomId });
@@ -210,20 +210,14 @@ describe('RoomManagerService', () => {
         expect(addPlayerToRoomSpy).not.toHaveBeenCalled();
     });
 
-    it('should return the names of players in the room', () => {
+    it('should return the names of players in a given room', () => {
         const expectedPlayerNames = ['name1', 'name2'];
         const playerNames = roomManagerServiceMock.getRoomPlayers(roomId);
 
         expect(playerNames).toEqual(expectedPlayerNames);
     });
 
-    it('should provide a unique ID for a new room', () => {
-        const newRoomId = roomManagerServiceMock['createRoomId']() as any;
-        const roomWithNonUniqueId = roomManagerServiceMock.rooms.forEach((currentRoom) => currentRoom.id === newRoomId);
-        expect(roomWithNonUniqueId).toBeUndefined();
-    });
-
-    it('should correctly check if a name is banned', () => {
+    it('should check if a given name is banned in a given room', () => {
         const bannedName1 = 'BannedName1';
         const nonBannedName = 'nonBannedName';
 
@@ -234,7 +228,7 @@ describe('RoomManagerService', () => {
         expect(isBannedName2).toBeFalsy();
     });
 
-    it('should add a new player to the room', () => {
+    it('should add a new player to a room', () => {
         const newPlayerId = 'playerId3';
         const initNbPlayers = room.players.length;
         const name = 'testName';
@@ -271,7 +265,7 @@ describe('RoomManagerService', () => {
         expect(result).toBeUndefined();
     });
 
-    it('should return player if player exists in a given room', () => {
+    it('should return the player name if the player exists in a given room', () => {
         const playerId = 'playerId1';
         const result = roomManagerServiceMock.getPlayerName(roomId, playerId);
         expect(result).toBe('name1');

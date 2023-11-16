@@ -92,18 +92,18 @@ describe('HostGamePageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should fetch the quiz ', () => {
+    it('should fetch the quiz of a given game', () => {
         component['getQuiz']();
         expect(roomCommunicationServiceMock.getRoomQuiz).toHaveBeenCalledWith(mockedQuiz.id);
     });
 
-    it('clicking the exit icon should redirect to "/game/new" page', () => {
+    it('should redirect to "/game/new" page when clicking the exit icon', () => {
         const navigateSpy = spyOn(router, 'navigateByUrl');
         component['leaveGamePage']();
         expect(navigateSpy).toHaveBeenCalledWith('/game/new');
     });
 
-    it('should popup a message when the user tries to exit a game with the correct configuration', () => {
+    it('should display a message when the user tries to exit a game with the correct configuration', () => {
         const mockConfig: PopupMessageConfig = {
             message: 'Êtes-vous sûr de vouloir quitter la partie? La partie sera terminée pour tous les joueurs.',
             hasCancelButton: true,
