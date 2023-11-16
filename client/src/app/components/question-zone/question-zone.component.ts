@@ -1,10 +1,10 @@
 import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Question, Quiz } from '@app/interfaces/quiz';
+import { Choice, Question, Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
-import { Constants } from '@common/constants';
+import { Constants, QTypes } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { TimeEvents } from '@common/time.events';
 import { Subscription } from 'rxjs';
@@ -178,10 +178,13 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         const isValidIndex = this.quiz && index < this.quiz.questions.length;
         if (isValidIndex) {
             this.question = this.quiz.questions[index];
-            this.chosenChoices = new Array(this.question.choices.length).fill(false);
-            this.question.choices.forEach((choice, buttonIndex) => {
-                this.setButtonToInitState(buttonIndex);
-            });
+            if (this.question.type === QTypes.QCM) {
+                const choices = this.question.choices as Choice[];
+                this.chosenChoices = new Array(choices.length).fill(false);
+                choices.forEach((choice, buttonIndex) => {
+                    this.setButtonToInitState(buttonIndex);
+                });
+            }
         }
     }
 
@@ -198,22 +201,32 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     private setButtonStateOnSubmit(index: number) {
-        this.choiceButtonStyle[index] = {
-            backgroundColor: this.question.choices[index].isCorrect ? 'rgb(97, 207, 72)' : 'red',
-        };
-        this.isChoiceButtonDisabled = true;
+        const choices = this.question.choices;
+        if (choices) {
+            this.choiceButtonStyle[index] = {
+                backgroundColor: choices[index].isCorrect ? 'rgb(97, 207, 72)' : 'red',
+            };
+            this.isChoiceButtonDisabled = true;
+        }
     }
 
     private isAnswerGood() {
-        const isAnswerGood = this.chosenChoices?.every((answer, index) => answer === this.question.choices[index].isCorrect);
+        let isAnswerGood = false;
+        const choices = this.question.choices;
+        if (choices && this.chosenChoices) {
+            isAnswerGood = this.chosenChoices.every((answer, index) => answer === choices[index].isCorrect);
+        }
         return isAnswerGood;
     }
 
     private displayCorrectAnswer() {
-        this.question.choices.forEach((choice, index) => {
-            this.setButtonStateOnSubmit(index);
-        });
-        this.doesDisplayPoints = true;
+        const choices = this.question.choices;
+        if (choices) {
+            choices.forEach((choice, index) => {
+                this.setButtonStateOnSubmit(index);
+            });
+            this.doesDisplayPoints = true;
+        }
     }
 
     private giveBonus() {
