@@ -41,7 +41,7 @@ export class GamePlayersListComponent implements OnInit {
         private router: Router,
         private route: ActivatedRoute,
     ) {
-        this.isResultsRoute = this.router.url.includes('results');
+        this.isResultsRoute = this.route.snapshot.url.some((segment) => segment.path === 'results');
         this.playerResults = [];
         this.quizId = this.route.snapshot.paramMap.get('quizId') as string;
         this.isSortNamesAscending = true;
@@ -62,9 +62,9 @@ export class GamePlayersListComponent implements OnInit {
     async fetchPlayersList() {
         if (!this.isResultsRoute) {
             const roomPlayers = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string));
-            roomPlayers.forEach((name) => {
+            roomPlayers.forEach((playerName) => {
                 const player: Results = {
-                    name,
+                    name: playerName,
                     points: 0,
                     hasAbandoned: false,
                     hasClickedOnAnswerField: false,
@@ -84,9 +84,7 @@ export class GamePlayersListComponent implements OnInit {
 
 
     sortByName() {
-        this.playerResults.sort((a, b) => {
-            return this.isSortNamesAscending ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
-        });
+        this.playerResults.sort((a, b) => (this.isSortNamesAscending ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)));
         this.isSortNamesAscending = !this.isSortNamesAscending;
     }
 
@@ -160,6 +158,7 @@ export class GamePlayersListComponent implements OnInit {
     private updatePlayerStatus(playerName: string) {
         const playerToUpdate = this.playerResults.find((player) => player.name === playerName);
         if (playerToUpdate) {
+            this.resetPlayersInfo();
             playerToUpdate.hasAbandoned = true;
         }
     }
@@ -172,9 +171,9 @@ export class GamePlayersListComponent implements OnInit {
     }
 
     private updatePlayerBonusCount(playerName: string) {
-        const wantedPlayer = this.playerResults.find((player) => player.name === playerName);
-        if (wantedPlayer) {
-            wantedPlayer.bonusCount++;
+        const playerToUpdate = this.playerResults.find((player) => player.name === playerName);
+        if (playerToUpdate) {
+            playerToUpdate.bonusCount++;
         }
     }
 

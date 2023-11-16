@@ -11,7 +11,7 @@
 
 #titles {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     margin-bottom: 10px;
     font-size: 1em;
     width: 100%;
@@ -21,7 +21,7 @@
 
 .player-entry {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     margin-bottom: 10px;
     font-size: 1em;
     width: 100%;
@@ -38,7 +38,7 @@
     font-weight: bold;
     text-overflow: ellipsis;
     overflow: hidden;
-    width: 30%;
+    // width: 30%;
 }
 
 .player-name.interacted {
@@ -62,10 +62,10 @@ span {
     padding: 10px;
 }
 
-#orderByState {
+#order-by-state {
     background: linear-gradient(to bottom, rgb(249, 73, 73), rgb(227, 227, 89), rgb(71, 208, 71), rgb(47, 46, 46));
 }
 
-#nameOrders {
+#name-orders {
     display: flex;
 }
