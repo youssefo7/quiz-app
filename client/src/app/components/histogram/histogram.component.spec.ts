@@ -88,7 +88,7 @@ describe('HistogramComponent', () => {
         expect(reactToTransitionClockFinishedEventSpy).toHaveBeenCalled();
     });
 
-    it('should update chart information when getting question', () => {
+    it('should update chart information when getting a question', () => {
         component.quiz = mockedQuiz;
         const expectedPlayersChoices = ['Choix 1', 'Choix 2'];
         const expectedChoicesSelectionCounts = [0, 0];
@@ -102,7 +102,7 @@ describe('HistogramComponent', () => {
         expect(setBackgroundColorsSpy).toHaveBeenCalledTimes(2);
     });
 
-    it('should set background colors and update goodBadChoices accordingly to correctness of answer choices', () => {
+    it('should set background colors and update goodBadChoices accordingly based on the correctness of answer choices', () => {
         component.question = mockedQuiz.questions[1];
         const expectedBackgroundColors = ['red', 'green', 'red'];
         const expectedGoodBadChoices = [false, true, false];
@@ -114,7 +114,7 @@ describe('HistogramComponent', () => {
         expect(component['goodBadChoices']).toEqual(expectedGoodBadChoices);
     });
 
-    it('should prepare next question when the transition clock is finished', () => {
+    it('should prepare next question when the transition timer is finished', () => {
         const questionIndex = 0;
         component['currentQuestionIndex'] = questionIndex;
         const resetArraysSpy = spyOn<any>(component, 'resetArrays');
@@ -128,7 +128,7 @@ describe('HistogramComponent', () => {
         expect(updateChartConfigSpy).toHaveBeenCalled();
     });
 
-    it('should reset arrays', () => {
+    it('should reset all arrays implicated in the question process', () => {
         component['playersChoices'] = ['Choix 1', 'Choix 2'];
         component['choicesSelectionCounts'] = [2, 2];
         component['chartBorderColors'] = ['black', 'black'];
@@ -143,7 +143,7 @@ describe('HistogramComponent', () => {
         expect(component['goodBadChoices']).toEqual([]);
     });
 
-    it('should update selections on QuestionChoiceUnselect and QuestionChoiceSelect events', () => {
+    it('should update selections data based on QuestionChoiceUnselect and QuestionChoiceSelect events', () => {
         component['choicesSelectionCounts'] = [0, 0];
         const updateSpy = spyOn(component.chart, 'update');
 
@@ -172,7 +172,7 @@ describe('HistogramComponent', () => {
         expect(chartDataset.borderColor).toEqual(component['chartBorderColors']);
     });
 
-    it('should update chart configuration', () => {
+    it('should update the chart configuration', () => {
         const playersChoices = ['Choix 1', 'Choix 2'];
         const choicesSelectionCounts = [2, 2];
         const chartBorderColors = ['black', 'black'];

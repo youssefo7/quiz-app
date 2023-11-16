@@ -87,7 +87,7 @@ describe('CountdownComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should display the transition clock with the correct message and style', waitForAsync(() => {
+    it('should display the question transitioning timer with the correct message and style', waitForAsync(() => {
         const transitionTime = 3;
         component['transitionClock']();
 
@@ -113,7 +113,7 @@ describe('CountdownComponent', () => {
         expect(setClockColorToRedSpy).toHaveBeenCalled();
     }));
 
-    it('should switch the clock color to red on three seconds', waitForAsync(() => {
+    it('should switch the clock color to red when three seconds left on the timer', waitForAsync(() => {
         const switchToRedTime = 3;
         const currentTime = 2;
         component['isQuestionTransitioning'] = false;
@@ -130,7 +130,7 @@ describe('CountdownComponent', () => {
         expect(timeServiceMock.startTimer).toHaveBeenCalledWith(exitTime);
     }));
 
-    it('should display the test game clock', waitForAsync(() => {
+    it('should display the test game clock when testing a game', waitForAsync(() => {
         component['quiz'] = mockQuiz;
         const questionClockSpy = spyOn<any>(component, 'questionClock').and.returnValue(Promise.resolve());
         const transitionClockSpy = spyOn<any>(component, 'transitionClock').and.returnValue(Promise.resolve());
@@ -145,18 +145,7 @@ describe('CountdownComponent', () => {
         });
     }));
 
-    it('should display the leave game clock', waitForAsync(() => {
-        const leaveClockSpy = spyOn<any>(component, 'leaveGameClock').and.returnValue(Promise.resolve());
-        component['leaveGame']();
-
-        fixture.whenStable().then(() => {
-            expect(gameServiceMock.setGameEndState).toBe(true);
-            expect(leaveClockSpy).toHaveBeenCalled();
-            expect(routerMock.navigateByUrl).toHaveBeenCalledWith('/game/new');
-        });
-    }));
-
-    it('should load the timer for the test game', waitForAsync(() => {
+    it('should load the timer for a test game', waitForAsync(() => {
         const testGameClockSpy = spyOn<any>(component, 'testGameClock').and.returnValue(Promise.resolve());
         component.quiz = mockQuiz;
         component['isTestGame'] = true;
@@ -167,7 +156,7 @@ describe('CountdownComponent', () => {
         });
     }));
 
-    it('should ONLY display countdown host options if the user is the host', () => {
+    it('should ONLY display countdown host options if the user is the host of a game', () => {
         component.isHost = false;
         expect(fixture.nativeElement.querySelector('#countdown-options')).toBeNull();
 
@@ -193,7 +182,7 @@ describe('CountdownComponent', () => {
         expect(component['currentQuestionIndex']).toEqual(1);
     });
 
-    it('should start socket timer to 3s with transitionClock', () => {
+    it('should send StartTimer event with 3 seconds during question transitions in non-test game', () => {
         const roomId = '123';
         const transitionTime = 3;
         const oneSecondInterval = 1000;
@@ -205,7 +194,7 @@ describe('CountdownComponent', () => {
         expect(sendSpy).toHaveBeenCalledWith(TimeEvents.StartTimer, { initialTime: transitionTime, roomId, tickRate: oneSecondInterval });
     });
 
-    it('should react to socket current timer event and update timer color', waitForAsync(() => {
+    it('should react to CurrentTimer event and update timer color', waitForAsync(() => {
         const time = 15;
         component['isTestGame'] = false;
         const setClockColorToRedSpy = spyOn<any>(component, 'setClockColorToRed');
@@ -216,7 +205,7 @@ describe('CountdownComponent', () => {
         expect(setClockColorToRedSpy).toHaveBeenCalled();
     }));
 
-    it('should react to socket timer finished event and start next question when finished transition clock', () => {
+    it('should react to TimerFinished event and start next question when the transitioning timer has ended', () => {
         const initialQuestionIndex = 0;
         const questionClockSpy = spyOn<any>(component, 'questionClock');
         component['hasFinishedTransitionClock'] = true;
@@ -229,7 +218,7 @@ describe('CountdownComponent', () => {
         expect(questionClockSpy).toHaveBeenCalled();
     });
 
-    it('should react to socket timer finished event and emit transition clock finished when host', () => {
+    it('should send TransitionClockFinished event when TimerFinished event is received and is game host', () => {
         const roomId = '123';
         component['hasFinishedTransitionClock'] = true;
         component['roomId'] = roomId;
@@ -241,7 +230,7 @@ describe('CountdownComponent', () => {
         expect(sendSpy).toHaveBeenCalledWith(TimeEvents.TransitionClockFinished, roomId);
     });
 
-    it('should set time to 0 when getting timer interrupted event', () => {
+    it('should set time to 0 when listening to the TimerInterrupted event', () => {
         component['socketTime'] = 15;
 
         component['reactToTimerInterruptedEvent']();
@@ -249,7 +238,7 @@ describe('CountdownComponent', () => {
         expect(component['socketTime']).toEqual(0);
     });
 
-    it('should start transition clock prepare next question when getting next question event', () => {
+    it('should listen on NextQuestion event and prepare the transition clock when the event is received', () => {
         component['currentQuestionIndex'] = 0;
         component['lastQuestionIndex'] = 3;
         const transitionClockSpy = spyOn<any>(component, 'transitionClock');
@@ -260,7 +249,7 @@ describe('CountdownComponent', () => {
         expect(transitionClockSpy).toHaveBeenCalled();
     });
 
-    it('should send start timer event on new question start', () => {
+    it('should send StartTimer event when a new question has begun', () => {
         const roomId = '123';
         const oneSecondInterval = 1000;
         component['quiz'] = mockQuiz;

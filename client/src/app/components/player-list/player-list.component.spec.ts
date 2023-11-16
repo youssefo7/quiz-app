@@ -75,31 +75,31 @@ describe('PlayerListComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should add player when PlayerHasJoined event is received', () => {
+    it('should add a player to the game players when PlayerHasJoined event is received', () => {
         socketHelper.peerSideEmit(JoinEvents.PlayerHasJoined, 'playerName');
         expect(component.players).toContain('playerName');
     });
 
-    it('should send event BanName when player is banned', () => {
+    it('should send BanName event when a player was banned', () => {
         const sendSpy = spyOn(mockSocketClientService, 'send');
         component.banPlayer('playerToBan');
         expect(sendSpy).toHaveBeenCalled();
     });
 
-    it('should listen on event BanNotification and call banPopUp function', () => {
+    it('should listen on BanNotification event and call banPopUp', () => {
         const banPopupSpy = spyOn<any>(component, 'banPopup');
         socketHelper.peerSideEmit(WaitingEvents.BanNotification, 'playerToBan');
         expect(banPopupSpy).toHaveBeenCalled();
     });
 
-    it('should listen on event BanName and remove banned player from the game and add him to the bannedPlayers list', () => {
+    it('should listen on BanName event and remove the player from the game and add the player to the bannedPlayers list', () => {
         const removePlayerSpy = spyOn<any>(component, 'removePlayer').and.callThrough();
         socketHelper.peerSideEmit(WaitingEvents.BanName, 'playerToBan');
         expect(removePlayerSpy).toHaveBeenCalledWith('playerToBan');
         expect(component.bannedPlayers).toContain('playerToBan');
     });
 
-    it('should remove player when PlayerAbandonedGame event is received', () => {
+    it('should remove player from the game when PlayerAbandonedGame event is received', () => {
         const removePlayerSpy = spyOn<any>(component, 'removePlayer').and.callThrough();
 
         socketHelper.peerSideEmit(GameEvents.PlayerAbandonedGame, 'AbandonedPlayer');
@@ -107,14 +107,14 @@ describe('PlayerListComponent', () => {
         expect(component.players).not.toContain('AbandonedPlayer');
     });
 
-    it('should call countdown with time when startTimer is received', () => {
+    it('should call countdown with a given time when StartTimer is received', () => {
         const time = 5;
         const countdownSpy = spyOn<any>(component, 'countdown').and.callThrough();
         socketHelper.peerSideEmit(TimeEvents.CurrentTimer, time);
         expect(countdownSpy).toHaveBeenCalledWith(time);
     });
 
-    it('should send start timer event and show countdown', () => {
+    it('should send StartTimer event and display the countdown', () => {
         const sendSpy = spyOn(mockSocketClientService, 'send');
         const startTimerEvent = {
             initialTime: 5,
@@ -126,7 +126,7 @@ describe('PlayerListComponent', () => {
         expect(sendSpy).toHaveBeenCalledWith(TimeEvents.StartTimer, startTimerEvent);
     });
 
-    it('should set transitionCounter and not redirect if time is not zero', () => {
+    it('should set transitionCounter and not redirect if time on the timer is not zero', () => {
         const timer = 5;
         component['countdown'](timer);
 
@@ -134,7 +134,7 @@ describe('PlayerListComponent', () => {
         expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
     });
 
-    it('should redirect to the game page if time is zero and is player', () => {
+    it('should redirect to the game page if time on the timer is zero and the user is a player', () => {
         component.isHost = false;
         const gameBeginsRedirectionSpy = spyOn<any>(component, 'gameBeginsRedirection').and.callThrough();
         socketHelper.peerSideEmit(TimeEvents.TimerFinished);
@@ -163,13 +163,13 @@ describe('PlayerListComponent', () => {
         expect(component.isLocked).toBeFalse();
     });
 
-    it('should remove the player by name from the players array', () => {
+    it('should remove the player from the players array by their name', () => {
         component.players = ['Joueur1', 'Joueur2'];
         component['removePlayer']('Joueur1');
         expect(component.players).toEqual(['Joueur2']);
     });
 
-    it('should navigate to the game room as player when not Host', () => {
+    it('should navigate to the game room as a player when the user is not the Host', () => {
         component.isHost = false;
         component['gameBeginsRedirection']();
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('game/123/room/456');
@@ -182,14 +182,14 @@ describe('PlayerListComponent', () => {
         expect(mockSocketClientService.send).toHaveBeenCalledWith(TimeEvents.StartTimer, { initialTime: 5, tickRate: 1000, roomId: '456' });
     });
 
-    it('should navigate to the host game room and send StartGame event when Host', () => {
+    it('should navigate to the host game room and send StartGame event when the user is the Host', () => {
         spyOn(mockSocketClientService, 'send');
         component.isHost = true;
         component['gameBeginsRedirection']();
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('game/123/room/456/host');
     });
 
-    it('should show the banPopup with the right configuration', () => {
+    it('should display the banPopup with the correct configuration', () => {
         const mockConfig: PopupMessageConfig = {
             message: 'Vous avez été banni de la partie.',
             hasCancelButton: false,

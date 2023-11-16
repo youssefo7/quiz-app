@@ -54,7 +54,7 @@ describe('ChatGateway', () => {
         expect(gateway).toBeDefined();
     });
 
-    it('handleRoomMessage() should send message if socket in the room', () => {
+    it('handleRoomMessage() should send message if socket is in the room', () => {
         stub(socket, 'rooms').value(new Set(['testId']));
         socket.to.returns({
             emit: (event: string) => {
@@ -66,7 +66,7 @@ describe('ChatGateway', () => {
         expect(socket.emit.calledWith(ChatEvents.NewRoomMessage, match.object)).toBeTruthy();
     });
 
-    it('handleRoomMessage() should not send message if socket not in the room', () => {
+    it('handleRoomMessage() should not send message if socket is not in the room', () => {
         socket.disconnect();
         stub(socket, 'rooms').value(new Set());
         gateway.handleRoomMessage(socket, { roomId: 'testId', message: 'Test Message' });

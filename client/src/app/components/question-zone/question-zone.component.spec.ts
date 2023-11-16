@@ -93,7 +93,7 @@ describe('QuestionZoneComponent', () => {
         expect(preventDefaultSpy).toHaveBeenCalled();
     });
 
-    it('should not submit the answer when enter key is pressed if submit button disabled', () => {
+    it('should not submit the answer when enter key is pressed if the submit button is disabled', () => {
         const event = new KeyboardEvent('keyup', { key: 'Enter' });
         component.isSubmitDisabled = true;
         const submitAnswerSpy = spyOn(component, 'submitAnswerOnClick');
@@ -118,7 +118,7 @@ describe('QuestionZoneComponent', () => {
         expect(changeSubmitButtonStateSpy).toHaveBeenCalled();
     });
 
-    it('should fetch the first question', () => {
+    it('should fetch the first question of the quiz for a given game', () => {
         const getQuestionSpy = spyOn<any>(component, 'getQuestion');
         component.ngOnInit();
         expect(getQuestionSpy).toHaveBeenCalled();
@@ -191,7 +191,7 @@ describe('QuestionZoneComponent', () => {
         expect(component['isQuestionTransitioning']).toBeTrue();
     });
 
-    it('should set hasGameEnded when testGame is true, if gameService.hasGameEndedObservable is also true', () => {
+    it('should set hasGameEnded when testGame and gameService.hasGameEndedObservable are true', () => {
         spyOnProperty(gameService, 'hasGameEndedObservable').and.returnValue(of(true));
         component['isTestGame'] = true;
         component['detectEndGame']();
@@ -214,7 +214,7 @@ describe('QuestionZoneComponent', () => {
         expect(component['hasGameEnded']).toBeTrue();
     });
 
-    it('should create an array of choice to false if the question index id valid', () => {
+    it('should create an array of choice with values set to false if the question index id is valid', () => {
         const firstQuestionIndex = 0;
         const expectChoiceArray = [false, false, false, false];
         component.quiz = validMockQuiz;
@@ -231,7 +231,7 @@ describe('QuestionZoneComponent', () => {
         expect(setButtonToInitStateSpy).not.toHaveBeenCalled();
     });
 
-    it('should not modify chosenChoices if quiz is not defined or index is out of range', () => {
+    it('should not modify chosenChoices if the quiz is not defined or if the index is out of range', () => {
         const choiceArray = component.chosenChoices;
         const outOfRangeIndex = 10;
         component.quiz = validMockQuiz;
@@ -324,7 +324,7 @@ describe('QuestionZoneComponent', () => {
         expect(component.choiceButtonStyle[secondButtonIndex]).toEqual({ backgroundColor: 'rgb(97, 207, 72)' });
     });
 
-    it('should submit answer on click event if in test game is true', () => {
+    it('should submit answer on click event if user is in a test game', () => {
         component['isTestGame'] = true;
         spyOn<any>(component, 'showResult');
         component.submitAnswerOnClick();
@@ -348,7 +348,7 @@ describe('QuestionZoneComponent', () => {
         expect(component['hasSentAnswer']).toBeTrue();
     });
 
-    it('should send GoodAnswerOnFinishedTimer event when answer is right and not in testGame', () => {
+    it('should send GoodAnswerOnFinishedTimer event when answer is right and not in a test game', () => {
         component.question.choices = [
             { text: 'test', isCorrect: true },
             { text: 'test2', isCorrect: false },
@@ -366,7 +366,7 @@ describe('QuestionZoneComponent', () => {
         expect(component['hasSentAnswer']).toBeTrue();
     });
 
-    it('should send BadAnswerOnFinishedTimer event when answer is wrong and not in testGame', () => {
+    it('should send BadAnswerOnFinishedTimer event when answer is wrong and not in a test game', () => {
         component.question.choices = [
             { text: 'test', isCorrect: true },
             { text: 'test2', isCorrect: false },
@@ -384,7 +384,7 @@ describe('QuestionZoneComponent', () => {
         expect(component['hasSentAnswer']).toBeTrue();
     });
 
-    it('should send GoodAnswerOnFinishedTimer event when answer is good and timer is finished', () => {
+    it('should send GoodAnswerOnFinishedTimer event when answer is correct and timer has finished', () => {
         component.question.choices = [
             { text: 'test', isCorrect: true },
             { text: 'test2', isCorrect: false },
@@ -401,7 +401,7 @@ describe('QuestionZoneComponent', () => {
         expect(sendSpy).toHaveBeenCalledWith(GameEvents.GoodAnswerOnFinishedTimer, component['roomId']);
     });
 
-    it('should send BadAnswerOnFinishedTimer event when answer is wrong and timer is finished', () => {
+    it('should send BadAnswerOnFinishedTimer event when answer is incorrect and timer has finished', () => {
         component.question.choices = [
             { text: 'test', isCorrect: true },
             { text: 'test2', isCorrect: false },
@@ -436,7 +436,7 @@ describe('QuestionZoneComponent', () => {
         expect(component.doesDisplayPoints).toBeTrue();
     });
 
-    it('should give bonus points for a correct answer', () => {
+    it('should give bonus points for the first player to have gotten a good answer', () => {
         const bonus = 1.2;
         component.question.points = 10;
         spyOn<any>(component, 'isAnswerGood').and.returnValue(true);
@@ -465,7 +465,7 @@ describe('QuestionZoneComponent', () => {
         });
     });
 
-    it('should give points for a correct answer', () => {
+    it('should give points to a player for a correct answer', () => {
         spyOn<any>(component, 'isAnswerGood').and.returnValue(true);
         const questionPoints = 10;
         component.question.points = questionPoints;
@@ -474,7 +474,7 @@ describe('QuestionZoneComponent', () => {
         expect(component.pointsToDisplay).toEqual(questionPoints);
     });
 
-    it('should not give points for an incorrect answer', () => {
+    it('should not give points to a player for an incorrect answer', () => {
         spyOn<any>(component, 'isAnswerGood').and.returnValue(false);
         component['givePoints']();
         expect(component.points).toEqual(0);

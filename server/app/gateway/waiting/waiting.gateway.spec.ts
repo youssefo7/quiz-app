@@ -63,7 +63,7 @@ describe('WaitingGateway', () => {
         expect(gateway).toBeDefined();
     });
 
-    it('handleLockRoom() should lock the room when unlockButton clicked by organizer', () => {
+    it('handleLockRoom() should allow the organizer of a game to lock the room', () => {
         const room = roomManagerServiceMock.rooms[0];
 
         stub(socket, 'rooms').value(new Set([roomId]));
@@ -71,7 +71,7 @@ describe('WaitingGateway', () => {
         expect(room.isLocked).toBe(true);
     });
 
-    it('handleUnlockRoom() should unlock the room when unlockButton clicked by organizer', () => {
+    it('handleUnlockRoom() should allow the organizer of a game to unlock the room', () => {
         const room = roomManagerServiceMock.rooms[0];
         stub(socket, 'rooms').value(new Set([roomId]));
         room.isLocked = true;
@@ -80,7 +80,7 @@ describe('WaitingGateway', () => {
         expect(room.isLocked).toBe(false);
     });
 
-    it('handleGetPlayerNames() should return empty list if no players in the room', () => {
+    it('handleGetPlayerNames() should return empty list if no players are in a given room', () => {
         const expectedPlayerNames = [];
         roomManagerServiceMock.rooms[0].players = [] as unknown as Player[];
 
@@ -89,7 +89,7 @@ describe('WaitingGateway', () => {
         expect(result).toEqual(expectedPlayerNames);
     });
 
-    it('handleGetPlayerNames() should return all player names in the room', () => {
+    it('handleGetPlayerNames() should return all player names in a given room', () => {
         const expectedPlayerNames = ['name1', 'name2'];
 
         stub(socket, 'rooms').value(new Set([roomId]));
@@ -97,7 +97,7 @@ describe('WaitingGateway', () => {
         expect(result).toEqual(expectedPlayerNames);
     });
 
-    it('handleBanName() should add a banned name to the room and remove a player with that name', async () => {
+    it('handleBanName() should ban a name in a given room and remove the player with that name', async () => {
         const room = roomManagerServiceMock.rooms[0];
         const playerNameToBan = 'bannedName';
         stub(socket, 'rooms').value(new Set([roomId]));
@@ -116,7 +116,7 @@ describe('WaitingGateway', () => {
         expect(roomManagerServiceMock.rooms[0].bannedNames).toContain(playerNameToBan);
     });
 
-    it('handleBanName() should not add a banned name to the room and remove player if name does not exist', async () => {
+    it('handleBanName() should not ban a name from a room nor remove the player if the name does not exist', async () => {
         const room = roomManagerServiceMock.rooms[0];
         const playerNameToBan = 'TestName';
         const serverEmitMock = jest.spyOn(gateway['server'], 'emit');

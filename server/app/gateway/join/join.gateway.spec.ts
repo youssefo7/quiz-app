@@ -60,7 +60,7 @@ describe('JoinGateway', () => {
         expect(socket.join.calledWith(roomId)).toBeTruthy();
     });
 
-    it('handleSuccessfulJoin() should emit event PlayerHasJoined to the server', () => {
+    it('handleSuccessfulJoin() should emit PlayerHasJoined event to the users in a room', () => {
         const data = { roomId: 'testId', name: 'newPlayer' };
         const roomId = 'testId';
         stub(socket, 'rooms').value(new Set([roomId]));
