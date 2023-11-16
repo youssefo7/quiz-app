@@ -4,8 +4,10 @@
             <div
                 class="chat-message"
                 [ngClass]="{
-                    sent: message.sentByUser && message.authorName !== 'System',
-                    'system-sent': message.authorName === 'System' && this.isOrganizer
+                    sent: message.authorName === playerName && message.authorName !== 'System',
+                    'system-sent': message.authorName === 'System' && this.isOrganizer,
+                    'lost-chat-perks': message.authorName === 'System' && message.message === lostChatPermissionMessage,
+                    'granted-chat-perks': message.authorName === 'System' && message.message === grantedChatPermissionMessage
                 }"
             >
                 <div class="message-info">
@@ -19,14 +21,17 @@
     <div id="text-input">
         <textarea
             id="message"
-            placeholder="Écrivez votre message..."
+            [placeholder]="getPlaceholder()"
             maxlength="200"
             (input)="expandTextArea($event)"
             (input)="detectCharacterLengthOnInput($event)"
             (keyup)="keyUpEvent($event)"
             [(ngModel)]="userMessage"
-        ></textarea>
-        <mat-icon inline="true" (click)="sendMessageToRoom()" (keyup.enter)="sendMessageToRoom()">send</mat-icon>
+            [disabled]="!canChat"
+            [ngClass]="{ 'disable-messageBox': !canChat }"
+        >
+        </textarea>
+        <mat-icon inline="true" (click)="sendMessageToRoom()" (keyup.enter)="sendMessageToRoom()" [attr.disabled]="!canChat">send</mat-icon>
     </div>
     <span id="counter">{{ characterCounterDisplay }}</span>
 </div>

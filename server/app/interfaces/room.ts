@@ -23,6 +23,7 @@ export interface User {
 export interface Player extends User {
     points: number;
     bonusCount: number;
+    canChat: boolean;
 }
 
 export interface Organizer extends User {}
