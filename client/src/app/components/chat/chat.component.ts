@@ -97,11 +97,12 @@ export class ChatComponent implements OnInit {
     }
 
     private configureChatSocketFeatures() {
-        const addMessage = (data: { authorName: string; timeString: string; message: string }) => {
+        const addMessage = (data: { authorName: string; timeString: string; message: string; fromSystem: boolean }) => {
             const chatMessage: ChatMessage = {
                 authorName: data.authorName,
                 time: data.timeString,
                 message: data.message,
+                fromSystem: data.fromSystem,
             };
             this.roomMessages.push(chatMessage);
         };
@@ -112,9 +113,10 @@ export class ChatComponent implements OnInit {
             if (this.isOrganizer) {
                 const messageTime = new Date();
                 const playerLeftMessage: ChatMessage = {
-                    authorName: 'System',
+                    authorName: 'Système',
                     time: messageTime.getHours() + ':' + messageTime.getMinutes() + ':' + messageTime.getSeconds(),
                     message: playerName + ' a quitté la partie.',
+                    fromSystem: true,
                 };
                 this.roomMessages.push(playerLeftMessage);
             }
@@ -124,13 +126,11 @@ export class ChatComponent implements OnInit {
             this.canChat = canWrite;
             const messageTime = new Date();
             const chatPermissionMessage: ChatMessage = {
-                authorName: 'System',
+                authorName: 'Système',
                 time: messageTime.getHours() + ':' + messageTime.getMinutes() + ':' + messageTime.getSeconds(),
-                message: '',
+                message: !this.canChat ? this.lostChatPermissionMessage : this.grantedChatPermissionMessage,
+                fromSystem: true,
             };
-
-            chatPermissionMessage.message = !this.canChat ? this.lostChatPermissionMessage : this.grantedChatPermissionMessage;
-
             this.roomMessages.push(chatPermissionMessage);
         });
 

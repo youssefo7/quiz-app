@@ -317,7 +317,7 @@ describe('RoomController', () => {
 
     it('handleGetChatMessages() should return chat messages in room', async () => {
         const roomId = 'roomId';
-        const chatMessages = [{ authorName: 'playerName', time: 'time', message: 'message', sentByUser: true }];
+        const chatMessages = [{ authorName: 'playerName', time: 'time', message: 'message', fromSystem: false }];
         roomManagerService.getChatMessages.returns(chatMessages);
 
         const res = {} as Response;
@@ -352,7 +352,7 @@ describe('RoomController', () => {
 
     it('handleSendMessages() should return chat messages in room', async () => {
         const roomId = 'roomId';
-        const body = [{ authorName: 'playerName', time: 'time', message: 'message', sentByUser: true }];
+        const body = [{ authorName: 'playerName', time: 'time', message: 'message', fromSystem: false }];
         roomManagerService.postChatMessages.returns();
 
         const res = {} as Response;
@@ -370,7 +370,7 @@ describe('RoomController', () => {
 
     it('handleSendMessages() should return INTERNAL_SERVER_ERROR when service fails to post chat messages', async () => {
         const roomId = 'roomId';
-        const body = [{ authorName: 'playerName', time: 'time', message: 'message', sentByUser: true }];
+        const body = [{ authorName: 'playerName', time: 'time', message: 'message', fromSystem: false }];
         roomManagerService.postChatMessages.throws();
 
         const res = {} as Response;

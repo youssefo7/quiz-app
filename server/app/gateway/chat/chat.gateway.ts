@@ -16,7 +16,7 @@ export class ChatGateway {
         const user = this.roomManager.findUser(socket.id, room);
         const time = new Date();
         const timeString = time.getHours() + ':' + time.getMinutes() + ':' + time.getSeconds();
-        const messageData = { authorName: user.name, timeString, message: data.message };
+        const messageData = { authorName: user.name, timeString, message: data.message, fromSystem: false };
 
         if (socket.rooms.has(data.roomId)) {
             this.server.to(data.roomId).emit(ChatEvents.NewRoomMessage, messageData);
