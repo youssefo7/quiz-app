@@ -89,7 +89,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
     }
 
     private minPanicTime() {
-        const currentQuestionType = this.quiz?.questions[this.currentQuestionIndex].type;
+        const currentQuestionType = this.quiz?.questions[this.currentQuestionIndex]?.type;
 
         if (currentQuestionType === 'QRL') {
             return Constants.MIN_TIME_TO_PANIC_QRL;
