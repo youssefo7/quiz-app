@@ -1,3 +1,6 @@
+// La raison du disable est puisque dans la méthode hasQuizBeenModified, il y a beaucoup de vérifications imbriquées qui doivent être fait
+// et la complexité de celui-ci est élevée.
+/* eslint-disable complexity */
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -117,13 +120,23 @@ export class QuizManagerService {
             if (this.isQuizQuestionModified(this.quizToModify.questions[i], quiz.questions[i])) {
                 return true;
             }
+            const initialChoices = this.quizToModify.questions[i].choices || [];
+            const quizChoices = quiz.questions[i].choices || [];
 
-            for (let j = 0; j < this.quizToModify.questions[i].choices.length; j++) {
-                if (this.isQuizChoiceModified(this.quizToModify.questions[i].choices[j], quiz.questions[i].choices[j])) {
+            if (initialChoices.length !== quizChoices.length) {
+                return true;
+            }
+
+            for (let j = 0; j < initialChoices.length; j++) {
+                const initialChoice = initialChoices[j];
+                const quizChoice = quizChoices[j];
+
+                if (this.isQuizChoiceModified(initialChoice, quizChoice)) {
                     return true;
                 }
             }
         }
+
         return false;
     }
 
@@ -143,9 +156,7 @@ export class QuizManagerService {
         const isQuestionTypeDifferent = questionBefore.type !== questionAfter.type;
         const isQuestionTextDifferent = questionBefore.text.trim() !== questionAfter.text.trim();
         const isQuestionPointsDifferent = questionBefore.points !== questionAfter.points;
-        const isQuestionChoicesLengthDifferent = questionBefore.choices.length !== questionAfter.choices.length;
-        const hasQuestionDifferences =
-            isQuestionTypeDifferent || isQuestionTextDifferent || isQuestionPointsDifferent || isQuestionChoicesLengthDifferent;
+        const hasQuestionDifferences = isQuestionTypeDifferent || isQuestionTextDifferent || isQuestionPointsDifferent;
         return hasQuestionDifferences;
     }
 

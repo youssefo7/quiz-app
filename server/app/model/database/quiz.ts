@@ -7,7 +7,7 @@ export type QuestionType = {
     type: string;
     text: string;
     points: number;
-    choices: ChoiceType[];
+    choices?: ChoiceType[];
 };
 
 export type ChoiceType = {

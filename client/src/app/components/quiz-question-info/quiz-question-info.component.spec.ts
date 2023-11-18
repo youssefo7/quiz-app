@@ -10,6 +10,7 @@ import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule } from '@a
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { RangeValidatorDirective } from '@app/directives/range-validator.directive';
+import { Question } from '@app/interfaces/quiz';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
 import { Constants } from '@common/constants';
 import { QuizQuestionInfoComponent } from './quiz-question-info.component';
@@ -43,6 +44,8 @@ describe('QuizQuestionInfoComponent', () => {
     });
 
     it('should add the question and reset the form', () => {
+        // Any est nécessaire pour espionner sur une méthode privée
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         spyOn<any>(component, 'manageQuestion');
         spyOn(component, 'resetForm');
 
@@ -219,7 +222,7 @@ describe('QuizQuestionInfoComponent', () => {
 
     it('should not validate the question form if choices are missing in the form', () => {
         component['initializeForm']();
-        const validator = component.questionChoicesValidator();
+        const validator = component['questionChoicesValidator']();
 
         const invalidChoicesArray = component.choices;
         invalidChoicesArray.push(
@@ -236,7 +239,7 @@ describe('QuizQuestionInfoComponent', () => {
 
     it('should not validate the question form if there is not at least one correct and one incorrect choice', () => {
         component['initializeForm']();
-        const validator = component.questionChoicesValidator();
+        const validator = component['questionChoicesValidator']();
 
         const invalidChoicesArray = component.choices;
         invalidChoicesArray.push(
@@ -259,7 +262,7 @@ describe('QuizQuestionInfoComponent', () => {
 
     it('should not validate the question form if there are choices with the same text', () => {
         component['initializeForm']();
-        const validator = component.questionChoicesValidator();
+        const validator = component['questionChoicesValidator']();
 
         const invalidChoicesArray = component.choices;
         invalidChoicesArray.push(
@@ -283,7 +286,7 @@ describe('QuizQuestionInfoComponent', () => {
 
     it('should validate the question form if the choices for a new or modified question respect all conditions', () => {
         component['initializeForm']();
-        const validator = component.questionChoicesValidator();
+        const validator = component['questionChoicesValidator']();
 
         const validChoicesArray = component.choices;
         validChoicesArray.push(
@@ -309,7 +312,7 @@ describe('QuizQuestionInfoComponent', () => {
     });
 
     it('should add choices when loading a question with more choices', () => {
-        const question = {
+        const question: Question = {
             type: 'QCM',
             text: 'Question 1',
             points: 50,
@@ -319,9 +322,10 @@ describe('QuizQuestionInfoComponent', () => {
                 { text: 'Choice 3', isCorrect: true },
             ],
         };
+        const choiceLength = question.choices?.length as number;
         component['initializeForm']();
         component.loadQuestionInformation(question, 0);
-        expect(component.choices.length).toEqual(question.choices.length);
+        expect(component.choices.length).toEqual(choiceLength);
     });
 
     it('should adjust padding and set isTextValid to false if text is invalid and dirty', () => {
@@ -339,15 +343,9 @@ describe('QuizQuestionInfoComponent', () => {
     });
 
     it('should adjust padding and set isChoicesValid to false if choices are invalid and touched', () => {
+        component.questionInfoForm.controls.type.setValue('QCM');
         component.questionInfoForm.controls.choices.setErrors({ invalid: true });
         component.questionInfoForm.controls.choices.markAsTouched();
-        component.adjustPadding();
-        expect(component.isChoicesValid).toBeFalse();
-    });
-
-    it('should adjust padding and set isChoicesValid to false if choices are invalid and dirty', () => {
-        component.questionInfoForm.controls.choices.setErrors({ invalid: true });
-        component.questionInfoForm.controls.choices.markAsDirty();
         component.adjustPadding();
         expect(component.isChoicesValid).toBeFalse();
     });
@@ -356,5 +354,13 @@ describe('QuizQuestionInfoComponent', () => {
         component.questionInfoForm.controls.points.setErrors({ invalid: true });
         component.adjustPadding();
         expect(component.isPointsValid).toBeFalse();
+    });
+
+    it('should adjust padding and set isChoicesValid to false if choices are invalid and dirty', () => {
+        component.questionInfoForm.controls.type.setValue('QCM');
+        component.questionInfoForm.controls.choices.setErrors({ invalid: true });
+        component.questionInfoForm.controls.choices.markAsDirty();
+        component.adjustPadding();
+        expect(component.isChoicesValid).toBeFalse();
     });
 });

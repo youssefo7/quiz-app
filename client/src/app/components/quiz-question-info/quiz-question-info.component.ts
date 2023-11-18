@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { Choice, Question, Quiz } from '@app/interfaces/quiz';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
-import { Constants } from '@common/constants';
+import { Constants, QTypes } from '@common/constants';
 
 @Component({
     selector: 'app-quiz-question-info',
@@ -17,6 +17,7 @@ export class QuizQuestionInfoComponent implements OnInit {
     isTextValid: boolean;
     isPointsValid: boolean;
     isChoicesValid: boolean;
+    private choicesCopy: Choice[];
 
     constructor(
         private quizManagerService: QuizManagerService,
@@ -40,19 +41,25 @@ export class QuizQuestionInfoComponent implements OnInit {
     loadQuestionInformation(question: Question, index: number) {
         this.resetForm();
         this.quizManagerService.modifiedIndex = index;
-        const resetChoices = this.choices;
-
-        while (resetChoices.length < question.choices.length) {
-            this.addChoice();
-        }
-
         this.quizManagerService.isModifiedQuestion = true;
-        this.questionInfoForm.patchValue({
-            text: question.text,
-            type: question.type,
-            points: question.points,
-            choices: question.choices,
-        });
+        const choices = this.questionInfoForm.get('choices') as FormArray;
+
+        if (question.type === QTypes.QCM) {
+            const resetChoices = this.choices;
+            const questionChoicesLength = (question.choices as Choice[]).length as number;
+            while (resetChoices.length < questionChoicesLength) {
+                this.addChoice();
+            }
+            this.choicesCopy = JSON.parse(JSON.stringify(question.choices));
+            choices.setValidators(this.questionChoicesValidator());
+            this.patchQCM(question.text, question.type, question.points, question.choices as Choice[]);
+        } else {
+            choices.clear();
+            choices.clearValidators();
+            choices.reset();
+            this.patchQRL(question.text, question.type, question.points);
+        }
+        this.questionInfoForm.updateValueAndValidity();
     }
 
     roundToNearest10() {
@@ -94,6 +101,20 @@ export class QuizQuestionInfoComponent implements OnInit {
         this.resetForm();
     }
 
+    adjustPadding() {
+        const questionType: string = this.questionInfoForm.get('type')?.value;
+
+        const hasQuestionTextBeenTouched = this.questionInfoForm.controls.text.dirty || this.questionInfoForm.controls.text.touched;
+        this.isTextValid = !(this.questionInfoForm.controls.text.invalid && hasQuestionTextBeenTouched);
+
+        this.isPointsValid = !this.questionInfoForm.controls.points.invalid;
+
+        if (questionType === QTypes.QCM) {
+            const hasChoicesBeenTouched = this.questionInfoForm.controls.choices.dirty || this.questionInfoForm.controls.choices.touched;
+            this.isChoicesValid = !(this.questionInfoForm.controls.choices.invalid && hasChoicesBeenTouched);
+        }
+    }
+
     resetForm() {
         this.questionInfoForm.reset();
 
@@ -107,9 +128,75 @@ export class QuizQuestionInfoComponent implements OnInit {
             const choiceGroup = choiceControl as FormGroup;
             choiceGroup.get('isCorrect')?.setValue(false);
         });
+
+        this.choicesCopy = [];
     }
 
-    questionChoicesValidator(): ValidatorFn {
+    onTypeChange() {
+        const questionType = this.questionInfoForm.get('type') as AbstractControl;
+        const questionText = this.questionInfoForm.get('text') as AbstractControl;
+        const questionPoints = this.questionInfoForm.get('points') as AbstractControl;
+        const choices = this.questionInfoForm.get('choices') as FormArray;
+
+        if (questionType.value === QTypes.QCM || questionType.value === undefined) {
+            if (!choices.hasValidator(this.questionChoicesValidator())) {
+                choices.setValidators(this.questionChoicesValidator());
+                this.configureChoicesQCM(choices);
+                this.patchQCM(questionText.value, questionType.value, questionPoints.value, this.choicesCopy as Choice[]);
+                choices.updateValueAndValidity();
+            }
+        } else {
+            choices.clear();
+            choices.clearValidators();
+            choices.reset();
+
+            this.patchQRL(questionText.value, questionType.value, questionPoints.value);
+            this.questionInfoForm.updateValueAndValidity();
+        }
+    }
+
+    private initializeForm() {
+        this.questionInfoForm = this.fb.group({
+            type: ['', Validators.required],
+            text: ['', [Validators.required, this.isQuestionTextValid()]],
+            points: [this.defaultPoints, Validators.required],
+            choices: this.fb.array([], []),
+        });
+
+        for (let i = 0; i < Constants.MIN_CHOICES; i++) {
+            this.addChoice();
+        }
+    }
+
+    private manageQuestion() {
+        const questionType: string = this.questionInfoForm.get('type')?.value;
+        const questionText: string = this.questionInfoForm.get('text')?.value;
+        const questionPoints: number = this.questionInfoForm.get('points')?.value;
+
+        const newQuestion: Question = {
+            type: questionType,
+            text: questionText,
+            points: questionPoints,
+        } as Question;
+
+        if (questionType === QTypes.QCM) {
+            const choicesArray: Choice[] = this.choices.controls.map((control: AbstractControl) => {
+                const text: string = control.get('text')?.value;
+                const isCorrect: boolean = control.get('isCorrect')?.value;
+                return { text, isCorrect };
+            });
+
+            newQuestion.choices = choicesArray;
+        }
+
+        if (this.quizManagerService.isModifiedQuestion) {
+            this.quizManagerService.modifyQuestion(newQuestion, this.quizManagerService.modifiedIndex, this.newQuiz);
+        } else {
+            this.quizManagerService.addNewQuestion(newQuestion, this.newQuiz);
+        }
+    }
+
+    private questionChoicesValidator(): ValidatorFn {
         return (control: AbstractControl): ValidationErrors | null => {
             const choices = control as FormArray;
 
@@ -138,56 +225,46 @@ export class QuizQuestionInfoComponent implements OnInit {
                 }
                 differentChoices.add(text);
             }
-
             return null;
         };
     }
 
-    adjustPadding() {
-        const hasTextBeenTouched = this.questionInfoForm.controls.text.dirty || this.questionInfoForm.controls.text.touched;
-        this.isTextValid = !(this.questionInfoForm.controls.text.invalid && hasTextBeenTouched);
-
-        this.isPointsValid = !this.questionInfoForm.controls.points.invalid;
-
-        const hasChoicesBeenTouched = this.questionInfoForm.controls.choices.dirty || this.questionInfoForm.controls.choices.touched;
-        this.isChoicesValid = !(this.questionInfoForm.controls.text.invalid && hasChoicesBeenTouched);
+    private patchQRL(text: string, type: string, points: number) {
+        this.questionInfoForm.patchValue({
+            text,
+            type,
+            points,
+        });
     }
 
-    private initializeForm() {
-        this.questionInfoForm = this.fb.group({
-            type: ['', Validators.required],
-            text: ['', Validators.required],
-            points: [this.defaultPoints, Validators.required],
-            choices: this.fb.array([], [this.questionChoicesValidator()]),
+    // La raison du disable lint est puisque choices ne provient pas toujours d'un objet question, mais aussi d'un hard copy d'une
+    // question, alors au lieu d'envoyer 2 objets, on envoi les attributs nécessaires pour un objet de type Question.
+    // eslint-disable-next-line max-params
+    private patchQCM(text: string, type: string, points: number, choices: Choice[]) {
+        this.questionInfoForm.patchValue({
+            text,
+            type,
+            points,
+            choices,
         });
+    }
 
-        for (let i = 0; i < Constants.MIN_CHOICES; i++) {
-            this.addChoice();
+    private configureChoicesQCM(choices: FormArray) {
+        let index = 0;
+        let length = 0;
+        if (choices.length === 0) {
+            length = this.choicesCopy.length === 0 ? 2 : this.choicesCopy.length;
+            while (index < length) {
+                this.addChoice();
+                index++;
+            }
         }
     }
 
-    private manageQuestion() {
-        const questionType: string = this.questionInfoForm.get('type')?.value;
-        const questionText: string = this.questionInfoForm.get('text')?.value;
-        const questionPoints: number = this.questionInfoForm.get('points')?.value;
-
-        const choicesArray: Choice[] = this.choices.controls.map((control: AbstractControl) => {
-            const text: string = control.get('text')?.value;
-            const isCorrect: boolean = control.get('isCorrect')?.value;
-            return { text, isCorrect };
-        });
-
-        const newQuestion: Question = {
-            type: questionType,
-            text: questionText,
-            points: questionPoints,
-            choices: choicesArray,
+    private isQuestionTextValid(): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+            const textValue = control as unknown as AbstractControl;
+            return textValue.value?.trim().length === 0 ? { invalidText: true } : null;
         };
-
-        if (this.quizManagerService.isModifiedQuestion) {
-            this.quizManagerService.modifyQuestion(newQuestion, this.quizManagerService.modifiedIndex, this.newQuiz);
-        } else {
-            this.quizManagerService.addNewQuestion(newQuestion, this.newQuiz);
-        }
     }
 }

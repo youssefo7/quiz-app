@@ -14,3 +14,8 @@ export const Constants = {
     BONUS_20_PERCENT: 0.2,
     BONUS_120_PERCENT: 1.2,
 } as const;
+
+export const enum QTypes {
+    QRL = 'QRL',
+    QCM = 'QCM',
+}

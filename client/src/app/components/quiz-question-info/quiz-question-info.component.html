@@ -27,8 +27,9 @@
         <div id="no-error-type-and-points">
             <div>
                 <label>Type de question : </label>
-                <select for="question-type" formControlName="type" required>
+                <select for="question-type" formControlName="type" (change)="onTypeChange()" required>
                     <option value="QCM">QCM</option>
+                    <option value="QRL">QRL</option>
                 </select>
             </div>
 
@@ -55,7 +56,7 @@
         </p>
     </div>
 
-    <div id="add-choice">
+    <div id="add-choice" *ngIf="questionInfoForm.get('type')?.value === 'QCM'">
         <label>Choix : </label>
         <button type="button" (click)="addChoice()" [disabled]="choices.length >= maxChoices">
             <mat-icon [inline]="true">add</mat-icon>
