@@ -89,7 +89,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
     }
 
     private minPanicTime() {
-        const currentQuestionType = this.quiz.questions[this.currentQuestionIndex]?.type;
+        const currentQuestionType = this.quiz?.questions[this.currentQuestionIndex]?.type;
 
         if (currentQuestionType === 'QRL') {
             return Constants.MIN_TIME_TO_PANIC_QRL;
@@ -99,9 +99,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
     }
 
     private async loadTimer() {
-        if (this.quiz) {
-            this.lastQuestionIndex = this.quiz.questions.length - 1;
-        }
+        this.lastQuestionIndex = this.quiz?.questions.length - 1;
         if (this.isTestGame) {
             this.switchColorToRedOnThreeSeconds();
             this.testGameClock();
