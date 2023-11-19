@@ -80,6 +80,7 @@ describe('CountdownComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(CountdownComponent);
         component = fixture.componentInstance;
+        component['quiz'] = mockQuiz;
         fixture.detectChanges();
     });
 
@@ -97,7 +98,6 @@ describe('CountdownComponent', () => {
     }));
 
     it('should display the question clock with the correct message and style', waitForAsync(() => {
-        component['quiz'] = mockQuiz;
         component['questionClock']();
 
         expect(component.message).toEqual('Temps Restant');
@@ -131,7 +131,6 @@ describe('CountdownComponent', () => {
     }));
 
     it('should display the test game clock when testing a game', waitForAsync(() => {
-        component['quiz'] = mockQuiz;
         const questionClockSpy = spyOn<any>(component, 'questionClock').and.returnValue(Promise.resolve());
         const transitionClockSpy = spyOn<any>(component, 'transitionClock').and.returnValue(Promise.resolve());
 
@@ -179,7 +178,7 @@ describe('CountdownComponent', () => {
         expect(reactToNextQuestionEvent).toHaveBeenCalled();
         expect(reactToTimerInterruptedEvent).toHaveBeenCalled();
         expect(questionClockSpy).toHaveBeenCalled();
-        expect(component['currentQuestionIndex']).toEqual(1);
+        expect(component['currentQuestionIndex']).toEqual(0);
     });
 
     it('should send StartTimer event with 3 seconds during question transitions in non-test game', () => {
@@ -252,7 +251,6 @@ describe('CountdownComponent', () => {
     it('should send StartTimer event when a new question has begun', () => {
         const roomId = '123';
         const oneSecondInterval = 1000;
-        component['quiz'] = mockQuiz;
         component['roomId'] = roomId;
         component['isTestGame'] = false;
         const sendSpy = spyOn(component['socketClientService'], 'send');
@@ -263,6 +261,7 @@ describe('CountdownComponent', () => {
 
     it('should toggle timer', () => {
         const sendSpy = spyOn(component['socketClientService'], 'send');
+
         component.isPaused = false;
         component.toggleTimer();
         expect(component.isPaused).toBeTruthy();

@@ -83,13 +83,14 @@ export class CountdownComponent implements OnInit, OnDestroy {
         this.canTogglePanicMode = false;
 
         const currentTime = this.time;
-        if (currentTime > this.minPanicTime()) {
+        const minPanicTime = this.minPanicTime();
+        if (currentTime > minPanicTime) {
             this.socketClientService.send(TimeEvents.PanicMode, { currentTime, roomId: this.roomId });
         }
     }
 
     private minPanicTime() {
-        const currentQuestionType = this.quiz?.questions[this.currentQuestionIndex]?.type;
+        const currentQuestionType = this.quiz.questions[this.currentQuestionIndex].type;
 
         if (currentQuestionType === 'QRL') {
             return Constants.MIN_TIME_TO_PANIC_QRL;
@@ -99,7 +100,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
     }
 
     private async loadTimer() {
-        this.lastQuestionIndex = this.quiz?.questions.length - 1;
+        this.lastQuestionIndex = this.quiz.questions.length - 1;
         if (this.isTestGame) {
             this.switchColorToRedOnThreeSeconds();
             this.testGameClock();
@@ -109,14 +110,14 @@ export class CountdownComponent implements OnInit, OnDestroy {
             this.reactToNextQuestionEvent();
             this.reactToTimerInterruptedEvent();
             this.questionClock();
-            this.currentQuestionIndex++;
         }
     }
 
     private reactToTimerEvent() {
         const switchColorTime = 3;
+        const minPanicTime = this.minPanicTime();
         this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
-            if (time < this.minPanicTime()) {
+            if (time < minPanicTime) {
                 this.canTogglePanicMode = false;
             }
             if (time === 0) {
