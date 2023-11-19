@@ -1,10 +1,11 @@
 import { Quiz } from '@app/model/database/quiz';
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
-import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
-import { ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { Response } from 'express';
 import { ChatMessage } from '@common/chat-message';
 import { Results } from '@common/player-info';
+import { QuestionChartData } from '@common/question-chart-data';
+import { Body, Controller, Get, HttpStatus, Logger, Param, Post, Res } from '@nestjs/common';
+import { ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
 
 @ApiTags('Rooms')
 @Controller('rooms')
@@ -178,6 +179,46 @@ export class RoomController {
             response.status(HttpStatus.OK).json(messages);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).json(`Erreur lors de la récupération des messages de la salle ${roomId}`);
+        }
+    }
+
+    @ApiOkResponse({
+        description: 'Returns posted question chart data in room',
+        type: Array<QuestionChartData>,
+    })
+    @ApiNotFoundResponse({
+        description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
+    })
+    @Post('/:roomId/chart')
+    handleSendChartData(@Param('roomId') roomId: string, @Body() questionChartData: QuestionChartData, @Res() response: Response) {
+        Logger.log(questionChartData);
+        try {
+            Logger.log(questionChartData);
+            this.roomManagerService.postQuestionChartData(roomId, questionChartData);
+            response.status(HttpStatus.OK).json(questionChartData);
+        } catch (error) {
+            response
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .json(`Erreur lors de l'envoi des données du tableau pour une question de la salle ${roomId}`);
+        }
+    }
+
+    @ApiOkResponse({
+        description: 'Returns quiz question charts in room',
+        type: Array<QuestionChartData>,
+    })
+    @ApiNotFoundResponse({
+        description: 'Return NOT_FOUND http status when request fails',
+    })
+    @Get('/:roomId/chart')
+    handleGetQuestionChartData(@Param('roomId') roomId: string, @Res() response: Response) {
+        try {
+            const questionCharts = this.roomManagerService.getQuestionChartData(roomId);
+            response.status(HttpStatus.OK).json(questionCharts);
+        } catch (error) {
+            response
+                .status(HttpStatus.NOT_FOUND)
+                .json(`Erreur lors de la récupération des données du tableau pour une question de la salle ${roomId}`);
         }
     }
 }

@@ -1,7 +1,12 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { QuestionZoneStatsComponent } from '@app/components/question-zone-stats/question-zone-stats.component';
+import { Quiz } from '@app/interfaces/quiz';
+import { CommunicationService } from '@app/services/communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { GameEvents } from '@common/game.events';
+import { Chart } from 'chart.js';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-results-page',
@@ -9,16 +14,21 @@ import { GameEvents } from '@common/game.events';
     styleUrls: ['./results-page.component.scss', '../../../assets/shared.scss'],
 })
 export class ResultsPageComponent implements OnInit, OnDestroy {
-    roomId: string | null;
+    @ViewChild(QuestionZoneStatsComponent, { static: false }) questionZoneStats: QuestionZoneStatsComponent;
+
+    roomId: string;
+    quiz: Quiz;
     title: string;
+    chart: Chart[];
     private isHost: boolean;
 
     constructor(
         private route: ActivatedRoute,
         private router: Router,
         private socketClientService: SocketClientService,
+        private communicationService: CommunicationService,
     ) {
-        this.roomId = this.route.snapshot.paramMap.get('roomId');
+        this.roomId = this.route.snapshot.paramMap.get('roomId') as string;
         this.title = 'Résultats';
         this.isHost = this.router.url.endsWith('/host');
     }
@@ -55,6 +65,11 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
             }
             this.router.navigateByUrl('home/');
             return;
+        }
+
+        const quizId = this.route.snapshot.paramMap.get('quizId');
+        if (quizId) {
+            this.quiz = await firstValueFrom(this.communicationService.getQuiz(quizId));
         }
     }
 }

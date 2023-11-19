@@ -1,8 +1,9 @@
 import { AnswerTime, Organizer, Player, Room } from '@app/interfaces/room';
 import { Quiz } from '@app/model/database/quiz';
-import { Injectable } from '@nestjs/common';
 import { ChatMessage } from '@common/chat-message';
 import { Results } from '@common/player-info';
+import { QuestionChartData } from '@common/question-chart-data';
+import { Injectable, Logger } from '@nestjs/common';
 import * as randomstring from 'randomstring';
 
 @Injectable()
@@ -26,6 +27,7 @@ export class RoomManagerService {
             timer: null,
             results: [],
             chatMessage: [],
+            questionChartData: [],
         });
 
         return roomId;
@@ -150,6 +152,16 @@ export class RoomManagerService {
     postChatMessages(roomId: string, chatMessages: ChatMessage[]) {
         const room = this.findRoom(roomId);
         room.chatMessage = chatMessages;
+    }
+
+    postQuestionChartData(roomId: string, questionChartData: QuestionChartData) {
+        const room = this.findRoom(roomId);
+        room.questionChartData.push(questionChartData);
+    }
+
+    getQuestionChartData(roomId: string) {
+        Logger.log(this.findRoom(roomId).questionChartData);
+        return this.findRoom(roomId).questionChartData;
     }
 
     private createRoomId() {

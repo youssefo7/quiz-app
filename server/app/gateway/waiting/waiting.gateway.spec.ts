@@ -54,6 +54,7 @@ describe('WaitingGateway', () => {
             timer: null,
             results: [],
             chatMessage: [],
+            questionChartData: [],
         });
 
         gateway['server'] = server;

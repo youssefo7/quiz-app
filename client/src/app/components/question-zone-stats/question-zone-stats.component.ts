@@ -1,4 +1,5 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
@@ -12,6 +13,8 @@ import { Subscription, firstValueFrom } from 'rxjs';
     styleUrls: ['./question-zone-stats.component.scss'],
 })
 export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
+    // @ViewChild(QuestionZoneStatsComponent, { static: false }) histogram: HistogramComponent;
+    @ViewChild(HistogramComponent, { static: false }) histogramChild: HistogramComponent;
     @Input() quiz: Quiz;
     @Input() roomId: string;
     question: Question;
@@ -84,8 +87,8 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         });
     }
 
-    private setEvents() {
-        this.getQuestion(this.currentQuestionIndex);
+    private async setEvents() {
+        await this.getQuestion(this.currentQuestionIndex);
         this.enableNextQuestionButton();
         this.reactToNextQuestionEvent();
         this.handleSubmittedQuestion();
@@ -95,10 +98,11 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         this.handleUnSubmitQuestion();
     }
 
-    private getQuestion(index: number) {
+    private async getQuestion(index: number) {
         if (this.quiz && index < this.quiz.questions.length) {
             this.question = this.quiz.questions[index];
             if (this.currentQuestionIndex === this.lastQuestionIndex) {
+                await firstValueFrom(this.roomCommunicationService.sendChartData(this.roomId, this.histogramChild.getQuestionChartData()));
                 this.nextQuestionButtonText = 'Voir les résultats';
             }
         }
@@ -147,11 +151,11 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         }
     }
 
-    private showNextQuestion() {
+    private async showNextQuestion() {
         if (!this.isEndOfQuestionTime && this.quiz) {
             this.currentQuestionIndex++;
             this.resetAnswerCount();
-            this.getQuestion(this.currentQuestionIndex);
+            await this.getQuestion(this.currentQuestionIndex);
         }
     }
 

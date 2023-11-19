@@ -2,6 +2,7 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { GameEvents } from '@common/game.events';
+import { QuestionChartData } from '@common/question-chart-data';
 import { TimeEvents } from '@common/time.events';
 import { Chart } from 'chart.js';
 
@@ -11,10 +12,12 @@ import { Chart } from 'chart.js';
     styleUrls: ['./histogram.component.scss'],
 })
 export class HistogramComponent implements OnInit, OnDestroy {
+    @Input() roomId: string;
     @Input() quiz: Quiz;
     question: Question;
     chart: Chart;
     goodBadChoices: boolean[];
+    private questionChartData: QuestionChartData[];
     private playersChoices: string[];
     private choicesSelectionCounts: number[];
     private chartBorderColors: string[];
@@ -22,6 +25,7 @@ export class HistogramComponent implements OnInit, OnDestroy {
     private currentQuestionIndex: number;
 
     constructor(private readonly socketClientService: SocketClientService) {
+        this.questionChartData = [];
         this.playersChoices = [];
         this.chartBorderColors = [];
         this.chartBackgroundColors = [];
@@ -37,12 +41,28 @@ export class HistogramComponent implements OnInit, OnDestroy {
         this.loadChart();
         this.updateSelections();
         this.reactToTransitionClockFinishedEvent();
+        this.reactToTimerFinishedEvent();
     }
 
     ngOnDestroy() {
         if (this.chart) {
             this.chart.destroy();
         }
+    }
+
+    getQuestionChartData(): QuestionChartData[] {
+        return this.questionChartData;
+    }
+
+    private saveChartData() {
+        const newChartData: QuestionChartData = {
+            playersChoices: this.playersChoices,
+            choicesSelectionCounts: this.choicesSelectionCounts,
+            chartBorderColors: this.chartBorderColors,
+            chartBackgroundColors: this.chartBackgroundColors,
+            currentQuestionIndex: this.currentQuestionIndex,
+        };
+        this.questionChartData.push(newChartData);
     }
 
     private async loadChart() {
@@ -72,6 +92,12 @@ export class HistogramComponent implements OnInit, OnDestroy {
             this.resetArrays();
             this.getQuestion(this.currentQuestionIndex);
             this.updateChartConfig();
+        });
+    }
+
+    private reactToTimerFinishedEvent() {
+        this.socketClientService.on(GameEvents.SaveChartData, () => {
+            this.saveChartData();
         });
     }
 
