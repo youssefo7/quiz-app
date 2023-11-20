@@ -262,13 +262,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     private givePoints() {
         if (this.isTestGame) {
             if (this.isAnswerGood()) {
-                if (this.question.type === QTypes.QCM) {
-                    this.giveBonus();
-                } else {
-                    this.points = this.question.points;
-                    this.pointsToDisplay = this.question.points;
-                    this.pointsMessage = '(100% Bravo!)';
-                }
+                this.giveBonus();
             } else {
                 this.points = 0;
                 this.pointsMessage = '';
