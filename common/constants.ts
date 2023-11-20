@@ -18,9 +18,9 @@ export const Constants = {
     MIN_TIME_TO_PANIC_QRL: 20,
     AUDIO: './assets/audio/panic-mode.mp3',
     TIME_LENGTH: 8,
-  } as const;
+    TEXT_CHANGE_PERIOD: 5,
+} as const;
 
-  
 export const enum QTypes {
     QRL = 'QRL',
     QCM = 'QCM',

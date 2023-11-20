@@ -1,6 +1,6 @@
 import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
-import { Quiz } from '@app/interfaces/quiz';
+import { Question } from '@app/interfaces/quiz';
 import { ChartDataManagerService } from '@app/services/chart-data-manager.service';
 import { QuestionChartData } from '@common/question-chart-data';
 
@@ -11,13 +11,13 @@ import { QuestionChartData } from '@common/question-chart-data';
 })
 export class ResultChartComponent implements OnInit, OnDestroy {
     @ViewChild(HistogramComponent, { static: false }) histogram: HistogramComponent;
-    @Input() quiz: Quiz;
+    @Input() questions: Question[];
     @Input() roomId: string;
     canGoToNextQuestion: boolean;
     canGoToPreviousQuestion: boolean;
+    currentQuestionIndex: number;
     private chartData: QuestionChartData[];
     private chartDataToLoad: QuestionChartData;
-    private currentQuestionIndex: number;
     private lastQuestionIndex: number;
 
     constructor(private chartDataManager: ChartDataManagerService) {
@@ -58,17 +58,13 @@ export class ResultChartComponent implements OnInit, OnDestroy {
 
     private updateChartToLoad() {
         this.chartDataToLoad = this.chartDataManager.findChartDataToLoad(this.chartData, this.currentQuestionIndex);
-        this.updateChart();
+        this.histogram.setChartDataToLoad(this.chartDataToLoad);
         this.updateQuestionNavigation();
     }
 
     private updateQuestionNavigation() {
         this.canGoToNextQuestion = this.isViewNextQuestionPossible();
         this.canGoToPreviousQuestion = this.isViewPreviousQuestionPossible();
-    }
-
-    private updateChart() {
-        this.histogram.setChartDataToLoad(this.chartDataToLoad);
     }
 
     private resetData() {

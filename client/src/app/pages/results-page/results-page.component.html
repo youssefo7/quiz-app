@@ -1,13 +1,26 @@
 <div class="background">
     <app-top-bar [title]="title"></app-top-bar>
-    <!-- <div id="grid-container">
+    <div id="grid-container" *ngIf="quiz">
         <div id="exit-button-grid">
             <mat-icon title="Quitter la Partie" inline="true" routerLink="/home">exit_to_app</mat-icon>
         </div>
-        <app-game-players-list id="player-list-grid" [roomId]="roomId"></app-game-players-list>
+        <h1 id="title">
+            <span *ngIf="!shouldHideResults">Score des joueurs</span>
+            <span *ngIf="shouldHideResults">Statistiques de la partie</span>
+        </h1>
+        <button id="toggle-button" (click)="toggleResultsDisplay()">
+            <mat-icon *ngIf="!shouldHideResults"> bar_chart</mat-icon>
+            <mat-icon *ngIf="shouldHideResults"> list_alt</mat-icon>
+        </button>
+        <app-result-chart
+            [ngClass]="{ hide: !shouldHideResults }"
+            class="player-list-and-chart-grid"
+            [questions]="quiz.questions"
+            [roomId]="roomId"
+        ></app-result-chart>
+        <app-game-players-list [ngClass]="{ hide: shouldHideResults }" class="player-list-and-chart-grid" [roomId]="roomId"></app-game-players-list>
         <div id="chat-player-flex">
             <app-chat id="chat-container" [roomId]="roomId"></app-chat>
         </div>
-    </div> -->
-    <app-result-chart [quiz]="quiz" [roomId]="roomId"></app-result-chart>
+    </div>
 </div>

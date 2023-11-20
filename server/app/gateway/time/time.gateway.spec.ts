@@ -72,16 +72,6 @@ describe('TimeGateway', () => {
         expect(emitMock).toHaveBeenCalledWith(TimeEvents.CurrentTimer, counter);
     });
 
-    it('handleTransitionClockFinished() should emit TransitionClockFinished event to users in a room when timer ended and will start again', () => {
-        stub(socket, 'rooms').value(new Set([roomId]));
-        server.to.returns({
-            emit: (event: string) => {
-                expect(event).toEqual(TimeEvents.TransitionClockFinished);
-            },
-        } as BroadcastOperator<unknown, unknown>);
-        gateway.handleTransitionClockFinished(socket, roomId);
-    });
-
     it('handleStartTimer() should handle the timer finishing and emit TimerFinished event to the users in the room', async () => {
         jest.useFakeTimers();
 

@@ -1,13 +1,17 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { Quiz } from '@app/interfaces/quiz';
-import { GameService } from '@app/services/game.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
 import { Constants, QTypes } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { TimeEvents } from '@common/time.events';
+import { Timer } from '@common/timer';
 import { Subscription } from 'rxjs';
+
+interface ClockStyle {
+    backgroundColor: string;
+}
 
 @Component({
     selector: 'app-countdown',
@@ -17,36 +21,35 @@ import { Subscription } from 'rxjs';
 export class CountdownComponent implements OnInit, OnDestroy {
     @Input() isHost: boolean;
     @Input() quiz: Quiz;
-    @Input() roomId: string | null;
+    @Input() roomId: string;
+    @Input() isTestGame: boolean;
     message: string;
-    clockStyle: { backgroundColor: string };
+    clockStyle: ClockStyle;
     isPaused: boolean;
     isInPanicMode: boolean;
     canTogglePanicMode: boolean;
-    isQuestionTransitioning: boolean;
     canToggleTimer: boolean;
+    isTransitionTimerRunning: boolean;
     private socketTime: number;
     private timerSubscription: Subscription;
+    private timerFinishedSubscription: Subscription;
     private currentQuestionIndex: number;
     private lastQuestionIndex: number;
-    private isTestGame: boolean;
-    private hasFinishedTransitionClock: boolean;
     private panicAudio: HTMLAudioElement;
+    private panicTime: number;
 
     // Tous ces paramètres sont nécessaires pour que la composante fonctionne bien
     // eslint-disable-next-line max-params
     constructor(
         private readonly timeService: TimeService,
-        private readonly route: ActivatedRoute,
         private readonly router: Router,
-        private readonly gameService: GameService,
         private readonly socketClientService: SocketClientService,
     ) {
         this.currentQuestionIndex = 0;
-        this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
+        this.isTransitionTimerRunning = false;
         this.isPaused = false;
         this.isInPanicMode = false;
-        this.canTogglePanicMode = true;
+        this.canTogglePanicMode = false;
         this.canToggleTimer = true;
         this.panicAudio = new Audio(Constants.AUDIO);
     }
@@ -66,147 +69,161 @@ export class CountdownComponent implements OnInit, OnDestroy {
         if (this.timerSubscription) {
             this.timerSubscription.unsubscribe();
         }
+        if (this.timerFinishedSubscription) {
+            this.timerFinishedSubscription.unsubscribe();
+        }
     }
 
     toggleTimer() {
         this.isPaused = !this.isPaused;
-        this.socketClientService.send(TimeEvents.ToggleTimer, { roomId: this.roomId, isPaused: this.isPaused, currentTime: this.time });
+        const timer: Timer = {
+            initialTime: this.time,
+            roomId: this.roomId as string,
+            tickRate: Constants.ONE_SECOND_INTERVAL,
+            isPaused: this.isPaused,
+        };
+
+        this.socketClientService.send(TimeEvents.ToggleTimer, timer);
     }
 
     panicMode() {
         this.panicAudio.play();
         this.isInPanicMode = true;
         this.canTogglePanicMode = false;
-
-        this.socketClientService.send(TimeEvents.PanicMode, { currentTime: this.time, roomId: this.roomId });
-    }
-
-    private getMinPanicTime() {
-        const currentQuestionType = this.quiz.questions[this.currentQuestionIndex].type;
-
-        if (currentQuestionType === QTypes.QRL) {
-            return Constants.MIN_TIME_TO_PANIC_QRL;
-        } else {
-            return Constants.MIN_TIME_TO_PANIC_QCM;
-        }
+        const panicTimer: Timer = {
+            initialTime: this.time,
+            roomId: this.roomId as string,
+            tickRate: Constants.QUARTER_SECOND_INTERVAL,
+        };
+        this.socketClientService.send(TimeEvents.PanicMode, panicTimer);
     }
 
     private async loadTimer() {
         this.lastQuestionIndex = this.quiz.questions.length - 1;
+        this.reactToTimerEvents();
+
         if (this.isTestGame) {
-            this.switchColorToRedOnThreeSeconds();
             this.testGameClock();
         } else {
-            this.reactToTimerEvent();
-            this.reactToTimerFinishedEvent();
             this.reactToNextQuestionEvent();
-            this.reactToTimerInterruptedEvent();
             this.questionClock();
         }
     }
 
-    private reactToTimerEvent() {
-        const switchColorTime = 3;
-        const minPanicTime = this.getMinPanicTime();
-        this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
-            if (time < minPanicTime) {
-                this.canTogglePanicMode = false;
-            }
-            if (time === 0) {
-                this.canToggleTimer = false;
-            }
-            this.socketTime = time;
-            this.setClockColorToRed(this.socketTime, switchColorTime);
-        });
-    }
+    private reactToTimerEvents() {
+        if (this.isTestGame) {
+            const switchColorTime = 4;
+            this.timerSubscription = this.timeService.getTime().subscribe((time: number) => {
+                this.setClockColorToRed(time, switchColorTime);
+            });
 
-    private reactToTimerFinishedEvent() {
-        this.socketClientService.on(TimeEvents.TimerFinished, () => {
-            if (this.hasFinishedTransitionClock) {
-                this.currentQuestionIndex++;
-                if (this.isHost) {
-                    this.socketClientService.send(TimeEvents.TransitionClockFinished, this.roomId);
+            this.timerFinishedSubscription = this.timeService.isTimerFinished().subscribe((isTransitionTimer: boolean) => {
+                this.isTransitionTimerRunning = !isTransitionTimer;
+            });
+        } else {
+            const switchColorTime = 3;
+            this.setPanicTime(this.currentQuestionIndex);
+
+            this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
+                if (time <= this.panicTime && !this.isInPanicMode) {
+                    this.canTogglePanicMode = true;
                 }
-                this.hasFinishedTransitionClock = false;
-                this.questionClock();
-            }
-        });
-    }
+                if (time === 0) {
+                    this.canToggleTimer = false;
+                    this.canTogglePanicMode = false;
+                }
+                this.socketTime = time;
+                this.setClockColorToRed(this.socketTime, switchColorTime);
+            });
 
-    private reactToTimerInterruptedEvent() {
-        this.socketClientService.on(TimeEvents.TimerInterrupted, () => {
-            this.socketTime = 0;
-            this.canToggleTimer = false;
-            this.canTogglePanicMode = false;
-        });
+            this.socketClientService.on(TimeEvents.TimerFinished, (isTransitionTimer: boolean) => {
+                this.isTransitionTimerRunning = !isTransitionTimer;
+                if (isTransitionTimer) {
+                    this.currentQuestionIndex++;
+                    this.setPanicTime(this.currentQuestionIndex);
+                    this.questionClock();
+                }
+            });
+
+            this.socketClientService.on(TimeEvents.TimerInterrupted, () => {
+                this.socketTime = 0;
+                this.canToggleTimer = false;
+                this.canTogglePanicMode = false;
+                this.isTransitionTimerRunning = true;
+            });
+        }
     }
 
     private reactToNextQuestionEvent() {
         this.socketClientService.on(GameEvents.NextQuestion, () => {
             if (this.currentQuestionIndex <= this.lastQuestionIndex) {
-                this.hasFinishedTransitionClock = true;
                 this.transitionClock();
             }
         });
     }
 
-    private switchColorToRedOnThreeSeconds() {
-        const switchColorTime = 4;
-        this.timerSubscription = this.timeService.getTime().subscribe((time: number) => {
-            this.setClockColorToRed(time, switchColorTime);
-        });
-    }
-
     private setClockColorToRed(time: number, switchColorTime: number) {
-        if (!this.isQuestionTransitioning && time <= switchColorTime) {
+        if (!this.isTransitionTimerRunning && time <= switchColorTime) {
             this.clockStyle = { backgroundColor: '#FF4D4D' };
         }
     }
 
+    private setPanicTime(questionIndex: number) {
+        const currentQuestionType = this.quiz.questions[questionIndex].type;
+        const isQCM = currentQuestionType === QTypes.QCM;
+        this.panicTime = isQCM ? Constants.MIN_TIME_TO_PANIC_QCM : Constants.MIN_TIME_TO_PANIC_QRL;
+    }
+
     private async transitionClock() {
         const transitionTime = 3;
-        this.isQuestionTransitioning = true;
+        const isTransitionTimer = true;
         this.message = 'Préparez-vous!';
         this.clockStyle = { backgroundColor: '#E5E562' };
+
         if (this.isTestGame) {
-            await this.timeService.startTimer(transitionTime);
+            await this.timeService.startTimer(transitionTime, isTransitionTimer);
         } else {
-            this.socketClientService.send(TimeEvents.StartTimer, {
+            const transitionTimer: Timer = {
                 initialTime: transitionTime,
-                roomId: this.roomId,
+                roomId: this.roomId as string,
                 tickRate: Constants.ONE_SECOND_INTERVAL,
-            });
+                isTransitionTimer,
+            };
+            this.socketClientService.send(TimeEvents.StartTimer, transitionTimer);
         }
     }
 
     private async questionClock() {
-        this.isQuestionTransitioning = false;
+        const isTransitionTimer = false;
         this.canToggleTimer = true;
-        this.canTogglePanicMode = true;
+        this.canTogglePanicMode = false;
         this.isInPanicMode = false;
         this.message = 'Temps Restant';
         this.clockStyle = { backgroundColor: 'lightblue' };
-        const questionTime = this.quiz.questions[this.currentQuestionIndex].type === QTypes.QCM ? this.quiz.duration : Constants.MAX_DURATION;
-        if (this.quiz) {
-            if (this.isTestGame) {
-                await this.timeService.startTimer(questionTime);
-            } else {
-                this.socketClientService.send(TimeEvents.StartTimer, {
-                    initialTime: questionTime,
-                    roomId: this.roomId,
-                    tickRate: Constants.ONE_SECOND_INTERVAL,
-                });
-            }
+        const isQCM = this.quiz.questions[this.currentQuestionIndex].type === QTypes.QCM;
+        const questionTime = isQCM ? this.quiz.duration : Constants.MAX_DURATION;
+
+        if (this.isTestGame) {
+            await this.timeService.startTimer(questionTime, isTransitionTimer);
+        } else {
+            const questionTimer: Timer = {
+                initialTime: questionTime,
+                roomId: this.roomId as string,
+                tickRate: Constants.ONE_SECOND_INTERVAL,
+                isTransitionTimer,
+            };
+            this.socketClientService.send(TimeEvents.StartTimer, questionTimer);
         }
     }
 
     private async leaveGameClock() {
         const exitTransitionTime = 3;
-        this.isQuestionTransitioning = true;
+        const isTransitionTimer = true;
         this.message = 'Redirection vers «Créer une Partie»';
         this.clockStyle = { backgroundColor: 'white' };
+
         if (this.isTestGame) {
-            await this.timeService.startTimer(exitTransitionTime);
+            await this.timeService.startTimer(exitTransitionTime, isTransitionTimer);
         }
     }
 
@@ -222,7 +239,6 @@ export class CountdownComponent implements OnInit, OnDestroy {
     }
 
     private async leaveGame() {
-        this.gameService.setGameEndState = true;
         await this.leaveGameClock();
         await this.router.navigateByUrl('/game/new');
     }

@@ -1,0 +1,17 @@
+<div id="evaluation-zone" *ngIf="!isEvaluationFinished">
+    <div id="answer">
+        <p id="player-name">Joueur: {{ answers[currentAnswerIndex].name }}</p>
+        <p id="player-answer">
+            {{ answers[currentAnswerIndex].answer }}
+        </p>
+    </div>
+    <div id="buttons">
+        <div id="grade-buttons">
+            <button [ngClass]="{ chosen: gradeButtonState.isZeroGradePressed }" (click)="setGrade(0)">0</button>
+            <button [ngClass]="{ chosen: gradeButtonState.is50GradePressed }" (click)="setGrade(0.5)">50</button>
+            <button [ngClass]="{ chosen: gradeButtonState.is100GradePressed }" (click)="setGrade(1)">100</button>
+        </div>
+        <button id="submit-button" (click)="givePoints()" [disabled]="isSubmitEvaluationDisabled">Envoyer l'évaluation</button>
+    </div>
+</div>
+<div *ngIf="isEvaluationFinished">Vous avez fini d'évaluer tous les joueurs!</div>

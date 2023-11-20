@@ -22,7 +22,7 @@ describe('TimeService', () => {
     });
 
     it('startTimer should start an interval', fakeAsync(() => {
-        service.startTimer(TIMEOUT);
+        service.startTimer(TIMEOUT, false);
         const interval = service['interval'];
         expect(interval).toBeTruthy();
         expect(service.time).toEqual(TIMEOUT);
@@ -31,13 +31,13 @@ describe('TimeService', () => {
 
     it('startTimer should call setInterval', fakeAsync(() => {
         const spy = spyOn(window, 'setInterval');
-        service.startTimer(TIMEOUT);
+        service.startTimer(TIMEOUT, false);
         expect(spy).toHaveBeenCalled();
         discardPeriodicTasks();
     }));
 
     it('interval should reduce time by 1 every second ', fakeAsync(() => {
-        service.startTimer(TIMEOUT);
+        service.startTimer(TIMEOUT, false);
         tick(MS_SECOND);
         expect(service.time).toEqual(TIMEOUT - 1);
         tick(MS_SECOND);
@@ -46,23 +46,23 @@ describe('TimeService', () => {
     }));
 
     it('interval should stop after TIMEOUT seconds ', fakeAsync(() => {
-        service.startTimer(TIMEOUT);
+        service.startTimer(TIMEOUT, false);
         tick((TIMEOUT + 2) * MS_SECOND);
         expect(service.time).toEqual(0);
         discardPeriodicTasks();
     }));
 
     it('startTimer should not start a new interval if one exists', fakeAsync(() => {
-        service.startTimer(TIMEOUT);
+        service.startTimer(TIMEOUT, false);
         const spy = spyOn(window, 'setInterval');
-        service.startTimer(TIMEOUT);
+        service.startTimer(TIMEOUT, false);
         expect(spy).not.toHaveBeenCalled();
         discardPeriodicTasks();
     }));
 
     it('startTimer should call stopTimer at the end of timer', fakeAsync(() => {
         const spy = spyOn(service, 'stopTimer').and.callThrough();
-        service.startTimer(TIMEOUT);
+        service.startTimer(TIMEOUT, false);
         tick((TIMEOUT + 1) * MS_SECOND);
         expect(spy).toHaveBeenCalled();
         discardPeriodicTasks();
@@ -78,11 +78,11 @@ describe('TimeService', () => {
 
     it('should set to isButtonPressed to its value when it changes in gameService', () => {
         let isButtonPressedValue = true;
-        gameService.setButtonPressState = isButtonPressedValue;
-        expect(service['isButtonPressed']).toEqual(isButtonPressedValue);
+        gameService.setSubmitButtonPressState = isButtonPressedValue;
+        expect(service['isSubmitButtonPressed']).toEqual(isButtonPressedValue);
 
         isButtonPressedValue = false;
-        gameService.setButtonPressState = isButtonPressedValue;
-        expect(service['isButtonPressed']).toEqual(isButtonPressedValue);
+        gameService.setSubmitButtonPressState = isButtonPressedValue;
+        expect(service['isSubmitButtonPressed']).toEqual(isButtonPressedValue);
     });
 });

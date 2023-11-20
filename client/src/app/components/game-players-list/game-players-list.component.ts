@@ -8,13 +8,10 @@ import { ChatEvents } from '@common/chat.events';
 import { Constants } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { Results } from '@common/player-info';
+import { PlayerPoints } from '@common/player-points';
+import { PlayerSubmission } from '@common/player-submission';
 import { TimeEvents } from '@common/time.events';
 import { firstValueFrom } from 'rxjs';
-
-interface AddPointsResponse {
-    pointsToAdd: number;
-    name: string;
-}
 
 enum PlayerState {
     HasNotInteracted,
@@ -147,14 +144,14 @@ export class GamePlayersListComponent implements OnInit {
 
     private listenToSocketEvents() {
         this.socketService.on(GameEvents.PlayerAbandonedGame, (playerName: string) => {
-            this.markAsAbandonned(playerName);
+            this.markAsAbandoned(playerName);
             if (this.isSortedByState) {
                 this.shouldSortStatesAscending = !this.shouldSortStatesAscending;
                 this.sortByState();
             }
         });
 
-        this.socketService.on(GameEvents.AddPointsToPlayer, (response: AddPointsResponse) => {
+        this.socketService.on(GameEvents.AddPointsToPlayer, (response: PlayerPoints) => {
             this.updatePlayerScore(response);
             if (this.isSortedByPoints) {
                 this.shouldSortPointsAscending = !this.shouldSortPointsAscending;
@@ -173,11 +170,13 @@ export class GamePlayersListComponent implements OnInit {
             this.router.navigateByUrl(`/results/game/${this.quizId}/room/${this.roomId}/host`);
         });
 
-        this.socketService.on(GameEvents.SubmitQuestionOnClick, (playerName: string) => {
-            this.updateAnswerConfirmation(playerName);
-            if (this.isSortedByState) {
-                this.shouldSortStatesAscending = !this.shouldSortStatesAscending;
-                this.sortByState();
+        this.socketService.on(GameEvents.SubmitAnswer, (playerSubmission: PlayerSubmission) => {
+            if (playerSubmission.hasSubmitted) {
+                this.updateAnswerConfirmation(playerSubmission.name as string);
+                if (this.isSortedByState) {
+                    this.shouldSortStatesAscending = !this.shouldSortStatesAscending;
+                    this.sortByState();
+                }
             }
         });
 
@@ -189,25 +188,27 @@ export class GamePlayersListComponent implements OnInit {
             }
         });
 
-        this.socketService.on(TimeEvents.TransitionClockFinished, () => {
-            this.resetPlayersInfo();
-            if (this.isSortedByState) {
-                this.shouldSortStatesAscending = !this.shouldSortStatesAscending;
-                this.sortByState();
+        this.socketService.on(TimeEvents.TimerFinished, (isTransitionTimer: boolean) => {
+            if (isTransitionTimer) {
+                this.resetPlayersInfo();
+                if (this.isSortedByState) {
+                    this.shouldSortStatesAscending = !this.shouldSortStatesAscending;
+                    this.sortByState();
+                }
             }
         });
 
         // TODO ajouter pour l'interaction avec la zone de réponse QRL
     }
 
-    private markAsAbandonned(playerName: string) {
+    private markAsAbandoned(playerName: string) {
         const playerToUpdate = this.playerResults.find((player) => player.name === playerName) as Results;
         playerToUpdate.hasConfirmedAnswer = false;
         playerToUpdate.hasClickedOnAnswerField = false;
         playerToUpdate.hasAbandoned = true;
     }
 
-    private updatePlayerScore(response: AddPointsResponse) {
+    private updatePlayerScore(response: PlayerPoints) {
         const playerToUpdate = this.playerResults.find((player) => player.name === response.name) as Results;
         playerToUpdate.points += response.pointsToAdd;
     }

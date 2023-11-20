@@ -22,10 +22,10 @@ export class ChartDataManagerService {
         return this.chartData;
     }
 
-    saveChartData(playersChoices: string[], choicesSelectionCounts: number[], currentQuestionIndex: number) {
+    saveChartData(playersChoices: string[], interactionsCount: number[], currentQuestionIndex: number) {
         const newChartData: QuestionChartData = {
             playersChoices,
-            choicesSelectionCounts,
+            interactionsCount,
             currentQuestionIndex,
         };
         this.chartData.push(newChartData);

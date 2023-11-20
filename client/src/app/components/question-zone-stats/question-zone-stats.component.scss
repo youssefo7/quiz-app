@@ -27,10 +27,14 @@
         }
     }
 
-    .chart-container {
+    #chart-container {
         align-self: center;
         flex-basis: 60%;
         width: 90%;
+
+        .hide {
+            display: none;
+        }
     }
 
     #submit-zone {

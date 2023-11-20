@@ -28,6 +28,9 @@ export class RoomManagerService {
             results: [],
             chatMessage: [],
             questionsChartData: [],
+            submissionCount: 0,
+            qrlAnswers: [],
+            qrlUpdates: [],
         });
 
         return roomId;
@@ -36,7 +39,7 @@ export class RoomManagerService {
     addPlayerToRoom(room: Room, playerId: string, name: string) {
         const res = this.findPlayer(playerId, room);
         if (!res) {
-            room.players.push({ socketId: playerId, name, points: 0, bonusCount: 0, canChat: true });
+            room.players.push({ socketId: playerId, name, points: 0, bonusCount: 0, canChat: true, hasSubmitted: false });
         }
     }
 
@@ -77,6 +80,17 @@ export class RoomManagerService {
     }
 
     getQuickestTime(room: Room): AnswerTime | null {
+        const hasSomeoneSubmitted = room.answerTimes.some((answerTime) => answerTime.timeStamp !== null);
+        if (!hasSomeoneSubmitted) {
+            const nbOfGoodAnswers = room.answerTimes.length;
+            if (nbOfGoodAnswers === 1) {
+                const quickestPlayer = room.answerTimes[0];
+                return quickestPlayer;
+            }
+            return null;
+        }
+
+        room.answerTimes = room.answerTimes.filter((answerTime) => answerTime.timeStamp !== null);
         const fastestPlayer = room.answerTimes.reduce((currentFastestPlayer, currentPlayer) => {
             if (currentPlayer.timeStamp < currentFastestPlayer.timeStamp) {
                 return currentPlayer;
@@ -179,6 +193,7 @@ export class RoomManagerService {
 
         return roomId;
     }
+
     private isNameTaken(room: Room, name: string) {
         if (name.toLowerCase() === 'organisateur') {
             return true;

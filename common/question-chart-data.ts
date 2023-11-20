@@ -1,5 +1,5 @@
 export interface QuestionChartData {
     playersChoices: string[];
-    choicesSelectionCounts: number[];
+    interactionsCount: number[];
     currentQuestionIndex: number;
 }

@@ -1,6 +1,7 @@
 import { Quiz } from '@app/model/database/quiz';
 import { ChatMessage } from '@common/chat-message';
 import { Results } from '@common/player-info';
+import { PlayerSubmission } from '@common/player-submission';
 import { QuestionChartData } from '@common/question-chart-data';
 
 export interface Room {
@@ -15,6 +16,9 @@ export interface Room {
     results: Results[];
     chatMessage: ChatMessage[];
     questionsChartData: QuestionChartData[];
+    submissionCount: number;
+    qrlAnswers: PlayerSubmission[];
+    qrlUpdates: boolean[];
 }
 
 export interface User {
@@ -26,11 +30,12 @@ export interface Player extends User {
     points: number;
     bonusCount: number;
     canChat: boolean;
+    hasSubmitted: boolean;
 }
 
 export interface Organizer extends User {}
 
 export interface AnswerTime {
     userId: string;
-    timeStamp: number;
+    timeStamp: number | null;
 }

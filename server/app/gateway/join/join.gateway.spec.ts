@@ -36,8 +36,8 @@ describe('JoinGateway', () => {
             quiz: {} as Quiz,
             organizer: { socketId: 'organizerId', name: 'Organisateur' },
             players: [
-                { socketId: 'playerId1', name: 'name1', points: 50, bonusCount: 0, canChat: true },
-                { socketId: 'playerId2', name: 'name2', points: 200, bonusCount: 1, canChat: false },
+                { socketId: 'playerId1', name: 'name1', points: 50, bonusCount: 0, canChat: true, hasSubmitted: false },
+                { socketId: 'playerId2', name: 'name2', points: 200, bonusCount: 1, canChat: false, hasSubmitted: false },
             ],
             isLocked: false,
             bannedNames: ['bannedName1'],
@@ -46,6 +46,9 @@ describe('JoinGateway', () => {
             results: [],
             chatMessage: [],
             questionsChartData: [],
+            submissionCount: 0,
+            qrlAnswers: [],
+            qrlUpdates: [],
         });
         gateway['server'] = server;
     });

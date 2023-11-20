@@ -36,8 +36,8 @@ describe('RoomManagerService', () => {
                 quiz: roomQuiz,
                 organizer: { socketId: 'organizerId', name: 'Organisateur' },
                 players: [
-                    { socketId: 'playerId1', name: 'name1', points: 50, bonusCount: 0, canChat: true },
-                    { socketId: 'playerId2', name: 'name2', points: 200, bonusCount: 1, canChat: false },
+                    { socketId: 'playerId1', name: 'name1', points: 50, bonusCount: 0, canChat: true, hasSubmitted: false },
+                    { socketId: 'playerId2', name: 'name2', points: 200, bonusCount: 1, canChat: false, hasSubmitted: false },
                 ],
                 isLocked: false,
                 bannedNames: ['bannedName1'],
@@ -49,6 +49,9 @@ describe('RoomManagerService', () => {
                 results: [],
                 chatMessage: [],
                 questionsChartData: [],
+                submissionCount: 0,
+                qrlAnswers: [],
+                qrlUpdates: [],
             },
         ];
         room = roomManagerServiceMock.rooms[0];
@@ -138,16 +141,16 @@ describe('RoomManagerService', () => {
     });
 
     it('should return null if multiple players have the quickest answer time', () => {
-        room.players.push({ socketId: 'playerId3', name: 'name3', points: 200, bonusCount: 1, canChat: true });
+        room.players.push({ socketId: 'playerId3', name: 'name3', points: 200, bonusCount: 1, canChat: true, hasSubmitted: false });
         room.answerTimes.push({ userId: 'playerId3', timeStamp: 90 });
         const quickestTime = roomManagerServiceMock.getQuickestTime(room);
         expect(quickestTime).toBeNull();
     });
 
-    it('should return undefined when no players have the quickest time', () => {
+    it('should return null when no players have the quickest time', () => {
         room.answerTimes = [];
         const quickestTime = roomManagerServiceMock.getQuickestTime(room);
-        expect(quickestTime).toEqual(undefined);
+        expect(quickestTime).toEqual(null);
     });
 
     it('should return the correct quickest answer time when a player has the quickest time', () => {
@@ -169,7 +172,7 @@ describe('RoomManagerService', () => {
         room.isLocked = false;
         const newPlayerData = { name: 'NewName', roomId, socketId: 'playerId3' };
 
-        room.players.push({ socketId: 'playerId3', name: '', points: 0, bonusCount: 0, canChat: true });
+        room.players.push({ socketId: 'playerId3', name: '', points: 0, bonusCount: 0, canChat: true, hasSubmitted: false });
         const isNameValid = roomManagerServiceMock.processUsername(newPlayerData);
 
         expect(isNameValid).toBeTruthy();
