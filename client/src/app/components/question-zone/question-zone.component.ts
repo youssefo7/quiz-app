@@ -1,3 +1,5 @@
+// TODO: Revoir si on peut diminuer le nombre de ligne
+/* eslint-disable max-lines */
 import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Choice, Question, Quiz } from '@app/interfaces/quiz';
@@ -18,17 +20,20 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     @Output() pointsEarned: EventEmitter<number>;
     @Input() quiz: Quiz;
     @Input() roomId: string | null;
-    points: number;
     question: Question;
     chosenChoices: boolean[];
     choiceButtonStyle: { backgroundColor: string }[];
     submitButtonStyle: { backgroundColor: string };
-    bonusMessage: string;
+    pointsMessage: string;
     pointsDisplay: { display: string };
     isSubmitDisabled: boolean;
     isChoiceButtonDisabled: boolean;
     doesDisplayPoints: boolean;
     pointsToDisplay: number;
+    characterCounterDisplay: string;
+    userAnswer: string;
+    isTextareaDisabled: boolean;
+    private points: number;
     private isQuestionTransitioning: boolean;
     private currentQuestionIndex: number;
     private isTestGame: boolean;
@@ -61,25 +66,26 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.hasReceivedBonus = false;
         this.pointsToDisplay = 0;
         this.hasSentAnswer = false;
+        this.userAnswer = '';
+        this.characterCounterDisplay = `${this.userAnswer.length} / ${Constants.MAX_TEXTAREA_LENGTH}`;
+        this.isTextareaDisabled = false;
     }
 
     @HostListener('keypress', ['$event'])
     preventDefaultEnter(event: KeyboardEvent) {
-        if (event.key === 'Enter') {
+        if (event.key === 'Enter' && this.question.type === QTypes.QCM) {
             event.preventDefault();
         }
     }
 
     @HostListener('keyup', ['$event'])
-    buttonDetect(event: KeyboardEvent) {
-        const keyPressed = event.key;
-
-        if (keyPressed === 'Enter') {
-            if (!this.isSubmitDisabled) {
+    handleKeyboardInput(event: KeyboardEvent) {
+        if (event.key === 'Enter') {
+            if (!this.isSubmitDisabled && this.question.type === QTypes.QCM) {
                 this.submitAnswerOnClick();
             }
-        } else {
-            const choiceIndex = parseInt(keyPressed, 10) - 1;
+        } else if (this.question.type === QTypes.QCM) {
+            const choiceIndex = parseInt(event.key, 10) - 1;
             this.toggleChoice(choiceIndex);
             this.setSubmitButtonStateOnChoices();
         }
@@ -106,8 +112,16 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         }
     }
 
-    focusOnButton() {
-        this.elementRef.nativeElement.querySelector('button')?.focus();
+    stopPropagation(event: Event) {
+        if (this.question.type === QTypes.QCM) {
+            event.stopPropagation();
+        }
+    }
+
+    focusOnButtons() {
+        if (this.question.type === QTypes.QCM) {
+            this.elementRef.nativeElement.querySelector('button').focus();
+        }
     }
 
     toggleChoice(index: number) {
@@ -126,13 +140,8 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     setSubmitButtonStateOnChoices() {
-        if (this.chosenChoices.some((choice) => choice)) {
-            this.isSubmitDisabled = false;
-            this.submitButtonStyle = { backgroundColor: 'green' };
-        } else {
-            this.isSubmitDisabled = true;
-            this.submitButtonStyle = { backgroundColor: 'grey' };
-        }
+        const hasSelectedChoices = this.chosenChoices.some((isChoiceSelected) => isChoiceSelected);
+        this.setSubmitButtonToDisabled(!hasSelectedChoices, { backgroundColor: hasSelectedChoices ? 'green' : 'grey' });
     }
 
     submitAnswerOnClick() {
@@ -144,6 +153,13 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             this.handleAnswerSubmission(false);
             this.isChoiceButtonDisabled = true;
         }
+        this.isTextareaDisabled = true;
+    }
+
+    detectCharacterLengthOnInput() {
+        this.characterCounterDisplay = `${this.userAnswer.length} / ${Constants.MAX_TEXTAREA_LENGTH}`;
+        const hasTyped = this.userAnswer.trim().length > 0;
+        this.setSubmitButtonToDisabled(!hasTyped, { backgroundColor: hasTyped ? 'green' : 'grey' });
     }
 
     private subscribeToTimer() {
@@ -184,7 +200,11 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
                 choices.forEach((choice, buttonIndex) => {
                     this.setButtonToInitState(buttonIndex);
                 });
+            } else {
+                this.isTextareaDisabled = false;
+                this.userAnswer = '';
             }
+            this.doesDisplayPoints = false;
         }
     }
 
@@ -197,7 +217,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.choiceButtonStyle[index] = { backgroundColor: '' };
         this.isChoiceButtonDisabled = false;
         this.submitButtonStyle = { backgroundColor: '' };
-        this.doesDisplayPoints = false;
     }
 
     private setButtonStateOnSubmit(index: number) {
@@ -213,6 +232,11 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     private isAnswerGood() {
         let isAnswerGood = false;
         const choices = this.question.choices;
+
+        if (this.isTestGame && this.question.type === QTypes.QRL) {
+            isAnswerGood = true;
+        }
+
         if (choices && this.chosenChoices) {
             isAnswerGood = this.chosenChoices.every((answer, index) => answer === choices[index].isCorrect);
         }
@@ -225,24 +249,30 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             choices.forEach((choice, index) => {
                 this.setButtonStateOnSubmit(index);
             });
-            this.doesDisplayPoints = true;
         }
+        this.doesDisplayPoints = true;
     }
 
     private giveBonus() {
         const bonus = this.isTestGame ? Constants.BONUS_120_PERCENT : Constants.BONUS_20_PERCENT;
         this.pointsToDisplay = this.question.points * Constants.BONUS_120_PERCENT;
         this.points = this.question.points * bonus;
-        this.bonusMessage = '(20% bonus Woohoo!)';
+        this.pointsMessage = '(20% bonus Woohoo!)';
     }
 
     private givePoints() {
         if (this.isTestGame) {
             if (this.isAnswerGood()) {
-                this.giveBonus();
+                if (this.question.type === QTypes.QCM) {
+                    this.giveBonus();
+                } else {
+                    this.points = this.question.points;
+                    this.pointsToDisplay = this.question.points;
+                    this.pointsMessage = '(100% Bravo!)';
+                }
             } else {
                 this.points = 0;
-                this.bonusMessage = '';
+                this.pointsMessage = '';
                 this.pointsToDisplay = 0;
             }
             this.pointsEarned.emit(this.points);
@@ -255,7 +285,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
                     this.points = 0;
                     this.pointsToDisplay = 0;
                 }
-                this.bonusMessage = '';
+                this.pointsMessage = '';
                 this.socketClientService.send(GameEvents.AddPointsToPlayer, { roomId: this.roomId, points: this.points });
             }
         }
@@ -268,22 +298,26 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     private handleTransitionClockFinished() {
-        this.socketClientService.on(TimeEvents.TransitionClockFinished, () => {
-            this.isQuestionTransitioning = false;
-            this.hasReceivedBonus = false;
-            ++this.currentQuestionIndex;
-            this.getQuestion(this.currentQuestionIndex);
-            this.hasSentAnswer = false;
-        });
+        if (!this.isTestGame) {
+            this.socketClientService.on(TimeEvents.TransitionClockFinished, () => {
+                this.isQuestionTransitioning = false;
+                this.hasReceivedBonus = false;
+                ++this.currentQuestionIndex;
+                this.getQuestion(this.currentQuestionIndex);
+                this.hasSentAnswer = false;
+            });
+        }
     }
 
     private handleBonusPoints() {
-        this.socketClientService.on(GameEvents.GiveBonus, () => {
-            this.hasReceivedBonus = true;
-            this.giveBonus();
-            this.givePoints();
-            this.socketClientService.send(GameEvents.AddPointsToPlayer, { roomId: this.roomId, points: this.points });
-        });
+        if (!this.isTestGame) {
+            this.socketClientService.on(GameEvents.GiveBonus, () => {
+                this.hasReceivedBonus = true;
+                this.giveBonus();
+                this.givePoints();
+                this.socketClientService.send(GameEvents.AddPointsToPlayer, { roomId: this.roomId, points: this.points });
+            });
+        }
     }
 
     private detectEndOfQuestion(time: number) {
@@ -293,6 +327,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
                     this.handleAnswerSubmission(true);
                 }
                 this.isQuestionTransitioning = true;
+                this.isTextareaDisabled = true;
                 this.givePoints();
             } else if (this.isTestGame) {
                 this.isQuestionTransitioning = false;
