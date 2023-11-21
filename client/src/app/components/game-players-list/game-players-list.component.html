@@ -15,7 +15,7 @@
                 <th *ngIf="!isResultsRoute">Droit de clavarder</th>
             </tr>
             <tr *ngFor="let player of playerResults" class="player-entry">
-                <td class="player-name"
+                <td *ngIf="!isResultsRoute" class="player-name"
                     [class]="{
                         'abandoned': player.hasAbandoned, 
                         'interacted': player.hasClickedOnAnswerField,
@@ -23,6 +23,7 @@
                     }">
                     {{ player.name }}
                 </td>
+                <td *ngIf="isResultsRoute" class="player-name-result-page">{{ player.name }}</td>
                 <td class="player-score">{{ player.points }} points</td>
                 <td *ngIf="!isResultsRoute && isHost" class="chatButton">
                     <mat-slide-toggle [checked]="true" (click)="toggleChattingRights(player.name)"></mat-slide-toggle>
