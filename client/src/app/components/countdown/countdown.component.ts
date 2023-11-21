@@ -4,7 +4,7 @@ import { Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
-import { Constants } from '@common/constants';
+import { Constants, QTypes } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { TimeEvents } from '@common/time.events';
 import { Subscription } from 'rxjs';
@@ -20,14 +20,19 @@ export class CountdownComponent implements OnInit, OnDestroy {
     @Input() roomId: string | null;
     message: string;
     clockStyle: { backgroundColor: string };
+    isPaused: boolean;
+    isInPanicMode: boolean;
+    canTogglePanicMode: boolean;
+    isQuestionTransitioning: boolean;
+    canToggleTimer: boolean;
     private socketTime: number;
     private timerSubscription: Subscription;
-    private isQuestionTransitioning: boolean;
     private currentQuestionIndex: number;
     private lastQuestionIndex: number;
     private isTestGame: boolean;
     private gameServiceSubscription: Subscription;
     private hasFinishedTransitionClock: boolean;
+    private panicAudio: HTMLAudioElement;
 
     // Tous ces paramètres sont nécessaires pour que la composante fonctionne bien
     // eslint-disable-next-line max-params
@@ -40,6 +45,11 @@ export class CountdownComponent implements OnInit, OnDestroy {
     ) {
         this.currentQuestionIndex = 0;
         this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
+        this.isPaused = false;
+        this.isInPanicMode = false;
+        this.canTogglePanicMode = true;
+        this.canToggleTimer = true;
+        this.panicAudio = new Audio(Constants.AUDIO);
     }
 
     get time() {
@@ -62,10 +72,31 @@ export class CountdownComponent implements OnInit, OnDestroy {
         }
     }
 
-    private async loadTimer() {
-        if (this.quiz) {
-            this.lastQuestionIndex = this.quiz.questions.length - 1;
+    toggleTimer() {
+        this.isPaused = !this.isPaused;
+        this.socketClientService.send(TimeEvents.ToggleTimer, { roomId: this.roomId, isPaused: this.isPaused, currentTime: this.time });
+    }
+
+    panicMode() {
+        this.panicAudio.play();
+        this.isInPanicMode = true;
+        this.canTogglePanicMode = false;
+
+        this.socketClientService.send(TimeEvents.PanicMode, { currentTime: this.time, roomId: this.roomId });
+    }
+
+    private getMinPanicTime() {
+        const currentQuestionType = this.quiz.questions[this.currentQuestionIndex].type;
+
+        if (currentQuestionType === QTypes.QRL) {
+            return Constants.MIN_TIME_TO_PANIC_QRL;
+        } else {
+            return Constants.MIN_TIME_TO_PANIC_QCM;
         }
+    }
+
+    private async loadTimer() {
+        this.lastQuestionIndex = this.quiz.questions.length - 1;
         if (this.isTestGame) {
             this.switchColorToRedOnThreeSeconds();
             this.testGameClock();
@@ -75,13 +106,19 @@ export class CountdownComponent implements OnInit, OnDestroy {
             this.reactToNextQuestionEvent();
             this.reactToTimerInterruptedEvent();
             this.questionClock();
-            this.currentQuestionIndex++;
         }
     }
 
     private reactToTimerEvent() {
         const switchColorTime = 3;
+        const minPanicTime = this.getMinPanicTime();
         this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
+            if (time < minPanicTime) {
+                this.canTogglePanicMode = false;
+            }
+            if (time === 0) {
+                this.canToggleTimer = false;
+            }
             this.socketTime = time;
             this.setClockColorToRed(this.socketTime, switchColorTime);
         });
@@ -103,6 +140,8 @@ export class CountdownComponent implements OnInit, OnDestroy {
     private reactToTimerInterruptedEvent() {
         this.socketClientService.on(TimeEvents.TimerInterrupted, () => {
             this.socketTime = 0;
+            this.canToggleTimer = false;
+            this.canTogglePanicMode = false;
         });
     }
 
@@ -146,8 +185,12 @@ export class CountdownComponent implements OnInit, OnDestroy {
 
     private async questionClock() {
         this.isQuestionTransitioning = false;
+        this.canToggleTimer = true;
+        this.canTogglePanicMode = true;
+        this.isInPanicMode = false;
         this.message = 'Temps Restant';
         this.clockStyle = { backgroundColor: 'lightblue' };
+
         if (this.quiz) {
             if (this.isTestGame) {
                 await this.timeService.startTimer(this.quiz.duration);

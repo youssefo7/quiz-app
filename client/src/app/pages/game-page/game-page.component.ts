@@ -8,7 +8,9 @@ import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { Constants } from '@common/constants';
 import { GameEvents } from '@common/game.events';
+import { TimeEvents } from '@common/time.events';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -23,6 +25,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     playerName: string;
     roomId: string | null;
     readonly isTestGame: boolean;
+    private panicAudio: HTMLAudioElement;
 
     // J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
@@ -38,6 +41,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.playerPoints = 0;
         this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
         this.roomId = this.route.snapshot.paramMap.get('roomId');
+        this.panicAudio = new Audio(Constants.AUDIO);
     }
 
     @HostListener('window:beforeunload', ['$event'])
@@ -86,6 +90,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
         popupInstance.config = config;
     }
 
+    private playPanicModeSound() {
+        this.panicAudio.play();
+    }
+
     private async loadQuiz() {
         await this.getQuiz();
         this.getQuizTitle();
@@ -132,6 +140,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
         this.socketClientService.on(GameEvents.AddPointsToPlayer, (pointsObject: PlayerPoints) => {
             this.givePoints(pointsObject.pointsToAdd);
+        });
+
+        this.socketClientService.on(TimeEvents.PanicMode, () => {
+            this.playPanicModeSound();
         });
     }
 }
