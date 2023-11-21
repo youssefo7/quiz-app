@@ -39,10 +39,10 @@ describe('GamePlayersListComponent', () => {
     let routerSpy: SpyObj<Router>;
 
     const playersListMock: Results[] = [
-        { name: 'Marie', points: 10, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: false, bonusCount: 0 },
-        { name: 'Liam', points: 20, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: false, bonusCount: 0 },
-        { name: 'Alicia', points: 20, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: false, bonusCount: 0 },
-        { name: 'Zane', points: 50, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: false, bonusCount: 0 },
+        { name: 'Marie', points: 0, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: false, bonusCount: 0 },
+        { name: 'Liam', points: 0, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: false, bonusCount: 0 },
+        { name: 'Alicia', points: 0, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: false, bonusCount: 0 },
+        { name: 'Zane', points: 0, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: false, bonusCount: 0 },
     ];
 
     const roomPlayersNamesMock: string[] = ['Marie', 'Liam', 'Alicia', 'Zane'];
@@ -80,8 +80,6 @@ describe('GamePlayersListComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(GamePlayersListComponent);
         component = fixture.componentInstance;
-        component.playerResults = [...playersListMock];
-        roomCommunicationServiceMock.getRoomPlayers.and.returnValue(of(roomPlayersNamesMock));
         roomCommunicationServiceMock.sendPlayerResults.and.returnValue(of(playersListMock));
         roomCommunicationServiceMock.getPlayerResults.and.returnValue(of(playersListMock));
         fixture.detectChanges();
@@ -112,10 +110,18 @@ describe('GamePlayersListComponent', () => {
         expect(listenToSocketEventSpy).not.toHaveBeenCalled();
     });
 
+    it('should sort players by points when in result route', async () => {
+        const sortPointsSpy = spyOn(component, 'sortByPoints').and.callThrough();
+        component.isResultsRoute = true;
+        await component.ngOnInit();
+
+        expect(sortPointsSpy).toHaveBeenCalled();
+    });
+
     it('should fetch players list and populate playerResults', async () => {
         component.isResultsRoute = false;
         component.roomId = '123';
-        component.playerResults = playersListMock;
+        roomCommunicationServiceMock.getRoomPlayers.and.returnValue(of(roomPlayersNamesMock));
         await component.fetchPlayersList();
 
         expect(roomCommunicationServiceMock.getRoomPlayers).toHaveBeenCalledWith('123');
@@ -124,7 +130,6 @@ describe('GamePlayersListComponent', () => {
         component.isResultsRoute = true;
         await component.fetchPlayersList();
 
-        expect(component.playerResults).toEqual(playersListMock);
         expect(roomCommunicationServiceMock.getPlayerResults).toHaveBeenCalled();
     });
 
@@ -134,41 +139,99 @@ describe('GamePlayersListComponent', () => {
 
         component['listenToSocketEvents']();
         socketHelper.peerSideEmit(GameEvents.SendResults);
-
+        roomCommunicationServiceMock.getRoomPlayers.and.returnValue(of(roomPlayersNamesMock));
         await component.fetchPlayersList();
+
         expect(roomCommunicationServiceMock.sendPlayerResults).toHaveBeenCalled();
         expect(sendSpy).toHaveBeenCalledWith(GameEvents.ShowResults, '456');
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith(`/results/game/${component['quizId']}/room/${component.roomId}/host`);
     });
 
-    it('should sort players by name', () => {
+    it('should sort players by name in ascending and descending order', async () => {
+        const ascendingBefore = component.shouldSortNamesAscending;
         const sortSpy = spyOn(component.playerResults, 'sort').and.callThrough();
+        roomCommunicationServiceMock.getRoomPlayers.and.returnValue(of(roomPlayersNamesMock));
+        await component.fetchPlayersList();
+
         component.sortByName();
         expect(sortSpy).toHaveBeenCalled();
+        expect(component.playerResults[0].name).toEqual('Alicia');
+        expect(component.playerResults[1].name).toEqual('Liam');
+        expect(component.playerResults[2].name).toEqual('Marie');
+        expect(component.playerResults[3].name).toEqual('Zane');
+
+        component.sortByName();
+        expect(component.shouldSortNamesAscending).toEqual(ascendingBefore);
+        expect(component.playerResults[3].name).toEqual('Alicia');
+        expect(component.playerResults[2].name).toEqual('Liam');
+        expect(component.playerResults[1].name).toEqual('Marie');
+        expect(component.playerResults[0].name).toEqual('Zane');
     });
 
-    it('should sort players by points', () => {
+    it('should sort players by points in ascending and descending order, or alphabetical order when they have the same score', async () => {
+        const responseWinner = {
+            pointsToAdd: 30,
+            name: 'Liam',
+        };
         const ascendingBefore = component.shouldSortPointsAscending;
         const sortSpy = spyOn(component.playerResults, 'sort').and.callThrough();
+
+        roomCommunicationServiceMock.getRoomPlayers.and.returnValue(of(roomPlayersNamesMock));
+        await component.fetchPlayersList();
+
+        component['listenToSocketEvents']();
+        socketHelper.peerSideEmit(GameEvents.AddPointsToPlayer, response);
+        socketHelper.peerSideEmit(GameEvents.AddPointsToPlayer, responseWinner);
         component.sortByPoints();
+
         expect(sortSpy).toHaveBeenCalled();
+        expect(component.playerResults[2].points).toBeLessThan(component.playerResults[3].points);
         expect(component.shouldSortPointsAscending).not.toEqual(ascendingBefore);
+        expect(component.playerResults[0].name).toEqual('Alicia');
+        expect(component.playerResults[1].name).toEqual('Zane');
+        expect(component.playerResults[2].name).toEqual('Marie');
+        expect(component.playerResults[3].name).toEqual('Liam');
+
+        component.sortByPoints();
+        expect(component.shouldSortPointsAscending).toEqual(ascendingBefore);
+        expect(component.playerResults[1].points).toBeLessThan(component.playerResults[0].points);
+        expect(component.playerResults[0].name).toEqual('Liam');
+        expect(component.playerResults[1].name).toEqual('Marie');
+        expect(component.playerResults[2].name).toEqual('Alicia');
+        expect(component.playerResults[3].name).toEqual('Zane');
     });
 
-    it('should sort players by state', () => {
+    it('should sort players by state', async () => {
         const sortSpy = spyOn(component.playerResults, 'sort').and.callThrough();
+        roomCommunicationServiceMock.getRoomPlayers.and.returnValue(of(roomPlayersNamesMock));
+        await component.fetchPlayersList();
+
+        component['listenToSocketEvents']();
+        socketHelper.peerSideEmit(GameEvents.SubmitQuestionOnClick, 'Zane');
+        socketHelper.peerSideEmit(GameEvents.FieldInteraction, 'Alicia');
+        socketHelper.peerSideEmit(GameEvents.PlayerAbandonedGame, 'Liam');
+
         component.sortByState();
         expect(sortSpy).toHaveBeenCalled();
+        expect(component.playerResults[0].name).toEqual('Marie');
+        expect(component.playerResults[1].name).toEqual('Alicia');
+        expect(component.playerResults[2].name).toEqual('Zane');
+        expect(component.playerResults[3].name).toEqual('Liam');
+
+        socketHelper.peerSideEmit(GameEvents.PlayerAbandonedGame, 'Marie');
+        component.sortByState();
+        expect(component.playerResults[3].name).toEqual('Alicia');
+        expect(component.playerResults[2].name).toEqual('Zane');
+        expect(component.playerResults[1].name).toEqual('Marie');
+        expect(component.playerResults[0].name).toEqual('Liam');
     });
 
     it('should toggle chatting rights and send ToggleChattingRights event', () => {
         const playerName = 'testPlayer';
-        const initialCanChat = component.canChat;
         const sendSpy = spyOn(mockSocketClientService, 'send');
 
         component.toggleChattingRights(playerName);
         expect(sendSpy).toHaveBeenCalledWith(ChatEvents.ToggleChattingRights, { roomId: component.roomId, playerName });
-        expect(component.canChat).toBe(!initialCanChat);
     });
 
     it("should return the correct player priority depending on the player's state", () => {
@@ -182,16 +245,16 @@ describe('GamePlayersListComponent', () => {
         };
 
         statePlayer.hasAbandoned = true;
-        expect(component.getPlayerPriority(statePlayer)).toEqual(3);
+        expect(component['getPlayerPriority'](statePlayer)).toEqual(3);
 
         statePlayer.hasAbandoned = false;
-        expect(component.getPlayerPriority(statePlayer)).toEqual(0);
+        expect(component['getPlayerPriority'](statePlayer)).toEqual(0);
 
         statePlayer.hasClickedOnAnswerField = true;
-        expect(component.getPlayerPriority(statePlayer)).toEqual(1);
+        expect(component['getPlayerPriority'](statePlayer)).toEqual(1);
 
         statePlayer.hasConfirmedAnswer = true;
-        expect(component.getPlayerPriority(statePlayer)).toEqual(2);
+        expect(component['getPlayerPriority'](statePlayer)).toEqual(2);
     });
 
     it('should update player status when abandonedGame event is received', () => {
@@ -256,8 +319,10 @@ describe('GamePlayersListComponent', () => {
         expect(playerToUpdate.hasClickedOnAnswerField).toBeTruthy();
     });
 
-    it("should call resetPlayersInfo() if NextQuestion event is received and update the player's answer confirmation and interaction status", () => {
+    it("should call resetPlayersInfo() if NextQuestion event is received and update the player's status", async () => {
         const resetPlayerInfoSpy = spyOn<any>(component, 'resetPlayersInfo').and.callThrough();
+        roomCommunicationServiceMock.getRoomPlayers.and.returnValue(of(roomPlayersNamesMock));
+        await component.fetchPlayersList();
         component['listenToSocketEvents']();
 
         socketHelper.peerSideEmit(GameEvents.NextQuestion);

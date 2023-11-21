@@ -29,7 +29,6 @@ export class GamePlayersListComponent implements OnInit {
     isHost: boolean;
     playerResults: Results[];
     isResultsRoute: boolean;
-    canChat: boolean;
     shouldSortPointsAscending: boolean;
     shouldSortNamesAscending: boolean;
     private quizId: string;
@@ -50,7 +49,6 @@ export class GamePlayersListComponent implements OnInit {
         this.shouldSortPointsAscending = true;
         this.shouldSortStatesAscending = true;
         this.isHost = this.route.snapshot.url.some((segment) => segment.path === 'host');
-        this.canChat = true;
     }
 
     async ngOnInit() {
@@ -60,6 +58,10 @@ export class GamePlayersListComponent implements OnInit {
 
         await this.fetchPlayersList();
         this.listenToSocketEvents();
+
+        if (this.isResultsRoute) {
+            this.sortByPoints();
+        }
     }
 
     async fetchPlayersList() {
@@ -110,10 +112,9 @@ export class GamePlayersListComponent implements OnInit {
 
     toggleChattingRights(name: string) {
         this.socketService.send(ChatEvents.ToggleChattingRights, { roomId: this.roomId, playerName: name });
-        this.canChat = !this.canChat;
     }
 
-    getPlayerPriority(player: Results): PlayerState {
+    private getPlayerPriority(player: Results): PlayerState {
         let priority;
 
         if (player.hasConfirmedAnswer) {

@@ -12,14 +12,14 @@
                 </th>
                 <th *ngIf="isResultsRoute">Score final</th>
                 <th *ngIf="isResultsRoute">Bonus</th>
-                <th>Droit de clavarder</th>
+                <th *ngIf="isHost">Droit de clavarder</th>
             </tr>
             <tr *ngFor="let player of playerResults" class="player-entry">
                 <td *ngIf="!isResultsRoute" class="player-name"
                     [class]="{
-                        abandoned: player.hasAbandoned, 
-                        interacted: player.hasClickedOnAnswerField,
-                        confirmedAnswer: player.hasConfirmedAnswer, 
+                        'abandoned': player.hasAbandoned, 
+                        'interacted': player.hasClickedOnAnswerField,
+                        'confirmed-answer': player.hasConfirmedAnswer, 
                     }">
                     {{ player.name }}
                 </td>

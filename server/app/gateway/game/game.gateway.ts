@@ -93,7 +93,7 @@ export class GameGateway {
         const player = this.roomManager.findPlayer(socket.id, room);
         this.server.to(organizer).emit(data.isSelect ? GameEvents.QuestionChoiceSelect : GameEvents.QuestionChoiceUnselect, data.questionChoiceIndex);
 
-        // TODO: à changer pour si interaction avec answer field QCM et QRL
+        // TODO: à changer pour envoyer le nom dans un seul emit
         this.server.to(organizer).emit(GameEvents.FieldInteraction, player.name);
     }
 
