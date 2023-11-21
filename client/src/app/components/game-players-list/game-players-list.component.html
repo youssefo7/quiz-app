@@ -1,36 +1,33 @@
 <div id="player-list" *ngIf="playerResults">
-    <div id="titles">
-        <span>Nom
-            <div *ngIf="!isResultsRoute"  id="name-orders">
-                <button (click)="sortByName()">
-                    <mat-icon>sort_by_alpha</mat-icon>
-                </button>
-                <button id="order-by-state" (click)="sortByState()">
-                    <mat-icon>swap_vert</mat-icon>
-                </button>
-            </div>
-        </span>
-        <span *ngIf="!isResultsRoute" id="scoreTitle">Score
-            <div>
-                <button (click)="sortByPoints()">
-                    <mat-icon>swap_vert</mat-icon>
-                </button>
-            </div>
-        </span>
-        <span *ngIf="isResultsRoute">Score final</span>
-        <span *ngIf="isResultsRoute">Bonus</span>
-    </div>
-    <div *ngFor="let player of playerResults" class="player-entry">
-        <span class="player-name" 
-            [ngClass]="{
-            abandoned: player.hasAbandoned, 
-            confirmedAnswer: player.hasConfirmedAnswer, 
-            interacted: player.hasClickedOnAnswerField
-            }">
-            {{ player.name }}
-        </span>
-        <span class="player-score">{{ player.points }} points</span>
-        <button *ngIf="isHost" class="chatButton" (click)="toggleChattingRights(player.name)">TogglePerks</button>
-        <span *ngIf="isResultsRoute" class="player-bonus">{{ player.bonusCount }} fois</span>
-    </div>
+    <table>
+            <tr>
+                <th id="name-title">Nom
+                    <mat-icon *ngIf="!isResultsRoute" (click)="sortByName()">{{ shouldSortNamesAscending? 'arrow_drop_up' : 'arrow_drop_down'}}</mat-icon> 
+                    <button *ngIf="!isResultsRoute" id="order-by-state" (click)="sortByState()">
+                        <mat-icon>swap_vert</mat-icon>
+                    </button>
+                </th>
+                <th *ngIf="!isResultsRoute" id="score-title">Score
+                    <mat-icon (click)="sortByPoints()">{{ shouldSortPointsAscending? 'arrow_drop_up' : 'arrow_drop_down'}}</mat-icon> 
+                </th>
+                <th *ngIf="isResultsRoute">Score final</th>
+                <th *ngIf="isResultsRoute">Bonus</th>
+                <th *ngIf="!isResultsRoute">Droit de clavarder</th>
+            </tr>
+            <tr *ngFor="let player of playerResults" class="player-entry">
+                <td class="player-name"
+                    [class]="{
+                        'abandoned': player.hasAbandoned, 
+                        'interacted': player.hasClickedOnAnswerField,
+                        'confirmedAnswer': player.hasConfirmedAnswer, 
+                    }">
+                    {{ player.name }}
+                </td>
+                <td class="player-score">{{ player.points }} points</td>
+                <td *ngIf="!isResultsRoute && isHost" class="chatButton">
+                    <mat-slide-toggle [checked]="true" (click)="toggleChattingRights(player.name)"></mat-slide-toggle>
+                </td>
+                <td *ngIf="isResultsRoute" class="player-bonus">{{ player.bonusCount }} fois</td>
+            </tr>
+    </table>
 </div>

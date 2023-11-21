@@ -12,11 +12,11 @@ interface AddPointsResponse {
     name: string;
 }
 
-enum PlayerStatePriorities {
+enum PlayerState {
     HasNotInteracted,
     HasInteracted,
     HasConfirmed,
-    HasAbandonned,
+    HasAbandoned,
 }
 
 @Component({
@@ -29,10 +29,12 @@ export class GamePlayersListComponent implements OnInit {
     isHost: boolean;
     playerResults: Results[];
     isResultsRoute: boolean;
+    canChat: boolean;
+    shouldSortPointsAscending: boolean;
+    shouldSortNamesAscending: boolean;
     private quizId: string;
-    private shouldSortNamesAscending: boolean;
-    private shouldSortPointsAscending: boolean;
     private shouldSortStatesAscending: boolean;
+
     // Raison: Les quatres injections sont nécessaires pour ma composante
     // eslint-disable-next-line max-params
     constructor(
@@ -48,6 +50,7 @@ export class GamePlayersListComponent implements OnInit {
         this.shouldSortPointsAscending = true;
         this.shouldSortStatesAscending = true;
         this.isHost = this.route.snapshot.url.some((segment) => segment.path === 'host');
+        this.canChat = true;
     }
 
     async ngOnInit() {
@@ -107,20 +110,20 @@ export class GamePlayersListComponent implements OnInit {
 
     toggleChattingRights(name: string) {
         this.socketService.send(ChatEvents.ToggleChattingRights, { roomId: this.roomId, playerName: name });
+        this.canChat = !this.canChat;
     }
 
-
-    private getPlayerPriority(player: Results) {
+    getPlayerPriority(player: Results) {
         let priority;
 
         if (player.hasConfirmedAnswer) {
-            priority = PlayerStatePriorities.HasConfirmed;
+            priority = PlayerState.HasConfirmed;
         } else if (player.hasClickedOnAnswerField) {
-            priority = PlayerStatePriorities.HasInteracted;
+            priority = PlayerState.HasInteracted;
         } else if (player.hasAbandoned) {
-            priority = PlayerStatePriorities.HasAbandonned;
+            priority = PlayerState.HasAbandoned;
         } else {
-            priority = PlayerStatePriorities.HasNotInteracted;
+            priority = PlayerState.HasNotInteracted;
         }
         return priority;
     }
@@ -148,7 +151,7 @@ export class GamePlayersListComponent implements OnInit {
             this.updateAnswerConfirmation(playerName);
         });
 
-        this.socketService.on(GameEvents.QuestionChoiceSelect, (playerName: string) => {
+        this.socketService.on(GameEvents.FieldInteraction, (playerName: string) => {
             this.updatePlayerInteraction(playerName);
         });
 
@@ -160,7 +163,8 @@ export class GamePlayersListComponent implements OnInit {
     private updatePlayerStatus(playerName: string) {
         const playerToUpdate = this.playerResults.find((player) => player.name === playerName);
         if (playerToUpdate) {
-            this.resetPlayersInfo();
+            playerToUpdate.hasConfirmedAnswer = false;
+            playerToUpdate.hasClickedOnAnswerField = false;
             playerToUpdate.hasAbandoned = true;
         }
     }

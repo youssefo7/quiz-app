@@ -83,6 +83,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
             okButtonText: 'Quitter',
             okButtonFunction: () => {
                 this.leaveGamePage();
+                this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true }, () => {
+                    this.socketClientService.disconnect();
+                });
             },
         };
         const dialogRef = this.popup.open(PopupMessageComponent);
