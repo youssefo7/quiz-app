@@ -32,6 +32,8 @@ export class QuizzesService {
     async verifyQuiz(quiz: Quiz): Promise<void> {
         const errors = [];
 
+        this.verifyGeneralFields(quiz, errors);
+
         if (await this.checkTitleExists(quiz.title)) {
             errors.push('Titre du quiz déjà utilisé');
         }
@@ -75,6 +77,13 @@ export class QuizzesService {
             );
         }
 
+        const allowedQuestionFields = Quiz.allowedQuestionFields;
+        const extraQuestionFields = Object.keys(question).filter((field) => !allowedQuestionFields.includes(field));
+
+        if (extraQuestionFields.length > 0) {
+            errors.push(`La question ${index + 1} contient les champs supplémentaires non valides : ${extraQuestionFields.join(', ')}`);
+        }
+
         if (question.type === QTypes.QCM) {
             const isChoiceArray = Array.isArray(question.choices);
             const hasMinChoices = isChoiceArray && question.choices.length >= Constants.MIN_CHOICES;
@@ -105,6 +114,17 @@ export class QuizzesService {
             }
             if (typeof choice.isCorrect !== 'boolean') {
                 choice.isCorrect = false;
+            }
+
+            const allowedChoiceFields = Quiz.allowedChoiceFields;
+            const extraChoiceFields = Object.keys(choice).filter((field) => !allowedChoiceFields.includes(field));
+
+            if (extraChoiceFields.length > 0) {
+                errors.push(
+                    `Le choix ${indexChoice + 1} de la question ${
+                        questionIndex + 1
+                    } contient les champs supplémentaires non valides : ${extraChoiceFields.join(', ')}`,
+                );
             }
 
             if (choice.isCorrect) {
@@ -186,6 +206,15 @@ export class QuizzesService {
             return await this.addQuiz(quiz);
         } catch (error) {
             return Promise.reject(new Error(`${error.message}`));
+        }
+    }
+
+    private verifyGeneralFields(quiz: Quiz, errors: string[]) {
+        const allowedFields = Quiz.allowedFields;
+        const extraFields = Object.keys(quiz).filter((field) => !allowedFields.includes(field));
+
+        if (extraFields.length > 0) {
+            errors.push(`Le quiz importé contient les champs généraux supplémentaires non valides: ${extraFields.join(', ')}`);
         }
     }
 }

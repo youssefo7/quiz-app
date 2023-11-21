@@ -17,6 +17,12 @@ export type ChoiceType = {
 
 @Schema()
 export class Quiz {
+    static allowedFields: string[] = ['id', 'title', 'duration', 'lastModification', 'description', 'visibility', 'questions'];
+
+    static allowedQuestionFields: string[] = ['type', 'text', 'points', 'choices'];
+
+    static allowedChoiceFields: string[] = ['text', 'isCorrect'];
+
     @ApiProperty()
     @Prop()
     id: string;
