@@ -53,7 +53,7 @@ export class TimeGateway {
     }
 
     @SubscribeMessage(TimeEvents.ToggleTimer)
-    handlePauseStartTimer(socket: Socket, data: { isPaused: boolean; roomId: string; currentTime: number }) {
+    handleToggleTimer(socket: Socket, data: { isPaused: boolean; roomId: string; currentTime: number }) {
         if (data.isPaused) {
             this.handleStopTimer(socket, data.roomId);
         } else {

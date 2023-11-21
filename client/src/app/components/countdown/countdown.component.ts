@@ -4,7 +4,7 @@ import { Quiz } from '@app/interfaces/quiz';
 import { GameService } from '@app/services/game.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
-import { Constants } from '@common/constants';
+import { Constants, QTypes } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { TimeEvents } from '@common/time.events';
 import { Subscription } from 'rxjs';
@@ -82,17 +82,13 @@ export class CountdownComponent implements OnInit, OnDestroy {
         this.isInPanicMode = true;
         this.canTogglePanicMode = false;
 
-        const currentTime = this.time;
-        const minPanicTime = this.minPanicTime();
-        if (currentTime > minPanicTime) {
-            this.socketClientService.send(TimeEvents.PanicMode, { currentTime, roomId: this.roomId });
-        }
+        this.socketClientService.send(TimeEvents.PanicMode, { currentTime: this.time, roomId: this.roomId });
     }
 
-    private minPanicTime() {
+    private getMinPanicTime() {
         const currentQuestionType = this.quiz.questions[this.currentQuestionIndex].type;
 
-        if (currentQuestionType === 'QRL') {
+        if (currentQuestionType === QTypes.QRL) {
             return Constants.MIN_TIME_TO_PANIC_QRL;
         } else {
             return Constants.MIN_TIME_TO_PANIC_QCM;
@@ -115,7 +111,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
 
     private reactToTimerEvent() {
         const switchColorTime = 3;
-        const minPanicTime = this.minPanicTime();
+        const minPanicTime = this.getMinPanicTime();
         this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
             if (time < minPanicTime) {
                 this.canTogglePanicMode = false;
