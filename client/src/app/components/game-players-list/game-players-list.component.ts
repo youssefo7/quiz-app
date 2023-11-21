@@ -130,7 +130,7 @@ export class GamePlayersListComponent implements OnInit {
 
     private listenToSocketEvents() {
         this.socketService.on(GameEvents.PlayerAbandonedGame, (playerName: string) => {
-            this.updatePlayerStatus(playerName);
+            this.markAsAbandonned(playerName);
         });
 
         this.socketService.on(GameEvents.AddPointsToPlayer, (response: AddPointsResponse) => {
@@ -158,43 +158,35 @@ export class GamePlayersListComponent implements OnInit {
         this.socketService.on(GameEvents.NextQuestion, () => {
             this.resetPlayersInfo();
         });
+
+        // TODO ajouter pour l'interaction avec la zone de réponse QRL
     }
 
-    private updatePlayerStatus(playerName: string) {
-        const playerToUpdate = this.playerResults.find((player) => player.name === playerName);
-        if (playerToUpdate) {
-            playerToUpdate.hasConfirmedAnswer = false;
-            playerToUpdate.hasClickedOnAnswerField = false;
-            playerToUpdate.hasAbandoned = true;
-        }
+    private markAsAbandonned(playerName: string) {
+        const playerToUpdate = this.playerResults.find((player) => player.name === playerName) as Results;
+        playerToUpdate.hasConfirmedAnswer = false;
+        playerToUpdate.hasClickedOnAnswerField = false;
+        playerToUpdate.hasAbandoned = true;
     }
 
     private updatePlayerScore(response: AddPointsResponse) {
-        const playerToUpdate = this.playerResults.find((player) => player.name === response.name);
-        if (playerToUpdate) {
-            playerToUpdate.points += response.pointsToAdd;
-        }
+        const playerToUpdate = this.playerResults.find((player) => player.name === response.name) as Results;
+        playerToUpdate.points += response.pointsToAdd;
     }
 
     private updatePlayerBonusCount(playerName: string) {
-        const playerToUpdate = this.playerResults.find((player) => player.name === playerName);
-        if (playerToUpdate) {
-            playerToUpdate.bonusCount++;
-        }
+        const playerToUpdate = this.playerResults.find((player) => player.name === playerName) as Results;
+        playerToUpdate.bonusCount++;
     }
 
     private updateAnswerConfirmation(playerName: string) {
-        const playerToUpdate = this.playerResults.find((player) => player.name === playerName);
-        if (playerToUpdate) {
-            playerToUpdate.hasConfirmedAnswer = true;
-        }
+        const playerToUpdate = this.playerResults.find((player) => player.name === playerName) as Results;
+        playerToUpdate.hasConfirmedAnswer = true;
     }
 
     private updatePlayerInteraction(playerName: string) {
-        const playerToUpdate = this.playerResults.find((player) => player.name === playerName);
-        if (playerToUpdate) {
-            playerToUpdate.hasClickedOnAnswerField = true;
-        }
+        const playerToUpdate = this.playerResults.find((player) => player.name === playerName) as Results;
+        playerToUpdate.hasClickedOnAnswerField = true;
     }
 
     private resetPlayersInfo() {

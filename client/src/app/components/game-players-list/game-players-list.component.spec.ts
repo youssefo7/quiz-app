@@ -196,7 +196,7 @@ describe('GamePlayersListComponent', () => {
 
     it('should update player status when abandonedGame event is received', () => {
         component.playerResults = playersListMock;
-        const updateStatusSpy = spyOn<any>(component, 'updatePlayerStatus').and.callThrough();
+        const updateStatusSpy = spyOn<any>(component, 'markAsAbandonned').and.callThrough();
 
         component['listenToSocketEvents']();
         socketHelper.peerSideEmit(GameEvents.PlayerAbandonedGame, response.name);
