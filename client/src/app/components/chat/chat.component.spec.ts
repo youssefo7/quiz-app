@@ -152,7 +152,7 @@ describe('ChatComponent', () => {
         expect(res).toEqual('');
     });
 
-    it('should return the caracter input value for the chat placeholder when player cannot chat', () => {
+    it('should return the placeholder text for chat input area when a player can chat', () => {
         component.canChat = true;
         const res = component.getPlaceholder();
         expect(res).toEqual('Écrivez votre message...');

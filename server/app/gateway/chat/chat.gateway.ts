@@ -1,4 +1,5 @@
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
+import { ChatMessage } from '@common/chat-message';
 import { ChatEvents } from '@common/chat.events';
 import { Injectable } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -16,10 +17,15 @@ export class ChatGateway {
         const user = this.roomManager.findUser(socket.id, room);
         const time = new Date();
         const timeString = time.getHours() + ':' + time.getMinutes() + ':' + time.getSeconds();
-        const messageData = { authorName: user.name, timeString, message: data.message };
+        const newChatMessage: ChatMessage = {
+            authorName: user.name,
+            time: timeString,
+            message: data.message,
+            fromSystem: false,
+        };
 
         if (socket.rooms.has(data.roomId)) {
-            this.server.to(data.roomId).emit(ChatEvents.NewRoomMessage, messageData);
+            this.server.to(data.roomId).emit(ChatEvents.NewRoomMessage, newChatMessage);
         }
     }
 

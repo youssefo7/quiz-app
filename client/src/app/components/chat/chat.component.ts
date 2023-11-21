@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
@@ -13,8 +13,10 @@ import { firstValueFrom } from 'rxjs';
     templateUrl: './chat.component.html',
     styleUrls: ['./chat.component.scss'],
 })
-export class ChatComponent implements OnInit {
+export class ChatComponent implements OnInit, AfterViewChecked {
     @Input() roomId: string | null;
+    @ViewChild('scrollMe') private myScrollContainer: ElementRef;
+
     isOrganizer: boolean;
     chatMessage: ChatMessage;
     characterCounterDisplay: string;
@@ -27,6 +29,7 @@ export class ChatComponent implements OnInit {
     private isResultsRoute: boolean;
     private isTestGame: boolean;
     private currentInputLength: number;
+    private enableScroll: boolean;
 
     // Raison: Les 4 injections sont nécessaires  dans le constructeur
     // eslint-disable-next-line max-params
@@ -35,6 +38,7 @@ export class ChatComponent implements OnInit {
         private route: ActivatedRoute,
         private router: Router,
         private roomCommunicationService: RoomCommunicationService,
+        private changeDetector: ChangeDetectorRef,
     ) {
         this.currentInputLength = 0;
         this.characterCounterDisplay = `${this.currentInputLength} / ${Constants.MAX_CHAT_MESSAGE_LENGTH}`;
@@ -46,6 +50,7 @@ export class ChatComponent implements OnInit {
         this.canChat = true;
         this.lostChatPermissionMessage = "L'oganisateur a limité vos droits de clavardage";
         this.grantedChatPermissionMessage = "L'oganisateur a rétabli vos droits de clavardage";
+        this.enableScroll = false;
     }
 
     async ngOnInit(): Promise<void> {
@@ -63,6 +68,14 @@ export class ChatComponent implements OnInit {
             this.roomCommunicationService.getPlayerName(this.roomId as string, { socketId: this.socketService.socket.id }),
         );
         this.playerName = this.isOrganizer ? 'Organisateur' : player;
+    }
+
+    ngAfterViewChecked(): void {
+        if (this.enableScroll) {
+            this.scrollToBottom();
+            this.changeDetector.detectChanges();
+            this.enableScroll = false;
+        }
     }
 
     expandTextArea(event: Event) {
@@ -96,27 +109,27 @@ export class ChatComponent implements OnInit {
         }
     }
 
-    private configureChatSocketFeatures() {
-        const addMessage = (data: { authorName: string; timeString: string; message: string }) => {
-            const chatMessage: ChatMessage = {
-                authorName: data.authorName,
-                time: data.timeString,
-                message: data.message,
-            };
-            this.roomMessages.push(chatMessage);
-        };
+    private scrollToBottom() {
+        this.myScrollContainer.nativeElement.scrollTop = this.myScrollContainer.nativeElement.scrollHeight;
+    }
 
-        this.socketService.on(ChatEvents.NewRoomMessage, addMessage);
+    private configureChatSocketFeatures() {
+        this.socketService.on(ChatEvents.NewRoomMessage, (chatMessage: ChatMessage) => {
+            this.roomMessages.push(chatMessage);
+            this.enableScroll = true;
+        });
 
         this.socketService.on(GameEvents.PlayerAbandonedGame, (playerName: string) => {
             if (this.isOrganizer) {
                 const messageTime = new Date();
                 const playerLeftMessage: ChatMessage = {
-                    authorName: 'System',
+                    authorName: 'Système',
                     time: messageTime.getHours() + ':' + messageTime.getMinutes() + ':' + messageTime.getSeconds(),
                     message: playerName + ' a quitté la partie.',
+                    fromSystem: true,
                 };
                 this.roomMessages.push(playerLeftMessage);
+                this.enableScroll = true;
             }
         });
 
@@ -124,14 +137,13 @@ export class ChatComponent implements OnInit {
             this.canChat = canWrite;
             const messageTime = new Date();
             const chatPermissionMessage: ChatMessage = {
-                authorName: 'System',
+                authorName: 'Système',
                 time: messageTime.getHours() + ':' + messageTime.getMinutes() + ':' + messageTime.getSeconds(),
-                message: '',
+                message: !this.canChat ? this.lostChatPermissionMessage : this.grantedChatPermissionMessage,
+                fromSystem: true,
             };
-
-            chatPermissionMessage.message = !this.canChat ? this.lostChatPermissionMessage : this.grantedChatPermissionMessage;
-
             this.roomMessages.push(chatPermissionMessage);
+            this.enableScroll = true;
         });
 
         this.socketService.on(GameEvents.SendResults, async () => {

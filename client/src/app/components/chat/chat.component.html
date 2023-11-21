@@ -1,13 +1,13 @@
 <div id="chat-container">
-    <div id="messages-zone">
+    <div id="messages-zone" #scrollMe>
         <div class="message-box" *ngFor="let message of roomMessages">
             <div
                 class="chat-message"
                 [ngClass]="{
-                    sent: message.authorName === playerName && message.authorName !== 'System',
-                    'system-sent': message.authorName === 'System' && this.isOrganizer,
-                    'lost-chat-perks': message.authorName === 'System' && message.message === lostChatPermissionMessage,
-                    'granted-chat-perks': message.authorName === 'System' && message.message === grantedChatPermissionMessage
+                    sent: message.authorName === playerName && !message.fromSystem,
+                    'system-sent': message.fromSystem && this.isOrganizer,
+                    'lost-chat-perks': message.fromSystem && message.message === lostChatPermissionMessage,
+                    'granted-chat-perks': message.fromSystem && message.message === grantedChatPermissionMessage
                 }"
             >
                 <div class="message-info">
