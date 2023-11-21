@@ -113,7 +113,7 @@ export class GamePlayersListComponent implements OnInit {
         this.canChat = !this.canChat;
     }
 
-    getPlayerPriority(player: Results) {
+    getPlayerPriority(player: Results): PlayerState {
         let priority;
 
         if (player.hasConfirmedAnswer) {
