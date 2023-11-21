@@ -1,3 +1,7 @@
+// La raison du disable lint est puisque nous ne voulons pas modifier les éléments par défaut de mongo dans le modèle,
+// nous accédons à ces attributs de mongo par défaut avec hasOwnProperty afin de vérifier que le quiz possède ces attributs
+// pour ensuite les supprimer.
+/* eslint-disable no-prototype-builtins */
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -36,7 +40,17 @@ export class QuizListComponent implements OnInit {
 
     //  https://stackoverflow.com/questions/57922872/angular-save-blob-in-local-text-file
     exportQuiz(quiz: Quiz) {
-        const exportedQuiz = { ...quiz };
+        const exportedQuiz = JSON.parse(JSON.stringify(quiz));
+
+        if (exportedQuiz) {
+            if (exportedQuiz.hasOwnProperty('__v')) {
+                delete exportedQuiz['__v'];
+            }
+            if (exportedQuiz.hasOwnProperty('_id')) {
+                delete exportedQuiz['_id'];
+            }
+        }
+
         delete exportedQuiz.visibility;
         const quizName: string = quiz.title;
 
