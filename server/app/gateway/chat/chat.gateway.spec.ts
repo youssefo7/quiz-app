@@ -1,5 +1,6 @@
 import { Quiz } from '@app/model/database/quiz';
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
+import { ChatMessage } from '@common/chat-message';
 import { ChatEvents } from '@common/chat.events';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -62,11 +63,12 @@ describe('ChatGateway', () => {
         const timeString = time.getHours() + ':' + time.getMinutes() + ':' + time.getSeconds();
         stub(socket, 'rooms').value(new Set([room.id]));
         server.to.returns({
-            emit: (event: string, data: { authorName: string; timeString: string; message: string }) => {
+            emit: (event: string, chatMessage: ChatMessage) => {
                 expect(event).toEqual(ChatEvents.NewRoomMessage);
-                expect(data.authorName).toEqual(name);
-                expect(data.timeString).toEqual(timeString);
-                expect(data.message).toEqual(message);
+                expect(chatMessage.authorName).toEqual(name);
+                expect(chatMessage.time).toEqual(timeString);
+                expect(chatMessage.message).toEqual(message);
+                expect(chatMessage.fromSystem).toBeFalsy();
             },
         } as BroadcastOperator<unknown, unknown>);
         gateway.handleRoomMessage(socket, { roomId: 'testId', message });
