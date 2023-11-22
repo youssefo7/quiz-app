@@ -87,9 +87,14 @@ export class GameGateway {
     }
 
     @SubscribeMessage(GameEvents.ToggleSelect)
-    handleToggleChoice(_: Socket, data: { roomId: string; questionChoiceIndex: number; isSelect: boolean }) {
+    handleToggleChoice(socket: Socket, data: { roomId: string; questionChoiceIndex: number; isSelect: boolean }) {
+        const room = this.roomManager.findRoom(data.roomId);
         const organizer = this.roomManager.findRoom(data.roomId).organizer.socketId;
+        const player = this.roomManager.findPlayer(socket.id, room);
         this.server.to(organizer).emit(data.isSelect ? GameEvents.QuestionChoiceSelect : GameEvents.QuestionChoiceUnselect, data.questionChoiceIndex);
+
+        // TODO: à changer pour envoyer le nom dans un seul emit
+        this.server.to(organizer).emit(GameEvents.FieldInteraction, player.name);
     }
 
     @SubscribeMessage(GameEvents.QuestionChoicesUnselect)
@@ -149,8 +154,10 @@ export class GameGateway {
     }
 
     @SubscribeMessage(GameEvents.SubmitAnswer)
-    handleSubmitQuestion(_: Socket, roomId: string) {
+    handleSubmitQuestion(socket: Socket, roomId: string) {
         const organizer = this.roomManager.findRoom(roomId).organizer.socketId;
-        this.server.to(organizer).emit(GameEvents.SubmitQuestionOnClick);
+        const room = this.roomManager.findRoom(roomId);
+        const player = this.roomManager.findPlayer(socket.id, room);
+        this.server.to(organizer).emit(GameEvents.SubmitQuestionOnClick, player.name);
     }
 }

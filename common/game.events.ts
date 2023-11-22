@@ -24,4 +24,5 @@ export enum GameEvents {
     UnSubmitAnswer = 'unSubmitAnswer',
     SubmitQuestionOnClick = 'submitQuestionOnClick',
     RemoveAnswerTime = 'removeAnswerTime',
+    FieldInteraction = 'FieldInteraction',
 }

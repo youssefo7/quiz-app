@@ -33,7 +33,9 @@ export class ChatGateway {
     handleToggleChattingRights(_: Socket, data: { roomId: string; playerName: string }) {
         const room = this.roomManager.findRoom(data.roomId);
         const player = this.roomManager.findPlayerByName(room, data.playerName);
-        player.canChat = !player.canChat;
-        this.server.to(player.socketId).emit(ChatEvents.ToggleChattingRights, player.canChat);
+        if (player) {
+            player.canChat = !player.canChat;
+            this.server.to(player.socketId).emit(ChatEvents.ToggleChattingRights, player.canChat);
+        }
     }
 }
