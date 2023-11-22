@@ -74,12 +74,12 @@ describe('WaitingPageComponent', () => {
         expect(component['players']).toEqual(['player1', 'player2']);
     });
 
-    it('should listen on event PlayerAbandonedGame and remove the player from players list', () => {
+    it("should listen on PlayerAbandonedGame event and remove the player from game's players list", () => {
         clientSocketServiceMock.on.calls.argsFor(0)[1]('abandonnedPlayer');
         expect(component['players']).not.toContain('abandonnedPlayer');
     });
 
-    it('should listen on event GameAborted and call gameEndsPopup', () => {
+    it('should listen on GameAborted event and call gameEndsPopup', () => {
         const gameEndsPopupSpy = spyOn<any>(component, 'gameEndsPopup');
         const gameAbortedArgs = clientSocketServiceMock.on.calls.allArgs().find((args) => args[0] === GameEvents.GameAborted);
         if (gameAbortedArgs) {
@@ -89,13 +89,13 @@ describe('WaitingPageComponent', () => {
         expect(gameEndsPopupSpy).toHaveBeenCalled();
     });
 
-    it('should send EndGame if the user is the host on beforeUnload', () => {
+    it('should send EndGame event if the user is the host on beforeUnload', () => {
         component.isHost = true;
         component.beforeUnloadHandler();
         expect(clientSocketServiceMock.send).toHaveBeenCalledWith(GameEvents.EndGame, { roomId: component.roomId, gameAborted: true });
     });
 
-    it('should send PlayerEndGame if the user is a player on beforeUnload', () => {
+    it('should send PlayerEndGame event if the user is a player on beforeUnload', () => {
         component.isHost = false;
         component.beforeUnloadHandler();
         expect(clientSocketServiceMock.send).toHaveBeenCalledWith(GameEvents.PlayerLeaveGame, { roomId: component.roomId, isInGame: true });
@@ -116,7 +116,7 @@ describe('WaitingPageComponent', () => {
         expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
     }));
 
-    it('should connect and handle any users actions if the socket does not exist and is a host', async () => {
+    it('should connect and handle any users actions if the socket does not exist and the user is a host', async () => {
         let socketExists = false;
         clientSocketServiceMock.socketExists.and.callFake(() => socketExists);
         clientSocketServiceMock.connect.and.callFake(() => {
@@ -125,15 +125,15 @@ describe('WaitingPageComponent', () => {
 
         component.isHost = true;
         component.roomId = '456';
-
         await component.ngOnInit();
+
         expect(clientSocketServiceMock.connect).toHaveBeenCalled();
         expect(clientSocketServiceMock.send).toHaveBeenCalledWith(GameEvents.EndGame, { roomId: '456', gameAborted: true });
         expect(clientSocketServiceMock.disconnect).toHaveBeenCalled();
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('home/');
     });
 
-    it('should connect and handle any user actions if the socket does not exist and is not a host', async () => {
+    it('should connect and handle any user actions if the socket does not exist and the user is not a host', async () => {
         let socketExists = false;
         clientSocketServiceMock.socketExists.and.callFake(() => socketExists);
         clientSocketServiceMock.connect.and.callFake(() => {
@@ -142,8 +142,8 @@ describe('WaitingPageComponent', () => {
 
         component.isHost = false;
         component.roomId = '456';
-
         await component.ngOnInit();
+
         expect(clientSocketServiceMock.connect).toHaveBeenCalled();
         expect(clientSocketServiceMock.send).toHaveBeenCalledWith(GameEvents.PlayerLeaveGame, { roomId: '456', isInGame: true });
         expect(clientSocketServiceMock.disconnect).toHaveBeenCalled();
