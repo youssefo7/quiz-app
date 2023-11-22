@@ -43,7 +43,7 @@ describe('QuestionZoneStatsComponent', () => {
 
     beforeEach(() => {
         clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'send']);
-        roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', ['getRoomPlayers', 'sendChartData']);
+        roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', ['getRoomPlayers', 'sendQuestionsChartData']);
         roomCommunicationServiceMock.getRoomPlayers.and.returnValue(
             of([
                 /* liste vide de joueur */
@@ -52,6 +52,11 @@ describe('QuestionZoneStatsComponent', () => {
         roomCommunicationServiceMock.getRoomPlayers.and.returnValue(
             of([
                 /* liste vide de chart */
+            ]),
+        );
+        roomCommunicationServiceMock.sendQuestionsChartData.and.returnValue(
+            of([
+                /* liste vide de chart data */
             ]),
         );
     });

@@ -3,7 +3,7 @@ import { Quiz } from '@app/model/database/quiz';
 import { ChatMessage } from '@common/chat-message';
 import { Results } from '@common/player-info';
 import { QuestionChartData } from '@common/question-chart-data';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as randomstring from 'randomstring';
 
 @Injectable()
@@ -154,13 +154,12 @@ export class RoomManagerService {
         room.chatMessage = chatMessages;
     }
 
-    postQuestionChartData(roomId: string, questionChartData: QuestionChartData) {
+    postQuestionChartData(roomId: string, questionChartData: QuestionChartData[]) {
         const room = this.findRoom(roomId);
-        room.questionChartData.push(questionChartData);
+        room.questionChartData = questionChartData;
     }
 
     getQuestionChartData(roomId: string) {
-        Logger.log(this.findRoom(roomId).questionChartData);
         return this.findRoom(roomId).questionChartData;
     }
 

@@ -4,9 +4,12 @@ import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { GamePlayersListComponent } from '@app/components/game-players-list/game-players-list.component';
+import { HistogramComponent } from '@app/components/histogram/histogram.component';
+import { ResultChartComponent } from '@app/components/result-chart/result-chart.component';
 import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { NgChartsModule } from 'ng2-charts';
 import { ResultsPageComponent } from './results-page.component';
 
 describe('ResultsPageComponent', () => {
@@ -20,8 +23,16 @@ describe('ResultsPageComponent', () => {
         clientSocketServiceMock.socketExists.and.returnValue(true);
         roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', ['getRoomPlayers']);
         TestBed.configureTestingModule({
-            declarations: [ResultsPageComponent, GamePlayersListComponent, MatIcon, TopBarComponent, ChatComponent],
-            imports: [FormsModule],
+            declarations: [
+                ResultsPageComponent,
+                GamePlayersListComponent,
+                MatIcon,
+                TopBarComponent,
+                ChatComponent,
+                ResultChartComponent,
+                HistogramComponent,
+            ],
+            imports: [FormsModule, NgChartsModule],
             providers: [
                 {
                     provide: SocketClientService,

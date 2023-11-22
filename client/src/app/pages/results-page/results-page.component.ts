@@ -1,8 +1,7 @@
-import { Component, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { QuestionZoneStatsComponent } from '@app/components/question-zone-stats/question-zone-stats.component';
 import { Quiz } from '@app/interfaces/quiz';
-import { CommunicationService } from '@app/services/communication.service';
+import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { GameEvents } from '@common/game.events';
 import { Chart } from 'chart.js';
@@ -14,19 +13,19 @@ import { firstValueFrom } from 'rxjs';
     styleUrls: ['./results-page.component.scss', '../../../assets/shared.scss'],
 })
 export class ResultsPageComponent implements OnInit, OnDestroy {
-    @ViewChild(QuestionZoneStatsComponent, { static: false }) questionZoneStats: QuestionZoneStatsComponent;
-
     roomId: string;
     quiz: Quiz;
     title: string;
     chart: Chart[];
     private isHost: boolean;
 
+    // Tous ces paramètres sont nécessaires pour que la composante fonctionne bien
+    // eslint-disable-next-line max-params
     constructor(
         private route: ActivatedRoute,
         private router: Router,
         private socketClientService: SocketClientService,
-        private communicationService: CommunicationService,
+        private roomCommunicationService: RoomCommunicationService,
     ) {
         this.roomId = this.route.snapshot.paramMap.get('roomId') as string;
         this.title = 'Résultats';
@@ -67,9 +66,6 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
             return;
         }
 
-        const quizId = this.route.snapshot.paramMap.get('quizId');
-        if (quizId) {
-            this.quiz = await firstValueFrom(this.communicationService.getQuiz(quizId));
-        }
+        this.quiz = await firstValueFrom(this.roomCommunicationService.getRoomQuiz(this.roomId));
     }
 }

@@ -48,6 +48,7 @@ describe('RoomManagerService', () => {
                 timer: null,
                 results: [],
                 chatMessage: [],
+                questionChartData: [],
             },
         ];
         room = roomManagerServiceMock.rooms[0];

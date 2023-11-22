@@ -3,7 +3,7 @@ import { RoomManagerService } from '@app/services/room-manager/room-manager.serv
 import { ChatMessage } from '@common/chat-message';
 import { Results } from '@common/player-info';
 import { QuestionChartData } from '@common/question-chart-data';
-import { Body, Controller, Get, HttpStatus, Logger, Param, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
 import { ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
@@ -190,10 +190,8 @@ export class RoomController {
         description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
     })
     @Post('/:roomId/chart')
-    handleSendChartData(@Param('roomId') roomId: string, @Body() questionChartData: QuestionChartData, @Res() response: Response) {
-        Logger.log(questionChartData);
+    handleSendChartData(@Param('roomId') roomId: string, @Body() questionChartData: QuestionChartData[], @Res() response: Response) {
         try {
-            Logger.log(questionChartData);
             this.roomManagerService.postQuestionChartData(roomId, questionChartData);
             response.status(HttpStatus.OK).json(questionChartData);
         } catch (error) {

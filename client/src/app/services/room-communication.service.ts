@@ -63,9 +63,9 @@ export class RoomCommunicationService {
         return this.http.get<QuestionChartData[]>(`${this.baseUrl}/rooms/${roomId}/chart`).pipe(catchError(this.receiveError<QuestionChartData[]>()));
     }
 
-    sendChartData(roomId: string, questionChartData: QuestionChartData[]): Observable<QuestionChartData[]> {
+    sendQuestionsChartData(roomId: string, questionsChartData: QuestionChartData[]): Observable<QuestionChartData[]> {
         return this.http
-            .post<QuestionChartData[]>(`${this.baseUrl}/rooms/${roomId}/chart`, questionChartData)
+            .post<QuestionChartData[]>(`${this.baseUrl}/rooms/${roomId}/chart`, questionsChartData)
             .pipe(catchError(this.receiveError<QuestionChartData[]>()));
     }
 

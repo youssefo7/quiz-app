@@ -1,5 +1,8 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { HistogramInfo } from '@app/interfaces/histogram-info';
 import { Question, Quiz } from '@app/interfaces/quiz';
+import { ChartDataManagerService } from '@app/services/chart-data-manager.service';
+// import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { GameEvents } from '@common/game.events';
 import { QuestionChartData } from '@common/question-chart-data';
@@ -12,57 +15,70 @@ import { Chart } from 'chart.js';
     styleUrls: ['./histogram.component.scss'],
 })
 export class HistogramComponent implements OnInit, OnDestroy {
+    @Input() isResultsPage: boolean;
     @Input() roomId: string;
     @Input() quiz: Quiz;
     question: Question;
-    chart: Chart;
+    chart: Chart | null;
     goodBadChoices: boolean[];
-    private questionChartData: QuestionChartData[];
-    private playersChoices: string[];
-    private choicesSelectionCounts: number[];
-    private chartBorderColors: string[];
-    private chartBackgroundColors: string[];
+    private histogramInfo: HistogramInfo;
+    private chartDataToLoad: QuestionChartData;
+    private questionsChartData: QuestionChartData[];
+
     private currentQuestionIndex: number;
 
-    constructor(private readonly socketClientService: SocketClientService) {
-        this.questionChartData = [];
-        this.playersChoices = [];
-        this.chartBorderColors = [];
-        this.chartBackgroundColors = [];
+    constructor(
+        private readonly socketClientService: SocketClientService,
+        private chartDataManager: ChartDataManagerService,
+    ) {
+        this.questionsChartData = [];
         this.goodBadChoices = [];
         this.currentQuestionIndex = 0;
-        this.choicesSelectionCounts = [];
+        this.histogramInfo = {
+            playersChoices: [],
+            choicesSelectionCounts: [],
+            chartBackgroundColors: [],
+            chartBorderColors: [],
+        };
     }
 
-    ngOnInit() {
+    async ngOnInit() {
         if (!this.socketClientService.socketExists()) {
             return;
         }
-        this.loadChart();
-        this.updateSelections();
-        this.reactToTransitionClockFinishedEvent();
-        this.reactToTimerFinishedEvent();
-    }
-
-    ngOnDestroy() {
-        if (this.chart) {
-            this.chart.destroy();
+        if (!this.isResultsPage) {
+            this.loadChart();
+            this.updateSelections();
+            this.reactToTransitionClockFinishedEvent();
+            this.reactToSaveChartDataEvent();
+        } else {
+            // this.questionChartData = await firstValueFrom(this.roomCommunicationService.getQuestionChartData(this.roomId));
+            // this.questionChartData = this.chartDataManager.getQuestionChartData();
+            // console.log('in histogram chart');
+            // console.log(this.questionChartData);
+            // this.chartDataToLoad = this.questionChartData.find(
+            //     (chartData) => chartData.currentQuestionIndex === this.currentQuestionIndex,
+            // ) as QuestionChartData;
+            this.questionsChartData = await this.chartDataManager.getQuestionChartData(this.roomId);
+            this.chartDataToLoad = this.chartDataManager.findChartDataToLoad(this.questionsChartData, this.currentQuestionIndex);
+            this.loadChart();
         }
     }
 
-    getQuestionChartData(): QuestionChartData[] {
-        return this.questionChartData;
+    ngOnDestroy() {
+        this.resetArrays();
+        if (this.chart) {
+            this.chart.destroy();
+            this.chart = null;
+        }
     }
 
-    private saveChartData() {
-        const newChartData: QuestionChartData = {
-            playersChoices: this.playersChoices,
-            choicesSelectionCounts: this.choicesSelectionCounts,
-            chartBorderColors: this.chartBorderColors,
-            chartBackgroundColors: this.chartBackgroundColors,
-            currentQuestionIndex: this.currentQuestionIndex,
-        };
-        this.questionChartData.push(newChartData);
+    setChartDataToLoad(loadQuestionChartData: QuestionChartData) {
+        this.resetArrays();
+        this.chartDataToLoad = loadQuestionChartData;
+        this.currentQuestionIndex = this.chartDataToLoad.currentQuestionIndex;
+        this.getQuestion(this.currentQuestionIndex);
+        this.updateChartConfig();
     }
 
     private async loadChart() {
@@ -77,9 +93,9 @@ export class HistogramComponent implements OnInit, OnDestroy {
             const choices = this.question.choices;
             if (choices) {
                 for (let i = 0; i < choices.length; i++) {
-                    this.playersChoices.push(`Choix ${i + 1}`);
-                    this.choicesSelectionCounts.push(0);
-                    this.chartBorderColors.push('black');
+                    this.histogramInfo.playersChoices.push(`Choix ${i + 1}`);
+                    this.histogramInfo.choicesSelectionCounts.push(this.isResultsPage ? this.chartDataToLoad.choicesSelectionCounts[i] : 0);
+                    this.histogramInfo.chartBorderColors.push('black');
                     this.setBackgroundColors(i);
                 }
             }
@@ -95,17 +111,21 @@ export class HistogramComponent implements OnInit, OnDestroy {
         });
     }
 
-    private reactToTimerFinishedEvent() {
+    private reactToSaveChartDataEvent() {
         this.socketClientService.on(GameEvents.SaveChartData, () => {
-            this.saveChartData();
+            this.chartDataManager.saveChartData(
+                this.histogramInfo.playersChoices,
+                this.histogramInfo.choicesSelectionCounts,
+                this.currentQuestionIndex,
+            );
         });
     }
 
     private resetArrays() {
-        this.playersChoices = [];
-        this.choicesSelectionCounts = [];
-        this.chartBorderColors = [];
-        this.chartBackgroundColors = [];
+        this.histogramInfo.playersChoices = [];
+        this.histogramInfo.choicesSelectionCounts = [];
+        this.histogramInfo.chartBorderColors = [];
+        this.histogramInfo.chartBackgroundColors = [];
         this.goodBadChoices = [];
     }
 
@@ -113,19 +133,23 @@ export class HistogramComponent implements OnInit, OnDestroy {
         const choices = this.question.choices;
         if (choices) {
             const choice = choices[choiceIndex];
-            this.chartBackgroundColors.push(choice.isCorrect ? 'green' : 'red');
+            this.histogramInfo.chartBackgroundColors.push(choice.isCorrect ? 'green' : 'red');
             this.goodBadChoices.push(choice.isCorrect);
         }
     }
 
     private updateSelections() {
         this.socketClientService.on(GameEvents.QuestionChoiceSelect, (selectionIndex: number) => {
-            this.choicesSelectionCounts[selectionIndex]++;
-            this.chart.update();
+            if (this.chart) {
+                this.histogramInfo.choicesSelectionCounts[selectionIndex]++;
+                this.chart.update();
+            }
         });
         this.socketClientService.on(GameEvents.QuestionChoiceUnselect, (deselectionIndex: number) => {
-            this.choicesSelectionCounts[deselectionIndex]--;
-            this.chart.update();
+            if (this.chart) {
+                this.histogramInfo.choicesSelectionCounts[deselectionIndex]--;
+                this.chart.update();
+            }
         });
     }
 
@@ -133,13 +157,13 @@ export class HistogramComponent implements OnInit, OnDestroy {
         this.chart = new Chart('canvas', {
             type: 'bar',
             data: {
-                labels: this.playersChoices,
+                labels: this.histogramInfo.playersChoices,
                 datasets: [
                     {
-                        data: this.choicesSelectionCounts,
+                        data: this.histogramInfo.choicesSelectionCounts,
                         borderWidth: 1,
-                        backgroundColor: this.chartBackgroundColors,
-                        borderColor: this.chartBorderColors,
+                        backgroundColor: this.histogramInfo.chartBackgroundColors,
+                        borderColor: this.histogramInfo.chartBorderColors,
                     },
                 ],
             },
@@ -166,10 +190,12 @@ export class HistogramComponent implements OnInit, OnDestroy {
     }
 
     private updateChartConfig() {
-        this.chart.data.labels = this.playersChoices;
-        this.chart.data.datasets[0].data = this.choicesSelectionCounts;
-        this.chart.data.datasets[0].backgroundColor = this.chartBackgroundColors;
-        this.chart.data.datasets[0].borderColor = this.chartBorderColors;
-        this.chart.update();
+        if (this.chart) {
+            this.chart.data.labels = this.histogramInfo.playersChoices;
+            this.chart.data.datasets[0].data = this.histogramInfo.choicesSelectionCounts;
+            this.chart.data.datasets[0].backgroundColor = this.histogramInfo.chartBackgroundColors;
+            this.chart.data.datasets[0].borderColor = this.histogramInfo.chartBorderColors;
+            this.chart.update();
+        }
     }
 }

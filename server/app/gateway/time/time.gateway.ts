@@ -1,5 +1,4 @@
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
-import { GameEvents } from '@common/game.events';
 import { TimeEvents } from '@common/time.events';
 import { Injectable } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -38,7 +37,7 @@ export class TimeGateway {
         if (room) {
             clearInterval(room.timer);
             room.timer = null;
-            this.server.to(roomId).emit(GameEvents.SaveChartData);
+            // this.server.to(roomId).emit(GameEvents.SaveChartData);
         }
     }
 

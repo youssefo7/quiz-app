@@ -153,4 +153,10 @@ export class GameGateway {
         const organizer = this.roomManager.findRoom(roomId).organizer.socketId;
         this.server.to(organizer).emit(GameEvents.SubmitQuestionOnClick);
     }
+
+    @SubscribeMessage(GameEvents.SaveChartData)
+    handleSaveChartData(_: Socket, roomId: string) {
+        const room = this.roomManager.findRoom(roomId);
+        this.server.to(room.organizer.socketId).emit(GameEvents.SaveChartData);
+    }
 }

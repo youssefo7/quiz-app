@@ -1,0 +1,5 @@
+<div *ngIf="roomId">
+    <button mat-raised-button (click)="viewNextQuestion()" [disabled]="!isViewNextQuestionPossible()">Next</button>
+    <button mat-raised-button (click)="viewPreviousQuestion()" [disabled]="!isViewPreviousQuestionPossible()">Previous</button>
+    <app-histogram [roomId]="roomId" [quiz]="quiz" [isResultsPage]="true"></app-histogram>
+</div>
