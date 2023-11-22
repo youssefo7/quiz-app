@@ -5,7 +5,7 @@ import { RoomManagerService } from '@app/services/room-manager/room-manager.serv
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Response } from 'express';
-import { SinonStubbedInstance, createStubInstance } from 'sinon';
+import { createStubInstance, SinonStubbedInstance } from 'sinon';
 import { RoomController } from './room.controller';
 
 describe('RoomController', () => {
@@ -246,7 +246,17 @@ describe('RoomController', () => {
 
     it('handleGetResults() should return player results in room', async () => {
         const roomId = 'roomId';
-        const roomResults = [{ name: 'playerName', points: 2, hasAbandoned: true, bonusCount: 1 }];
+        const roomResults = [
+            {
+                name: 'playerName',
+                points: 2,
+                hasAbandoned: true,
+                hasClickedOnAsnwerField: false,
+                hasConfirmedAnswer: false,
+                hasClickedOnAnswerField: false,
+                bonusCount: 1,
+            },
+        ];
         roomManagerService.getResults.returns(roomResults);
 
         const res = {} as Response;
@@ -281,7 +291,17 @@ describe('RoomController', () => {
 
     it('handleSendResults() should return posted player results in room', async () => {
         const roomId = 'roomId';
-        const body = [{ name: 'playerName', points: 2, hasAbandoned: true, bonusCount: 1 }];
+        const body = [
+            {
+                name: 'playerName',
+                points: 2,
+                hasAbandoned: true,
+                hasClickedOnAsnwerField: false,
+                hasConfirmedAnswer: false,
+                hasClickedOnAnswerField: false,
+                bonusCount: 1,
+            },
+        ];
         roomManagerService.postResults.returns();
 
         const res = {} as Response;
@@ -299,7 +319,17 @@ describe('RoomController', () => {
 
     it('handleSendResults() should return INTERNAL_SERVER_ERROR when service fails to post player results', async () => {
         const roomId = 'roomId';
-        const body = [{ name: 'playerName', points: 2, hasAbandoned: true, bonusCount: 1 }];
+        const body = [
+            {
+                name: 'playerName',
+                points: 2,
+                hasAbandoned: true,
+                hasClickedOnAsnwerField: false,
+                hasConfirmedAnswer: false,
+                hasClickedOnAnswerField: false,
+                bonusCount: 1,
+            },
+        ];
         roomManagerService.postResults.throws();
 
         const res = {} as Response;

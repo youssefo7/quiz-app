@@ -5,11 +5,19 @@ import { SocketClientService } from '@app/services/socket-client.service';
 import { ChatEvents } from '@common/chat.events';
 import { GameEvents } from '@common/game.events';
 import { Results } from '@common/player-info';
+import { TimeEvents } from '@common/time.events';
 import { firstValueFrom } from 'rxjs';
 
 interface AddPointsResponse {
     pointsToAdd: number;
     name: string;
+}
+
+enum PlayerState {
+    HasNotInteracted,
+    HasInteracted,
+    HasConfirmed,
+    HasAbandoned,
 }
 
 @Component({
@@ -22,7 +30,12 @@ export class GamePlayersListComponent implements OnInit {
     isHost: boolean;
     playerResults: Results[];
     isResultsRoute: boolean;
+    shouldSortPointsAscending: boolean;
+    shouldSortNamesAscending: boolean;
     private quizId: string;
+    private shouldSortStatesAscending: boolean;
+    private isSortedByPoints: boolean;
+    private isSortedByState: boolean;
 
     // Raison: Les quatres injections sont nécessaires pour ma composante
     // eslint-disable-next-line max-params
@@ -32,9 +45,12 @@ export class GamePlayersListComponent implements OnInit {
         private router: Router,
         private route: ActivatedRoute,
     ) {
-        this.isResultsRoute = this.router.url.includes('results');
+        this.isResultsRoute = this.route.snapshot.url.some((segment) => segment.path === 'results');
         this.playerResults = [];
         this.quizId = this.route.snapshot.paramMap.get('quizId') as string;
+        this.shouldSortNamesAscending = true;
+        this.shouldSortPointsAscending = true;
+        this.shouldSortStatesAscending = true;
         this.isHost = this.route.snapshot.url.some((segment) => segment.path === 'host');
     }
 
@@ -44,21 +60,24 @@ export class GamePlayersListComponent implements OnInit {
         }
 
         await this.fetchPlayersList();
-        const canSort = this.isResultsRoute && this.playerResults.length > 0;
-        if (canSort) {
-            this.sortPlayers();
-        }
         this.listenToSocketEvents();
+
+        if (this.isResultsRoute) {
+            this.shouldSortPointsAscending = false;
+            this.sortByPoints();
+        }
     }
 
     async fetchPlayersList() {
         if (!this.isResultsRoute) {
             const roomPlayers = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string));
-            roomPlayers.forEach((name) => {
+            roomPlayers.forEach((playerName) => {
                 const player: Results = {
-                    name,
+                    name: playerName,
                     points: 0,
                     hasAbandoned: false,
+                    hasClickedOnAnswerField: false,
+                    hasConfirmedAnswer: false,
                     bonusCount: 0,
                 };
                 this.playerResults.push(player);
@@ -68,17 +87,73 @@ export class GamePlayersListComponent implements OnInit {
         }
     }
 
+    sortByName() {
+        this.playerResults.sort((a, b) => (this.shouldSortNamesAscending ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)));
+        this.shouldSortNamesAscending = !this.shouldSortNamesAscending;
+        this.isSortedByPoints = false;
+        this.isSortedByState = false;
+    }
+
+    sortByPoints() {
+        this.playerResults.sort((a, b) => {
+            if (a.points !== b.points) {
+                return this.shouldSortPointsAscending ? a.points - b.points : b.points - a.points;
+            }
+            return a.name.localeCompare(b.name);
+        });
+        this.shouldSortPointsAscending = !this.shouldSortPointsAscending;
+        this.isSortedByPoints = true;
+        this.isSortedByState = false;
+    }
+
+    sortByState() {
+        this.playerResults.sort((a, b) => {
+            const priorityA = this.getPlayerPriority(a);
+            const priorityB = this.getPlayerPriority(b);
+            if (priorityA !== priorityB) {
+                return this.shouldSortStatesAscending ? priorityA - priorityB : priorityB - priorityA;
+            }
+            return a.name.localeCompare(b.name);
+        });
+        this.shouldSortStatesAscending = !this.shouldSortStatesAscending;
+        this.isSortedByPoints = false;
+        this.isSortedByState = true;
+    }
+
     toggleChattingRights(name: string) {
         this.socketService.send(ChatEvents.ToggleChattingRights, { roomId: this.roomId, playerName: name });
     }
 
+    private getPlayerPriority(player: Results): PlayerState {
+        let priority;
+
+        if (player.hasConfirmedAnswer) {
+            priority = PlayerState.HasConfirmed;
+        } else if (player.hasClickedOnAnswerField) {
+            priority = PlayerState.HasInteracted;
+        } else if (player.hasAbandoned) {
+            priority = PlayerState.HasAbandoned;
+        } else {
+            priority = PlayerState.HasNotInteracted;
+        }
+        return priority;
+    }
+
     private listenToSocketEvents() {
         this.socketService.on(GameEvents.PlayerAbandonedGame, (playerName: string) => {
-            this.updatePlayerStatus(playerName);
+            this.markAsAbandonned(playerName);
+            if (this.isSortedByState) {
+                this.shouldSortStatesAscending = !this.shouldSortStatesAscending;
+                this.sortByState();
+            }
         });
 
         this.socketService.on(GameEvents.AddPointsToPlayer, (response: AddPointsResponse) => {
             this.updatePlayerScore(response);
+            if (this.isSortedByPoints) {
+                this.shouldSortPointsAscending = !this.shouldSortPointsAscending;
+                this.sortByPoints();
+            }
         });
 
         this.socketService.on(GameEvents.BonusUpdate, (playerName: string) => {
@@ -90,35 +165,65 @@ export class GamePlayersListComponent implements OnInit {
             this.socketService.send(GameEvents.ShowResults, this.roomId);
             this.router.navigateByUrl(`/results/game/${this.quizId}/room/${this.roomId}/host`);
         });
+
+        this.socketService.on(GameEvents.SubmitQuestionOnClick, (playerName: string) => {
+            this.updateAnswerConfirmation(playerName);
+            if (this.isSortedByState) {
+                this.shouldSortStatesAscending = !this.shouldSortStatesAscending;
+                this.sortByState();
+            }
+        });
+
+        this.socketService.on(GameEvents.FieldInteraction, (playerName: string) => {
+            this.updatePlayerInteraction(playerName);
+            if (this.isSortedByState) {
+                this.shouldSortStatesAscending = !this.shouldSortStatesAscending;
+                this.sortByState();
+            }
+        });
+
+        this.socketService.on(TimeEvents.TransitionClockFinished, () => {
+            this.resetPlayersInfo();
+            if (this.isSortedByState) {
+                this.shouldSortStatesAscending = !this.shouldSortStatesAscending;
+                this.sortByState();
+            }
+        });
+
+        // TODO ajouter pour l'interaction avec la zone de réponse QRL
     }
 
-    private updatePlayerStatus(playerName: string) {
-        const playerToUpdate = this.playerResults.find((player) => player.name === playerName);
-        if (playerToUpdate) {
-            playerToUpdate.hasAbandoned = true;
-        }
+    private markAsAbandonned(playerName: string) {
+        const playerToUpdate = this.playerResults.find((player) => player.name === playerName) as Results;
+        playerToUpdate.hasConfirmedAnswer = false;
+        playerToUpdate.hasClickedOnAnswerField = false;
+        playerToUpdate.hasAbandoned = true;
     }
 
     private updatePlayerScore(response: AddPointsResponse) {
-        const playerToUpdate = this.playerResults.find((player) => player.name === response.name);
-        if (playerToUpdate) {
-            playerToUpdate.points += response.pointsToAdd;
-        }
+        const playerToUpdate = this.playerResults.find((player) => player.name === response.name) as Results;
+        playerToUpdate.points += response.pointsToAdd;
     }
 
     private updatePlayerBonusCount(playerName: string) {
-        const wantedPlayer = this.playerResults.find((player) => player.name === playerName);
-        if (wantedPlayer) {
-            wantedPlayer.bonusCount++;
-        }
+        const playerToUpdate = this.playerResults.find((player) => player.name === playerName) as Results;
+        playerToUpdate.bonusCount++;
     }
 
-    private sortPlayers() {
-        this.playerResults.sort((a, b) => {
-            if (a.points === b.points) {
-                return a.name.localeCompare(b.name);
-            }
-            return b.points - a.points;
+    private updateAnswerConfirmation(playerName: string) {
+        const playerToUpdate = this.playerResults.find((player) => player.name === playerName) as Results;
+        playerToUpdate.hasConfirmedAnswer = true;
+    }
+
+    private updatePlayerInteraction(playerName: string) {
+        const playerToUpdate = this.playerResults.find((player) => player.name === playerName) as Results;
+        playerToUpdate.hasClickedOnAnswerField = true;
+    }
+
+    private resetPlayersInfo() {
+        this.playerResults.forEach((player) => {
+            player.hasClickedOnAnswerField = false;
+            player.hasConfirmedAnswer = false;
         });
     }
 }
