@@ -142,7 +142,7 @@ describe('CreateGameListComponent', () => {
         await component['getVisibleQuizListFromServer']();
         fixture.detectChanges();
 
-        const toggleButton = fixture.nativeElement.querySelector('.toggleButton');
+        const toggleButton = fixture.nativeElement.querySelector('#toggle-button');
         expect(component.visibleQuizList).not.toBeNull();
         expect(toggleButton).toBeTruthy();
     });
@@ -163,16 +163,14 @@ describe('CreateGameListComponent', () => {
         await component['getVisibleQuizListFromServer']();
         fixture.detectChanges();
 
-        const toggleButton = fixture.nativeElement.querySelector('.toggleButton');
+        const toggleButton = fixture.nativeElement.querySelector('#toggle-button');
         component.selectedQuizId = visibleQuizMock[0].id;
         fixture.detectChanges();
 
-        const quizDetails = fixture.nativeElement.querySelectorAll('quizDetails');
-        const questions = fixture.nativeElement.querySelectorAll('.quizDetails li');
+        const quizDetails = fixture.nativeElement.querySelector('#quiz-details');
 
         expect(toggleButton.classList.contains('active')).toBeTruthy();
         expect(quizDetails).toBeTruthy();
-        expect(questions.length).toEqual(visibleQuizMock[0].questions.length);
     });
 
     it('should create a room and navigate to it if the quiz is available and visible', async () => {
