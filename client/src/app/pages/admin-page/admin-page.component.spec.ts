@@ -2,6 +2,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
+import { HistoryComponent } from '@app/components/history/history.component';
 import { QuizListComponent } from '@app/components/quiz-list/quiz-list.component';
 import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { AdminGuardService } from '@app/services/admin-guard.service';
@@ -24,7 +25,7 @@ describe('AdminPageComponent', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            declarations: [AdminPageComponent, QuizListComponent, TopBarComponent],
+            declarations: [AdminPageComponent, QuizListComponent, TopBarComponent, HistoryComponent],
             imports: [HttpClientTestingModule, MatDialogModule],
             providers: [
                 { provide: Router, useValue: router },

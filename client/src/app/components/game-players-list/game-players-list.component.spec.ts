@@ -1,9 +1,13 @@
+// Raison: Tests necessaire dépassent la limite
+/* eslint-disable max-lines */
 // any est necessaire pour pourvoir test les méthodes privées
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
+import { Quiz } from '@app/interfaces/quiz';
+import { HistoryCommunicationService } from '@app/services/history-communication.service';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { ChatEvents } from '@common/chat.events';
@@ -35,6 +39,7 @@ describe('GamePlayersListComponent', () => {
     let component: GamePlayersListComponent;
     let fixture: ComponentFixture<GamePlayersListComponent>;
     let roomCommunicationServiceMock: jasmine.SpyObj<RoomCommunicationService>;
+    let historyCommunicationServiceMock: jasmine.SpyObj<HistoryCommunicationService>;
     let mockSocketClientService: MockSocketClientService;
     let socketHelper: SocketTestHelper;
     let routerSpy: SpyObj<Router>;
@@ -54,7 +59,13 @@ describe('GamePlayersListComponent', () => {
     };
 
     beforeEach(() => {
-        roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', ['getRoomPlayers', 'getPlayerResults', 'sendPlayerResults']);
+        roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', [
+            'getRoomPlayers',
+            'getPlayerResults',
+            'sendPlayerResults',
+            'getRoomQuiz',
+        ]);
+        historyCommunicationServiceMock = jasmine.createSpyObj('HistoryCommunicationService', ['addHistory']);
         mockSocketClientService = jasmine.createSpyObj('SocketClientService', ['on', 'socketExists']);
         routerSpy = jasmine.createSpyObj('Router', ['navigateByUrl']);
     });
@@ -74,6 +85,7 @@ describe('GamePlayersListComponent', () => {
                 },
                 { provide: RoomCommunicationService, useValue: roomCommunicationServiceMock },
                 { provide: Router, useValue: routerSpy },
+                { provide: HistoryCommunicationService, useValue: historyCommunicationServiceMock },
             ],
         }).compileComponents();
     }));
@@ -137,6 +149,7 @@ describe('GamePlayersListComponent', () => {
     it('should send ShowResults event when SendResults event is received and redirect users to the results page', async () => {
         const sendSpy = spyOn(mockSocketClientService, 'send');
         component.roomId = '456';
+        const addHistorySpy = spyOn<any>(component, 'addGameToHistory');
 
         component['listenToSocketEvents']();
         socketHelper.peerSideEmit(GameEvents.SendResults);
@@ -146,6 +159,7 @@ describe('GamePlayersListComponent', () => {
         expect(roomCommunicationServiceMock.sendPlayerResults).toHaveBeenCalled();
         expect(sendSpy).toHaveBeenCalledWith(GameEvents.ShowResults, '456');
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith(`/results/game/${component['quizId']}/room/${component.roomId}/host`);
+        expect(addHistorySpy).toHaveBeenCalled();
     });
 
     it('should sort players by name in ascending and descending order', async () => {
@@ -326,5 +340,27 @@ describe('GamePlayersListComponent', () => {
             expect(player.hasClickedOnAnswerField).toBeFalsy();
             expect(player.hasConfirmedAnswer).toBeFalsy();
         });
+    });
+
+    it('should add to history', async () => {
+        component.playerResults = [...playersListMock];
+        component.playerResults[3].points = 100;
+        component.roomId = '123';
+        component['currentDateTime'] = '2011-10-05T14:48:00.000Z';
+        const mockQuiz = { title: 'Test Quiz' };
+        const expectedHistory = {
+            name: mockQuiz.title,
+            date: '2011-10-05 14:48:00',
+            numberOfPlayers: component.playerResults.length,
+            maxScore: component.playerResults[3].points,
+        };
+
+        roomCommunicationServiceMock.getRoomQuiz.and.returnValue(of(mockQuiz as Quiz));
+        historyCommunicationServiceMock.addHistory.and.returnValue(of(expectedHistory));
+
+        await component['addGameToHistory']();
+
+        expect(roomCommunicationServiceMock.getRoomQuiz).toHaveBeenCalledWith(component.roomId);
+        expect(historyCommunicationServiceMock.addHistory).toHaveBeenCalledWith(expectedHistory);
     });
 });

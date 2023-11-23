@@ -1,8 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { History } from '@app/interfaces/history';
+import { HistoryCommunicationService } from '@app/services/history-communication.service';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { ChatEvents } from '@common/chat.events';
+import { Constants } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { Results } from '@common/player-info';
 import { TimeEvents } from '@common/time.events';
@@ -37,11 +40,13 @@ export class GamePlayersListComponent implements OnInit {
     private isSortedByPoints: boolean;
     private isSortedByState: boolean;
 
+    private currentDateTime: string;
     // Raison: Les quatres injections sont nécessaires pour ma composante
     // eslint-disable-next-line max-params
     constructor(
         private socketService: SocketClientService,
         private roomCommunicationService: RoomCommunicationService,
+        private historyCommunicationService: HistoryCommunicationService,
         private router: Router,
         private route: ActivatedRoute,
     ) {
@@ -52,6 +57,7 @@ export class GamePlayersListComponent implements OnInit {
         this.shouldSortPointsAscending = true;
         this.shouldSortStatesAscending = true;
         this.isHost = this.route.snapshot.url.some((segment) => segment.path === 'host');
+        this.currentDateTime = new Date().toISOString();
     }
 
     async ngOnInit() {
@@ -162,6 +168,7 @@ export class GamePlayersListComponent implements OnInit {
 
         this.socketService.on(GameEvents.SendResults, async () => {
             await firstValueFrom(this.roomCommunicationService.sendPlayerResults(this.roomId as string, this.playerResults));
+            await this.addGameToHistory();
             this.socketService.send(GameEvents.ShowResults, this.roomId);
             this.router.navigateByUrl(`/results/game/${this.quizId}/room/${this.roomId}/host`);
         });
@@ -225,5 +232,23 @@ export class GamePlayersListComponent implements OnInit {
             player.hasClickedOnAnswerField = false;
             player.hasConfirmedAnswer = false;
         });
+    }
+
+    private async addGameToHistory() {
+        const quiz = await firstValueFrom(this.roomCommunicationService.getRoomQuiz(this.roomId as string));
+        const date = this.currentDateTime.split('T')[0];
+        const time = this.currentDateTime.split('T')[1].substring(0, Constants.TIME_LENGTH);
+
+        const playersSortedByPoints = [...this.playerResults];
+        playersSortedByPoints.sort((a, b) => b.points - a.points);
+
+        const game: History = {
+            name: quiz.title,
+            date: `${date} ${time}`,
+            numberOfPlayers: playersSortedByPoints.length,
+            maxScore: playersSortedByPoints[0].points,
+        };
+
+        await firstValueFrom(this.historyCommunicationService.addHistory(game));
     }
 }

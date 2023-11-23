@@ -1,0 +1,24 @@
+<div id="container">
+    <div id="history-list">
+        <div id="history-title">
+            <h1>Historique</h1>
+            <i *ngIf="!isHistoryEmpty" class="fa-solid fa-trash" (click)="openDeleteHistoryPopUp()"></i>
+        </div>
+        <div id="game-header">
+            <p class = "header-game" (click)="sortHistory('name')">Nom du jeu
+                <span class="arrow" [ngClass]="{'arrow-up': isNameAscending, 'arrow-down': !isNameAscending}"></span>
+            </p>
+            <p class="header-game" (click)="sortHistory('date')">Date
+                <span class="arrow" [ngClass]="{'arrow-up': isDateAscending, 'arrow-down': !isDateAscending}"></span>
+            </p>
+            <p>Nombres de joueurs</p>
+            <p>Meilleur score</p>
+        </div>
+        <div *ngFor="let game of history" class="history-game">
+            <span [title]="game.name">{{ game.name }}</span>
+            <span [title]="game.date">{{ game.date }}</span>
+            <span >{{ game.numberOfPlayers }}</span>
+            <span>{{ game.maxScore }}</span>
+        </div>
+    </div>
+</div>
