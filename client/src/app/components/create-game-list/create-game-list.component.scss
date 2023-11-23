@@ -1,6 +1,31 @@
+@import '~@fortawesome/fontawesome-free/css/all.css';
+
 table {
     border-collapse: collapse;
     width: 100%;
+}
+
+#container {
+    display: flex;
+    justify-content: center;
+}
+
+#items {
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    width: 80%;
+    max-width: 1000px;
+    max-height: 450px;
+    margin-top: 5%;
+
+    overflow-y: scroll;
+}
+
+#toggle-button {
+    background: transparent;
+    border: none !important;
 }
 
 tr {
@@ -11,18 +36,24 @@ tr {
 td {
     padding-left: 5px;
 }
-
-.quizDetails {
-    background-color: lightgray;
-    padding: 0%;
+#quiz-info {
+    display: flex;
 }
 
-tr.mainDetails:nth-child(even) {
-    background-color: lightblue
+#main-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 10px;
+    border-bottom: 1px solid #ccc;
+    transition: background-color 0.3s;
 }
 
-#detailsHeader {
-    text-decoration: underline
+#quiz-details {
+    background-color: #007bff3a;
+    padding: 1%;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
 th {
@@ -31,32 +62,44 @@ th {
     padding-left: 5px;
 }
 
-.toggleButton {
-    border: 2px solid rgb(45, 187, 235);
-    float: right;
+.fa,
+.fas,
+.fa-solid {
+    margin-right: 10px;
+    color: #007bff;
+    font-weight: bold;
+    text-shadow: rgba(69, 68, 66, 0.387) 1px 0 5px;
 }
 
-button:hover {
-    background-color: rgb(186, 186, 186);
+.fa:hover,
+.fas:hover,
+.fa-solid:hover {
+    color: #060688;
+    font-weight: bold;
+    cursor: pointer;
 }
 
-.toggleButton::after {
-    content: "+";
-}
-
-.toggleButton.active::after {
-    content: "-";
-    padding: 1px 2px;
-}
-
-.optionsButton {
-    display:flex;
+#option-buttons {
+    display: flex;
     justify-content: flex-end;
     margin-right: 2px;
 }
 
-#testButton, #createButton {
-    border: 2px solid rgb(45, 187, 235);
-    border-radius: 6px;
+.button {
+    margin: 10px;
+    padding: 10px 20px; 
+    background-color: #007bff;
+    color: white;
+    border: none; 
+    border-radius: 5px; 
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center; 
+    text-decoration: none; 
+    transition: background-color 0.3s; 
+}
+
+.button:hover {
+    background-color: #0056b3; 
 }
 
