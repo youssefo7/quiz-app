@@ -4,6 +4,7 @@ import { ChartDataManagerService } from '@app/services/chart-data-manager.servic
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { GameEvents } from '@common/game.events';
+import { QRLAnswer } from '@common/qrl-answer';
 import { TimeEvents } from '@common/time.events';
 import { Subscription, firstValueFrom } from 'rxjs';
 
@@ -19,6 +20,8 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     isNextQuestionButtonDisable: boolean;
     nextQuestionButtonText: string;
     nextQuestionButtonStyle: { backgroundColor: string };
+    playersQRLAnswers: QRLAnswer[];
+    isQRLBeingEvaluated: boolean;
     private currentQuestionIndex: number;
     private lastQuestionIndex: number;
     private isEndOfQuestionTime: boolean;
@@ -53,6 +56,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         this.badAnswerOnFinishedTimerCount = 0;
         this.totalBadAnswers = 0;
         this.totalGoodAnswers = 0;
+        this.isQRLBeingEvaluated = false;
     }
 
     async ngOnInit(): Promise<void> {
@@ -72,11 +76,17 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
 
     goToNextQuestion() {
         if (this.currentQuestionIndex !== this.lastQuestionIndex) {
+            this.isQRLBeingEvaluated = false;
             this.socketClientService.send(GameEvents.NextQuestion, this.roomId);
         } else {
             this.chartDataManager.sendChartData(this.roomId);
             this.socketClientService.send(GameEvents.SendResults, this.roomId);
         }
+    }
+
+    enableNextQuestionButtonOnEvaluationEnd() {
+        this.isNextQuestionButtonDisable = false;
+        this.nextQuestionButtonStyle = { backgroundColor: 'rgb(18, 18, 217)' };
     }
 
     private reactToNextQuestionEvent() {
@@ -206,6 +216,14 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         this.socketClientService.on(GameEvents.BadAnswerOnFinishedTimer, () => {
             this.badAnswerOnFinishedTimerCount++;
             this.detectIfAllPlayersSubmitted();
+        });
+
+        this.socketClientService.on(GameEvents.SubmitQRL, (data: QRLAnswer) => {
+            this.playersQRLAnswers.push(data);
+        });
+
+        this.socketClientService.on(GameEvents.AllSubmissionReceived, () => {
+            this.isQRLBeingEvaluated = true;
         });
     }
 

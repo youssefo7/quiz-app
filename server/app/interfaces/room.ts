@@ -15,6 +15,7 @@ export interface Room {
     results: Results[];
     chatMessage: ChatMessage[];
     questionsChartData: QuestionChartData[];
+    submissionCount: number;
 }
 
 export interface User {
@@ -26,6 +27,7 @@ export interface Player extends User {
     points: number;
     bonusCount: number;
     canChat: boolean;
+    hasSubmitted: boolean;
 }
 
 export interface Organizer extends User {}

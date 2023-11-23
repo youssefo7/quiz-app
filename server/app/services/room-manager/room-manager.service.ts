@@ -28,6 +28,7 @@ export class RoomManagerService {
             results: [],
             chatMessage: [],
             questionsChartData: [],
+            submissionCount: 0,
         });
 
         return roomId;
@@ -36,7 +37,7 @@ export class RoomManagerService {
     addPlayerToRoom(room: Room, playerId: string, name: string) {
         const res = this.findPlayer(playerId, room);
         if (!res) {
-            room.players.push({ socketId: playerId, name, points: 0, bonusCount: 0, canChat: true });
+            room.players.push({ socketId: playerId, name, points: 0, bonusCount: 0, canChat: true, hasSubmitted: false });
         }
     }
 

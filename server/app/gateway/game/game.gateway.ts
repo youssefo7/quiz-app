@@ -23,6 +23,9 @@ export class GameGateway {
             const player = this.roomManager.findPlayer(socket.id, room);
 
             if (data.isInGame) {
+                if (player.hasSubmitted) {
+                    room.submissionCount--;
+                }
                 this.server.to(data.roomId).emit(GameEvents.PlayerAbandonedGame, player.name);
             }
             this.roomManager.removePlayer(room, player.socketId);
@@ -121,23 +124,29 @@ export class GameGateway {
     }
 
     @SubscribeMessage(GameEvents.AddPointsToPlayer)
-    handleAddPointsToPlayer(socket: Socket, data: { roomId: string; points: number }) {
+    handleAddPointsToPlayer(socket: Socket, data: { roomId: string; points: number; name?: string }) {
         const minPoints = 0;
         const maxPoints = 100;
         const room = this.roomManager.findRoom(data.roomId);
         const validPoints = data.points >= minPoints && data.points <= maxPoints;
 
         if (validPoints && room) {
-            this.roomManager.addPointsToPlayer(socket.id, data.points, room);
-            const player = this.roomManager.findPlayer(socket.id, room);
-            this.server.to(room.organizer.socketId).emit(GameEvents.AddPointsToPlayer, { pointsToAdd: data.points, name: player.name });
-            this.server.to(socket.id).emit(GameEvents.AddPointsToPlayer, { pointsToAdd: data.points, name: player.name });
+            const player = data.name ? this.roomManager.findPlayerByName(room, data.name) : this.roomManager.findPlayer(socket.id, room);
+            if (player) {
+                this.roomManager.addPointsToPlayer(player.socketId, data.points, room);
+                this.server.to(room.organizer.socketId).emit(GameEvents.AddPointsToPlayer, { pointsToAdd: data.points, name: player.name });
+                this.server.to(player.socketId).emit(GameEvents.AddPointsToPlayer, { pointsToAdd: data.points, name: player.name });
+            }
         }
     }
 
     @SubscribeMessage(GameEvents.NextQuestion)
     handleNextQuestion(_: Socket, roomId: string) {
         const room = this.roomManager.findRoom(roomId);
+        room.players.forEach((player) => {
+            player.hasSubmitted = false;
+        });
+        room.submissionCount = 0;
         this.roomManager.resetAnswerTimes(room);
         this.server.to(roomId).emit(GameEvents.NextQuestion);
     }
@@ -159,6 +168,18 @@ export class GameGateway {
         const room = this.roomManager.findRoom(roomId);
         const player = this.roomManager.findPlayer(socket.id, room);
         this.server.to(organizer).emit(GameEvents.SubmitQuestionOnClick, player.name);
+    }
+
+    @SubscribeMessage(GameEvents.SubmitQRL)
+    handleSubmitQRL(socket: Socket, data: { roomId: string; answer: string }) {
+        const room = this.roomManager.findRoom(data.roomId);
+        const playerName = this.roomManager.findPlayer(socket.id, room).name;
+        const organizer = room.organizer.socketId;
+        this.server.to(organizer).emit(GameEvents.SubmitQRL, { playerName, answer: data.answer });
+        room.submissionCount++;
+        if (room.submissionCount === room.players.length) {
+            this.server.to(organizer).emit(GameEvents.AllSubmissionReceived);
+        }
     }
 
     @SubscribeMessage(GameEvents.SaveChartData)

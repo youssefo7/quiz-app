@@ -347,16 +347,20 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
 
     private handleAnswerSubmission(isTimerFinished: boolean) {
         this.setSubmitButtonToDisabled(true, { backgroundColor: 'grey' });
-        if (!isTimerFinished) {
-            this.socketClientService.send(GameEvents.SubmitAnswer, this.roomId);
-        }
-        this.hasSentAnswer = true;
-
-        if (this.isAnswerGood()) {
-            this.points = this.question.points;
-            this.socketClientService.send(GameEvents.GoodAnswer, { roomId: this.roomId, isTimerFinished });
+        if (this.question.type === QTypes.QRL) {
+            this.socketClientService.send(GameEvents.SubmitQRL, { roomId: this.roomId, answer: this.userAnswer.trim() });
         } else {
-            this.socketClientService.send(GameEvents.BadAnswer, { roomId: this.roomId, isTimerFinished });
+            if (!isTimerFinished) {
+                this.socketClientService.send(GameEvents.SubmitAnswer, this.roomId);
+            }
+            this.hasSentAnswer = true;
+
+            if (this.isAnswerGood()) {
+                this.points = this.question.points;
+                this.socketClientService.send(GameEvents.GoodAnswer, { roomId: this.roomId, isTimerFinished });
+            } else {
+                this.socketClientService.send(GameEvents.BadAnswer, { roomId: this.roomId, isTimerFinished });
+            }
         }
     }
 }

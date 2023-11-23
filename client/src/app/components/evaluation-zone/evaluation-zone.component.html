@@ -1,0 +1,8 @@
+<div *ngIf="!isEvaluationFinished">
+    <p>{{ answers[currentAnswerIndex].playerName }}</p>
+    <p>{{ answers[currentAnswerIndex].answer }}</p>
+    <button (click)="givePoints(0)">0</button>
+    <button (click)="givePoints(0.5)">50</button>
+    <button (click)="givePoints(1)">100</button>
+</div>
+<span *ngIf="isEvaluationFinished">Vous avez fini d'évaluer tous les joueurs!</span>

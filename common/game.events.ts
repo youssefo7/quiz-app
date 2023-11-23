@@ -26,4 +26,6 @@ export enum GameEvents {
     RemoveAnswerTime = 'removeAnswerTime',
     SaveChartData = 'saveChartData',
     FieldInteraction = 'FieldInteraction',
+    SubmitQRL = 'submitQRL',
+    AllSubmissionReceived = 'allSubmissionReceived',
 }
