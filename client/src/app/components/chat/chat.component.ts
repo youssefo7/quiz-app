@@ -41,7 +41,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
         private changeDetector: ChangeDetectorRef,
     ) {
         this.currentInputLength = 0;
-        this.characterCounterDisplay = `${this.currentInputLength} / ${Constants.MAX_CHAT_MESSAGE_LENGTH}`;
+        this.characterCounterDisplay = `${this.currentInputLength} / ${Constants.MAX_TEXTAREA_LENGTH}`;
         this.roomMessages = [];
         this.userMessage = '';
         this.isResultsRoute = this.router.url.includes('results');
@@ -88,7 +88,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     detectCharacterLengthOnInput(event: Event) {
         const inputValue = (event.target as HTMLInputElement).value;
         this.currentInputLength = inputValue.length;
-        this.characterCounterDisplay = `${this.currentInputLength} / ${Constants.MAX_CHAT_MESSAGE_LENGTH}`;
+        this.characterCounterDisplay = `${this.currentInputLength} / ${Constants.MAX_TEXTAREA_LENGTH}`;
     }
 
     getPlaceholder() {
