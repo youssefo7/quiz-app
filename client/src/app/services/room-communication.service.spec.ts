@@ -10,7 +10,10 @@ describe('RoomCommunicationService', () => {
     let baseUrl: string;
 
     const roomId = 'mockRoomId';
-
+    const mockPlayerResults = [
+        { name: 'p1', points: 10, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: true, bonusCount: 2 },
+        { name: 'p2', points: 10, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: true, bonusCount: 2 },
+    ];
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
@@ -65,19 +68,18 @@ describe('RoomCommunicationService', () => {
     });
 
     it('should create a room when sending POST request with quiz and socket id in body (HttpClient called once)', () => {
-        const mockRoomId = '1234';
         const createData = { quiz: {} as Quiz, socketId: 'mockSocketId' };
 
         service.createRoom(createData).subscribe({
             next: (response) => {
-                expect(response).toBe(mockRoomId);
+                expect(response).toBe(roomId);
             },
             error: fail,
         });
 
         const req = httpMock.expectOne(`${baseUrl}/rooms/new`);
         expect(req.request.method).toBe('POST');
-        req.flush(mockRoomId);
+        req.flush(roomId);
     });
 
     it('should get a list of players in a room when sending GET request with /rooms/:roomId/players param (HTTPClient called once)', () => {
@@ -96,11 +98,6 @@ describe('RoomCommunicationService', () => {
     });
 
     it('should get player results in a room when sending GET request with /rooms/:roomId/results param (HTTPClient called once)', () => {
-        const mockPlayerResults = [
-            { name: 'p1', points: 10, hasAbandoned: false, bonusCount: 2 },
-            { name: 'p2', points: 10, hasAbandoned: false, bonusCount: 2 },
-        ];
-
         service.getPlayerResults(roomId).subscribe({
             next: (response) => {
                 expect(response).toEqual(mockPlayerResults);
@@ -114,11 +111,6 @@ describe('RoomCommunicationService', () => {
     });
 
     it('should send player results in a room when sending POST request with /rooms/:roomId/results param (HTTPClient called once)', () => {
-        const mockPlayerResults = [
-            { name: 'p1', points: 10, hasAbandoned: false, bonusCount: 2 },
-            { name: 'p2', points: 10, hasAbandoned: false, bonusCount: 2 },
-        ];
-
         service.sendPlayerResults(roomId, mockPlayerResults).subscribe({
             next: (response) => {
                 expect(response).toEqual(mockPlayerResults);
