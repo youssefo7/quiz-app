@@ -1,8 +1,8 @@
 import { AnswerTime, Organizer, Player, Room } from '@app/interfaces/room';
 import { Quiz } from '@app/model/database/quiz';
-import { Injectable } from '@nestjs/common';
 import { ChatMessage } from '@common/chat-message';
 import { Results } from '@common/player-info';
+import { Injectable } from '@nestjs/common';
 import * as randomstring from 'randomstring';
 
 @Injectable()
@@ -65,7 +65,9 @@ export class RoomManagerService {
     }
 
     removePlayer(room: Room, playerId: string) {
-        room.players = room.players.filter((player) => player.socketId !== playerId);
+        if (room) {
+            room.players = room.players.filter((player) => player.socketId !== playerId);
+        }
     }
 
     deleteRoom(room: Room) {
