@@ -30,7 +30,6 @@ export class CountdownComponent implements OnInit, OnDestroy {
     private currentQuestionIndex: number;
     private lastQuestionIndex: number;
     private isTestGame: boolean;
-    private gameServiceSubscription: Subscription;
     private hasFinishedTransitionClock: boolean;
     private panicAudio: HTMLAudioElement;
 
@@ -56,19 +55,16 @@ export class CountdownComponent implements OnInit, OnDestroy {
         return this.isTestGame ? this.timeService.time : this.socketTime;
     }
 
-    ngOnInit() {
+    async ngOnInit() {
         if (!this.socketClientService.socketExists() && !this.isTestGame) {
             return;
         }
-        this.loadTimer();
+        await this.loadTimer();
     }
 
     ngOnDestroy() {
         if (this.timerSubscription) {
             this.timerSubscription.unsubscribe();
-        }
-        if (this.gameServiceSubscription) {
-            this.gameServiceSubscription.unsubscribe();
         }
     }
 
