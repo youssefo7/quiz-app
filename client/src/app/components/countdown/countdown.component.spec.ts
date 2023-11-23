@@ -80,7 +80,7 @@ describe('CountdownComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(CountdownComponent);
         component = fixture.componentInstance;
-        component['quiz'] = mockQuiz;
+        component.quiz = mockQuiz;
         fixture.detectChanges();
     });
 

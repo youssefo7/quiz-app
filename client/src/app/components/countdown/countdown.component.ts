@@ -190,13 +190,13 @@ export class CountdownComponent implements OnInit, OnDestroy {
         this.isInPanicMode = false;
         this.message = 'Temps Restant';
         this.clockStyle = { backgroundColor: 'lightblue' };
-
+        const questionTime = this.quiz.questions[this.currentQuestionIndex].type === QTypes.QCM ? this.quiz.duration : Constants.MAX_DURATION;
         if (this.quiz) {
             if (this.isTestGame) {
-                await this.timeService.startTimer(this.quiz.duration);
+                await this.timeService.startTimer(questionTime);
             } else {
                 this.socketClientService.send(TimeEvents.StartTimer, {
-                    initialTime: this.quiz.duration,
+                    initialTime: questionTime,
                     roomId: this.roomId,
                     tickRate: Constants.ONE_SECOND_INTERVAL,
                 });

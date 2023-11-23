@@ -46,11 +46,15 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     @HostListener('window:beforeunload', ['$event'])
     beforeUnloadHandler() {
-        this.handleNavigation();
+        if (!this.isTestGame) {
+            this.handleNavigation();
+        }
     }
 
     ngOnDestroy() {
-        this.handleNavigation();
+        if (!this.isTestGame) {
+            this.handleNavigation();
+        }
     }
 
     async ngOnInit() {
