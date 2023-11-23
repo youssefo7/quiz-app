@@ -35,6 +35,7 @@ import { CreateGamePageComponent } from './pages/create-game-page/create-game-pa
 import { HostGamePageComponent } from './pages/host-game-page/host-game-page.component';
 import { ResultsPageComponent } from './pages/results-page/results-page.component';
 import { WaitingPageComponent } from './pages/waiting-page/waiting-page.component';
+import { HistoryComponent } from './components/history/history.component';
 
 /**
  * Main module that is used in main.ts.
@@ -72,6 +73,7 @@ import { WaitingPageComponent } from './pages/waiting-page/waiting-page.componen
         GamePlayersListComponent,
         QuestionZoneStatsComponent,
         HistogramComponent,
+        HistoryComponent,
     ],
     imports: [
         AppMaterialModule,
