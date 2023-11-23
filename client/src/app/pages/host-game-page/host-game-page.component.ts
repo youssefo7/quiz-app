@@ -53,8 +53,10 @@ export class HostGamePageComponent implements OnInit, OnDestroy {
     async ngOnInit() {
         if (!this.socketClientService.socketExists()) {
             this.socketClientService.connect();
-            this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: true });
-            this.socketClientService.disconnect();
+            if (this.socketClientService.socketExists()) {
+                this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: true });
+                this.socketClientService.disconnect();
+            }
             this.router.navigateByUrl('home/');
             return;
         } else {

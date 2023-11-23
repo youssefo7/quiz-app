@@ -105,9 +105,14 @@ describe('HostGamePageComponent', () => {
         expect(handleNavigationSpy).toHaveBeenCalled();
     });
 
-    it('should ', async () => {
-        clientSocketServiceMock.socketExists.and.returnValue(false);
+    it('should connect and handle any users actions if the socket does not exist and the user is a host', async () => {
+        let socketExists = false;
+        clientSocketServiceMock.socketExists.and.callFake(() => socketExists);
+        clientSocketServiceMock.connect.and.callFake(() => {
+            socketExists = true;
+        });
         await component.ngOnInit();
+
         expect(clientSocketServiceMock.connect).toHaveBeenCalled();
         expect(clientSocketServiceMock.send).toHaveBeenCalled();
         expect(clientSocketServiceMock.disconnect).toHaveBeenCalled();
