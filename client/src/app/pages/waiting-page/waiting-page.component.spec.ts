@@ -116,7 +116,7 @@ describe('WaitingPageComponent', () => {
         expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
     }));
 
-    it('should connect and handle any users actions if the socket does not exist and the user is a host', async () => {
+    it('should handle socket connections, events and navigation correctly if user is a host on ngOnInit', async () => {
         let socketExists = false;
         clientSocketServiceMock.socketExists.and.callFake(() => socketExists);
         clientSocketServiceMock.connect.and.callFake(() => {
@@ -133,7 +133,7 @@ describe('WaitingPageComponent', () => {
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('home/');
     });
 
-    it('should connect and handle any user actions if the socket does not exist and the user is not a host', async () => {
+    it('should handle socket connections, events and navigation correctly if user is not a host on ngOnInit', async () => {
         let socketExists = false;
         clientSocketServiceMock.socketExists.and.callFake(() => socketExists);
         clientSocketServiceMock.connect.and.callFake(() => {
