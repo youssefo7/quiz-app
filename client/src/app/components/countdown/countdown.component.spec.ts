@@ -100,7 +100,7 @@ describe('CountdownComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should get the time when get time() is called', () => {
+    it('should return the time for test game and normal game mode when get time() is called', () => {
         component['isTestGame'] = true;
         const timeInTestGame = component.time;
         const timeServiceValue = component['timeService'].time;
