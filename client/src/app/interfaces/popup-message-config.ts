@@ -1,4 +1,3 @@
-// Has at least an Ok button
 export interface PopupMessageConfig {
     message: string;
     hasCancelButton: boolean;

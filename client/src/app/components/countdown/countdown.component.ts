@@ -1,13 +1,17 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { Quiz } from '@app/interfaces/quiz';
-import { GameService } from '@app/services/game.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
 import { Constants, QTypes } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { TimeEvents } from '@common/time.events';
+import { Timer } from '@common/timer';
 import { Subscription } from 'rxjs';
+
+interface ClockStyle {
+    backgroundColor: string;
+}
 
 @Component({
     selector: 'app-countdown',
@@ -18,18 +22,20 @@ export class CountdownComponent implements OnInit, OnDestroy {
     @Input() isHost: boolean;
     @Input() quiz: Quiz;
     @Input() roomId: string | null;
+    @Input() isTestGame: boolean;
     message: string;
-    clockStyle: { backgroundColor: string };
+    clockStyle: ClockStyle;
+    private transitionTimerRunning: boolean;
     isPaused: boolean;
     isInPanicMode: boolean;
     canTogglePanicMode: boolean;
-    isQuestionTransitioning: boolean;
     canToggleTimer: boolean;
     private socketTime: number;
     private timerSubscription: Subscription;
+    private timerFinishedSubscription: Subscription;
     private currentQuestionIndex: number;
     private lastQuestionIndex: number;
-    private isTestGame: boolean;
+    private gameServiceSubscription: Subscription;
     private hasFinishedTransitionClock: boolean;
     private panicAudio: HTMLAudioElement;
 
@@ -37,13 +43,11 @@ export class CountdownComponent implements OnInit, OnDestroy {
     // eslint-disable-next-line max-params
     constructor(
         private readonly timeService: TimeService,
-        private readonly route: ActivatedRoute,
         private readonly router: Router,
-        private readonly gameService: GameService,
         private readonly socketClientService: SocketClientService,
     ) {
         this.currentQuestionIndex = 0;
-        this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
+        this.transitionTimerRunning = false;
         this.isPaused = false;
         this.isInPanicMode = false;
         this.canTogglePanicMode = true;
@@ -65,6 +69,12 @@ export class CountdownComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         if (this.timerSubscription) {
             this.timerSubscription.unsubscribe();
+        }
+        if (this.timerFinishedSubscription) {
+            this.timerFinishedSubscription.unsubscribe();
+        }
+        if (this.gameServiceSubscription) {
+            this.gameServiceSubscription.unsubscribe();
         }
     }
 
@@ -93,12 +103,12 @@ export class CountdownComponent implements OnInit, OnDestroy {
 
     private async loadTimer() {
         this.lastQuestionIndex = this.quiz.questions.length - 1;
+        this.reactToTimerEvent();
+        this.reactToTimerFinishedEvent();
+
         if (this.isTestGame) {
-            this.switchColorToRedOnThreeSeconds();
             this.testGameClock();
         } else {
-            this.reactToTimerEvent();
-            this.reactToTimerFinishedEvent();
             this.reactToNextQuestionEvent();
             this.reactToTimerInterruptedEvent();
             this.questionClock();
@@ -106,31 +116,41 @@ export class CountdownComponent implements OnInit, OnDestroy {
     }
 
     private reactToTimerEvent() {
-        const switchColorTime = 3;
-        const minPanicTime = this.getMinPanicTime();
-        this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
-            if (time < minPanicTime) {
-                this.canTogglePanicMode = false;
-            }
-            if (time === 0) {
-                this.canToggleTimer = false;
-            }
-            this.socketTime = time;
-            this.setClockColorToRed(this.socketTime, switchColorTime);
-        });
+        if (this.isTestGame) {
+            const switchColorTime = 4;
+            this.timerSubscription = this.timeService.getTime().subscribe((time: number) => {
+                this.setClockColorToRed(time, switchColorTime);
+            });
+        } else {
+            const switchColorTime = 3;
+            const minPanicTime = this.getMinPanicTime();
+            this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
+                if (time < minPanicTime) {
+                    this.canTogglePanicMode = false;
+                }
+                if (time === 0) {
+                    this.canToggleTimer = false;
+                }
+                this.socketTime = time;
+                this.setClockColorToRed(this.socketTime, switchColorTime);
+            });
+        }
     }
 
     private reactToTimerFinishedEvent() {
-        this.socketClientService.on(TimeEvents.TimerFinished, () => {
-            if (this.hasFinishedTransitionClock) {
-                this.currentQuestionIndex++;
-                if (this.isHost) {
-                    this.socketClientService.send(TimeEvents.TransitionClockFinished, this.roomId);
+        if (this.isTestGame) {
+            this.timerFinishedSubscription = this.timeService.isTimerFinished().subscribe((isTransitionTimer: boolean) => {
+                this.transitionTimerRunning = !isTransitionTimer;
+            });
+        } else {
+            this.socketClientService.on(TimeEvents.TimerFinished, (isTransitionTimer: boolean) => {
+                this.transitionTimerRunning = !isTransitionTimer;
+                if (isTransitionTimer) {
+                    this.currentQuestionIndex++;
+                    this.questionClock();
                 }
-                this.hasFinishedTransitionClock = false;
-                this.questionClock();
-            }
-        });
+            });
+        }
     }
 
     private reactToTimerInterruptedEvent() {
@@ -144,69 +164,67 @@ export class CountdownComponent implements OnInit, OnDestroy {
     private reactToNextQuestionEvent() {
         this.socketClientService.on(GameEvents.NextQuestion, () => {
             if (this.currentQuestionIndex <= this.lastQuestionIndex) {
-                this.hasFinishedTransitionClock = true;
                 this.transitionClock();
             }
         });
     }
 
-    private switchColorToRedOnThreeSeconds() {
-        const switchColorTime = 4;
-        this.timerSubscription = this.timeService.getTime().subscribe((time: number) => {
-            this.setClockColorToRed(time, switchColorTime);
-        });
-    }
-
     private setClockColorToRed(time: number, switchColorTime: number) {
-        if (!this.isQuestionTransitioning && time <= switchColorTime) {
+        if (!this.transitionTimerRunning && time <= switchColorTime) {
             this.clockStyle = { backgroundColor: '#FF4D4D' };
         }
     }
 
     private async transitionClock() {
         const transitionTime = 3;
-        this.isQuestionTransitioning = true;
+        const isTransitionTimer = true;
         this.message = 'Préparez-vous!';
         this.clockStyle = { backgroundColor: '#E5E562' };
+
         if (this.isTestGame) {
-            await this.timeService.startTimer(transitionTime);
+            await this.timeService.startTimer(transitionTime, isTransitionTimer);
         } else {
-            this.socketClientService.send(TimeEvents.StartTimer, {
+            const transitionTimer: Timer = {
                 initialTime: transitionTime,
-                roomId: this.roomId,
+                roomId: this.roomId as string,
                 tickRate: Constants.ONE_SECOND_INTERVAL,
-            });
+                isTransitionTimer,
+            };
+            this.socketClientService.send(TimeEvents.StartTimer, transitionTimer);
         }
     }
 
     private async questionClock() {
-        this.isQuestionTransitioning = false;
+        const isTransitionTimer = false;
         this.canToggleTimer = true;
         this.canTogglePanicMode = true;
         this.isInPanicMode = false;
         this.message = 'Temps Restant';
         this.clockStyle = { backgroundColor: 'lightblue' };
-        const questionTime = this.quiz.questions[this.currentQuestionIndex].type === QTypes.QCM ? this.quiz.duration : Constants.MAX_DURATION;
-        if (this.quiz) {
-            if (this.isTestGame) {
-                await this.timeService.startTimer(questionTime);
-            } else {
-                this.socketClientService.send(TimeEvents.StartTimer, {
-                    initialTime: questionTime,
-                    roomId: this.roomId,
-                    tickRate: Constants.ONE_SECOND_INTERVAL,
-                });
-            }
+        const isQCM = this.quiz.questions[this.currentQuestionIndex].type === QTypes.QCM;
+        const questionTime = isQCM ? this.quiz.duration : Constants.MAX_DURATION;
+
+        if (this.isTestGame) {
+            await this.timeService.startTimer(questionTime, isTransitionTimer);
+        } else {
+            const questionTimer: Timer = {
+                initialTime: questionTime,
+                roomId: this.roomId as string,
+                tickRate: Constants.ONE_SECOND_INTERVAL,
+                isTransitionTimer,
+            };
+            this.socketClientService.send(TimeEvents.StartTimer, questionTimer);
         }
     }
 
     private async leaveGameClock() {
         const exitTransitionTime = 3;
-        this.isQuestionTransitioning = true;
+        const isTransitionTimer = true;
         this.message = 'Redirection vers «Créer une Partie»';
         this.clockStyle = { backgroundColor: 'white' };
+
         if (this.isTestGame) {
-            await this.timeService.startTimer(exitTransitionTime);
+            await this.timeService.startTimer(exitTransitionTime, isTransitionTimer);
         }
     }
 
@@ -222,7 +240,6 @@ export class CountdownComponent implements OnInit, OnDestroy {
     }
 
     private async leaveGame() {
-        this.gameService.setGameEndState = true;
         await this.leaveGameClock();
         await this.router.navigateByUrl('/game/new');
     }

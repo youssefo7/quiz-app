@@ -95,11 +95,13 @@ export class HistogramComponent implements OnInit, OnDestroy {
     }
 
     private reactToTransitionClockFinishedEvent() {
-        this.socketClientService.on(TimeEvents.TransitionClockFinished, () => {
-            this.currentQuestionIndex++;
-            this.resetArrays();
-            this.getQuestion(this.currentQuestionIndex);
-            this.updateChartConfig();
+        this.socketClientService.on(TimeEvents.TimerFinished, (isTransitionTimer: boolean) => {
+            if (isTransitionTimer) {
+                this.currentQuestionIndex++;
+                this.resetArrays();
+                this.getQuestion(this.currentQuestionIndex);
+                this.updateChartConfig();
+            }
         });
     }
 

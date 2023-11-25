@@ -17,6 +17,7 @@ export class EvaluationZoneComponent {
     isEvaluationFinished: boolean;
 
     constructor(private socketClientService: SocketClientService) {
+        this.enableNextQuestionButton = new EventEmitter<null>();
         this.currentAnswerIndex = 0;
         this.isEvaluationFinished = false;
     }

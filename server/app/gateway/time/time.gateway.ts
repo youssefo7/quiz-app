@@ -1,6 +1,7 @@
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
 import { Constants } from '@common/constants';
 import { TimeEvents } from '@common/time.events';
+import { Timer } from '@common/timer';
 import { Injectable } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
@@ -12,7 +13,7 @@ export class TimeGateway {
     constructor(private roomManagerService: RoomManagerService) {}
 
     @SubscribeMessage(TimeEvents.StartTimer)
-    handleStartTimer(socket: Socket, data: { initialTime: number; tickRate: number; roomId: string }) {
+    handleStartTimer(socket: Socket, data: Timer) {
         let counter = data.initialTime;
         const room = this.roomManagerService.findRoom(data.roomId);
         if (room.timer) {
@@ -27,7 +28,7 @@ export class TimeGateway {
                 counter--;
             } else {
                 this.handleStopTimer(socket, data.roomId);
-                this.server.to(data.roomId).emit(TimeEvents.TimerFinished);
+                this.server.to(data.roomId).emit(TimeEvents.TimerFinished, data.isTransitionTimer);
             }
         }, data.tickRate);
     }
@@ -39,11 +40,6 @@ export class TimeGateway {
             clearInterval(room.timer);
             room.timer = null;
         }
-    }
-
-    @SubscribeMessage(TimeEvents.TransitionClockFinished)
-    handleTransitionClockFinished(_: Socket, roomId: string) {
-        this.server.to(roomId).emit(TimeEvents.TransitionClockFinished);
     }
 
     @SubscribeMessage(TimeEvents.TimerInterrupted)
