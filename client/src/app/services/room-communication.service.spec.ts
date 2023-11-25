@@ -10,7 +10,10 @@ describe('RoomCommunicationService', () => {
     let baseUrl: string;
 
     const roomId = 'mockRoomId';
-
+    const mockPlayerResults = [
+        { name: 'p1', points: 10, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: true, bonusCount: 2 },
+        { name: 'p2', points: 10, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: true, bonusCount: 2 },
+    ];
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
@@ -65,19 +68,18 @@ describe('RoomCommunicationService', () => {
     });
 
     it('should create a room when sending POST request with quiz and socket id in body (HttpClient called once)', () => {
-        const mockRoomId = '1234';
         const createData = { quiz: {} as Quiz, socketId: 'mockSocketId' };
 
         service.createRoom(createData).subscribe({
             next: (response) => {
-                expect(response).toBe(mockRoomId);
+                expect(response).toBe(roomId);
             },
             error: fail,
         });
 
         const req = httpMock.expectOne(`${baseUrl}/rooms/new`);
         expect(req.request.method).toBe('POST');
-        req.flush(mockRoomId);
+        req.flush(roomId);
     });
 
     it('should get a list of players in a room when sending GET request with /rooms/:roomId/players param (HTTPClient called once)', () => {
@@ -93,6 +95,68 @@ describe('RoomCommunicationService', () => {
         const req = httpMock.expectOne(`${baseUrl}/rooms/${roomId}/players`);
         expect(req.request.method).toBe('GET');
         req.flush(mockPlayers);
+    });
+
+    it('should get player results in a room when sending GET request with /rooms/:roomId/results param (HTTPClient called once)', () => {
+        service.getPlayerResults(roomId).subscribe({
+            next: (response) => {
+                expect(response).toEqual(mockPlayerResults);
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/rooms/${roomId}/results`);
+        expect(req.request.method).toBe('GET');
+        req.flush(mockPlayerResults);
+    });
+
+    it('should send player results in a room when sending POST request with /rooms/:roomId/results param (HTTPClient called once)', () => {
+        service.sendPlayerResults(roomId, mockPlayerResults).subscribe({
+            next: (response) => {
+                expect(response).toEqual(mockPlayerResults);
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/rooms/${roomId}/results`);
+        expect(req.request.method).toBe('POST');
+        req.flush(mockPlayerResults);
+    });
+
+    it('should get chat messages in a room when sending GET request with /rooms/:roomId/chat param (HTTPClient called once)', () => {
+        const mockChatMessages = [
+            { authorName: 'p1', time: '10', message: 'hi', fromSystem: false },
+            { authorName: 'p1', time: '20', message: 'hey', fromSystem: false },
+        ];
+
+        service.getChatMessages(roomId).subscribe({
+            next: (response) => {
+                expect(response).toEqual(mockChatMessages);
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/rooms/${roomId}/chat`);
+        expect(req.request.method).toBe('GET');
+        req.flush(mockChatMessages);
+    });
+
+    it('should send chat messages in a room when sending POST request with /rooms/:roomId/chat param (HTTPClient called once)', () => {
+        const mockChatMessages = [
+            { authorName: 'p1', time: '10', message: 'hi', fromSystem: false },
+            { authorName: 'p1', time: '20', message: 'hey', fromSystem: false },
+        ];
+
+        service.sendChatMessages(roomId, mockChatMessages).subscribe({
+            next: (response) => {
+                expect(response).toEqual(mockChatMessages);
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/rooms/${roomId}/chat`);
+        expect(req.request.method).toBe('POST');
+        req.flush(mockChatMessages);
     });
 
     it('should get a player name when sending POST request with socket id in body (HTTPClient called once)', () => {
