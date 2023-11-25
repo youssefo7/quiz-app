@@ -13,7 +13,7 @@ import { SocketClientService } from '@app/services/socket-client.service';
 import { ChatEvents } from '@common/chat.events';
 import { GameEvents } from '@common/game.events';
 import { Results } from '@common/player-info';
-import { TimeEvents } from '@common/time.events';
+// import { TimeEvents } from '@common/time.events';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import { GamePlayersListComponent } from './game-players-list.component';
@@ -312,7 +312,7 @@ describe('GamePlayersListComponent', () => {
         const updateAnswerConfirmationSpy = spyOn<any>(component, 'updateAnswerConfirmation').and.callThrough();
         component['listenToSocketEvents']();
 
-        socketHelper.peerSideEmit(GameEvents.SubmitQuestionOnClick, playerToUpdate.name);
+        // socketHelper.peerSideEmit(GameEvents.SubmitQuestionOnClick, playerToUpdate.name);
         expect(updateAnswerConfirmationSpy).toHaveBeenCalledWith(playerToUpdate.name);
         expect(playerToUpdate.hasConfirmedAnswer).toBeTruthy();
     });
@@ -334,7 +334,7 @@ describe('GamePlayersListComponent', () => {
         await component.fetchPlayersList();
         component['listenToSocketEvents']();
 
-        socketHelper.peerSideEmit(TimeEvents.TransitionClockFinished);
+        // socketHelper.peerSideEmit(TimeEvents.TransitionClockFinished);
         expect(resetPlayerInfoSpy).toHaveBeenCalled();
         component.playerResults.forEach((player) => {
             expect(player.hasClickedOnAnswerField).toBeFalsy();

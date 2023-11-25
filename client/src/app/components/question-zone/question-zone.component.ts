@@ -9,6 +9,8 @@ import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
 import { Constants, QTypes } from '@common/constants';
 import { GameEvents } from '@common/game.events';
+import { PlayerSubmission } from '@common/player-submission';
+import { PointsToAdd } from '@common/points-to-add';
 import { TimeEvents } from '@common/time.events';
 import { Subscription } from 'rxjs';
 
@@ -36,6 +38,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     private isTimerFinishedSubscription: Subscription;
     private gameServiceSubscription: Subscription;
     private hasSentAnswer: boolean;
+    private hasReceivedBonus: boolean;
 
     // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
@@ -56,6 +59,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.userAnswer = '';
         this.characterCounterDisplay = `${this.userAnswer.length} / ${Constants.MAX_TEXTAREA_LENGTH}`;
         this.isTextareaDisabled = false;
+        this.hasReceivedBonus = false;
     }
 
     @HostListener('keypress', ['$event'])
@@ -87,6 +91,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.subscribeToTimer();
         this.handleTransitionClockFinished();
         this.handleBonusPoints();
+        this.reactToQRLEvaluation();
     }
 
     ngOnDestroy() {
@@ -220,22 +225,17 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.pointsManager.doesDisplayPoints = true;
     }
 
-    // private givePoints() {
-    //     const isAnswerGood = this.gameService.isAnswerGood(this.chosenChoices, this.question.type, this.question.choices);
-    //         if (!this.hasReceivedBonus) {
-    //             if (isAnswerGood) {
-    //                 this.points = this.question.points;
-    //                 this.pointsToDisplay = this.question.points;
-    //             } else {
-    //                 this.points = 0;
-    //                 this.pointsToDisplay = 0;
-    //             }
-    //             this.bonusMessage = '';
-    //             this.socketClientService.send(GameEvents.AddPointsToPlayer, { roomId: this.roomId, points: this.points });
-    //         }
-    //     }
-    //     this.showResult();
-    // }
+    private givePointsRealGame() {
+        if (!this.hasReceivedBonus) {
+            this.pointsManager = this.gameService.givePointsQCM(this.pointsManager, this.question, this.chosenChoices);
+            const pointsToAdd: PointsToAdd = {
+                pointsToAdd: this.pointsManager.points,
+                roomId: this.roomId as string,
+            };
+            this.socketClientService.send(GameEvents.AddPointsToPlayer, pointsToAdd);
+        }
+        this.showResult();
+    }
 
     private showResult() {
         this.setSubmitButtonToDisable(true);
@@ -246,7 +246,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         if (!this.isTestGame) {
             this.socketClientService.on(TimeEvents.TimerFinished, (isTransitionTimer: boolean) => {
                 if (isTransitionTimer) {
-                    // this.hasReceivedBonus = false;
+                    this.hasReceivedBonus = false;
                     ++this.currentQuestionIndex;
                     this.getQuestion(this.currentQuestionIndex);
                     this.hasSentAnswer = false;
@@ -258,10 +258,14 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     private handleBonusPoints() {
         if (!this.isTestGame) {
             this.socketClientService.on(GameEvents.GiveBonus, () => {
-                // this.hasReceivedBonus = true;
+                this.hasReceivedBonus = true;
                 this.pointsManager = this.gameService.giveBonus(this.pointsManager, this.question.points);
-                this.pointsManager = this.gameService.givePoints(this.pointsManager, this.question, this.chosenChoices);
-                this.socketClientService.send(GameEvents.AddPointsToPlayer, { roomId: this.roomId, points: this.pointsManager.points });
+                const pointsToAdd: PointsToAdd = {
+                    pointsToAdd: this.pointsManager.points,
+                    roomId: this.roomId as string,
+                };
+                this.socketClientService.send(GameEvents.AddPointsToPlayer, pointsToAdd);
+                this.givePointsRealGame();
             });
         }
     }
@@ -272,14 +276,24 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
                 ++this.currentQuestionIndex;
                 this.getQuestion(this.currentQuestionIndex);
             } else {
-                this.pointsManager = this.gameService.givePoints(this.pointsManager, this.question, this.chosenChoices);
+                this.pointsManager =
+                    this.question.type === QTypes.QCM
+                        ? this.gameService.givePointsQCM(this.pointsManager, this.question, this.chosenChoices)
+                        : this.gameService.givePointsQRL(this.pointsManager, this.question);
                 this.pointsEarned.emit(this.pointsManager.points);
                 this.showResult();
                 this.isTextareaDisabled = true;
             }
         } else {
-            if (!isTransitionTimer && !this.hasSentAnswer) {
-                this.handleAnswerSubmission(true);
+            if (!isTransitionTimer) {
+                if (!this.hasSentAnswer) {
+                    this.handleAnswerSubmission(true);
+                }
+                if (this.question.type === QTypes.QCM) {
+                    this.givePointsRealGame();
+                }
+            } else {
+                this.pointsManager = this.gameService.resetPointsManager(this.pointsManager);
             }
         }
     }
@@ -305,18 +319,35 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
 
         if (this.question.type === QTypes.QRL) {
             this.isTextareaDisabled = true;
-            this.socketClientService.send(GameEvents.SubmitQRL, { roomId: this.roomId, answer: this.userAnswer.trim() });
+            const qrlSubmission: PlayerSubmission = {
+                roomId: this.roomId as string,
+                answer: this.userAnswer.trim(),
+                hasSubmitted: !isTimerFinished,
+                questionType: QTypes.QRL,
+            };
+            this.socketClientService.send(GameEvents.SubmitAnswer, qrlSubmission);
         } else {
-            const isAnswerGood = this.gameService.isAnswerGood(this.chosenChoices, this.question.type, this.question.choices);
+            const isAnswerGood = this.gameService.isAnswerGood(this.chosenChoices, this.question.choices as Choice[]);
+            const qcmSubmission: PlayerSubmission = {
+                roomId: this.roomId as string,
+                hasSubmitted: !isTimerFinished,
+                questionType: QTypes.QCM,
+            };
             if (!isTimerFinished) {
-                this.socketClientService.send(GameEvents.SubmitAnswer, this.roomId);
+                this.socketClientService.send(GameEvents.SubmitAnswer, qcmSubmission);
             }
-            if (isAnswerGood) {
-                this.pointsManager.points = this.question.points;
-                this.socketClientService.send(GameEvents.GoodAnswer, { roomId: this.roomId, isTimerFinished });
-            } else {
-                this.socketClientService.send(GameEvents.BadAnswer, { roomId: this.roomId, isTimerFinished });
-            }
+            this.socketClientService.send(isAnswerGood ? GameEvents.GoodAnswer : GameEvents.BadAnswer, qcmSubmission);
+        }
+    }
+
+    private reactToQRLEvaluation() {
+        if (!this.isTestGame) {
+            this.socketClientService.on(GameEvents.AddPointsToPlayer, (pointsOfPlayer: PointsToAdd) => {
+                if (this.question.type === QTypes.QRL) {
+                    this.pointsManager = this.gameService.givePointsQRL(this.pointsManager, this.question, pointsOfPlayer.pointsToAdd);
+                    this.showResult();
+                }
+            });
         }
     }
 }

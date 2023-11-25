@@ -34,5 +34,5 @@ export interface Organizer extends User {}
 
 export interface AnswerTime {
     userId: string;
-    timeStamp: number;
+    timeStamp: number | null;
 }

@@ -85,10 +85,11 @@
         justify-content: center;
 
         textarea {
-            height: 50%;
+            height: 35%;
             width: 80%;
             align-self: flex-end;
             resize: none;
+            font-size: large;
         }
 
         #counter {

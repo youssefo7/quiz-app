@@ -78,6 +78,20 @@ export class RoomManagerService {
     }
 
     getQuickestTime(room: Room): AnswerTime | null {
+        const hasSomeoneSubmitted = room.answerTimes.some((answerTime) => answerTime.timeStamp !== null);
+        if (!hasSomeoneSubmitted) {
+            const nbOfGoodAnswers = room.answerTimes.reduce(
+                (count: number, answerTime: AnswerTime) => (answerTime.timeStamp === null ? ++count : count),
+                0,
+            );
+            if (nbOfGoodAnswers === 1) {
+                const quickestPlayer = room.answerTimes[0];
+                return quickestPlayer;
+            }
+            return null;
+        }
+
+        room.answerTimes = room.answerTimes.filter((answerTime) => answerTime.timeStamp !== null);
         const fastestPlayer = room.answerTimes.reduce((currentFastestPlayer, currentPlayer) => {
             if (currentPlayer.timeStamp < currentFastestPlayer.timeStamp) {
                 return currentPlayer;

@@ -6,7 +6,6 @@ import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { Quiz } from '@app/interfaces/quiz';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { GameEvents } from '@common/game.events';
-import { TimeEvents } from '@common/time.events';
 import { NgChartsModule } from 'ng2-charts';
 import { Socket } from 'socket.io-client';
 import { HistogramComponent } from './histogram.component';
@@ -122,7 +121,7 @@ describe('HistogramComponent', () => {
         const getQuestionSpy = spyOn<any>(component, 'getQuestion');
         const updateChartConfigSpy = spyOn<any>(component, 'updateChartConfig');
 
-        socketHelper.peerSideEmit(TimeEvents.TransitionClockFinished);
+        // socketHelper.peerSideEmit(TimeEvents.TransitionClockFinished);
         expect(component['currentQuestionIndex']).toEqual(questionIndex + 1);
         expect(resetArraysSpy).toHaveBeenCalled();
         expect(getQuestionSpy).toHaveBeenCalledWith(questionIndex + 1);

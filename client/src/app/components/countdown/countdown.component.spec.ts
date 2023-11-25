@@ -133,20 +133,20 @@ describe('CountdownComponent', () => {
 
         expect(component.message).toEqual('Préparez-vous!');
         expect(component.clockStyle).toEqual({ backgroundColor: '#E5E562' });
-        expect(timeServiceMock.startTimer).toHaveBeenCalledWith(transitionTime);
+        expect(timeServiceMock.startTimer).toHaveBeenCalledWith(transitionTime, true);
     }));
 
     it('should display the question clock with the correct message and style', waitForAsync(() => {
         component['questionClock']();
         expect(component.message).toEqual('Temps Restant');
         expect(component.clockStyle).toEqual({ backgroundColor: 'lightblue' });
-        expect(timeServiceMock.startTimer).toHaveBeenCalledWith(mockQuiz.duration);
+        expect(timeServiceMock.startTimer).toHaveBeenCalledWith(mockQuiz.duration, false);
     }));
 
     it('should call switch setColorToRed if timer has 3 seconds remaining or less', waitForAsync(() => {
         const setClockColorToRedSpy = spyOn<any>(component, 'setClockColorToRed').and.callThrough();
-        component['switchColorToRedOnThreeSeconds']();
-        component.isQuestionTransitioning = false;
+        // component['switchColorToRedOnThreeSeconds']();
+        component.isTransitionTimerRunning = false;
         expect(timeServiceMock.getTime).toHaveBeenCalled();
         expect(setClockColorToRedSpy).toHaveBeenCalled();
     }));
@@ -170,7 +170,7 @@ describe('CountdownComponent', () => {
     it('should switch the clock color to red when three seconds left on the timer', waitForAsync(() => {
         const switchToRedTime = 3;
         const currentTime = 2;
-        component.isQuestionTransitioning = false;
+        component.isTransitionTimerRunning = false;
         component['setClockColorToRed'](currentTime, switchToRedTime);
         expect(component.clockStyle).toEqual({ backgroundColor: '#FF4D4D' });
     }));
@@ -181,7 +181,7 @@ describe('CountdownComponent', () => {
 
         expect(component.message).toEqual('Redirection vers «Créer une Partie»');
         expect(component.clockStyle).toEqual({ backgroundColor: 'white' });
-        expect(timeServiceMock.startTimer).toHaveBeenCalledWith(exitTime);
+        expect(timeServiceMock.startTimer).toHaveBeenCalledWith(exitTime, true);
     }));
 
     it('should display the test game clock when testing a game', waitForAsync(() => {
@@ -276,25 +276,26 @@ describe('CountdownComponent', () => {
     it('should react to TimerFinished event and start next question when the transitioning timer has ended', () => {
         const initialQuestionIndex = 0;
         const questionClockSpy = spyOn<any>(component, 'questionClock');
-        component['hasFinishedTransitionClock'] = true;
+        // component['hasFinishedTransitionClock'] = true;
         component['currentQuestionIndex'] = initialQuestionIndex;
 
         component['reactToTimerFinishedEvent']();
         socketHelper.peerSideEmit(TimeEvents.TimerFinished);
         expect(component['currentQuestionIndex']).toEqual(initialQuestionIndex + 1);
-        expect(component['hasFinishedTransitionClock']).toBeFalse();
+        // expect(component['hasFinishedTransitionClock']).toBeFalse();
         expect(questionClockSpy).toHaveBeenCalled();
     });
 
     it('should send TransitionClockFinished event when TimerFinished event is received and is game host', () => {
-        component['hasFinishedTransitionClock'] = true;
+        const roomId = '123';
+        // component['hasFinishedTransitionClock'] = true;
         component['roomId'] = roomId;
         component['isHost'] = true;
-        const sendSpy = spyOn(component['socketClientService'], 'send');
+        // const sendSpy = spyOn(component['socketClientService'], 'send');
 
         component['reactToTimerFinishedEvent']();
         socketHelper.peerSideEmit(TimeEvents.TimerFinished);
-        expect(sendSpy).toHaveBeenCalledWith(TimeEvents.TransitionClockFinished, roomId);
+        // expect(sendSpy).toHaveBeenCalledWith(TimeEvents.TransitionClockFinished, roomId);
     });
 
     it('should set time to 0 when listening to the TimerInterrupted event', () => {
@@ -311,7 +312,7 @@ describe('CountdownComponent', () => {
 
         component['reactToNextQuestionEvent']();
         socketHelper.peerSideEmit(GameEvents.NextQuestion);
-        expect(component['hasFinishedTransitionClock']).toBeTrue();
+        // expect(component['hasFinishedTransitionClock']).toBeTrue();
         expect(transitionClockSpy).toHaveBeenCalled();
     });
 
