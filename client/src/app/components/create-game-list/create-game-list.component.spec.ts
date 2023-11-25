@@ -142,7 +142,7 @@ describe('CreateGameListComponent', () => {
         await component['getVisibleQuizListFromServer']();
         fixture.detectChanges();
 
-        const toggleButton = fixture.nativeElement.querySelector('#toggle-button');
+        const toggleButton = fixture.nativeElement.querySelector('.toggle-button');
         expect(component.visibleQuizList).not.toBeNull();
         expect(toggleButton).toBeTruthy();
     });
@@ -163,11 +163,11 @@ describe('CreateGameListComponent', () => {
         await component['getVisibleQuizListFromServer']();
         fixture.detectChanges();
 
-        const toggleButton = fixture.nativeElement.querySelector('#toggle-button');
+        const toggleButton = fixture.nativeElement.querySelector('.toggle-button');
         component.selectedQuizId = visibleQuizMock[0].id;
         fixture.detectChanges();
 
-        const quizDetails = fixture.nativeElement.querySelector('#quiz-details');
+        const quizDetails = fixture.nativeElement.querySelector('.quiz-details');
 
         expect(toggleButton.classList.contains('active')).toBeTruthy();
         expect(quizDetails).toBeTruthy();
