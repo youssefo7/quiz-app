@@ -8,9 +8,9 @@
             <p *ngIf="visibleQuizList.length < 1">Aucun jeu n'est disponible pour le moment...</p>
             <tbody>
                 <ng-container *ngFor="let quiz of visibleQuizList">
-                    <div id="main-details">
+                    <div class="main-details">
                         {{ quiz.title }}
-                        <button (click)="toggleDetails(quiz.id)" id="toggle-button" [ngClass]="{ active: selectedQuizId === quiz.id }">
+                        <button (click)="toggleDetails(quiz.id)" class="toggle-button" [ngClass]="{ active: selectedQuizId === quiz.id }">
                             <i
                                 class="fa-solid fa-plus iconClick"
                                 [ngClass]="{ 'fa-plus': !selectedQuizId || selectedQuizId !== quiz.id, 'fa-minus': selectedQuizId === quiz.id }"
@@ -20,12 +20,12 @@
                     </div>
 
                     <tr *ngIf="selectedQuizId === quiz.id">
-                        <td colspan="3" id="quiz-details">
-                            <div id="option-buttons">
+                        <td colspan="3" class="quiz-details">
+                            <div class="option-buttons">
                                 <button (click)="checkAndCreateRoom(quiz, true)" class="button">Tester</button>
                                 <button (click)="checkAndCreateRoom(quiz)" class="button">Jouer</button>
                             </div>
-                            <div id="quiz-info">
+                            <div class="quiz-info">
                                 <div>
                                     <h3>Détails du jeu</h3>
                                     <ul>
