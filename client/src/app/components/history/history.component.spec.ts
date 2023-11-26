@@ -1,14 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
+import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { HistoryCommunicationService } from '@app/services/history-communication.service';
+import { of } from 'rxjs';
 import { HistoryComponent } from './history.component';
 
 describe('HistoryComponent', () => {
     let component: HistoryComponent;
     let fixture: ComponentFixture<HistoryComponent>;
     let historyCommunicationServiceMock: jasmine.SpyObj<HistoryCommunicationService>;
-    let matDialogServiceSpy: jasmine.SpyObj<MatDialog>;
+    let mockDialog: jasmine.SpyObj<MatDialog>;
+    let mockDialogRef: jasmine.SpyObj<MatDialogRef<PopupMessageComponent>>;
+
     const history = [
         {
             name: 'abc',
@@ -25,8 +29,9 @@ describe('HistoryComponent', () => {
     ];
 
     beforeEach(() => {
-        matDialogServiceSpy = jasmine.createSpyObj('MatDialog', ['open']);
-        historyCommunicationServiceMock = jasmine.createSpyObj('HistoryCommunicationService', ['getAllHistory']);
+        mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
+        mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['componentInstance']);
+        historyCommunicationServiceMock = jasmine.createSpyObj('HistoryCommunicationService', ['getAllHistory', 'deleteAllHistory']);
 
         TestBed.configureTestingModule({
             declarations: [HistoryComponent],
@@ -37,7 +42,7 @@ describe('HistoryComponent', () => {
                 },
                 {
                     provide: MatDialog,
-                    useValue: matDialogServiceSpy,
+                    useValue: mockDialog,
                 },
             ],
         });
@@ -46,17 +51,18 @@ describe('HistoryComponent', () => {
         fixture.detectChanges();
 
         component.history = history;
+        historyCommunicationServiceMock.getAllHistory.and.returnValue(of(component.history));
+        mockDialog.open.and.returnValue(mockDialogRef);
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
     });
 
-    // it('should load history', () => {
-    //     component.loadHistory();
-    //     historyCommunicationServiceMock.getAllHistory.and.returnValue(of(history));
-    //     expect(component.isHistoryEmpty).toBeFalsy();
-    // });
+    it('should load history', () => {
+        component['loadHistory']();
+        expect(historyCommunicationServiceMock.getAllHistory).toHaveBeenCalled();
+    });
 
     it('should sort history by name', () => {
         component.sortHistory('name');
@@ -72,11 +78,17 @@ describe('HistoryComponent', () => {
         expect(component.history[0].date).toEqual('2021-10-10 01:02:03');
     });
 
-    // it('should open delete history popup', () => {
-    //     component.isHistoryEmpty = false;
-    //     const deleteIcon = fixture.debugElement.nativeElement.querySelector('.fa-trash');
-    //     deleteIcon.click();
+    it('should display delete history popup with the correct configuration', () => {
+        const mockConfig: PopupMessageConfig = {
+            message: "Êtes-vous sûr de vouloir supprimer tout l'historique?",
+            hasCancelButton: true,
+        };
 
-    //     expect(matDialogServiceSpy.open).toHaveBeenCalled();
-    // });
+        component.openDeleteHistoryPopUp();
+        const config = mockDialogRef.componentInstance.config;
+
+        expect(config.message).toEqual(mockConfig.message);
+        expect(config.hasCancelButton).toEqual(mockConfig.hasCancelButton);
+        expect(config.okButtonFunction).toBeDefined();
+    });
 });

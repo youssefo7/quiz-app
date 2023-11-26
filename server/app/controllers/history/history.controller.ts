@@ -1,9 +1,10 @@
 import { History } from '@app/model/database/history';
 import { HistoryService } from '@app/services/history/history.service';
 import { Body, Controller, Delete, Get, HttpStatus, Post, Res } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
+@ApiTags('History')
 @Controller('history')
 export class HistoryController {
     constructor(private readonly historyService: HistoryService) {}
@@ -30,7 +31,7 @@ export class HistoryController {
         type: History,
     })
     @ApiNotFoundResponse({
-        description: 'Return NotFound http status when request fails',
+        description: 'Return NOT_FOUND http status when request fails',
     })
     @Get('/')
     async getAllHistory(@Res() response: Response) {

@@ -7,12 +7,12 @@ import { Model } from 'mongoose';
 export class HistoryService {
     constructor(@InjectModel(History.name) public historyModel: Model<HistoryDocument>) {}
 
-    async addToHistory(history: History) {
+    async addToHistory(history: History): Promise<History> {
         const newHistory = await this.historyModel.create(history);
         return await newHistory.save();
     }
 
-    async getAllHistory() {
+    async getAllHistory(): Promise<History[]> {
         return await this.historyModel.find({});
     }
 
