@@ -3,11 +3,15 @@
         <p id="question" *ngIf="question">{{ question.text }}</p>
         <p id="points" *ngIf="question">({{ question.points }} Points)</p>
     </div>
-    <div class="chart-container">
-        <app-histogram *ngIf="!isQRLBeingEvaluated" [quiz]="quiz" [roomId]="roomId" [isResultsPage]="false"></app-histogram>
+    <div id="chart-container">
+        <app-histogram
+            [ngClass]="{ hide: isQRLBeingEvaluated }"
+            [questions]="quiz.questions"
+            [roomId]="roomId"
+            [isResultsPage]="false"
+        ></app-histogram>
         <app-evaluation-zone
-            *ngIf="isQRLBeingEvaluated"
-            [answers]="playersQRLAnswers"
+            [ngClass]="{ hide: !isQRLBeingEvaluated }"
             [questionPoints]="question.points"
             [roomId]="roomId"
             (enableNextQuestionButton)="enableNextQuestionButtonOnEvaluationEnd()"

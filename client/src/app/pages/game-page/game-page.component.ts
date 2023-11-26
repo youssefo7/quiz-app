@@ -2,7 +2,6 @@ import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
-import { PlayerPoints } from '@app/interfaces/player-points';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
@@ -10,6 +9,7 @@ import { RoomCommunicationService } from '@app/services/room-communication.servi
 import { SocketClientService } from '@app/services/socket-client.service';
 import { Constants } from '@common/constants';
 import { GameEvents } from '@common/game.events';
+import { PlayerPoints } from '@common/player-points';
 import { TimeEvents } from '@common/time.events';
 import { firstValueFrom } from 'rxjs';
 
@@ -23,7 +23,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     quiz: Quiz | null;
     playerPoints: number;
     playerName: string;
-    roomId: string | null;
+    roomId: string;
     readonly isTestGame: boolean;
     private panicAudio: HTMLAudioElement;
 
@@ -40,7 +40,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.title = 'Partie: ';
         this.playerPoints = 0;
         this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
-        this.roomId = this.route.snapshot.paramMap.get('roomId');
+        this.roomId = this.route.snapshot.paramMap.get('roomId') as string;
         this.panicAudio = new Audio(Constants.AUDIO);
     }
 

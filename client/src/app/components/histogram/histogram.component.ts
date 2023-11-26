@@ -1,6 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { HistogramInfo } from '@app/interfaces/histogram-info';
-import { Question, Quiz } from '@app/interfaces/quiz';
+import { Question } from '@app/interfaces/quiz';
 import { ChartDataManagerService } from '@app/services/chart-data-manager.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { GameEvents } from '@common/game.events';
@@ -16,8 +16,8 @@ import { Chart } from 'chart.js';
 export class HistogramComponent implements OnInit, OnDestroy {
     @Input() isResultsPage: boolean;
     @Input() roomId: string;
-    @Input() quiz: Quiz;
-    question: Question;
+    @Input() questions: Question[];
+    currentQuestion: Question;
     chart: Chart | null;
     goodBadChoices: boolean[];
     private histogramInfo: HistogramInfo;
@@ -38,6 +38,7 @@ export class HistogramComponent implements OnInit, OnDestroy {
             chartBackgroundColors: [],
             chartBorderColors: [],
         };
+        this.currentQuestion = {} as Question;
     }
 
     async ngOnInit() {
@@ -47,7 +48,7 @@ export class HistogramComponent implements OnInit, OnDestroy {
         if (!this.isResultsPage) {
             this.loadChart();
             this.updateSelections();
-            this.reactToTransitionClockFinishedEvent();
+            this.reactToTimerEvents();
             this.reactToSaveChartDataEvent();
         } else {
             this.questionsChartData = await this.chartDataManager.getQuestionsChartData(this.roomId);
@@ -79,10 +80,10 @@ export class HistogramComponent implements OnInit, OnDestroy {
     }
 
     private getQuestion(index: number) {
-        const isValidIndex = this.quiz && index < this.quiz.questions.length;
+        const isValidIndex = index >= 0 && index < this.questions.length;
         if (isValidIndex) {
-            this.question = this.quiz.questions[index];
-            const choices = this.question.choices;
+            this.currentQuestion = this.questions[index];
+            const choices = this.currentQuestion.choices;
             if (choices) {
                 for (let i = 0; i < choices.length; i++) {
                     this.histogramInfo.playersChoices.push(`Choix ${i + 1}`);
@@ -94,7 +95,7 @@ export class HistogramComponent implements OnInit, OnDestroy {
         }
     }
 
-    private reactToTransitionClockFinishedEvent() {
+    private reactToTimerEvents() {
         this.socketClientService.on(TimeEvents.TimerFinished, (isTransitionTimer: boolean) => {
             if (isTransitionTimer) {
                 this.currentQuestionIndex++;
@@ -124,7 +125,7 @@ export class HistogramComponent implements OnInit, OnDestroy {
     }
 
     private setBackgroundColors(choiceIndex: number) {
-        const choices = this.question.choices;
+        const choices = this.currentQuestion.choices;
         if (choices) {
             const choice = choices[choiceIndex];
             this.histogramInfo.chartBackgroundColors.push(choice.isCorrect ? 'green' : 'red');

@@ -24,17 +24,19 @@
             max-height: 175px;
             height: 175px;
             overflow-y: auto;
-            width: 100%;
-            align-self: flex-start;
+            width: 90%;
             white-space: pre-wrap;
             overflow-wrap: anywhere;
             text-align: left;
             font-size: medium;
+            border: solid thin;
+            background-color: white;
+            padding: 10px;
         }
     }
 
     #buttons {
-        width: 100%;
+        width: 90%;
         display: flex;
         justify-content: center;
 
@@ -43,9 +45,10 @@
             display: flex;
             justify-content: flex-start;
             gap: 2%;
+            margin: unset;
 
             button {
-                width: 8%;
+                width: 10%;
                 font-weight: bold;
 
                 &:hover {

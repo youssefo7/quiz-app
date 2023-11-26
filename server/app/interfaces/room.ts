@@ -1,6 +1,7 @@
 import { Quiz } from '@app/model/database/quiz';
 import { ChatMessage } from '@common/chat-message';
 import { Results } from '@common/player-info';
+import { PlayerSubmission } from '@common/player-submission';
 import { QuestionChartData } from '@common/question-chart-data';
 
 export interface Room {
@@ -16,6 +17,7 @@ export interface Room {
     chatMessage: ChatMessage[];
     questionsChartData: QuestionChartData[];
     submissionCount: number;
+    qrlAnswers: PlayerSubmission[];
 }
 
 export interface User {

@@ -21,7 +21,7 @@ interface ClockStyle {
 export class CountdownComponent implements OnInit, OnDestroy {
     @Input() isHost: boolean;
     @Input() quiz: Quiz;
-    @Input() roomId: string | null;
+    @Input() roomId: string;
     @Input() isTestGame: boolean;
     message: string;
     clockStyle: ClockStyle;
@@ -35,8 +35,8 @@ export class CountdownComponent implements OnInit, OnDestroy {
     private timerFinishedSubscription: Subscription;
     private currentQuestionIndex: number;
     private lastQuestionIndex: number;
-    private gameServiceSubscription: Subscription;
     private panicAudio: HTMLAudioElement;
+    private panicTime: number;
 
     // Tous ces paramètres sont nécessaires pour que la composante fonctionne bien
     // eslint-disable-next-line max-params
@@ -72,9 +72,6 @@ export class CountdownComponent implements OnInit, OnDestroy {
         if (this.timerFinishedSubscription) {
             this.timerFinishedSubscription.unsubscribe();
         }
-        if (this.gameServiceSubscription) {
-            this.gameServiceSubscription.unsubscribe();
-        }
     }
 
     toggleTimer() {
@@ -103,32 +100,32 @@ export class CountdownComponent implements OnInit, OnDestroy {
 
     private async loadTimer() {
         this.lastQuestionIndex = this.quiz.questions.length - 1;
-        this.reactToTimerEvent();
-        this.reactToTimerFinishedEvent();
+        this.reactToTimerEvents();
 
         if (this.isTestGame) {
             this.testGameClock();
         } else {
             this.reactToNextQuestionEvent();
-            this.reactToTimerInterruptedEvent();
             this.questionClock();
         }
     }
 
-    private reactToTimerEvent() {
+    private reactToTimerEvents() {
         if (this.isTestGame) {
             const switchColorTime = 4;
             this.timerSubscription = this.timeService.getTime().subscribe((time: number) => {
                 this.setClockColorToRed(time, switchColorTime);
             });
+
+            this.timerFinishedSubscription = this.timeService.isTimerFinished().subscribe((isTransitionTimer: boolean) => {
+                this.isTransitionTimerRunning = !isTransitionTimer;
+            });
         } else {
             const switchColorTime = 3;
-            const currentQuestionType = this.quiz.questions[this.currentQuestionIndex].type;
-            const isQCM = currentQuestionType === QTypes.QCM;
-            const minPanicTime = isQCM ? Constants.MIN_TIME_TO_PANIC_QCM : Constants.MIN_TIME_TO_PANIC_QRL;
+            this.setPanicTime(this.currentQuestionIndex);
 
             this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
-                if (time <= minPanicTime && !this.isInPanicMode) {
+                if (time <= this.panicTime && !this.isInPanicMode) {
                     this.canTogglePanicMode = true;
                 }
                 if (time === 0) {
@@ -138,32 +135,23 @@ export class CountdownComponent implements OnInit, OnDestroy {
                 this.socketTime = time;
                 this.setClockColorToRed(this.socketTime, switchColorTime);
             });
-        }
-    }
 
-    private reactToTimerFinishedEvent() {
-        if (this.isTestGame) {
-            this.timerFinishedSubscription = this.timeService.isTimerFinished().subscribe((isTransitionTimer: boolean) => {
-                this.isTransitionTimerRunning = !isTransitionTimer;
-            });
-        } else {
             this.socketClientService.on(TimeEvents.TimerFinished, (isTransitionTimer: boolean) => {
                 this.isTransitionTimerRunning = !isTransitionTimer;
                 if (isTransitionTimer) {
                     this.currentQuestionIndex++;
+                    this.setPanicTime(this.currentQuestionIndex);
                     this.questionClock();
                 }
             });
-        }
-    }
 
-    private reactToTimerInterruptedEvent() {
-        this.socketClientService.on(TimeEvents.TimerInterrupted, () => {
-            this.socketTime = 0;
-            this.canToggleTimer = false;
-            this.canTogglePanicMode = false;
-            this.isTransitionTimerRunning = true;
-        });
+            this.socketClientService.on(TimeEvents.TimerInterrupted, () => {
+                this.socketTime = 0;
+                this.canToggleTimer = false;
+                this.canTogglePanicMode = false;
+                this.isTransitionTimerRunning = true;
+            });
+        }
     }
 
     private reactToNextQuestionEvent() {
@@ -178,6 +166,12 @@ export class CountdownComponent implements OnInit, OnDestroy {
         if (!this.isTransitionTimerRunning && time <= switchColorTime) {
             this.clockStyle = { backgroundColor: '#FF4D4D' };
         }
+    }
+
+    private setPanicTime(questionIndex: number) {
+        const currentQuestionType = this.quiz.questions[questionIndex].type;
+        const isQCM = currentQuestionType === QTypes.QCM;
+        this.panicTime = isQCM ? Constants.MIN_TIME_TO_PANIC_QCM : Constants.MIN_TIME_TO_PANIC_QRL;
     }
 
     private async transitionClock() {

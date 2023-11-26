@@ -9,8 +9,8 @@ import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
 import { Constants, QTypes } from '@common/constants';
 import { GameEvents } from '@common/game.events';
+import { PlayerPoints } from '@common/player-points';
 import { PlayerSubmission } from '@common/player-submission';
-import { PointsToAdd } from '@common/points-to-add';
 import { TimeEvents } from '@common/time.events';
 import { Subscription } from 'rxjs';
 
@@ -22,7 +22,7 @@ import { Subscription } from 'rxjs';
 export class QuestionZoneComponent implements OnInit, OnDestroy {
     @Output() pointsEarned: EventEmitter<number>;
     @Input() quiz: Quiz;
-    @Input() roomId: string | null;
+    @Input() roomId: string;
     @Input() isTestGame: boolean;
     question: Question;
     chosenChoices: boolean[];
@@ -89,7 +89,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.gameService.setIfTestGame = this.isTestGame;
         this.getQuestion(this.currentQuestionIndex);
         this.subscribeToTimer();
-        this.handleTransitionClockFinished();
         this.handleBonusPoints();
         this.reactToQRLEvaluation();
     }
@@ -137,7 +136,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
 
     setSubmitButtonStateOnChoices() {
         const hasSelectedChoices = this.chosenChoices.some((isChoiceSelected) => isChoiceSelected);
-        this.setSubmitButtonToDisable(!hasSelectedChoices);
+        this.setSubmitButtonToDisabled(!hasSelectedChoices);
     }
 
     submitAnswerOnClick() {
@@ -154,7 +153,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     detectCharacterLengthOnInput() {
         this.characterCounterDisplay = `${this.userAnswer.length} / ${Constants.MAX_TEXTAREA_LENGTH}`;
         const hasTyped = this.userAnswer.trim().length > 0;
-        this.setSubmitButtonToDisable(!hasTyped);
+        this.setSubmitButtonToDisabled(!hasTyped);
     }
 
     private subscribeToTimer() {
@@ -173,6 +172,15 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
                     this.handleEndOfTimer(isTransitionTimer);
                 }
             });
+
+            this.socketClientService.on(TimeEvents.TimerFinished, (isTransitionTimer: boolean) => {
+                if (isTransitionTimer) {
+                    this.hasReceivedBonus = false;
+                    ++this.currentQuestionIndex;
+                    this.getQuestion(this.currentQuestionIndex);
+                    this.hasSentAnswer = false;
+                }
+            });
         }
     }
 
@@ -189,12 +197,13 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             } else {
                 this.isTextareaDisabled = false;
                 this.userAnswer = '';
+                this.characterCounterDisplay = `${this.userAnswer.length} / ${Constants.MAX_TEXTAREA_LENGTH}`;
             }
             this.pointsManager.doesDisplayPoints = false;
         }
     }
 
-    private setSubmitButtonToDisable(isDisabled: boolean) {
+    private setSubmitButtonToDisabled(isDisabled: boolean) {
         const buttonStyle: ButtonStyle = { backgroundColor: isDisabled ? '' : 'green' };
         this.isSubmitDisabled = isDisabled;
         this.submitButtonStyle = buttonStyle;
@@ -228,9 +237,9 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     private givePointsRealGame() {
         if (!this.hasReceivedBonus) {
             this.pointsManager = this.gameService.givePointsQCM(this.pointsManager, this.question, this.chosenChoices);
-            const pointsToAdd: PointsToAdd = {
+            const pointsToAdd: PlayerPoints = {
                 pointsToAdd: this.pointsManager.points,
-                roomId: this.roomId as string,
+                roomId: this.roomId,
             };
             this.socketClientService.send(GameEvents.AddPointsToPlayer, pointsToAdd);
         }
@@ -238,21 +247,8 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     private showResult() {
-        this.setSubmitButtonToDisable(true);
+        this.setSubmitButtonToDisabled(true);
         this.displayCorrectAnswer();
-    }
-
-    private handleTransitionClockFinished() {
-        if (!this.isTestGame) {
-            this.socketClientService.on(TimeEvents.TimerFinished, (isTransitionTimer: boolean) => {
-                if (isTransitionTimer) {
-                    this.hasReceivedBonus = false;
-                    ++this.currentQuestionIndex;
-                    this.getQuestion(this.currentQuestionIndex);
-                    this.hasSentAnswer = false;
-                }
-            });
-        }
     }
 
     private handleBonusPoints() {
@@ -260,9 +256,9 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             this.socketClientService.on(GameEvents.GiveBonus, () => {
                 this.hasReceivedBonus = true;
                 this.pointsManager = this.gameService.giveBonus(this.pointsManager, this.question.points);
-                const pointsToAdd: PointsToAdd = {
+                const pointsToAdd: PlayerPoints = {
                     pointsToAdd: this.pointsManager.points,
-                    roomId: this.roomId as string,
+                    roomId: this.roomId,
                 };
                 this.socketClientService.send(GameEvents.AddPointsToPlayer, pointsToAdd);
                 this.givePointsRealGame();
@@ -314,13 +310,13 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     private handleAnswerSubmission(isTimerFinished: boolean) {
-        this.setSubmitButtonToDisable(true);
+        this.setSubmitButtonToDisabled(true);
         this.hasSentAnswer = true;
 
         if (this.question.type === QTypes.QRL) {
             this.isTextareaDisabled = true;
             const qrlSubmission: PlayerSubmission = {
-                roomId: this.roomId as string,
+                roomId: this.roomId,
                 answer: this.userAnswer.trim(),
                 hasSubmitted: !isTimerFinished,
                 questionType: QTypes.QRL,
@@ -329,20 +325,22 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         } else {
             const isAnswerGood = this.gameService.isAnswerGood(this.chosenChoices, this.question.choices as Choice[]);
             const qcmSubmission: PlayerSubmission = {
-                roomId: this.roomId as string,
+                roomId: this.roomId,
                 hasSubmitted: !isTimerFinished,
                 questionType: QTypes.QCM,
             };
-            if (!isTimerFinished) {
-                this.socketClientService.send(GameEvents.SubmitAnswer, qcmSubmission);
+
+            this.socketClientService.send(GameEvents.SubmitAnswer, qcmSubmission);
+
+            if (isAnswerGood) {
+                this.socketClientService.send(GameEvents.GoodAnswer, qcmSubmission);
             }
-            this.socketClientService.send(isAnswerGood ? GameEvents.GoodAnswer : GameEvents.BadAnswer, qcmSubmission);
         }
     }
 
     private reactToQRLEvaluation() {
         if (!this.isTestGame) {
-            this.socketClientService.on(GameEvents.AddPointsToPlayer, (pointsOfPlayer: PointsToAdd) => {
+            this.socketClientService.on(GameEvents.AddPointsToPlayer, (pointsOfPlayer: PlayerPoints) => {
                 if (this.question.type === QTypes.QRL) {
                     this.pointsManager = this.gameService.givePointsQRL(this.pointsManager, this.question, pointsOfPlayer.pointsToAdd);
                     this.showResult();

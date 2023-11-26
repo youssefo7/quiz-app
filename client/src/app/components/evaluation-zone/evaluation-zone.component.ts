@@ -1,14 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { GradeButtonState } from '@app/interfaces/qrl-grades';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { GameEvents } from '@common/game.events';
+import { PlayerPoints } from '@common/player-points';
 import { PlayerSubmission } from '@common/player-submission';
-import { PointsToAdd } from '@common/points-to-add';
-
-interface GradeButtonState {
-    isZeroGradePressed: boolean;
-    is50GradePressed: boolean;
-    is100GradePressed: boolean;
-}
 
 @Component({
     selector: 'app-evaluation-zone',
@@ -16,7 +11,6 @@ interface GradeButtonState {
     styleUrls: ['./evaluation-zone.component.scss'],
 })
 export class EvaluationZoneComponent implements OnInit {
-    @Input() answers: PlayerSubmission[];
     @Input() questionPoints: number;
     @Input() roomId: string;
     @Output() enableNextQuestionButton: EventEmitter<null>;
@@ -25,7 +19,8 @@ export class EvaluationZoneComponent implements OnInit {
     grade: number;
     isSubmitEvaluationDisabled: boolean;
     gradeButtonState: GradeButtonState;
-    private playersPoints: PointsToAdd[];
+    answers: PlayerSubmission[];
+    private playersPoints: PlayerPoints[];
 
     constructor(private socketClientService: SocketClientService) {
         this.enableNextQuestionButton = new EventEmitter<null>();
@@ -39,10 +34,11 @@ export class EvaluationZoneComponent implements OnInit {
             is50GradePressed: false,
             is100GradePressed: false,
         };
+        this.answers = [{ name: '', answer: '' }];
     }
 
     ngOnInit() {
-        this.answers.sort((player1, player2) => (player1.name as string).localeCompare(player2.name as string));
+        this.reactToAllPlayersSubmittedEvent();
     }
 
     setGrade(grade: number) {
@@ -75,21 +71,38 @@ export class EvaluationZoneComponent implements OnInit {
                 this.socketClientService.send(GameEvents.AddPointsToPlayer, playerPoints);
             });
             this.isEvaluationFinished = true;
+            this.answers = [];
+            this.currentAnswerIndex = 0;
+            this.playersPoints = [];
             this.enableNextQuestionButton.emit();
         } else {
             this.currentAnswerIndex++;
-            this.gradeButtonState = {
-                isZeroGradePressed: false,
-                is50GradePressed: false,
-                is100GradePressed: false,
-            };
-            this.isSubmitEvaluationDisabled = true;
+            this.resetButtons();
         }
+    }
+
+    private reactToAllPlayersSubmittedEvent() {
+        this.socketClientService.on(GameEvents.AllPlayersSubmitted, (playerQRLAnswers: PlayerSubmission[]) => {
+            if (playerQRLAnswers) {
+                this.resetButtons();
+                this.isEvaluationFinished = false;
+                this.answers = playerQRLAnswers.sort((player1, player2) => (player1.name as string).localeCompare(player2.name as string));
+            }
+        });
     }
 
     private setGradeButtonState(isZeroGradePressed: boolean, is50GradePressed: boolean, is100GradePressed: boolean) {
         this.gradeButtonState.isZeroGradePressed = isZeroGradePressed;
         this.gradeButtonState.is50GradePressed = is50GradePressed;
         this.gradeButtonState.is100GradePressed = is100GradePressed;
+    }
+
+    private resetButtons() {
+        this.gradeButtonState = {
+            isZeroGradePressed: false,
+            is50GradePressed: false,
+            is100GradePressed: false,
+        };
+        this.isSubmitEvaluationDisabled = true;
     }
 }

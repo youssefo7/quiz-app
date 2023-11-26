@@ -5,9 +5,11 @@
 import { Quiz } from '@app/model/database/quiz';
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
 import { GameEvents } from '@common/game.events';
+import { PlayerPoints } from '@common/player-points';
+import { PlayerSubmission } from '@common/player-submission';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { createStubInstance, SinonStubbedInstance, stub } from 'sinon';
+import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { GameGateway } from './game.gateway';
 
@@ -44,9 +46,9 @@ describe('GameGateway', () => {
                 quiz: {} as Quiz,
                 organizer: { socketId: 'organizerId', name: 'Organisateur' },
                 players: [
-                    { socketId: 'playerId1', name: 'name1', points: 50, bonusCount: 0, canChat: true },
-                    { socketId: 'playerId2', name: 'name2', points: 200, bonusCount: 1, canChat: false },
-                    { socketId: socket.id, name: 'testName', points: 0, bonusCount: 0, canChat: true },
+                    { socketId: 'playerId1', name: 'name1', points: 50, bonusCount: 0, canChat: true, hasSubmitted: false },
+                    { socketId: 'playerId2', name: 'name2', points: 200, bonusCount: 1, canChat: false, hasSubmitted: false },
+                    { socketId: socket.id, name: 'testName', points: 0, bonusCount: 0, canChat: true, hasSubmitted: false },
                 ],
                 isLocked: false,
                 bannedNames: [],
@@ -59,6 +61,8 @@ describe('GameGateway', () => {
                 results: [],
                 chatMessage: [],
                 questionsChartData: [],
+                submissionCount: 0,
+                qrlAnswers: [],
             },
         ];
 
@@ -81,7 +85,9 @@ describe('GameGateway', () => {
     });
 
     it('handlePlayerLeaveGame() should delete the room if there are no more players in an active game', () => {
-        roomManagerServiceMock.rooms[0].players = [{ socketId: socket.id, name: 'testName', points: 0, bonusCount: 0, canChat: true }];
+        roomManagerServiceMock.rooms[0].players = [
+            { socketId: socket.id, name: 'testName', points: 0, bonusCount: 0, canChat: true, hasSubmitted: false },
+        ];
         roomManagerServiceMock.rooms[0].organizer.socketId = '';
         roomManagerServiceMock.rooms[0].answerTimes = [];
         const removePlayerSpy = jest.spyOn(roomManagerServiceMock, 'removePlayer');
@@ -89,8 +95,13 @@ describe('GameGateway', () => {
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string, playerName: string) => {
-                expect(event).toEqual(GameEvents.PlayerAbandonedGame);
-                expect(playerName).toEqual('testName');
+                if (event === GameEvents.PlayerAbandonedGame) {
+                    expect(event).toEqual(GameEvents.PlayerAbandonedGame);
+                    expect(playerName).toEqual('testName');
+                }
+                if (event === GameEvents.AllPlayersSubmitted) {
+                    expect(event).toEqual(GameEvents.AllPlayersSubmitted);
+                }
             },
         } as BroadcastOperator<unknown, unknown>);
         gateway.handlePlayerLeaveGame(socket, { roomId, isInGame: true });
@@ -102,27 +113,29 @@ describe('GameGateway', () => {
         expect(socket.disconnect.calledOnce).toBeTruthy();
     });
 
-    it('handleGoodAnswer() should add the timestamp to answerTimes and emit GoodAnswerOnClick if timer is not finished', () => {
+    it('handleGoodAnswer() should add the timestamp to answerTimes and emit GoodAnswer if timer is not finished', () => {
+        const submission: PlayerSubmission = { roomId, hasSubmitted: true };
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
-                expect(event).toEqual(GameEvents.GoodAnswerOnClick);
+                expect(event).toEqual(GameEvents.GoodAnswer);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.handleGoodAnswer(socket, { roomId, isTimerFinished: false });
+        gateway.handleGoodAnswer(socket, submission);
         expect(roomManagerServiceMock.rooms[0].answerTimes.length).toBeGreaterThan(2);
         expect(roomManagerServiceMock.rooms[0].answerTimes[2].userId).toBe(socket.id);
         expect(roomManagerServiceMock.rooms[0].answerTimes[2].timeStamp).toBeDefined();
     });
 
-    it('handleGoodAnswer() should add the timestamp to answerTimes and emit GoodAnswerOnTimerFinished if timer is finished', () => {
+    it('handleGoodAnswer() should add null to answerTimes and emit GoodAnswer when timer is finished', () => {
+        const submission: PlayerSubmission = { roomId, hasSubmitted: false };
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
-                expect(event).toEqual(GameEvents.GoodAnswerOnFinishedTimer);
+                expect(event).toEqual(GameEvents.GoodAnswer);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.handleGoodAnswer(socket, { roomId, isTimerFinished: true });
+        gateway.handleGoodAnswer(socket, submission);
         expect(roomManagerServiceMock.rooms[0].answerTimes.length).toBeGreaterThan(2);
         expect(roomManagerServiceMock.rooms[0].answerTimes[2].userId).toBe(socket.id);
         expect(roomManagerServiceMock.rooms[0].answerTimes[2].timeStamp).toBeDefined();
@@ -131,37 +144,10 @@ describe('GameGateway', () => {
     it('handleRemoveAnswerTime() should remove the timestamp from the list of answerTimes', () => {
         const userIdToRemove = 'playerId1';
         stub(socket, 'rooms').value(new Set([roomId]));
-        server.to.returns({
-            emit: (event: string) => {
-                expect(event).toEqual(GameEvents.UnSubmitAnswer);
-            },
-        } as BroadcastOperator<unknown, unknown>);
         gateway.handleRemoveAnswerTime(socket, { roomId, userIdToRemove });
         expect(roomManagerServiceMock.rooms[0].answerTimes.length).toBe(2);
         expect(roomManagerServiceMock.rooms[0].answerTimes[0].userId).toBe('playerId2');
         expect(roomManagerServiceMock.rooms[0].answerTimes[1].userId).toBe(socket.id);
-    });
-
-    it('handleBadAnswer() should emit to organizer that a bad answer was submitted on click', () => {
-        stub(socket, 'rooms').value(new Set([roomId]));
-        server.to.returns({
-            emit: (event: string) => {
-                expect(event).toEqual(GameEvents.BadAnswerOnClick);
-            },
-        } as BroadcastOperator<unknown, unknown>);
-        gateway.handleBadAnswer(socket, { roomId, isTimerFinished: false });
-        expect(server.to.calledWith(roomManagerServiceMock.rooms[0].organizer.socketId)).toBeTruthy();
-    });
-
-    it('handleBadAnswer() should emit to organizer that a bad answer was submitted when timer runs out', () => {
-        stub(socket, 'rooms').value(new Set([roomId]));
-        server.to.returns({
-            emit: (event: string) => {
-                expect(event).toEqual(GameEvents.BadAnswerOnFinishedTimer);
-            },
-        } as BroadcastOperator<unknown, unknown>);
-        gateway.handleBadAnswer(socket, { roomId, isTimerFinished: true });
-        expect(server.to.calledWith(roomManagerServiceMock.rooms[0].organizer.socketId)).toBeTruthy();
     });
 
     /* it('handleChoiceToggle() should emit to the organizer the total answer choice count when selecting', () => {
@@ -239,16 +225,19 @@ describe('GameGateway', () => {
         });
     });
 
-    it('handleSubmitQuestion() should emit to organizer when a question was submitted by click from player', () => {
+    it('handleSubmitAnswer() should emit to organizer when a question was submitted by player', () => {
+        const submission: PlayerSubmission = { roomId, hasSubmitted: true };
         stub(socket, 'rooms').value(new Set([roomId]));
         roomManagerServiceMock.rooms[0].organizer.socketId = socket.id;
         const organizerId = roomManagerServiceMock.rooms[0].organizer.socketId;
         server.to.returns({
             emit: (event: string) => {
-                expect(event).toEqual(GameEvents.SubmitQuestionOnClick);
+                if (event === GameEvents.SubmitAnswer) {
+                    expect(event).toEqual(GameEvents.SubmitAnswer);
+                }
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.handleSubmitQuestion(socket, roomId);
+        gateway.handleSubmitAnswer(socket, submission);
         expect(server.to.calledWith(organizerId)).toBeTruthy();
     });
 
@@ -293,7 +282,7 @@ describe('GameGateway', () => {
         gateway.handleGiveBonus(socket, roomId);
         expect(socket.to.called).toBeFalsy();
         expect(getQuickestTimeSpy).toHaveBeenCalled();
-        expect(getQuickestTimeSpy).toHaveReturnedWith(undefined);
+        expect(getQuickestTimeSpy).toHaveReturnedWith(null);
     });
 
     it('handleAddPointsToPlayer() should give points to the player if player answered the question correctly', () => {
@@ -301,6 +290,7 @@ describe('GameGateway', () => {
         const goodAnswerPoints = 100;
         const name = 'testName';
         const addPointsToPlayerSpy = jest.spyOn(roomManagerServiceMock, 'addPointsToPlayer');
+        const pointsToAdd: PlayerPoints = { roomId, pointsToAdd: goodAnswerPoints };
 
         roomManagerServiceMock['addPlayerToRoom'](room, socket.id, name);
         stub(socket, 'rooms').value(new Set([roomId]));
@@ -309,7 +299,7 @@ describe('GameGateway', () => {
                 expect(event).toEqual(GameEvents.AddPointsToPlayer);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.handleAddPointsToPlayer(socket, { roomId, points: goodAnswerPoints });
+        gateway.handleAddPointsToPlayer(socket, pointsToAdd);
 
         expect(server.to.calledWith(roomManagerServiceMock.rooms[0].organizer.socketId)).toBeTruthy();
         expect(addPointsToPlayerSpy).toHaveBeenCalledWith(socket.id, goodAnswerPoints, room);
@@ -319,17 +309,17 @@ describe('GameGateway', () => {
     it('handleAddPointsToPlayer() should not add points to a player if room does not exist', () => {
         const addPointsToPlayerSpy = jest.spyOn(roomManagerServiceMock, 'addPointsToPlayer');
         const invalidRoomId = 'nonexistentRoomId';
-        const pointsToAdd = 10;
+        const pointsToAdd: PlayerPoints = { roomId: invalidRoomId, pointsToAdd: 10 };
         stub(socket, 'rooms').value(new Set([invalidRoomId]));
 
-        gateway.handleAddPointsToPlayer(socket, { roomId: invalidRoomId, points: pointsToAdd });
+        gateway.handleAddPointsToPlayer(socket, pointsToAdd);
         expect(addPointsToPlayerSpy).not.toHaveBeenCalled();
         expect(server.to.withArgs(roomManagerServiceMock.rooms[0].organizer.socketId).called).toBeFalsy();
     });
 
     it('handleAddPointsToPlayer() should not add points to a player if the points for a given question are negative', () => {
         const addPointsToPlayerSpy = jest.spyOn(roomManagerServiceMock, 'addPointsToPlayer');
-        const invalidPoints = -100;
+        const pointsToAdd: PlayerPoints = { roomId, pointsToAdd: -100 };
         stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
@@ -337,7 +327,7 @@ describe('GameGateway', () => {
             },
         } as BroadcastOperator<unknown, unknown>);
 
-        gateway.handleAddPointsToPlayer(socket, { roomId, points: invalidPoints });
+        gateway.handleAddPointsToPlayer(socket, pointsToAdd);
         expect(addPointsToPlayerSpy).not.toHaveBeenCalled();
         expect(server.to.called).toBeFalsy();
     });

@@ -8,8 +8,8 @@ import { ChatEvents } from '@common/chat.events';
 import { Constants } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { Results } from '@common/player-info';
+import { PlayerPoints } from '@common/player-points';
 import { PlayerSubmission } from '@common/player-submission';
-import { PointsToAdd } from '@common/points-to-add';
 import { TimeEvents } from '@common/time.events';
 import { firstValueFrom } from 'rxjs';
 
@@ -151,7 +151,7 @@ export class GamePlayersListComponent implements OnInit {
             }
         });
 
-        this.socketService.on(GameEvents.AddPointsToPlayer, (response: PointsToAdd) => {
+        this.socketService.on(GameEvents.AddPointsToPlayer, (response: PlayerPoints) => {
             this.updatePlayerScore(response);
             if (this.isSortedByPoints) {
                 this.shouldSortPointsAscending = !this.shouldSortPointsAscending;
@@ -170,7 +170,7 @@ export class GamePlayersListComponent implements OnInit {
             this.router.navigateByUrl(`/results/game/${this.quizId}/room/${this.roomId}/host`);
         });
 
-        this.socketService.on(GameEvents.SubmitQCM, (playerSubmission: PlayerSubmission) => {
+        this.socketService.on(GameEvents.SubmitAnswer, (playerSubmission: PlayerSubmission) => {
             if (playerSubmission.hasSubmitted) {
                 this.updateAnswerConfirmation(playerSubmission.name as string);
                 if (this.isSortedByState) {
@@ -208,7 +208,7 @@ export class GamePlayersListComponent implements OnInit {
         playerToUpdate.hasAbandoned = true;
     }
 
-    private updatePlayerScore(response: PointsToAdd) {
+    private updatePlayerScore(response: PlayerPoints) {
         const playerToUpdate = this.playerResults.find((player) => player.name === response.name) as Results;
         playerToUpdate.points += response.pointsToAdd;
     }

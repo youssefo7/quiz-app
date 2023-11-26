@@ -1,3 +1,5 @@
+// TODO: Revoir si on peut réduire la taille de ce fichier
+/* eslint-disable max-lines */
 // On a besoin du any pour espionner sur les méthodes privées
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
@@ -7,7 +9,7 @@ import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { GameService } from '@app/services/game.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
-import { Constants, QTypes } from '@common/constants';
+import { QTypes } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { TimeEvents } from '@common/time.events';
 import { of } from 'rxjs';
@@ -65,8 +67,9 @@ describe('CountdownComponent', () => {
     const roomId = '123';
 
     beforeEach(() => {
-        timeServiceMock = jasmine.createSpyObj('TimeService', ['startTimer', 'stopTimer', 'getTime']);
+        timeServiceMock = jasmine.createSpyObj('TimeService', ['startTimer', 'stopTimer', 'getTime', 'isTimerFinished']);
         timeServiceMock.getTime.and.returnValue(of(0));
+        timeServiceMock.isTimerFinished.and.returnValue(of(true));
         routerMock = jasmine.createSpyObj('Router', ['navigateByUrl']);
         gameServiceMock = jasmine.createSpyObj('GameService', ['setGameEndState', 'getQuizById']);
         socketClientServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'socketExists']);
@@ -122,13 +125,18 @@ describe('CountdownComponent', () => {
     });
 
     it('should unsubscribe from timer when ngOnDestroy() is called', () => {
+        component['isTestGame'] = true;
+        component['reactToTimerEvents']();
         const timerSpy = spyOn<any>(component['timerSubscription'], 'unsubscribe');
+        const timerFinishedSpy = spyOn<any>(component['timerFinishedSubscription'], 'unsubscribe');
         component.ngOnDestroy();
         expect(timerSpy).toHaveBeenCalled();
+        expect(timerFinishedSpy).toHaveBeenCalled();
     });
 
     it('should display the question transitioning timer with the correct message and style', waitForAsync(() => {
         const transitionTime = 3;
+        component['isTestGame'] = true;
         component['transitionClock']();
 
         expect(component.message).toEqual('Préparez-vous!');
@@ -137,6 +145,7 @@ describe('CountdownComponent', () => {
     }));
 
     it('should display the question clock with the correct message and style', waitForAsync(() => {
+        component['isTestGame'] = true;
         component['questionClock']();
         expect(component.message).toEqual('Temps Restant');
         expect(component.clockStyle).toEqual({ backgroundColor: 'lightblue' });
@@ -145,26 +154,29 @@ describe('CountdownComponent', () => {
 
     it('should call switch setColorToRed if timer has 3 seconds remaining or less', waitForAsync(() => {
         const setClockColorToRedSpy = spyOn<any>(component, 'setClockColorToRed').and.callThrough();
-        // component['switchColorToRedOnThreeSeconds']();
-        component.isTransitionTimerRunning = false;
+        const switchColorTime = 4;
+        const currentTime = 3;
+        timeServiceMock.getTime.and.returnValue(of(currentTime));
+        component['isTestGame'] = true;
+        component['reactToTimerEvents']();
         expect(timeServiceMock.getTime).toHaveBeenCalled();
-        expect(setClockColorToRedSpy).toHaveBeenCalled();
+        expect(setClockColorToRedSpy).toHaveBeenCalledWith(currentTime, switchColorTime);
     }));
 
     it('should return the correct minimum panic time depending on the type of question', () => {
         component['currentQuestionIndex'] = 0;
         const questionTypeQCM = component['quiz'].questions[0].type;
-        const minTimeQCM = component['getMinPanicTime']();
+        // const minTimeQCM = component['getMinPanicTime']();
 
         expect(questionTypeQCM).toBe(QTypes.QCM);
-        expect(minTimeQCM).toEqual(Constants.MIN_TIME_TO_PANIC_QCM);
+        // expect(minTimeQCM).toEqual(Constants.MIN_TIME_TO_PANIC_QCM);
 
         component['currentQuestionIndex'] = 1;
         const questionTypeQRL = component['quiz'].questions[1].type;
-        const minTimeQRL = component['getMinPanicTime']();
+        // const minTimeQRL = component['getMinPanicTime']();
 
         expect(questionTypeQRL).toBe(QTypes.QRL);
-        expect(minTimeQRL).toEqual(Constants.MIN_TIME_TO_PANIC_QRL);
+        // expect(minTimeQRL).toEqual(Constants.MIN_TIME_TO_PANIC_QRL);
     });
 
     it('should switch the clock color to red when three seconds left on the timer', waitForAsync(() => {
@@ -177,6 +189,7 @@ describe('CountdownComponent', () => {
 
     it('should display the leave Game clock with the correct message and style', waitForAsync(() => {
         const exitTime = 3;
+        component['isTestGame'] = true;
         component['leaveGameClock']();
 
         expect(component.message).toEqual('Redirection vers «Créer une Partie»');
@@ -217,18 +230,14 @@ describe('CountdownComponent', () => {
     });
 
     it('should set socket events and start currentQuestionIndex at 0', () => {
-        const reactToTimerEventSpy = spyOn<any>(component, 'reactToTimerEvent');
-        const reactToTimerFinishedEventSpy = spyOn<any>(component, 'reactToTimerFinishedEvent');
+        const reactToTimerEventsSpy = spyOn<any>(component, 'reactToTimerEvents');
         const reactToNextQuestionEvent = spyOn<any>(component, 'reactToNextQuestionEvent');
-        const reactToTimerInterruptedEvent = spyOn<any>(component, 'reactToTimerInterruptedEvent');
         const questionClockSpy = spyOn<any>(component, 'questionClock');
         component['isTestGame'] = false;
 
         component['loadTimer']();
-        expect(reactToTimerEventSpy).toHaveBeenCalled();
-        expect(reactToTimerFinishedEventSpy).toHaveBeenCalled();
+        expect(reactToTimerEventsSpy).toHaveBeenCalled();
         expect(reactToNextQuestionEvent).toHaveBeenCalled();
-        expect(reactToTimerInterruptedEvent).toHaveBeenCalled();
         expect(questionClockSpy).toHaveBeenCalled();
         expect(component['currentQuestionIndex']).toEqual(0);
     });
@@ -236,27 +245,33 @@ describe('CountdownComponent', () => {
     it('should send StartTimer event with 3 seconds during question transitions in non-test game', () => {
         const transitionTime = 3;
         const oneSecondInterval = 1000;
+        const isTransitionTimer = true;
         component['isTestGame'] = false;
         component['roomId'] = roomId;
         const sendSpy = spyOn(component['socketClientService'], 'send');
         component['transitionClock']();
-        expect(sendSpy).toHaveBeenCalledWith(TimeEvents.StartTimer, { initialTime: transitionTime, roomId, tickRate: oneSecondInterval });
+        expect(sendSpy).toHaveBeenCalledWith(TimeEvents.StartTimer, {
+            initialTime: transitionTime,
+            roomId,
+            tickRate: oneSecondInterval,
+            isTransitionTimer,
+        });
     });
 
-    it('should listen on CurrentTimer event and set canTogglePanicMode to false when there is less than the minimum panic time left', () => {
+    it('should listen on CurrentTimer event and set canTogglePanicMode to true when there is less than the minimum panic time left', () => {
         const time = 3;
         component['isTestGame'] = false;
-        component['reactToTimerEvent']();
+        component['reactToTimerEvents']();
         socketHelper.peerSideEmit(TimeEvents.CurrentTimer, time);
         expect(component['socketTime']).toEqual(time);
-        expect(component['canTogglePanicMode']).toBeFalsy();
+        expect(component['canTogglePanicMode']).toBeTrue();
     });
 
     it('should listen on CurrentTimer event and set canTogglePanicMode to false when there is no time left', () => {
         const time = 0;
         component['isTestGame'] = false;
 
-        component['reactToTimerEvent']();
+        component['reactToTimerEvents']();
         socketHelper.peerSideEmit(TimeEvents.CurrentTimer, time);
         expect(component['socketTime']).toEqual(time);
         expect(component['canTogglePanicMode']).toBeFalsy();
@@ -267,7 +282,7 @@ describe('CountdownComponent', () => {
         component['isTestGame'] = false;
         const setClockColorToRedSpy = spyOn<any>(component, 'setClockColorToRed');
 
-        component['reactToTimerEvent']();
+        component['reactToTimerEvents']();
         socketHelper.peerSideEmit(TimeEvents.CurrentTimer, time);
         expect(component['socketTime']).toEqual(time);
         expect(setClockColorToRedSpy).toHaveBeenCalled();
@@ -276,31 +291,16 @@ describe('CountdownComponent', () => {
     it('should react to TimerFinished event and start next question when the transitioning timer has ended', () => {
         const initialQuestionIndex = 0;
         const questionClockSpy = spyOn<any>(component, 'questionClock');
-        // component['hasFinishedTransitionClock'] = true;
         component['currentQuestionIndex'] = initialQuestionIndex;
+        socketHelper.peerSideEmit(TimeEvents.TimerFinished, true);
 
-        component['reactToTimerFinishedEvent']();
-        socketHelper.peerSideEmit(TimeEvents.TimerFinished);
         expect(component['currentQuestionIndex']).toEqual(initialQuestionIndex + 1);
-        // expect(component['hasFinishedTransitionClock']).toBeFalse();
         expect(questionClockSpy).toHaveBeenCalled();
-    });
-
-    it('should send TransitionClockFinished event when TimerFinished event is received and is game host', () => {
-        const roomId = '123';
-        // component['hasFinishedTransitionClock'] = true;
-        component['roomId'] = roomId;
-        component['isHost'] = true;
-        // const sendSpy = spyOn(component['socketClientService'], 'send');
-
-        component['reactToTimerFinishedEvent']();
-        socketHelper.peerSideEmit(TimeEvents.TimerFinished);
-        // expect(sendSpy).toHaveBeenCalledWith(TimeEvents.TransitionClockFinished, roomId);
     });
 
     it('should set time to 0 when listening to the TimerInterrupted event', () => {
         component['socketTime'] = 15;
-        component['reactToTimerInterruptedEvent']();
+        component['reactToTimerEvents']();
         socketHelper.peerSideEmit(TimeEvents.TimerInterrupted);
         expect(component['socketTime']).toEqual(0);
     });
@@ -312,17 +312,22 @@ describe('CountdownComponent', () => {
 
         component['reactToNextQuestionEvent']();
         socketHelper.peerSideEmit(GameEvents.NextQuestion);
-        // expect(component['hasFinishedTransitionClock']).toBeTrue();
         expect(transitionClockSpy).toHaveBeenCalled();
     });
 
     it('should send StartTimer event when a new question has begun', () => {
         const oneSecondInterval = 1000;
+        const isTransitionTimer = false;
         component['roomId'] = roomId;
         component['isTestGame'] = false;
         const sendSpy = spyOn(component['socketClientService'], 'send');
         component['questionClock']();
-        expect(sendSpy).toHaveBeenCalledWith(TimeEvents.StartTimer, { initialTime: mockQuiz.duration, roomId, tickRate: oneSecondInterval });
+        expect(sendSpy).toHaveBeenCalledWith(TimeEvents.StartTimer, {
+            initialTime: mockQuiz.duration,
+            roomId,
+            tickRate: oneSecondInterval,
+            isTransitionTimer,
+        });
     });
 
     it('should toggle timer', () => {

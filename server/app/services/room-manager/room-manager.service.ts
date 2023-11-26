@@ -29,6 +29,7 @@ export class RoomManagerService {
             chatMessage: [],
             questionsChartData: [],
             submissionCount: 0,
+            qrlAnswers: [],
         });
 
         return roomId;
@@ -80,10 +81,7 @@ export class RoomManagerService {
     getQuickestTime(room: Room): AnswerTime | null {
         const hasSomeoneSubmitted = room.answerTimes.some((answerTime) => answerTime.timeStamp !== null);
         if (!hasSomeoneSubmitted) {
-            const nbOfGoodAnswers = room.answerTimes.reduce(
-                (count: number, answerTime: AnswerTime) => (answerTime.timeStamp === null ? ++count : count),
-                0,
-            );
+            const nbOfGoodAnswers = room.answerTimes.length;
             if (nbOfGoodAnswers === 1) {
                 const quickestPlayer = room.answerTimes[0];
                 return quickestPlayer;
@@ -194,6 +192,7 @@ export class RoomManagerService {
 
         return roomId;
     }
+
     private isNameTaken(room: Room, name: string) {
         if (name.toLowerCase() === 'organisateur') {
             return true;

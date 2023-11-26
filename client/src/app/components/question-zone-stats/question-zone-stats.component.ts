@@ -59,7 +59,6 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
 
     goToNextQuestion() {
         if (this.currentQuestionIndex !== this.lastQuestionIndex) {
-            this.isQRLBeingEvaluated = false;
             this.socketClientService.send(GameEvents.NextQuestion, this.roomId);
         } else {
             this.chartDataManager.sendChartData(this.roomId);
@@ -112,7 +111,8 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     }
 
     private handleEndOfQuestion() {
-        this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
+        // TODO: Ça serait peut-être mieux de déplacer le send SaveChartData dans l'event AllPlayersSubmitted
+        this.socketClientService.send(GameEvents.SaveChartData, this.roomId);
         if (this.shouldEnableNextQuestionButtonAtEndOfTimer) {
             const buttonStyle: ButtonStyle = { backgroundColor: 'rgb(18, 18, 217)' };
             this.isNextQuestionButtonDisable = false;
@@ -121,6 +121,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     }
 
     private showNextQuestion() {
+        this.isQRLBeingEvaluated = false;
         ++this.currentQuestionIndex;
         this.getQuestion(this.currentQuestionIndex);
     }
@@ -136,14 +137,13 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     }
 
     private handleAnswers() {
-        this.socketClientService.on(GameEvents.SubmitQRL, (playerAnswer: PlayerSubmission) => {
-            this.playersQRLAnswers.push(playerAnswer);
-        });
-
-        this.socketClientService.on(GameEvents.AllSubmissionReceived, () => {
+        this.socketClientService.on(GameEvents.AllPlayersSubmitted, () => {
             this.isQRLBeingEvaluated = this.question.type === QTypes.QRL;
             if (this.socketTime !== 0) {
                 this.socketClientService.send(TimeEvents.TimerInterrupted, this.roomId);
+            }
+            if (this.question.type === QTypes.QCM) {
+                this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
             }
         });
     }
