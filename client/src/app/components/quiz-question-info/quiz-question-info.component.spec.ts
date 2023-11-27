@@ -6,7 +6,7 @@ dans le bon état initial dépendamment du test */
 
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { AbstractControl, FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { RangeValidatorDirective } from '@app/directives/range-validator.directive';
@@ -328,6 +328,19 @@ describe('QuizQuestionInfoComponent', () => {
         expect(component.choices.length).toEqual(choiceLength);
     });
 
+    it('should clear choices when loading a question with QRL type', () => {
+        const question: Question = {
+            type: 'QRL',
+            text: 'Question 1',
+            points: 50,
+        };
+        const choiceLength = question.choices?.length;
+        component['initializeForm']();
+        component.loadQuestionInformation(question, 0);
+        expect(choiceLength).toBeUndefined();
+        expect(component.choices.length).toEqual(0);
+    });
+
     it('should adjust padding and set isTextValid to false if text is invalid and dirty', () => {
         component.questionInfoForm.controls.text.setErrors({ invalid: true });
         component.questionInfoForm.controls.text.markAsDirty();
@@ -362,5 +375,88 @@ describe('QuizQuestionInfoComponent', () => {
         component.questionInfoForm.controls.choices.markAsDirty();
         component.adjustPadding();
         expect(component.isChoicesValid).toBeFalse();
+    });
+
+    it('should update choices validators and configure choices for question of QCM type', () => {
+        component.questionInfoForm.get('type')?.setValue('QCM');
+        spyOn(component as any, 'configureChoicesQCM');
+        spyOn(component as any, 'patchQCM');
+        spyOn(component.choices, 'updateValueAndValidity');
+
+        component.onTypeChange();
+
+        expect(component['configureChoicesQCM']).toHaveBeenCalledWith(component.choices);
+        expect(component['patchQCM']).toHaveBeenCalled();
+        expect(component.choices.updateValueAndValidity).toHaveBeenCalled();
+    });
+
+    it('should clear and reset choices for a question with QRL type', () => {
+        component.questionInfoForm.get('type')?.setValue('QRL');
+        spyOn(component.choices, 'clear');
+        spyOn(component.choices, 'clearValidators');
+        spyOn(component.choices, 'reset');
+        spyOn(component as any, 'patchQRL');
+        spyOn(component.questionInfoForm, 'updateValueAndValidity');
+
+        component.onTypeChange();
+
+        expect(component.choices.clear).toHaveBeenCalled();
+        expect(component.choices.clearValidators).toHaveBeenCalled();
+        expect(component.choices.reset).toHaveBeenCalled();
+        expect(component['patchQRL']).toHaveBeenCalled();
+        expect(component.questionInfoForm.updateValueAndValidity).toHaveBeenCalled();
+    });
+
+    it('should configure choices for QCM type with the correct amount of choices if choicesCopy is not empty', () => {
+        component['choicesCopy'] = [
+            { text: 'Choice 1', isCorrect: false },
+            { text: 'Choice 2', isCorrect: false },
+            { text: 'Choice 3', isCorrect: true },
+        ];
+        spyOn(component, 'addChoice');
+        spyOn(component as any, 'configureChoicesQCM').and.callThrough();
+
+        component.questionInfoForm.get('type')?.setValue('QCM');
+        const choicesArray1 = component.questionInfoForm.get('choices') as FormArray;
+        choicesArray1.clear();
+
+        component['configureChoicesQCM'](choicesArray1);
+        expect(component.addChoice).toHaveBeenCalledTimes(component['choicesCopy'].length);
+    });
+
+    it('should configure choices for QCM type with the default amount of choices if choicesCopy is empty', () => {
+        const defaultAddChoiceCalls = 2;
+        component['choicesCopy'] = [];
+        spyOn(component, 'addChoice');
+        spyOn(component as any, 'configureChoicesQCM').and.callThrough();
+
+        const choicesArray2 = component.questionInfoForm.get('choices') as FormArray;
+        choicesArray2.clear();
+
+        component['configureChoicesQCM'](choicesArray2);
+        expect(component.addChoice).toHaveBeenCalledTimes(defaultAddChoiceCalls);
+    });
+
+    it('should not validate the question form if text and isCorrect value for a choice are undefined', () => {
+        component['initializeForm']();
+        const validator = component['questionChoicesValidator']();
+        const invalidChoicesArray = component.choices;
+        invalidChoicesArray.push(
+            new FormGroup({
+                text: new FormControl(undefined),
+                isCorrect: new FormControl(true),
+            }),
+        );
+        invalidChoicesArray.push(
+            new FormGroup({
+                text: new FormControl(''),
+                isCorrect: new FormControl(undefined),
+            }),
+        );
+
+        const invalidResult = validator(invalidChoicesArray);
+        expect(invalidResult).toEqual({
+            missingChoices: true,
+        });
     });
 });
