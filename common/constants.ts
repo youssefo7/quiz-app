@@ -16,7 +16,7 @@ export const Constants = {
     QUARTER_SECOND_INTERVAL: 250,
     MIN_TIME_TO_PANIC_QCM: 10,
     MIN_TIME_TO_PANIC_QRL: 20,
-    AUDIO: '../assets/audio/panic-mode.mp3',
+    AUDIO: './assets/audio/panic-mode.mp3',
     TIME_LENGTH: 8,
   } as const;
 
