@@ -1,3 +1,5 @@
+/* eslint-disable max-len */
+/* eslint-disable max-lines */
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -320,5 +322,22 @@ describe('QuizManagerService', () => {
     it('should return false if quiz form is not modified (when newQuiz.id is not empty)', () => {
         const result = service.hasQuizBeenModified(quizToEditMock);
         expect(result).toBe(false);
+    });
+
+    it('should return true if a choice in the question has been modified', () => {
+        const initialChoice: Choice = { text: 'Initial Choice', isCorrect: true };
+        quizToEditMock.questions[0].choices = [initialChoice];
+        const quiz = {
+            ...quizToEditMock,
+            questions: [
+                {
+                    ...quizToEditMock.questions[0],
+                    choices: [{ ...initialChoice, text: 'Modified Text      ' }],
+                },
+            ],
+        };
+
+        const resultQuiz = service.hasQuizBeenModified(quiz as unknown as Quiz);
+        expect(resultQuiz).toBe(true);
     });
 });
