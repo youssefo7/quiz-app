@@ -55,15 +55,31 @@
             overflow: hidden;
         }
 
-        .mat-icon {
-            font-size: 1.7em;
-            align-self: flex-end;
-            margin-bottom: 5px;
-        }
+        button {
+            margin-left: 5px;
+            margin-top: 8px;
+            padding: unset;
+            border: none;
+            background-color: transparent;
 
-        .mat-icon:hover {
-            cursor: pointer;
-            color: blue;
+            .mat-icon {
+                font-size: 2em;
+
+                &:hover:not(.disabled) {
+                    cursor: pointer;
+                    color: blue;
+                }
+
+                &.disabled:hover {
+                    cursor: not-allowed;
+                    color: grey;
+                }
+
+                &.disabled {
+                    cursor: not-allowed;
+                    color: grey;
+                }
+            }
         }
     }
 
