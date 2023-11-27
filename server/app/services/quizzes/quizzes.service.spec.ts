@@ -1,3 +1,7 @@
+// any est nécessaire pour espionner les méthodes privées
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// Raison : on n'a besoin de beaucoup de lignes pour set le formulaire
+/* eslint-disable max-lines */
 import { ChoiceType, QuestionType, Quiz, QuizDocument } from '@app/model/database/quiz';
 import { Logger } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
@@ -83,15 +87,15 @@ describe('QuizzesService', () => {
 
     it('should populate DB if no documents exist', async () => {
         jest.spyOn(quizModel, 'countDocuments').mockResolvedValue(0);
-        const populateDBSpy = jest.spyOn(service, 'populateDB').mockImplementation(async () => Promise.resolve());
-        await service.start();
+        const populateDBSpy = jest.spyOn(service as any, 'populateDB').mockImplementation(async () => Promise.resolve());
+        await service['start']();
         expect(populateDBSpy).toHaveBeenCalled();
     });
 
     it('should insert quizzes and log message when populating DB', async () => {
         const insertManySpy = jest.spyOn(quizModel, 'insertMany').mockResolvedValue([]);
         const logSpy = jest.spyOn(service['logger'], 'log').mockImplementation();
-        await service.populateDB();
+        await service['populateDB']();
         expect(insertManySpy).toHaveBeenCalledWith([]);
         expect(logSpy).toHaveBeenCalledWith('DB populated');
     });
@@ -165,7 +169,7 @@ describe('QuizzesService', () => {
 
     it('should verify a valid quiz successfully', async () => {
         const quiz = { ...mockQuizzes[0], title: 'new title' };
-        await expect(service.verifyQuiz(quiz)).resolves.toBeUndefined();
+        await expect(service['verifyQuiz'](quiz)).resolves.toBeUndefined();
     });
 
     it('should check quiz availability correctly', async () => {
@@ -211,19 +215,19 @@ describe('QuizzesService', () => {
     });
 
     it('should check for an already existing title', async () => {
-        jest.spyOn(service, 'checkTitleExists').mockResolvedValue(true);
+        jest.spyOn(service as any, 'checkTitleExists').mockResolvedValue(true);
 
         const mockQuiz = {
             title: 'test',
         } as Quiz;
 
-        await expect(service.verifyQuiz(mockQuiz)).rejects.toThrow('Titre du quiz déjà utilisé');
+        await expect(service['verifyQuiz'](mockQuiz)).rejects.toThrow('Titre du quiz déjà utilisé');
     });
 
     it('should check for a missing or invalid title', async () => {
         const mockQuiz = {} as Quiz;
 
-        await expect(service.verifyQuiz(mockQuiz)).rejects.toThrow('Titre du quiz invalide ou manquant');
+        await expect(service['verifyQuiz'](mockQuiz)).rejects.toThrow('Titre du quiz invalide ou manquant');
     });
 
     it('should check for a missing or invalid duration', async () => {
@@ -232,7 +236,7 @@ describe('QuizzesService', () => {
             duration: 'string',
         } as unknown as Quiz;
 
-        await expect(service.verifyQuiz(mockQuiz)).rejects.toThrow('La durée du quiz est manquante ou doit être un nombre');
+        await expect(service['verifyQuiz'](mockQuiz)).rejects.toThrow('La durée du quiz est manquante ou doit être un nombre');
     });
 
     it('should check for a missing or invalid description', async () => {
@@ -240,7 +244,7 @@ describe('QuizzesService', () => {
             title: 'test',
         } as unknown as Quiz;
 
-        await expect(service.verifyQuiz(mockQuiz)).rejects.toThrow('Description du quiz invalide ou manquante');
+        await expect(service['verifyQuiz'](mockQuiz)).rejects.toThrow('Description du quiz invalide ou manquante');
     });
 
     it('should check for a wrong duration', async () => {
@@ -249,7 +253,7 @@ describe('QuizzesService', () => {
             duration: 70,
         } as Quiz;
 
-        await expect(service.verifyQuiz(mockQuiz)).rejects.toThrow('La durée du quiz doit être entre 10 et 60 secondes');
+        await expect(service['verifyQuiz'](mockQuiz)).rejects.toThrow('La durée du quiz doit être entre 10 et 60 secondes');
     });
 
     it('should check for invalid questions', async () => {
@@ -259,7 +263,7 @@ describe('QuizzesService', () => {
             questions: [],
         } as Quiz;
 
-        await expect(service.verifyQuiz(mockQuiz)).rejects.toThrow('Les questions sont manquantes ou vides');
+        await expect(service['verifyQuiz'](mockQuiz)).rejects.toThrow('Les questions sont manquantes ou vides');
     });
 
     it('should check for an invalid question type', () => {
@@ -268,7 +272,7 @@ describe('QuizzesService', () => {
             type: 'QC',
         } as QuestionType;
 
-        service.verifyQuestion(mockQuestion, 0, errors);
+        service['verifyQuestion'](mockQuestion, 0, errors);
         expect(errors).toContain("Type de la question 1 invalide ou manquant ('QCM' ou 'QRL'))");
     });
 
@@ -278,7 +282,7 @@ describe('QuizzesService', () => {
             type: 'QCM',
         } as QuestionType;
 
-        service.verifyQuestion(mockQuestion, 0, errors);
+        service['verifyQuestion'](mockQuestion, 0, errors);
         expect(errors).toContain('Texte de la question 1 est invalide ou manquant');
     });
 
@@ -288,7 +292,7 @@ describe('QuizzesService', () => {
             isCorrect: true,
         } as ChoiceType;
 
-        service.verifyChoices([mockChoice], 0, errors);
+        service['verifyChoices']([mockChoice], 0, errors);
         expect(errors).toContain('Texte du choix 1 de la question 1 invalide ou manquant');
     });
 
@@ -299,7 +303,7 @@ describe('QuizzesService', () => {
             isCorrect: 'string' as unknown as boolean,
         } as ChoiceType;
 
-        service.verifyChoices([mockChoice], 0, errors);
+        service['verifyChoices']([mockChoice], 0, errors);
         expect(mockChoice.isCorrect).toBe(false);
     });
 
@@ -309,7 +313,7 @@ describe('QuizzesService', () => {
             text: 'test',
             isCorrect: null,
         } as ChoiceType;
-        service.verifyChoices([mockChoice], 0, errors);
+        service['verifyChoices']([mockChoice], 0, errors);
         expect(mockChoice.isCorrect).toBe(false);
     });
 
@@ -319,7 +323,86 @@ describe('QuizzesService', () => {
             text: 'test',
             isCorrect: undefined,
         } as ChoiceType;
-        service.verifyChoices([mockChoice], 0, errors);
+        service['verifyChoices']([mockChoice], 0, errors);
         expect(mockChoice.isCorrect).toBe(false);
+    });
+
+    it('should add an error for a question with extra fields', async () => {
+        const quiz = {
+            title: 'test',
+            duration: 30,
+            questions: [
+                {
+                    type: 'QCM',
+                    text: 'Test Question',
+                    points: 20,
+                    extraField: 'extra',
+                    choices: [
+                        {
+                            text: 'Choice 1',
+                            isCorrect: true,
+                        },
+                    ],
+                },
+            ],
+        } as unknown as Quiz;
+
+        await expect(service['verifyQuiz'](quiz)).rejects.toThrow('La question 1 contient les champs supplémentaires non valides : extraField');
+    });
+
+    it('should add an error to the errors list for a QRL question with that has a choices field', () => {
+        const errors = [];
+        const mockQuestion = {
+            type: 'QRL',
+            text: 'Sample QRL Question',
+            points: 30,
+            choices: [],
+        } as unknown as QuestionType;
+
+        service['verifyQuestion'](mockQuestion, 0, errors);
+
+        expect(errors.length).toBe(1);
+        expect(errors[0]).toEqual("Les choix de la question 1 sont invalides. Une question de type 'QRL' ne doit pas avoir de champ 'choices'.");
+    });
+
+    it('should add an error to the errors list for a question choice that has extra fields', () => {
+        const errors = [];
+        const mockQuestion = {
+            type: 'QCM',
+            text: 'Sample QCM Question',
+            points: 20,
+            choices: [
+                {
+                    text: 'Choice 1',
+                    isCorrect: true,
+                    extraField: 'Invalid Field',
+                },
+                {
+                    text: 'Choice 2',
+                    isCorrect: false,
+                },
+            ],
+        } as QuestionType;
+
+        service['verifyQuestion'](mockQuestion, 0, errors);
+
+        expect(errors.length).toBe(1);
+        expect(errors[0]).toEqual('Le choix 1 de la question 1 contient les champs supplémentaires non valides : extraField');
+    });
+
+    it('should should add an errors to the error list for quiz with extra fields', () => {
+        const errors: string[] = [];
+        const mockQuiz = {
+            title: 'Sample Quiz',
+            duration: 30,
+            description: 'Sample description',
+            questions: [],
+            extraField: 'Invalid Field',
+        } as unknown as Quiz;
+
+        service['verifyGeneralFields'](mockQuiz, errors);
+
+        expect(errors.length).toBe(1);
+        expect(errors[0]).toEqual('Le quiz importé contient les champs généraux supplémentaires non valides: extraField');
     });
 });
