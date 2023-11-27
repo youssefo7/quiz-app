@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
 import { CountdownComponent } from '@app/components/countdown/countdown.component';
 import { GamePlayersListComponent } from '@app/components/game-players-list/game-players-list.component';
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
@@ -11,6 +12,7 @@ import { ProfileComponent } from '@app/components/profile/profile.component';
 import { QuestionZoneStatsComponent } from '@app/components/question-zone-stats/question-zone-stats.component';
 import { TopBarComponent } from '@app/components/top-bar/top-bar.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
+import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { NgChartsModule } from 'ng2-charts';
@@ -73,7 +75,7 @@ describe('HostGamePageComponent', () => {
                 ChatComponentStub,
                 MatIcon,
             ],
-            imports: [NgChartsModule],
+            imports: [NgChartsModule, RouterTestingModule.withRoutes([{ path: 'home/', component: MainPageComponent }])],
             providers: [
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'host' }] } } },
                 { provide: MatDialog, useValue: mockDialog },
@@ -95,6 +97,26 @@ describe('HostGamePageComponent', () => {
     it('should fetch the quiz of a given game', () => {
         component['getQuiz']();
         expect(roomCommunicationServiceMock.getRoomQuiz).toHaveBeenCalledWith(mockedQuiz.id);
+    });
+
+    it('should call handleNavigation on beforeunload', () => {
+        const handleNavigationSpy = spyOn(component, 'handleNavigation');
+        component.beforeUnloadHandler();
+        expect(handleNavigationSpy).toHaveBeenCalled();
+    });
+
+    it('should handle socket connections, events and navigation correctly if user is a host on ngOnInit', async () => {
+        let socketExists = false;
+        clientSocketServiceMock.socketExists.and.callFake(() => socketExists);
+        clientSocketServiceMock.connect.and.callFake(() => {
+            socketExists = true;
+        });
+        // Redirection dans le ngOnInit nécessite de mettre l'appel dans Angular zone pour éviter un avertissement
+        await fixture.ngZone?.run(async () => component.ngOnInit());
+
+        expect(clientSocketServiceMock.connect).toHaveBeenCalled();
+        expect(clientSocketServiceMock.send).toHaveBeenCalled();
+        expect(clientSocketServiceMock.disconnect).toHaveBeenCalled();
     });
 
     it('should redirect to "/game/new" page when clicking the exit icon', () => {
