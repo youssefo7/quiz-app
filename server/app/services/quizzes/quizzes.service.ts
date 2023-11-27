@@ -16,20 +16,85 @@ export class QuizzesService {
         this.start();
     }
 
-    async start() {
+    async getQuizzes(): Promise<Quiz[]> {
+        return await this.quizModel.find();
+    }
+
+    async getQuiz(id: string): Promise<Quiz> {
+        const quiz = await this.quizModel.findOne({ id });
+        if (!quiz) {
+            throw new Error(`Quiz ${id} not found`);
+        }
+        return quiz;
+    }
+
+    async addQuiz(quiz: Quiz): Promise<Quiz> {
+        quiz.id = '';
+        quiz.lastModification = new Date().toISOString();
+        const addedQuiz = await this.quizModel.create(quiz);
+        // Mongo a la propriété _id
+        // eslint-disable-next-line no-underscore-dangle
+        addedQuiz.id = addedQuiz._id.toString();
+        await addedQuiz.save();
+        return addedQuiz;
+    }
+
+    async updateQuiz(id: string, updatedQuiz: Quiz): Promise<Quiz> {
+        updatedQuiz.lastModification = new Date().toISOString();
+        const quiz = await this.quizModel.findOneAndUpdate({ id }, updatedQuiz, { new: true });
+        if (!quiz) {
+            throw new Error(`Quiz ${id} not found`);
+        }
+        return quiz;
+    }
+
+    async deleteQuiz(id: string): Promise<void> {
+        const result = await this.quizModel.findOneAndDelete({ id });
+        if (!result) {
+            throw new Error(`Quiz ${id} not found`);
+        }
+    }
+
+    async checkQuizAvailability(id: string): Promise<boolean> {
+        try {
+            return !!(await this.quizModel.findOne({ id }));
+        } catch (error) {
+            return Promise.reject(new Error(`${error.message}`));
+        }
+    }
+
+    async checkQuizVisibility(id: string): Promise<boolean> {
+        try {
+            const quiz = await this.getQuiz(id);
+            return quiz.visibility;
+        } catch (error) {
+            return Promise.reject(new Error(`${error.message}`));
+        }
+    }
+
+    async importQuiz(quiz: Quiz): Promise<Quiz> {
+        try {
+            await this.verifyQuiz(quiz);
+            return await this.addQuiz(quiz);
+        } catch (error) {
+            return Promise.reject(new Error(`${error.message}`));
+        }
+    }
+
+    private async start() {
         if ((await this.quizModel.countDocuments()) === 0) {
             await this.populateDB();
         }
     }
 
-    async populateDB(): Promise<void> {
+    private async populateDB(): Promise<void> {
         // remplir la liste avec les quizzes lorsque la BD est vide
         const quizzes: Quiz[] = [];
         await this.quizModel.insertMany(quizzes);
         this.logger.log('DB populated');
     }
 
-    async verifyQuiz(quiz: Quiz): Promise<void> {
+    private async verifyQuiz(quiz: Quiz): Promise<void> {
         const errors = [];
 
         this.verifyGeneralFields(quiz, errors);
@@ -59,7 +124,7 @@ export class QuizzesService {
         }
     }
 
-    verifyQuestion(question: QuestionType, index: number, errors: string[]) {
+    private verifyQuestion(question: QuestionType, index: number, errors: string[]) {
         const isDefinedQuestionType = question.type && typeof question.type === 'string';
         const isValidQuestionType = question.type === 'QCM' || question.type === 'QRL';
         if (!isDefinedQuestionType || !isValidQuestionType) {
@@ -103,7 +168,7 @@ export class QuizzesService {
         }
     }
 
-    verifyChoices(choices: ChoiceType[], questionIndex: number, errors: string[]) {
+    private verifyChoices(choices: ChoiceType[], questionIndex: number, errors: string[]) {
         let correctChoiceCount = 0;
         let incorrectChoiceCount = 0;
 
@@ -139,74 +204,9 @@ export class QuizzesService {
         }
     }
 
-    async getQuizzes(): Promise<Quiz[]> {
-        return await this.quizModel.find();
-    }
-
-    async getQuiz(id: string): Promise<Quiz> {
-        const quiz = await this.quizModel.findOne({ id });
-        if (!quiz) {
-            throw new Error(`Quiz ${id} not found`);
-        }
-        return quiz;
-    }
-
-    async addQuiz(quiz: Quiz): Promise<Quiz> {
-        quiz.id = '';
-        quiz.lastModification = new Date().toISOString();
-        const addedQuiz = await this.quizModel.create(quiz);
-        // Mongo a la propriété _id
-        // eslint-disable-next-line no-underscore-dangle
-        addedQuiz.id = addedQuiz._id.toString();
-        await addedQuiz.save();
-        return addedQuiz;
-    }
-
-    async updateQuiz(id: string, updatedQuiz: Quiz): Promise<Quiz> {
-        updatedQuiz.lastModification = new Date().toISOString();
-        const quiz = await this.quizModel.findOneAndUpdate({ id }, updatedQuiz, { new: true });
-        if (!quiz) {
-            throw new Error(`Quiz ${id} not found`);
-        }
-        return quiz;
-    }
-
-    async deleteQuiz(id: string): Promise<void> {
-        const result = await this.quizModel.findOneAndDelete({ id });
-        if (!result) {
-            throw new Error(`Quiz ${id} not found`);
-        }
-    }
-
-    async checkTitleExists(title: string): Promise<boolean> {
+    private async checkTitleExists(title: string): Promise<boolean> {
         const quiz = await this.quizModel.findOne({ title });
         return !!quiz;
-    }
-
-    async checkQuizAvailability(id: string): Promise<boolean> {
-        try {
-            return !!(await this.quizModel.findOne({ id }));
-        } catch (error) {
-            return Promise.reject(new Error(`${error.message}`));
-        }
-    }
-
-    async checkQuizVisibility(id: string): Promise<boolean> {
-        try {
-            const quiz = await this.getQuiz(id);
-            return quiz.visibility;
-        } catch (error) {
-            return Promise.reject(new Error(`${error.message}`));
-        }
-    }
-
-    async importQuiz(quiz: Quiz): Promise<Quiz> {
-        try {
-            await this.verifyQuiz(quiz);
-            return await this.addQuiz(quiz);
-        } catch (error) {
-            return Promise.reject(new Error(`${error.message}`));
-        }
     }
 
     private verifyGeneralFields(quiz: Quiz, errors: string[]) {
