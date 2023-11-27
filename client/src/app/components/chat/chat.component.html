@@ -31,7 +31,9 @@
             [ngClass]="{ 'disable-messageBox': !canChat }"
         >
         </textarea>
-        <mat-icon inline="true" (click)="sendMessageToRoom()" (keyup.enter)="sendMessageToRoom()" [attr.disabled]="!canChat">send</mat-icon>
+        <button [disabled]="!canChat" (click)="sendMessageToRoom()" (keyup.enter)="sendMessageToRoom()">
+            <mat-icon [ngClass]="{ disabled: !canChat }" inline="true">send</mat-icon>
+        </button>
     </div>
     <span id="counter">{{ characterCounterDisplay }}</span>
 </div>
