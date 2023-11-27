@@ -19,9 +19,9 @@ table {
     max-width: 1000px;
     max-height: 450px;
     margin-top: 5%;
-
-    overflow-y: scroll;
+    overflow-y: auto;
 }
+
 
 .toggle-button {
     background: transparent;
@@ -39,6 +39,10 @@ td {
 
 .quiz-info {
     display: flex;
+}
+
+.sous-titre {
+    font-weight: bold;
 }
 
 .main-details {

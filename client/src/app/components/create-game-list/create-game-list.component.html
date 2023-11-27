@@ -29,14 +29,18 @@
                                 <div>
                                     <h3>Détails du jeu</h3>
                                     <ul>
-                                        <li>Description : {{ quiz.description }}</li>
-                                        <li>Temps alloué pour répondre aux questions : {{ quiz.duration }}s</li>
+                                        
+                                        <li><div class="sous-titre">Description :</div> {{ quiz.description }}</li>
+                                        <li><div class="sous-titre">Temps alloué pour répondre aux questions QCM : </div>{{ quiz.duration }}s</li>
                                     </ul>
                                 </div>
                                 <div>
                                     <h3>Liste des questions :</h3>
                                     <ul>
-                                        <li *ngFor="let question of quiz.questions">{{ question.text }}</li>
+                                        <li *ngFor="let question of quiz.questions">
+                                            <div class="sous-titre">{{ question.type }}: </div>
+                                            <div>{{ question.text }}</div> 
+                                        </li>
                                     </ul>
                                 </div>
                             </div>
