@@ -1,5 +1,5 @@
-/* eslint-disable max-len */
-/* eslint-disable max-lines */
+// any est nécessaire pour espionner les méthodes privées
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup } from '@angular/forms';

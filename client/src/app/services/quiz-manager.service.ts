@@ -120,19 +120,21 @@ export class QuizManagerService {
             if (this.isQuizQuestionModified(this.quizToModify.questions[i], quiz.questions[i])) {
                 return true;
             }
-            const initialChoices = this.quizToModify.questions[i].choices || [];
-            const quizChoices = quiz.questions[i].choices || [];
+            const initialChoices = this.quizToModify.questions[i].choices || undefined;
+            const quizChoices = quiz.questions[i].choices || undefined;
 
-            if (initialChoices.length !== quizChoices.length) {
-                return true;
-            }
-
-            for (let j = 0; j < initialChoices.length; j++) {
-                const initialChoice = initialChoices[j];
-                const quizChoice = quizChoices[j];
-
-                if (this.isQuizChoiceModified(initialChoice, quizChoice)) {
+            if (initialChoices && quizChoices) {
+                if (initialChoices.length !== quizChoices.length) {
                     return true;
+                }
+
+                for (let j = 0; j < initialChoices.length; j++) {
+                    const initialChoice = initialChoices[j];
+                    const quizChoice = quizChoices[j];
+
+                    if (this.isQuizChoiceModified(initialChoice, quizChoice)) {
+                        return true;
+                    }
                 }
             }
         }
