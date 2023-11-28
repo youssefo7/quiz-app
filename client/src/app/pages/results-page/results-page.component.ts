@@ -44,7 +44,6 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
     handleNavigation() {
         if (this.isHost) {
             this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: false });
-
             this.socketClientService.disconnect();
         } else {
             this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: false });
