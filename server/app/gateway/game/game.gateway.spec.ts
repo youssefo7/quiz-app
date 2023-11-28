@@ -58,6 +58,7 @@ describe('GameGateway', () => {
                 timer: null,
                 results: [],
                 chatMessage: [],
+                questionsChartData: [],
             },
         ];
 

@@ -1,10 +1,11 @@
 import { Quiz } from '@app/model/database/quiz';
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
-import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
-import { ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { Response } from 'express';
 import { ChatMessage } from '@common/chat-message';
 import { Results } from '@common/player-info';
+import { QuestionChartData } from '@common/question-chart-data';
+import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
+import { ApiCreatedResponse, ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
 
 @ApiTags('Rooms')
 @Controller('rooms')
@@ -15,7 +16,7 @@ export class RoomController {
         description: 'Returns name validation',
         type: Boolean,
     })
-    @ApiNotFoundResponse({
+    @ApiInternalServerErrorResponse({
         description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
     })
     @Post('/:roomId/name')
@@ -32,7 +33,7 @@ export class RoomController {
         description: 'Returns room state',
         type: Object,
     })
-    @ApiNotFoundResponse({
+    @ApiInternalServerErrorResponse({
         description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
     })
     @Post('/:roomId/join')
@@ -49,7 +50,7 @@ export class RoomController {
         description: 'Returns room id',
         type: String,
     })
-    @ApiNotFoundResponse({
+    @ApiInternalServerErrorResponse({
         description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
     })
     @Post('/new')
@@ -117,7 +118,7 @@ export class RoomController {
         description: 'Returns posted player results in room',
         type: Array<Results>,
     })
-    @ApiNotFoundResponse({
+    @ApiInternalServerErrorResponse({
         description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
     })
     @Post('/:roomId/results')
@@ -151,7 +152,7 @@ export class RoomController {
         description: 'Returns posted chat messages in room',
         type: Array<Results>,
     })
-    @ApiNotFoundResponse({
+    @ApiInternalServerErrorResponse({
         description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
     })
     @Post('/:roomId/chat')
@@ -178,6 +179,42 @@ export class RoomController {
             response.status(HttpStatus.OK).json(messages);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).json(`Erreur lors de la récupération des messages de la salle ${roomId}`);
+        }
+    }
+
+    @ApiCreatedResponse({
+        description: 'Returns posted question chart data in room',
+        type: Array<QuestionChartData>,
+    })
+    @ApiInternalServerErrorResponse({
+        description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
+    })
+    @Post('/:roomId/chart')
+    handleSendChartData(@Param('roomId') roomId: string, @Body() questionsChartData: QuestionChartData[], @Res() response: Response) {
+        try {
+            this.roomManagerService.postQuestionsChartData(roomId, questionsChartData);
+            response.status(HttpStatus.CREATED).json(questionsChartData);
+        } catch (error) {
+            response
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .json(`Erreur lors de la sauvegarde des statistiques de la partie de la salle ${roomId}`);
+        }
+    }
+
+    @ApiOkResponse({
+        description: 'Returns quiz question charts in room',
+        type: Array<QuestionChartData>,
+    })
+    @ApiNotFoundResponse({
+        description: 'Return NOT_FOUND http status when request fails',
+    })
+    @Get('/:roomId/chart')
+    handleGetQuestionsChartData(@Param('roomId') roomId: string, @Res() response: Response) {
+        try {
+            const questionCharts = this.roomManagerService.getQuestionsChartData(roomId);
+            response.status(HttpStatus.OK).json(questionCharts);
+        } catch (error) {
+            response.status(HttpStatus.NOT_FOUND).json(`Erreur lors de la récupération des statistiques de la partie de la salle ${roomId}`);
         }
     }
 }

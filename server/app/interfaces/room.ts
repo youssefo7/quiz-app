@@ -1,6 +1,7 @@
 import { Quiz } from '@app/model/database/quiz';
 import { ChatMessage } from '@common/chat-message';
 import { Results } from '@common/player-info';
+import { QuestionChartData } from '@common/question-chart-data';
 
 export interface Room {
     id: string;
@@ -13,6 +14,7 @@ export interface Room {
     timer: ReturnType<typeof setInterval> | null;
     results: Results[];
     chatMessage: ChatMessage[];
+    questionsChartData: QuestionChartData[];
 }
 
 export interface User {

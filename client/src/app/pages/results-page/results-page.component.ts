@@ -1,7 +1,11 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Quiz } from '@app/interfaces/quiz';
+import { ChartDataManagerService } from '@app/services/chart-data-manager.service';
+import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { GameEvents } from '@common/game.events';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-results-page',
@@ -9,16 +13,21 @@ import { GameEvents } from '@common/game.events';
     styleUrls: ['./results-page.component.scss', '../../../assets/shared.scss'],
 })
 export class ResultsPageComponent implements OnInit, OnDestroy {
-    roomId: string | null;
+    roomId: string;
+    quiz: Quiz;
     title: string;
     private isHost: boolean;
 
+    // Tous ces paramètres sont nécessaires pour que la composante fonctionne bien
+    // eslint-disable-next-line max-params
     constructor(
         private route: ActivatedRoute,
         private router: Router,
         private socketClientService: SocketClientService,
+        private roomCommunicationService: RoomCommunicationService,
+        private chartManagerService: ChartDataManagerService,
     ) {
-        this.roomId = this.route.snapshot.paramMap.get('roomId');
+        this.roomId = this.route.snapshot.paramMap.get('roomId') as string;
         this.title = 'Résultats';
         this.isHost = this.router.url.endsWith('/host');
     }
@@ -35,11 +44,13 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
     handleNavigation() {
         if (this.isHost) {
             this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: false });
+
             this.socketClientService.disconnect();
         } else {
             this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: false });
             this.socketClientService.disconnect();
         }
+        this.chartManagerService.resetChartData();
     }
 
     async ngOnInit() {
@@ -56,5 +67,7 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
             this.router.navigateByUrl('home/');
             return;
         }
+
+        this.quiz = await firstValueFrom(this.roomCommunicationService.getRoomQuiz(this.roomId));
     }
 }

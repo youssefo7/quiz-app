@@ -1,0 +1,5 @@
+<div>
+    <button mat-raised-button (click)="viewPreviousQuestion()" [disabled]="!canGoToPreviousQuestion">Précédent</button>
+    <button mat-raised-button (click)="viewNextQuestion()" [disabled]="!canGoToNextQuestion">Suivant</button>
+    <app-histogram [roomId]="roomId" [quiz]="quiz" [isResultsPage]="true"></app-histogram>
+</div>

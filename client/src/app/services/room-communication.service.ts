@@ -4,6 +4,7 @@ import { JoinRoomResponse } from '@app/interfaces/join-room-response';
 import { Quiz } from '@app/interfaces/quiz';
 import { ChatMessage } from '@common/chat-message';
 import { Results } from '@common/player-info';
+import { QuestionChartData } from '@common/question-chart-data';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -56,6 +57,16 @@ export class RoomCommunicationService {
         return this.http
             .post<ChatMessage[]>(`${this.baseUrl}/rooms/${roomId}/chat`, chatMessages)
             .pipe(catchError(this.receiveError<ChatMessage[]>()));
+    }
+
+    getQuestionsChartData(roomId: string): Observable<QuestionChartData[]> {
+        return this.http.get<QuestionChartData[]>(`${this.baseUrl}/rooms/${roomId}/chart`).pipe(catchError(this.receiveError<QuestionChartData[]>()));
+    }
+
+    sendQuestionsChartData(roomId: string, questionsChartData: QuestionChartData[]): Observable<QuestionChartData[]> {
+        return this.http
+            .post<QuestionChartData[]>(`${this.baseUrl}/rooms/${roomId}/chart`, questionsChartData)
+            .pipe(catchError(this.receiveError<QuestionChartData[]>()));
     }
 
     private receiveError<T>() {
