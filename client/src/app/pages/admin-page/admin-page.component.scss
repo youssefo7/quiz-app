@@ -1,15 +1,26 @@
 .background {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .content {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  align-items: center;
-  overflow: hidden;
-  height: 100%;
-  width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+    margin-top: 3%;
+
+    .quiz-list {
+        flex-basis: 50%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .history {
+        flex-basis: 45%;
+        display: flex;
+    }
 }
