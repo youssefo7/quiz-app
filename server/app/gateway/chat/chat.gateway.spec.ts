@@ -47,6 +47,7 @@ describe('ChatGateway', () => {
             timer: null,
             results: [],
             chatMessage: [],
+            questionsChartData: [],
         });
         gateway['server'] = server;
     });

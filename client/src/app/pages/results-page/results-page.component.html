@@ -1,6 +1,6 @@
 <div class="background">
     <app-top-bar [title]="title"></app-top-bar>
-    <div id="grid-container">
+    <!-- <div id="grid-container">
         <div id="exit-button-grid">
             <mat-icon title="Quitter la Partie" inline="true" routerLink="/home">exit_to_app</mat-icon>
         </div>
@@ -8,5 +8,6 @@
         <div id="chat-player-flex">
             <app-chat id="chat-container" [roomId]="roomId"></app-chat>
         </div>
-    </div>
+    </div> -->
+    <app-result-chart [quiz]="quiz" [roomId]="roomId"></app-result-chart>
 </div>

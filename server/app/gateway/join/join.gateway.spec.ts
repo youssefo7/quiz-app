@@ -45,6 +45,7 @@ describe('JoinGateway', () => {
             timer: null,
             results: [],
             chatMessage: [],
+            questionsChartData: [],
         });
         gateway['server'] = server;
     });

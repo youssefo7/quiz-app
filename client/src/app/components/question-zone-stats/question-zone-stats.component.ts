@@ -1,5 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Question, Quiz } from '@app/interfaces/quiz';
+import { ChartDataManagerService } from '@app/services/chart-data-manager.service';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { GameEvents } from '@common/game.events';
@@ -36,6 +37,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     constructor(
         private readonly socketClientService: SocketClientService,
         private readonly roomCommunicationService: RoomCommunicationService,
+        private chartDataManager: ChartDataManagerService,
     ) {
         this.currentQuestionIndex = 0;
         this.isNextQuestionButtonDisable = true;
@@ -53,7 +55,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         this.totalGoodAnswers = 0;
     }
 
-    async ngOnInit() {
+    async ngOnInit(): Promise<void> {
         if (!this.socketClientService.socketExists()) {
             return;
         }
@@ -72,6 +74,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         if (this.currentQuestionIndex !== this.lastQuestionIndex) {
             this.socketClientService.send(GameEvents.NextQuestion, this.roomId);
         } else {
+            this.chartDataManager.sendChartData(this.roomId);
             this.socketClientService.send(GameEvents.SendResults, this.roomId);
         }
     }
@@ -120,9 +123,10 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         });
     }
 
-    private detectEndOfQuestion(time: number) {
+    private async detectEndOfQuestion(time: number) {
         if (time === 0) {
             if (this.hasTimerBeenInterrupted) {
+                this.socketClientService.send(GameEvents.SaveChartData, this.roomId);
                 this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
             } else {
                 this.totalGoodAnswers = this.goodAnswerOnClickCount + this.goodAnswerOnFinishedTimerCount;

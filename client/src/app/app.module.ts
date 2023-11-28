@@ -16,6 +16,7 @@ import { CountdownComponent } from './components/countdown/countdown.component';
 import { CreateGameListComponent } from './components/create-game-list/create-game-list.component';
 import { GamePlayersListComponent } from './components/game-players-list/game-players-list.component';
 import { HistogramComponent } from './components/histogram/histogram.component';
+import { HistoryComponent } from './components/history/history.component';
 import { ImportPopupComponent } from './components/import-popup/import-popup.component';
 import { JoinGamePopupComponent } from './components/join-game-popup/join-game-popup.component';
 import { PlayerListComponent } from './components/player-list/player-list.component';
@@ -26,6 +27,7 @@ import { QuestionZoneComponent } from './components/question-zone/question-zone.
 import { QuizGeneralInfoComponent } from './components/quiz-general-info/quiz-general-info.component';
 import { QuizListComponent } from './components/quiz-list/quiz-list.component';
 import { QuizQuestionInfoComponent } from './components/quiz-question-info/quiz-question-info.component';
+import { ResultChartComponent } from './components/result-chart/result-chart.component';
 import { TopBarComponent } from './components/top-bar/top-bar.component';
 import { RangeValidatorDirective } from './directives/range-validator.directive';
 import { TitleExistsDirective } from './directives/title-exists.directive';
@@ -35,7 +37,6 @@ import { CreateGamePageComponent } from './pages/create-game-page/create-game-pa
 import { HostGamePageComponent } from './pages/host-game-page/host-game-page.component';
 import { ResultsPageComponent } from './pages/results-page/results-page.component';
 import { WaitingPageComponent } from './pages/waiting-page/waiting-page.component';
-import { HistoryComponent } from './components/history/history.component';
 
 /**
  * Main module that is used in main.ts.
@@ -73,6 +74,7 @@ import { HistoryComponent } from './components/history/history.component';
         GamePlayersListComponent,
         QuestionZoneStatsComponent,
         HistogramComponent,
+        ResultChartComponent,
         HistoryComponent,
     ],
     imports: [
