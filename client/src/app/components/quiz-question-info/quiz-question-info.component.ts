@@ -52,7 +52,7 @@ export class QuizQuestionInfoComponent implements OnInit {
                 this.addChoice();
             }
             this.choicesCopy = JSON.parse(JSON.stringify(question.choices));
-            choices.setValidators(this.questionChoicesValidator());
+            choices.setValidators([Validators.required, this.questionChoicesValidator()]);
             this.patchQCM(question.text, question.type, question.points, question.choices as Choice[]);
         } else {
             choices.clear();
@@ -145,10 +145,11 @@ export class QuizQuestionInfoComponent implements OnInit {
 
         if (questionType.value === QTypes.QCM || questionType.value === undefined) {
             if (!choices.hasValidator(this.questionChoicesValidator())) {
-                choices.setValidators(this.questionChoicesValidator());
+                choices.setValidators([Validators.required, this.questionChoicesValidator()]);
                 this.configureChoicesQCM();
                 this.patchQCM(questionText.value, questionType.value, questionPoints.value, this.choicesCopy as Choice[]);
                 choices.updateValueAndValidity();
+                this.questionInfoForm.updateValueAndValidity();
             }
         } else {
             choices.clear();
@@ -165,8 +166,9 @@ export class QuizQuestionInfoComponent implements OnInit {
             type: ['QCM', Validators.required],
             text: ['', [Validators.required, this.isQuestionTextValid()]],
             points: [this.defaultPoints, Validators.required],
-            choices: this.fb.array([], []),
+            choices: this.fb.array([], [Validators.required, this.questionChoicesValidator()]),
         });
+        this.questionInfoForm.updateValueAndValidity();
 
         for (let i = 0; i < Constants.MIN_CHOICES; i++) {
             this.addChoice();
@@ -186,7 +188,7 @@ export class QuizQuestionInfoComponent implements OnInit {
 
         if (questionType === QTypes.QCM) {
             const choicesArray: Choice[] = this.choices.controls.map((control: AbstractControl) => {
-                const text: string = control.get('text')?.value;
+                const text: string = control.get('text')?.value.trim();
                 const isCorrect: boolean = control.get('isCorrect')?.value;
                 return { text, isCorrect };
             });
@@ -211,7 +213,7 @@ export class QuizQuestionInfoComponent implements OnInit {
                 return text.trim().length > 0 && typeof isCorrect !== undefined;
             });
 
-            if (validChoices.length < Constants.MIN_CHOICES) {
+            if (validChoices.length < choices.length) {
                 return { missingChoices: true };
             }
 

@@ -52,6 +52,7 @@ describe('QuizQuestionInfoComponent', () => {
         component.onSubmit();
         expect(component['manageQuestion']).toHaveBeenCalled();
         expect(component.resetForm).toHaveBeenCalled();
+        expect(component.choices.length).toEqual(Constants.MIN_CHOICES);
     });
 
     it('should initialize the form and add choices when page is loaded', () => {
@@ -145,7 +146,7 @@ describe('QuizQuestionInfoComponent', () => {
         component.resetForm();
         component['initializeForm']();
 
-        expect(component.questionInfoForm.get('type')?.value).toEqual('QRL');
+        expect(component.questionInfoForm.get('type')?.value).toEqual('QCM');
         expect(component.questionInfoForm.get('text')?.value).toEqual('');
         expect(component.questionInfoForm.get('points')?.value).toEqual(Constants.MIN_POINTS);
         expect(component.choices.length).toEqual(Constants.MIN_CHOICES);
@@ -385,7 +386,7 @@ describe('QuizQuestionInfoComponent', () => {
 
         component.onTypeChange();
 
-        expect(component['configureChoicesQCM']).toHaveBeenCalledWith(component.choices);
+        expect(component['configureChoicesQCM']).toHaveBeenCalled();
         expect(component['patchQCM']).toHaveBeenCalled();
         expect(component.choices.updateValueAndValidity).toHaveBeenCalled();
     });
@@ -420,7 +421,7 @@ describe('QuizQuestionInfoComponent', () => {
         const choicesArray1 = component.questionInfoForm.get('choices') as FormArray;
         choicesArray1.clear();
 
-        component['configureChoicesQCM'](choicesArray1);
+        component['configureChoicesQCM']();
         expect(component.addChoice).toHaveBeenCalledTimes(component['choicesCopy'].length);
     });
 
@@ -429,8 +430,7 @@ describe('QuizQuestionInfoComponent', () => {
         spyOn(component, 'addChoice').and.callThrough();
         spyOn(component as any, 'configureChoicesQCM').and.callThrough();
 
-        const choicesArray = component.questionInfoForm.get('choices') as FormArray;
-        component['configureChoicesQCM'](choicesArray);
+        component['configureChoicesQCM']();
         expect(component.addChoice).toHaveBeenCalledTimes(Constants.MIN_CHOICES);
     });
 
@@ -443,7 +443,7 @@ describe('QuizQuestionInfoComponent', () => {
         const choicesArray2 = component.questionInfoForm.get('choices') as FormArray;
         choicesArray2.clear();
 
-        component['configureChoicesQCM'](choicesArray2);
+        component['configureChoicesQCM']();
         expect(component.addChoice).toHaveBeenCalledTimes(defaultAddChoiceCalls);
     });
 
