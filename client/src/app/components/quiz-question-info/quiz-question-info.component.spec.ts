@@ -56,7 +56,7 @@ describe('QuizQuestionInfoComponent', () => {
 
     it('should initialize the form and add choices when page is loaded', () => {
         component['initializeForm']();
-        expect(component.questionInfoForm.get('type')?.value).toEqual('');
+        expect(component.questionInfoForm.get('type')?.value).toEqual('QRL');
         expect(component.questionInfoForm.get('text')?.value).toEqual('');
         expect(component.questionInfoForm.get('points')?.value).toEqual(Constants.MIN_POINTS);
         expect(component.choices.length).toEqual(Constants.MIN_CHOICES);
@@ -145,7 +145,7 @@ describe('QuizQuestionInfoComponent', () => {
         component.resetForm();
         component['initializeForm']();
 
-        expect(component.questionInfoForm.get('type')?.value).toEqual('');
+        expect(component.questionInfoForm.get('type')?.value).toEqual('QRL');
         expect(component.questionInfoForm.get('text')?.value).toEqual('');
         expect(component.questionInfoForm.get('points')?.value).toEqual(Constants.MIN_POINTS);
         expect(component.choices.length).toEqual(Constants.MIN_CHOICES);
@@ -422,6 +422,16 @@ describe('QuizQuestionInfoComponent', () => {
 
         component['configureChoicesQCM'](choicesArray1);
         expect(component.addChoice).toHaveBeenCalledTimes(component['choicesCopy'].length);
+    });
+
+    it('should set requiredChoicesLength to Constants.MIN_CHOICES if choicesCopy is empty', () => {
+        component['choicesCopy'] = [];
+        spyOn(component, 'addChoice').and.callThrough();
+        spyOn(component as any, 'configureChoicesQCM').and.callThrough();
+
+        const choicesArray = component.questionInfoForm.get('choices') as FormArray;
+        component['configureChoicesQCM'](choicesArray);
+        expect(component.addChoice).toHaveBeenCalledTimes(Constants.MIN_CHOICES);
     });
 
     it('should configure choices for QCM type with the default amount of choices if choicesCopy is empty', () => {
