@@ -157,7 +157,7 @@ export class QuizQuestionInfoComponent implements OnInit {
 
     private initializeForm() {
         this.questionInfoForm = this.fb.group({
-            type: ['', Validators.required],
+            type: ['QRL', Validators.required],
             text: ['', [Validators.required, this.isQuestionTextValid()]],
             points: [this.defaultPoints, Validators.required],
             choices: this.fb.array([], []),
@@ -250,14 +250,14 @@ export class QuizQuestionInfoComponent implements OnInit {
     }
 
     private configureChoicesQCM(choices: FormArray) {
-        let index = 0;
-        let length = 0;
-        if (choices.length === 0) {
-            length = this.choicesCopy.length === 0 ? 2 : this.choicesCopy.length;
-            while (index < length) {
-                this.addChoice();
-                index++;
-            }
+        let requiredChoicesLength = this.choicesCopy?.length || Constants.MIN_CHOICES;
+        if (requiredChoicesLength === 0) {
+            requiredChoicesLength = Constants.MIN_CHOICES;
+        }
+
+        choices.clear();
+        for (let i = 0; i < requiredChoicesLength; i++) {
+            this.addChoice();
         }
     }
 
