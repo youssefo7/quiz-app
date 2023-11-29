@@ -28,6 +28,7 @@ export class QuizQuestionInfoComponent implements OnInit {
         this.isTextValid = true;
         this.isPointsValid = true;
         this.isChoicesValid = true;
+        this.choicesCopy = [];
     }
 
     get choices() {
@@ -117,11 +118,15 @@ export class QuizQuestionInfoComponent implements OnInit {
 
     resetForm() {
         this.questionInfoForm.reset();
-
+        this.questionInfoForm.controls.type.setValue('QCM');
         this.questionInfoForm.controls.points.setValue(this.defaultPoints);
 
         while (this.choices.length > Constants.MIN_CHOICES) {
             this.choices.removeAt(this.choices.length - 1);
+        }
+
+        while (this.choices.length < Constants.MIN_CHOICES) {
+            this.addChoice();
         }
 
         this.choices.controls.forEach((choiceControl: AbstractControl) => {
@@ -141,7 +146,7 @@ export class QuizQuestionInfoComponent implements OnInit {
         if (questionType.value === QTypes.QCM || questionType.value === undefined) {
             if (!choices.hasValidator(this.questionChoicesValidator())) {
                 choices.setValidators(this.questionChoicesValidator());
-                this.configureChoicesQCM(choices);
+                this.configureChoicesQCM();
                 this.patchQCM(questionText.value, questionType.value, questionPoints.value, this.choicesCopy as Choice[]);
                 choices.updateValueAndValidity();
             }
@@ -157,7 +162,7 @@ export class QuizQuestionInfoComponent implements OnInit {
 
     private initializeForm() {
         this.questionInfoForm = this.fb.group({
-            type: ['QRL', Validators.required],
+            type: ['QCM', Validators.required],
             text: ['', [Validators.required, this.isQuestionTextValid()]],
             points: [this.defaultPoints, Validators.required],
             choices: this.fb.array([], []),
@@ -249,13 +254,15 @@ export class QuizQuestionInfoComponent implements OnInit {
         });
     }
 
-    private configureChoicesQCM(choices: FormArray) {
+    private configureChoicesQCM() {
+        if (this.choicesCopy.length === undefined) {
+            this.choicesCopy = [];
+        }
         let requiredChoicesLength = this.choicesCopy?.length || Constants.MIN_CHOICES;
         if (requiredChoicesLength === 0) {
             requiredChoicesLength = Constants.MIN_CHOICES;
         }
 
-        choices.clear();
         for (let i = 0; i < requiredChoicesLength; i++) {
             this.addChoice();
         }
