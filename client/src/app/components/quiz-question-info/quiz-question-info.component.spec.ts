@@ -56,7 +56,7 @@ describe('QuizQuestionInfoComponent', () => {
 
     it('should initialize the form and add choices when page is loaded', () => {
         component['initializeForm']();
-        expect(component.questionInfoForm.get('type')?.value).toEqual('QRL');
+        expect(component.questionInfoForm.get('type')?.value).toEqual('QCM');
         expect(component.questionInfoForm.get('text')?.value).toEqual('');
         expect(component.questionInfoForm.get('points')?.value).toEqual(Constants.MIN_POINTS);
         expect(component.choices.length).toEqual(Constants.MIN_CHOICES);
