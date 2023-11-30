@@ -17,6 +17,7 @@ export class QuizQuestionInfoComponent implements OnInit {
     isTextValid: boolean;
     isPointsValid: boolean;
     isChoicesValid: boolean;
+    private isBeingModified: boolean;
     private choicesCopy: Choice[];
 
     constructor(
@@ -28,6 +29,7 @@ export class QuizQuestionInfoComponent implements OnInit {
         this.isTextValid = true;
         this.isPointsValid = true;
         this.isChoicesValid = true;
+        this.isBeingModified = false;
     }
 
     get choices() {
@@ -40,6 +42,7 @@ export class QuizQuestionInfoComponent implements OnInit {
 
     loadQuestionInformation(question: Question, index: number) {
         this.resetForm();
+        this.isBeingModified = true;
         this.quizManagerService.modifiedIndex = index;
         this.quizManagerService.isModifiedQuestion = true;
         const choices = this.questionInfoForm.get('choices') as FormArray;
@@ -117,6 +120,7 @@ export class QuizQuestionInfoComponent implements OnInit {
 
     resetForm() {
         this.questionInfoForm.reset();
+        this.isBeingModified = false;
 
         this.questionInfoForm.controls.points.setValue(this.defaultPoints);
 
@@ -153,6 +157,10 @@ export class QuizQuestionInfoComponent implements OnInit {
             this.patchQRL(questionText.value, questionType.value, questionPoints.value);
             this.questionInfoForm.updateValueAndValidity();
         }
+    }
+
+    saveQuestionButtonText(): string {
+        return this.isBeingModified ? 'Modifier' : 'Ajouter';
     }
 
     private initializeForm() {
