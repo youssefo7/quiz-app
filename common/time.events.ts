@@ -4,7 +4,6 @@ export enum TimeEvents {
     CurrentTimer = 'currentTimer',
     TimerFinished = 'timerFinished',
     TimerInterrupted = 'timerInterrupted',
-    TransitionClockFinished = 'transitionClockFinished',
     PanicMode = 'panicMode',
     ToggleTimer = 'toggleTimer',
 }

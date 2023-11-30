@@ -4,12 +4,18 @@
         <div id="exit-button-grid">
             <mat-icon (click)="openQuitPopUp()" title="Quitter la Partie" inline="true">exit_to_app</mat-icon>
         </div>
-        <app-countdown id="countdown-grid" [quiz]="quiz" [roomId]="roomId" [isHost]="false"></app-countdown>
-        <app-question-zone id="questions-grid" (pointsEarned)="givePoints($event)" [quiz]="quiz" [roomId]="roomId"></app-question-zone>
+        <app-countdown id="countdown-grid" [isTestGame]="isTestGame" [quiz]="quiz" [roomId]="roomId" [isHost]="false"></app-countdown>
+        <app-question-zone
+            id="questions-grid"
+            [isTestGame]="isTestGame"
+            (pointsEarned)="givePoints($event)"
+            [quiz]="quiz"
+            [roomId]="roomId"
+        ></app-question-zone>
         <div id="chat-player-flex">
             <app-profile id="profile-container" *ngIf="playerName" [points]="playerPoints" [playerName]="playerName"></app-profile>
             <app-profile id="profile-container" *ngIf="isTestGame" [points]="playerPoints"></app-profile>
-            <app-chat id="chat-container" [roomId]="roomId"></app-chat>
+            <app-chat id="chat-container" [isTestGame]="isTestGame" [roomId]="roomId"></app-chat>
         </div>
     </div>
 </div>

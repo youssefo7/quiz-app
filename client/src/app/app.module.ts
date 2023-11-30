@@ -14,6 +14,7 @@ import { AdminPopupComponent } from './components/admin-popup/admin-popup.compon
 import { ChatComponent } from './components/chat/chat.component';
 import { CountdownComponent } from './components/countdown/countdown.component';
 import { CreateGameListComponent } from './components/create-game-list/create-game-list.component';
+import { EvaluationZoneComponent } from './components/evaluation-zone/evaluation-zone.component';
 import { GamePlayersListComponent } from './components/game-players-list/game-players-list.component';
 import { HistogramComponent } from './components/histogram/histogram.component';
 import { HistoryComponent } from './components/history/history.component';
@@ -76,6 +77,7 @@ import { WaitingPageComponent } from './pages/waiting-page/waiting-page.componen
         HistogramComponent,
         ResultChartComponent,
         HistoryComponent,
+        EvaluationZoneComponent,
     ],
     imports: [
         AppMaterialModule,

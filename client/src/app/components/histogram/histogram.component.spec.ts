@@ -3,10 +3,11 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
-import { Quiz } from '@app/interfaces/quiz';
+import { Question } from '@app/interfaces/quiz';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { GameEvents } from '@common/game.events';
 import { TimeEvents } from '@common/time.events';
+import { Chart } from 'chart.js';
 import { NgChartsModule } from 'ng2-charts';
 import { Socket } from 'socket.io-client';
 import { HistogramComponent } from './histogram.component';
@@ -25,35 +26,27 @@ describe('HistogramComponent', () => {
     let fixture: ComponentFixture<HistogramComponent>;
     let socketClientServiceMock: MockSocketClientService;
     let socketHelper: SocketTestHelper;
-    const mockedQuiz: Quiz = {
-        id: '123',
-        title: 'Test quiz',
-        description: 'Test quiz description',
-        visibility: true,
-        duration: 60,
-        lastModification: '2018-11-13T20:20:39+00:00',
-        questions: [
-            {
-                type: 'QCM',
-                text: 'Q1',
-                points: 10,
-                choices: [
-                    { text: 'C1', isCorrect: true },
-                    { text: 'C2', isCorrect: false },
-                ],
-            },
-            {
-                type: 'QCM',
-                text: 'Q2',
-                points: 10,
-                choices: [
-                    { text: 'C1', isCorrect: false },
-                    { text: 'C2', isCorrect: true },
-                    { text: 'C3', isCorrect: false },
-                ],
-            },
-        ],
-    };
+    const mockedQuestions: Question[] = [
+        {
+            type: 'QCM',
+            text: 'Q1',
+            points: 10,
+            choices: [
+                { text: 'C1', isCorrect: true },
+                { text: 'C2', isCorrect: false },
+            ],
+        },
+        {
+            type: 'QCM',
+            text: 'Q2',
+            points: 10,
+            choices: [
+                { text: 'C1', isCorrect: false },
+                { text: 'C2', isCorrect: true },
+                { text: 'C3', isCorrect: false },
+            ],
+        },
+    ];
 
     beforeEach(() => {
         socketClientServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'socketExists']);
@@ -71,6 +64,7 @@ describe('HistogramComponent', () => {
         }).compileComponents();
         fixture = TestBed.createComponent(HistogramComponent);
         component = fixture.componentInstance;
+        component.questions = mockedQuestions;
         fixture.detectChanges();
     }));
 
@@ -81,7 +75,7 @@ describe('HistogramComponent', () => {
     it('should load chart and listen to socket events when created', () => {
         const loadChartSpy = spyOn<any>(component, 'loadChart');
         const updateSelectionsSpy = spyOn<any>(component, 'updateSelections');
-        const reactToTransitionClockFinishedEventSpy = spyOn<any>(component, 'reactToTransitionClockFinishedEvent');
+        const reactToTransitionClockFinishedEventSpy = spyOn<any>(component, 'reactToTimerEvents');
 
         component.ngOnInit();
         expect(loadChartSpy).toHaveBeenCalled();
@@ -90,11 +84,13 @@ describe('HistogramComponent', () => {
     });
 
     it('should update chart information when getting a question', () => {
-        component.quiz = mockedQuiz;
         const expectedPlayersChoices = ['Choix 1', 'Choix 2'];
         const expectedChoicesSelectionCounts = [0, 0];
         const expectedChartBorderColors = ['black', 'black'];
         const setBackgroundColorsSpy = spyOn<any>(component, 'setBackgroundColors');
+        component['histogramInfo'].playersChoices = [];
+        component['histogramInfo'].choicesSelectionCounts = [];
+        component['histogramInfo'].chartBorderColors = [];
         component['getQuestion'](0);
 
         expect(component['histogramInfo'].playersChoices).toEqual(expectedPlayersChoices);
@@ -104,9 +100,11 @@ describe('HistogramComponent', () => {
     });
 
     it('should set background colors and update goodBadChoices accordingly based on the correctness of answer choices', () => {
-        component.question = mockedQuiz.questions[1];
+        component.currentQuestion = mockedQuestions[1];
         const expectedBackgroundColors = ['red', 'green', 'red'];
         const expectedGoodBadChoices = [false, true, false];
+        component['histogramInfo'].chartBackgroundColors = [];
+        component['goodBadChoices'] = [];
 
         component['setBackgroundColors'](0);
         component['setBackgroundColors'](1);
@@ -117,12 +115,13 @@ describe('HistogramComponent', () => {
 
     it('should prepare next question when the transition timer is finished', () => {
         const questionIndex = 0;
+        const isTransitionTimer = true;
         component['currentQuestionIndex'] = questionIndex;
         const resetArraysSpy = spyOn<any>(component, 'resetArrays');
         const getQuestionSpy = spyOn<any>(component, 'getQuestion');
         const updateChartConfigSpy = spyOn<any>(component, 'updateChartConfig');
 
-        socketHelper.peerSideEmit(TimeEvents.TransitionClockFinished);
+        socketHelper.peerSideEmit(TimeEvents.TimerFinished, isTransitionTimer);
         expect(component['currentQuestionIndex']).toEqual(questionIndex + 1);
         expect(resetArraysSpy).toHaveBeenCalled();
         expect(getQuestionSpy).toHaveBeenCalledWith(questionIndex + 1);
@@ -146,7 +145,7 @@ describe('HistogramComponent', () => {
 
     it('should update selections data based on QuestionChoiceUnselect and QuestionChoiceSelect events', () => {
         component['histogramInfo'].choicesSelectionCounts = [0, 0];
-        const updateSpy = spyOn(component.chart as any, 'update');
+        const updateSpy = spyOn(component.chart as Chart, 'update');
 
         socketHelper.peerSideEmit(GameEvents.QuestionChoiceSelect, 0);
         socketHelper.peerSideEmit(GameEvents.QuestionChoiceSelect, 0);
@@ -161,10 +160,10 @@ describe('HistogramComponent', () => {
     it('should create player answers chart', () => {
         // On a besoin de détruire le chart pour lui en assigner un nouveau
         component.ngOnDestroy();
-        component.quiz = mockedQuiz;
+        component.currentQuestion = mockedQuestions[0];
         component['currentQuestionIndex'] = 0;
         component['loadChart']();
-        const chartData = (component.chart as any).data;
+        const chartData = (component.chart as Chart).data;
         const chartDataset = chartData.datasets[0];
 
         expect(chartData.labels).toEqual(component['histogramInfo'].playersChoices);
@@ -183,9 +182,9 @@ describe('HistogramComponent', () => {
         component['histogramInfo'].chartBorderColors = chartBorderColors;
         component['histogramInfo'].chartBackgroundColors = chartBackgroundColors;
 
-        const chartDataset = (component.chart as any).data.datasets[0];
+        const chartDataset = (component.chart as Chart).data.datasets[0];
         component['updateChartConfig']();
-        expect((component.chart as any).data.labels).toEqual(playersChoices);
+        expect((component.chart as Chart).data.labels).toEqual(playersChoices);
         expect(chartDataset.data).toEqual(choicesSelectionCounts);
         expect(chartDataset.backgroundColor).toEqual(chartBackgroundColors);
         expect(chartDataset.borderColor).toEqual(chartBorderColors);

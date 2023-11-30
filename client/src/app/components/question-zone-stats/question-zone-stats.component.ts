@@ -1,11 +1,13 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ButtonStyle } from '@app/interfaces/button-style';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { ChartDataManagerService } from '@app/services/chart-data-manager.service';
-import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { QTypes } from '@common/constants';
 import { GameEvents } from '@common/game.events';
+import { PlayerSubmission } from '@common/player-submission';
 import { TimeEvents } from '@common/time.events';
-import { Subscription, firstValueFrom } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-question-zone-stats',
@@ -18,41 +20,27 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     question: Question;
     isNextQuestionButtonDisable: boolean;
     nextQuestionButtonText: string;
-    nextQuestionButtonStyle: { backgroundColor: string };
+    nextQuestionButtonStyle: ButtonStyle;
+    isQRLBeingEvaluated: boolean;
+    playersQRLAnswers: PlayerSubmission[];
     private currentQuestionIndex: number;
     private lastQuestionIndex: number;
-    private isEndOfQuestionTime: boolean;
     private timeServiceSubscription: Subscription;
-    private playerCount: number;
-    private hasTimerBeenInterrupted: boolean;
     private socketTime: number;
-    private submittedQuestionOnClickCount: number;
-    private goodAnswerOnClickCount: number;
-    private goodAnswerOnFinishedTimerCount: number;
-    private badAnswerOnClickCount: number;
-    private badAnswerOnFinishedTimerCount: number;
-    private totalBadAnswers: number;
-    private totalGoodAnswers: number;
+    private shouldEnableNextQuestionButtonAtEndOfTimer: boolean;
 
     constructor(
         private readonly socketClientService: SocketClientService,
-        private readonly roomCommunicationService: RoomCommunicationService,
         private chartDataManager: ChartDataManagerService,
     ) {
         this.currentQuestionIndex = 0;
         this.isNextQuestionButtonDisable = true;
         this.nextQuestionButtonText = 'Prochaine Question';
         this.nextQuestionButtonStyle = { backgroundColor: '' };
-        this.isEndOfQuestionTime = false;
-        this.hasTimerBeenInterrupted = false;
         this.socketTime = 0;
-        this.submittedQuestionOnClickCount = 0;
-        this.goodAnswerOnFinishedTimerCount = 0;
-        this.goodAnswerOnClickCount = 0;
-        this.badAnswerOnClickCount = 0;
-        this.badAnswerOnFinishedTimerCount = 0;
-        this.totalBadAnswers = 0;
-        this.totalGoodAnswers = 0;
+        this.isQRLBeingEvaluated = false;
+        this.playersQRLAnswers = [];
+        this.shouldEnableNextQuestionButtonAtEndOfTimer = false;
     }
 
     async ngOnInit(): Promise<void> {
@@ -60,7 +48,6 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
             return;
         }
         this.lastQuestionIndex = this.quiz.questions.length - 1;
-        this.playerCount = (await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string))).length;
         this.setEvents();
     }
 
@@ -79,150 +66,84 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         }
     }
 
-    private reactToNextQuestionEvent() {
-        this.socketClientService.on(GameEvents.NextQuestion, () => {
-            this.isEndOfQuestionTime = true;
-            this.isNextQuestionButtonDisable = true;
-            this.nextQuestionButtonStyle = { backgroundColor: '' };
-        });
+    enableNextQuestionButtonOnEvaluationEnd() {
+        const buttonStyle: ButtonStyle = { backgroundColor: 'rgb(18, 18, 217)' };
+        this.isNextQuestionButtonDisable = false;
+        this.nextQuestionButtonStyle = buttonStyle;
     }
 
     private setEvents() {
         this.getQuestion(this.currentQuestionIndex);
-        this.enableNextQuestionButton();
-        this.reactToNextQuestionEvent();
-        this.handleSubmittedQuestion();
-        this.handlePlayerLeaveGame();
+        this.handleTimerEvents();
         this.handleNextQuestion();
-        this.handleAnswers();
-        this.handleUnSubmitQuestion();
+        this.handleSubmittedAnswers();
     }
 
-    private getQuestion(index: number) {
-        if (this.quiz && index < this.quiz.questions.length) {
-            this.question = this.quiz.questions[index];
-            if (this.currentQuestionIndex === this.lastQuestionIndex) {
-                this.nextQuestionButtonText = 'Voir les résultats';
+    private getQuestion(currentIndex: number) {
+        if (currentIndex < this.quiz.questions.length) {
+            this.question = this.quiz.questions[currentIndex];
+            if (currentIndex === this.lastQuestionIndex) {
+                this.nextQuestionButtonText = 'Présenter les résultats';
             }
         }
     }
 
-    private enableNextQuestionButton() {
+    private handleTimerEvents() {
         this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
             this.socketTime = time;
-            this.detectEndOfQuestion(time);
+        });
+
+        this.socketClientService.on(TimeEvents.TimerFinished, (isTransitionTimer: boolean) => {
+            if (this.question.type === QTypes.QCM && !isTransitionTimer) {
+                this.shouldEnableNextQuestionButtonAtEndOfTimer = true;
+                this.handleEndOfQuestion();
+            } else if (isTransitionTimer) {
+                this.showNextQuestion();
+            }
         });
 
         this.socketClientService.on(TimeEvents.TimerInterrupted, () => {
-            this.hasTimerBeenInterrupted = true;
-            this.detectEndOfQuestion(0);
-        });
-
-        this.socketClientService.on(TimeEvents.TransitionClockFinished, () => {
-            this.showNextQuestion();
+            if (this.question.type === QTypes.QCM) {
+                this.shouldEnableNextQuestionButtonAtEndOfTimer = true;
+                this.handleEndOfQuestion();
+            }
         });
     }
 
-    private async detectEndOfQuestion(time: number) {
-        if (time === 0) {
-            if (this.hasTimerBeenInterrupted) {
-                this.socketClientService.send(GameEvents.SaveChartData, this.roomId);
-                this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
-            } else {
-                this.totalGoodAnswers = this.goodAnswerOnClickCount + this.goodAnswerOnFinishedTimerCount;
-                this.totalBadAnswers = this.badAnswerOnClickCount + this.badAnswerOnFinishedTimerCount;
-                const totalPlayersAnswers = this.totalGoodAnswers + this.totalBadAnswers;
-                if (totalPlayersAnswers === this.playerCount) {
-                    if (this.goodAnswerOnClickCount >= 1) {
-                        this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
-                    } else if (this.goodAnswerOnFinishedTimerCount === 1) {
-                        this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
-                    }
-                }
-            }
-
-            this.isEndOfQuestionTime = !this.isEndOfQuestionTime;
-
-            if (this.isEndOfQuestionTime) {
-                this.isNextQuestionButtonDisable = false;
-                this.nextQuestionButtonStyle = { backgroundColor: 'rgb(18, 18, 217)' };
-            }
-            this.hasTimerBeenInterrupted = false;
+    private handleEndOfQuestion() {
+        this.socketClientService.send(GameEvents.SaveChartData, this.roomId);
+        if (this.shouldEnableNextQuestionButtonAtEndOfTimer) {
+            const buttonStyle: ButtonStyle = { backgroundColor: 'rgb(18, 18, 217)' };
+            this.isNextQuestionButtonDisable = false;
+            this.nextQuestionButtonStyle = buttonStyle;
         }
     }
 
     private showNextQuestion() {
-        if (!this.isEndOfQuestionTime && this.quiz) {
-            this.currentQuestionIndex++;
-            this.resetAnswerCount();
-            this.getQuestion(this.currentQuestionIndex);
-        }
-    }
-
-    private resetAnswerCount() {
-        this.submittedQuestionOnClickCount = 0;
-        this.goodAnswerOnFinishedTimerCount = 0;
-        this.goodAnswerOnClickCount = 0;
-        this.badAnswerOnClickCount = 0;
-        this.badAnswerOnFinishedTimerCount = 0;
-        this.totalBadAnswers = 0;
-        this.totalGoodAnswers = 0;
-    }
-
-    private handleSubmittedQuestion() {
-        this.socketClientService.on(GameEvents.SubmitQuestionOnClick, () => {
-            this.submittedQuestionOnClickCount++;
-        });
+        this.isQRLBeingEvaluated = false;
+        ++this.currentQuestionIndex;
+        this.getQuestion(this.currentQuestionIndex);
     }
 
     private handleNextQuestion() {
+        const buttonStyle: ButtonStyle = { backgroundColor: '' };
         this.socketClientService.on(GameEvents.NextQuestion, () => {
-            this.submittedQuestionOnClickCount = 0;
+            this.shouldEnableNextQuestionButtonAtEndOfTimer = false;
+            this.playersQRLAnswers = [];
+            this.isNextQuestionButtonDisable = true;
+            this.nextQuestionButtonStyle = buttonStyle;
         });
     }
 
-    private handlePlayerLeaveGame() {
-        this.socketClientService.on(GameEvents.PlayerAbandonedGame, () => {
-            this.playerCount--;
-        });
-    }
-
-    private handleAnswers() {
-        this.socketClientService.on(GameEvents.GoodAnswerOnClick, () => {
-            this.goodAnswerOnClickCount++;
-            this.detectIfAllPlayersSubmitted();
-        });
-
-        this.socketClientService.on(GameEvents.GoodAnswerOnFinishedTimer, () => {
-            this.goodAnswerOnFinishedTimerCount++;
-            this.detectIfAllPlayersSubmitted();
-        });
-
-        this.socketClientService.on(GameEvents.BadAnswerOnClick, () => {
-            this.badAnswerOnClickCount++;
-            this.detectIfAllPlayersSubmitted();
-        });
-
-        this.socketClientService.on(GameEvents.BadAnswerOnFinishedTimer, () => {
-            this.badAnswerOnFinishedTimerCount++;
-            this.detectIfAllPlayersSubmitted();
-        });
-    }
-
-    private detectIfAllPlayersSubmitted() {
-        const allPlayersSubmitted = this.submittedQuestionOnClickCount === this.playerCount;
-        if (allPlayersSubmitted && this.socketTime !== 0) {
-            this.socketClientService.send(TimeEvents.TimerInterrupted, this.roomId);
-        } else if (this.socketTime === 0) {
-            this.detectEndOfQuestion(this.socketTime);
-        }
-    }
-
-    private handleUnSubmitQuestion() {
-        this.socketClientService.on(GameEvents.UnSubmitAnswer, () => {
-            this.submittedQuestionOnClickCount--;
-            this.goodAnswerOnClickCount--;
-            this.detectIfAllPlayersSubmitted();
+    private handleSubmittedAnswers() {
+        this.socketClientService.on(GameEvents.AllPlayersSubmitted, () => {
+            this.isQRLBeingEvaluated = this.question.type === QTypes.QRL;
+            if (this.socketTime !== 0) {
+                this.socketClientService.send(TimeEvents.TimerInterrupted, this.roomId);
+            }
+            if (this.question.type === QTypes.QCM) {
+                this.socketClientService.send(GameEvents.GiveBonus, this.roomId);
+            }
         });
     }
 }

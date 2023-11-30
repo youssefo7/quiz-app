@@ -15,7 +15,7 @@ import { firstValueFrom } from 'rxjs';
 })
 export class WaitingPageComponent implements OnInit, OnDestroy {
     isHost: boolean;
-    roomId: string | null;
+    roomId: string;
     title: string;
     private players: string[];
 
@@ -30,7 +30,7 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
     ) {
         this.players = [];
         this.isHost = this.route.snapshot.url.some((segment) => segment.path === 'host');
-        this.roomId = this.route.snapshot.paramMap.get('roomId');
+        this.roomId = this.route.snapshot.paramMap.get('roomId') as string;
     }
 
     @HostListener('window:beforeunload', ['$event'])
@@ -61,8 +61,8 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
             return;
         }
         this.listenToSocketEvents();
-        this.players = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string));
-        this.getQuizTitle();
+        this.players = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId));
+        this.getQuizTitle(this.roomId);
     }
 
     quitPopUp() {
@@ -97,8 +97,7 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
         });
     }
 
-    private async getQuizTitle() {
-        const roomId = this.route.snapshot.paramMap.get('roomId') as string;
+    private async getQuizTitle(roomId: string) {
         const quiz = await firstValueFrom(this.roomCommunicationService.getRoomQuiz(roomId));
         if (quiz) {
             this.title = `Vue d'attente: ${quiz.title}`;

@@ -1,4 +1,5 @@
 export interface PlayerPoints {
     pointsToAdd: number;
-    name: string;
+    name?: string;
+    roomId?: string;
 }
