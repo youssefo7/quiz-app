@@ -66,10 +66,10 @@ export class HistogramComponent implements OnInit, OnDestroy {
         this.questionsChartData = [];
     }
 
-    setChartDataToLoad(loadQuestionChartData: QuestionChartData) {
+    setChartDataToLoad(loadQuestionChartData: QuestionChartData, currentQuestionIndex: number) {
         this.resetArrays();
         this.chartDataToLoad = loadQuestionChartData;
-        this.currentQuestionIndex = this.chartDataToLoad.currentQuestionIndex;
+        this.currentQuestionIndex = currentQuestionIndex;
         this.getQuestion(this.currentQuestionIndex);
         this.updateChartConfig();
     }
@@ -92,17 +92,10 @@ export class HistogramComponent implements OnInit, OnDestroy {
                     this.setBackgroundColors(i);
                 }
             } else {
-                if (!this.isResultsPage) {
-                    this.histogramInfo.playersChoices = ["N'a pas modifié", 'A modifié'];
-                    this.histogramInfo.chartBorderColors = ['black', 'black'];
-                    this.histogramInfo.interactionsCount = [0, 0];
-                    this.histogramInfo.chartBackgroundColors = ['red', 'green'];
-                } else {
-                    this.histogramInfo.playersChoices = this.chartDataToLoad.playersChoices;
-                    this.histogramInfo.interactionsCount = this.chartDataToLoad.interactionsCount;
-                    this.histogramInfo.chartBorderColors = ['black', 'black', 'black'];
-                    this.histogramInfo.chartBackgroundColors = ['red', 'yellow', 'green'];
-                }
+                this.histogramInfo.playersChoices = this.isResultsPage ? this.chartDataToLoad.playersChoices : ["N'a pas modifié", 'A modifié'];
+                this.histogramInfo.interactionsCount = this.isResultsPage ? this.chartDataToLoad.interactionsCount : [0, 0];
+                this.histogramInfo.chartBorderColors = this.isResultsPage ? ['black', 'black', 'black'] : ['black', 'black'];
+                this.histogramInfo.chartBackgroundColors = this.isResultsPage ? ['red', 'yellow', 'green'] : ['red', 'green'];
             }
         }
     }
@@ -120,7 +113,7 @@ export class HistogramComponent implements OnInit, OnDestroy {
 
     private reactToChartEvents() {
         this.socketClientService.on(GameEvents.SaveChartData, () => {
-            this.chartDataManager.saveChartData(this.histogramInfo.playersChoices, this.histogramInfo.interactionsCount, this.currentQuestionIndex);
+            this.chartDataManager.saveChartData(this.histogramInfo.playersChoices, this.histogramInfo.interactionsCount);
         });
 
         this.socketClientService.on(GameEvents.UpdateChart, (qrlUpdates: boolean[]) => {

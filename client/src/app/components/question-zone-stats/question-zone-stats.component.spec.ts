@@ -50,11 +50,6 @@ describe('QuestionZoneStatsComponent', () => {
                 /* liste vide de joueur */
             ]),
         );
-        roomCommunicationServiceMock.getRoomPlayers.and.returnValue(
-            of([
-                /* liste vide de chart */
-            ]),
-        );
         roomCommunicationServiceMock.sendQuestionsChartData.and.returnValue(
             of([
                 /* liste vide de chart data */

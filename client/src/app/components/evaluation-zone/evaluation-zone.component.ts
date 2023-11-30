@@ -113,7 +113,6 @@ export class EvaluationZoneComponent implements OnInit {
         const chartData: QuestionChartData = {
             playersChoices: ['0', '50', '100'],
             interactionsCount: [0, 0, 0],
-            currentQuestionIndex: this.questionIndex,
         };
 
         this.playersPoints.forEach((playerPoints) => {
@@ -130,7 +129,7 @@ export class EvaluationZoneComponent implements OnInit {
             }
         });
 
-        this.chartManagerService.saveChartData(chartData.playersChoices, chartData.interactionsCount, chartData.currentQuestionIndex);
+        this.chartManagerService.saveChartData(chartData.playersChoices, chartData.interactionsCount);
     }
 
     private resetButtons() {
