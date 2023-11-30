@@ -7,7 +7,7 @@
 
 #history-title {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
 }
 
 #history-list {
@@ -70,10 +70,12 @@
 }
 
 .arrow-up::after {
+    color:#007bff;
     content: '▲';
 }
 
 .arrow-down::after {
+    color:#007bff;
     content: '▼';
 }
 
@@ -86,6 +88,7 @@
     font-weight: bold;
     text-shadow: rgba(69, 68, 66, 0.387) 1px 0 5px;
     font-size: larger;
+    margin-left: 10px;
 }
 
 .fa:hover,
