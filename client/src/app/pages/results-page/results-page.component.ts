@@ -16,6 +16,7 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
     roomId: string;
     quiz: Quiz;
     title: string;
+    shouldHideResults: boolean;
     private isHost: boolean;
 
     // Tous ces paramètres sont nécessaires pour que la composante fonctionne bien
@@ -30,6 +31,7 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
         this.roomId = this.route.snapshot.paramMap.get('roomId') as string;
         this.title = 'Résultats';
         this.isHost = this.router.url.endsWith('/host');
+        this.shouldHideResults = false;
     }
 
     @HostListener('window:beforeunload', ['$event'])
@@ -39,17 +41,6 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.handleNavigation();
-    }
-
-    handleNavigation() {
-        if (this.isHost) {
-            this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: false });
-            this.socketClientService.disconnect();
-        } else {
-            this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: false });
-            this.socketClientService.disconnect();
-        }
-        this.chartManagerService.resetChartData();
     }
 
     async ngOnInit() {
@@ -66,7 +57,21 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
             this.router.navigateByUrl('home/');
             return;
         }
-
         this.quiz = await firstValueFrom(this.roomCommunicationService.getRoomQuiz(this.roomId));
+    }
+
+    toggleResultsDisplay() {
+        this.shouldHideResults = !this.shouldHideResults;
+    }
+
+    private handleNavigation() {
+        if (this.isHost) {
+            this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: false });
+            this.socketClientService.disconnect();
+        } else {
+            this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: false });
+            this.socketClientService.disconnect();
+        }
+        this.chartManagerService.resetChartData();
     }
 }

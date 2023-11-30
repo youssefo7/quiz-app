@@ -16,17 +16,10 @@ describe('GameService', () => {
         expect(service).toBeTruthy();
     });
 
-    it('should set button presser state to the assigned value', () => {
+    it('should set the submit button presser state to the assigned value', () => {
         const spy = spyOn(service['isSubmitPressed'], 'next');
         const testValue = true;
-        service.setButtonPressState = testValue;
-        expect(spy).toHaveBeenCalledWith(testValue);
-    });
-
-    it('should set game end state to the assigned value', () => {
-        const spy = spyOn(service['hasGameEnded'], 'next');
-        const testValue = false;
-        service.setGameEndState = testValue;
+        service.setSubmitButtonPressState = testValue;
         expect(spy).toHaveBeenCalledWith(testValue);
     });
 });

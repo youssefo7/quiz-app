@@ -1,5 +1,5 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { ChatMessage } from '@common/chat-message';
@@ -15,6 +15,7 @@ import { firstValueFrom } from 'rxjs';
 })
 export class ChatComponent implements OnInit, AfterViewChecked {
     @Input() roomId: string | null;
+    @Input() isTestGame: boolean;
     @ViewChild('scrollMe') private myScrollContainer: ElementRef;
 
     isOrganizer: boolean;
@@ -27,7 +28,6 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     lostChatPermissionMessage: string;
     grantedChatPermissionMessage: string;
     private isResultsRoute: boolean;
-    private isTestGame: boolean;
     private currentInputLength: number;
     private enableScroll: boolean;
 
@@ -35,7 +35,6 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     // eslint-disable-next-line max-params
     constructor(
         public socketService: SocketClientService,
-        private route: ActivatedRoute,
         private router: Router,
         private roomCommunicationService: RoomCommunicationService,
         private changeDetector: ChangeDetectorRef,
@@ -45,7 +44,6 @@ export class ChatComponent implements OnInit, AfterViewChecked {
         this.roomMessages = [];
         this.userMessage = '';
         this.isResultsRoute = this.router.url.includes('results');
-        this.isTestGame = this.route.snapshot.url.some((segment) => segment.path === 'test');
         this.isOrganizer = this.router.url.endsWith('/host');
         this.canChat = true;
         this.lostChatPermissionMessage = "L'oganisateur a limité vos droits de clavardage";
@@ -70,7 +68,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
         this.playerName = this.isOrganizer ? 'Organisateur' : player;
     }
 
-    ngAfterViewChecked(): void {
+    ngAfterViewChecked() {
         if (this.enableScroll) {
             this.scrollToBottom();
             this.changeDetector.detectChanges();

@@ -1,0 +1,78 @@
+#evaluation-zone {
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    #answer {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+
+        #player-name {
+            font-size: large;
+            font-weight: bold;
+            margin: unset;
+        }
+
+        #player-answer {
+            max-height: 175px;
+            height: 175px;
+            overflow-y: auto;
+            width: 90%;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            text-align: left;
+            font-size: medium;
+            border: solid thin;
+            background-color: white;
+            padding: 10px;
+        }
+    }
+
+    #buttons {
+        width: 90%;
+        display: flex;
+        justify-content: center;
+
+        #grade-buttons {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            gap: 2%;
+            margin: unset;
+
+            button {
+                width: 10%;
+                font-weight: bold;
+
+                &:hover {
+                    cursor: pointer;
+                }
+
+                &.chosen {
+                    background-color: rgb(102, 221, 234);
+                    border-color: black;
+                }
+            }
+        }
+
+        #submit-button {
+            &:hover {
+                cursor: pointer;
+            }
+        }
+    }
+}
+
+div {
+    width: 100%;
+    margin: auto;
+    text-align: center;
+    font-size: x-large;
+}

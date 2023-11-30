@@ -1,3 +1,5 @@
+// any est nécessaire pour espionner les méthodes privées
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -100,7 +102,7 @@ describe('HostGamePageComponent', () => {
     });
 
     it('should call handleNavigation on beforeunload', () => {
-        const handleNavigationSpy = spyOn(component, 'handleNavigation');
+        const handleNavigationSpy = spyOn<any>(component, 'handleNavigation');
         component.beforeUnloadHandler();
         expect(handleNavigationSpy).toHaveBeenCalled();
     });

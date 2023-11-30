@@ -18,6 +18,8 @@ export const Constants = {
     MIN_TIME_TO_PANIC_QRL: 20,
     AUDIO: './assets/audio/panic-mode.mp3',
     TIME_LENGTH: 8,
+    SWITCH_COLOR_TIME_GAME: 3,
+    SWITCH_COLOR_TIME_TEST_GAME: 4,
   } as const;
 
   

@@ -10,11 +10,13 @@ export class TimeService {
     private timer: Subject<number>;
     private interval: number | undefined;
     private counter: number;
-    private isButtonPressed: boolean;
+    private isSubmitButtonPressed: boolean;
+    private isTransitionTimerDone: Subject<boolean>;
 
     constructor(private readonly gameService: GameService) {
         this.timer = new Subject<number>();
-        this.isButtonPressed = false;
+        this.isTransitionTimerDone = new Subject<boolean>();
+        this.isSubmitButtonPressed = false;
         this.counter = 0;
         this.subscribeToGameService();
     }
@@ -26,11 +28,15 @@ export class TimeService {
         this.counter = newTime;
     }
 
+    isTimerFinished(): Observable<boolean> {
+        return this.isTransitionTimerDone.asObservable();
+    }
+
     getTime(): Observable<number> {
         return this.timer.asObservable();
     }
 
-    async startTimer(startValue: number): Promise<void | Observable<number | undefined>> {
+    async startTimer(startValue: number, isTransitionTimer: boolean): Promise<void | Observable<number | undefined>> {
         if (this.interval) {
             return new Observable<number | undefined>();
         }
@@ -40,10 +46,11 @@ export class TimeService {
         return new Promise<void>((resolve) => {
             this.interval = window.setInterval(() => {
                 this.timer.next(this.time);
-                if (this.time > 0 && !this.isButtonPressed) {
+                if (this.time > 0 && !this.isSubmitButtonPressed) {
                     this.time--;
                 } else {
                     this.stopTimer();
+                    this.isTransitionTimerDone.next(isTransitionTimer);
                     resolve();
                 }
             }, Constants.ONE_SECOND_INTERVAL);
@@ -54,12 +61,12 @@ export class TimeService {
         clearInterval(this.interval);
         this.interval = undefined;
         this.time = 0;
-        this.isButtonPressed = false;
+        this.isSubmitButtonPressed = false;
     }
 
     private subscribeToGameService() {
-        this.gameService.isButtonPressed.subscribe((isPressed: boolean) => {
-            this.isButtonPressed = isPressed;
+        this.gameService.isSubmitButtonPressed.subscribe((isPressed: boolean) => {
+            this.isSubmitButtonPressed = isPressed;
         });
     }
 }

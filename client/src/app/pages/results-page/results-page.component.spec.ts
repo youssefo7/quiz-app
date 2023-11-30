@@ -1,3 +1,5 @@
+// any nécessaire pour espionner les méthodes privées
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
@@ -72,14 +74,14 @@ describe('ResultsPageComponent', () => {
     });
 
     it('should call handleNavigation() on beforeUnloadHandler', () => {
-        const handleNavigationSpy = spyOn(component, 'handleNavigation');
+        const handleNavigationSpy = spyOn<any>(component, 'handleNavigation');
         component.beforeUnloadHandler();
         expect(handleNavigationSpy).toHaveBeenCalled();
     });
 
     it('should send EndGame event, reset charts and disconnect on handleNavigation() if user is host', () => {
         component['isHost'] = true;
-        component.handleNavigation();
+        component['handleNavigation']();
         expect(clientSocketServiceMock.send).toHaveBeenCalledWith(GameEvents.EndGame, { roomId: roomIdMock, gameAborted: false });
         expect(clientSocketServiceMock.disconnect).toHaveBeenCalled();
         expect(chartManagerServiceMock.resetChartData).toHaveBeenCalled();
@@ -87,7 +89,7 @@ describe('ResultsPageComponent', () => {
 
     it('should send PlayerLeaveGame event, reset charts and disconnect on handleNavigation() if user is not host', () => {
         component['isHost'] = false;
-        component.handleNavigation();
+        component['handleNavigation']();
         expect(clientSocketServiceMock.send).toHaveBeenCalledWith(GameEvents.PlayerLeaveGame, { roomId: roomIdMock, isInGame: false });
         expect(clientSocketServiceMock.disconnect).toHaveBeenCalled();
         expect(chartManagerServiceMock.resetChartData).toHaveBeenCalled();
