@@ -1,6 +1,6 @@
 export interface HistogramInfo {
     playersChoices: string[];
-    choicesSelectionCounts: number[];
+    interactionsCount: number[];
     chartBorderColors: string[];
     chartBackgroundColors: string[];
 }

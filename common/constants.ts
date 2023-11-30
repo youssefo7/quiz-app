@@ -20,10 +20,16 @@ export const Constants = {
     TIME_LENGTH: 8,
     SWITCH_COLOR_TIME_GAME: 3,
     SWITCH_COLOR_TIME_TEST_GAME: 4,
-  } as const;
+    TEXT_CHANGE_PERIOD: 5,
+} as const;
 
-  
 export const enum QTypes {
     QRL = 'QRL',
     QCM = 'QCM',
+}
+
+export const enum GradeValues {
+    WrongAnswer = 0,
+    PartiallyGoodAnswer = 0.5,
+    GoodAnswer = 1,
 }

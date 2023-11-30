@@ -18,6 +18,7 @@ export interface Room {
     questionsChartData: QuestionChartData[];
     submissionCount: number;
     qrlAnswers: PlayerSubmission[];
+    qrlUpdates: boolean[];
 }
 
 export interface User {

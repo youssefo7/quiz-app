@@ -21,9 +21,9 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     isNextQuestionButtonDisable: boolean;
     nextQuestionButtonText: string;
     nextQuestionButtonStyle: ButtonStyle;
-    isQRLBeingEvaluated: boolean;
     playersQRLAnswers: PlayerSubmission[];
-    private currentQuestionIndex: number;
+    isQRLBeingEvaluated: boolean;
+    currentQuestionIndex: number;
     private lastQuestionIndex: number;
     private timeServiceSubscription: Subscription;
     private socketTime: number;
@@ -57,11 +57,11 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         }
     }
 
-    goToNextQuestion() {
+    async goToNextQuestion() {
         if (this.currentQuestionIndex !== this.lastQuestionIndex) {
             this.socketClientService.send(GameEvents.NextQuestion, this.roomId);
         } else {
-            this.chartDataManager.sendChartData(this.roomId);
+            await this.chartDataManager.sendChartData(this.roomId);
             this.socketClientService.send(GameEvents.SendResults, this.roomId);
         }
     }

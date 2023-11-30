@@ -39,6 +39,8 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     private gameServiceSubscription: Subscription;
     private hasSentAnswer: boolean;
     private hasReceivedBonus: boolean;
+    private hasModifiedText: boolean;
+    private hasInteractedOnce: boolean;
 
     // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
@@ -60,6 +62,8 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.characterCounterDisplay = `${this.userAnswer.length} / ${Constants.MAX_TEXTAREA_LENGTH}`;
         this.isTextareaDisabled = false;
         this.hasReceivedBonus = false;
+        this.hasModifiedText = false;
+        this.hasInteractedOnce = false;
     }
 
     @HostListener('keypress', ['$event'])
@@ -130,6 +134,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
                     questionChoiceIndex: index,
                     isSelect: isIndexSelected,
                 });
+                this.handleFieldInteraction(this.hasInteractedOnce);
             }
         }
     }
@@ -153,6 +158,15 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.characterCounterDisplay = `${this.userAnswer.length} / ${Constants.MAX_TEXTAREA_LENGTH}`;
         const hasTyped = this.userAnswer.trim().length > 0;
         this.setSubmitButtonToDisabled(!hasTyped);
+        this.hasModifiedText = true;
+        this.handleFieldInteraction(this.hasInteractedOnce);
+    }
+
+    private handleFieldInteraction(hasInteractedOnce: boolean) {
+        if (!hasInteractedOnce) {
+            this.socketClientService.send(GameEvents.FieldInteraction, this.roomId);
+            this.hasInteractedOnce = !this.hasInteractedOnce;
+        }
     }
 
     private subscribeToTimer() {
@@ -175,9 +189,19 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             this.socketClientService.on(TimeEvents.TimerFinished, (isTransitionTimer: boolean) => {
                 if (isTransitionTimer) {
                     this.hasReceivedBonus = false;
+                    this.hasInteractedOnce = false;
+                    this.pointsManager = this.gameService.resetPointsManager(this.pointsManager);
                     ++this.currentQuestionIndex;
                     this.getQuestion(this.currentQuestionIndex);
                     this.hasSentAnswer = false;
+                }
+            });
+
+            this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
+                const isTimeToCheckUpdate = time !== Constants.MAX_DURATION && time % Constants.TEXT_CHANGE_PERIOD === 0;
+                if (this.question.type === QTypes.QRL && isTimeToCheckUpdate) {
+                    this.socketClientService.send(GameEvents.QRLAnswerUpdate, { roomId: this.roomId, hasModifiedText: this.hasModifiedText });
+                    this.hasModifiedText = false;
                 }
             });
         }
@@ -287,8 +311,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
                 if (this.question.type === QTypes.QCM) {
                     this.givePointsRealGame();
                 }
-            } else {
-                this.pointsManager = this.gameService.resetPointsManager(this.pointsManager);
             }
         }
     }

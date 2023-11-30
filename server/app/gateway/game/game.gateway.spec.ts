@@ -63,6 +63,7 @@ describe('GameGateway', () => {
                 questionsChartData: [],
                 submissionCount: 0,
                 qrlAnswers: [],
+                qrlUpdates: [],
             },
         ];
 

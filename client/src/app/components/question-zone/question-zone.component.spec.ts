@@ -328,7 +328,6 @@ describe('QuestionZoneComponent', () => {
         const event = new KeyboardEvent('keyup', { key: 'Enter' });
         const sendSpy = spyOn(clientSocketServiceMock, 'send');
         const submission: PlayerSubmission = { roomId: component['roomId'], hasSubmittedBeforeEnd: true, questionType: QTypes.QCM };
-        // const goodAnswer: PlayerSubmission = { roomId: component['roomId'], hasSubmitted: true, questionType: QTypes.QCM };
 
         component['isTestGame'] = false;
         component.handleKeyboardInput(event);

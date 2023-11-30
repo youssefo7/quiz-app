@@ -1,15 +1,12 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { GradeButtonState } from '@app/interfaces/qrl-grades';
+import { ChartDataManagerService } from '@app/services/chart-data-manager.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { GradeValues } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { PlayerPoints } from '@common/player-points';
 import { PlayerSubmission } from '@common/player-submission';
-
-enum GradeValues {
-    WrongAnswer = 0,
-    PartiallyGoodAnswer = 0.5,
-    GoodAnswer = 1,
-}
+import { QuestionChartData } from '@common/question-chart-data';
 
 @Component({
     selector: 'app-evaluation-zone',
@@ -18,6 +15,7 @@ enum GradeValues {
 })
 export class EvaluationZoneComponent implements OnInit {
     @Input() questionPoints: number;
+    @Input() questionIndex: number;
     @Input() roomId: string;
     @Output() enableNextQuestionButton: EventEmitter<null>;
     currentAnswerIndex: number;
@@ -28,7 +26,10 @@ export class EvaluationZoneComponent implements OnInit {
     private grade: number;
     private playersPoints: PlayerPoints[];
 
-    constructor(private socketClientService: SocketClientService) {
+    constructor(
+        private socketClientService: SocketClientService,
+        private chartManagerService: ChartDataManagerService,
+    ) {
         this.enableNextQuestionButton = new EventEmitter<null>();
         this.currentAnswerIndex = 0;
         this.isEvaluationFinished = false;
@@ -69,12 +70,14 @@ export class EvaluationZoneComponent implements OnInit {
             name: this.answers[this.currentAnswerIndex].name,
             pointsToAdd: this.grade * this.questionPoints,
             roomId: this.roomId,
+            grade: this.grade,
         });
 
         if (this.currentAnswerIndex === this.answers.length - 1) {
             this.playersPoints.forEach((playerPoints) => {
                 this.socketClientService.send(GameEvents.AddPointsToPlayer, playerPoints);
             });
+            this.savePointsStatistics();
             this.resetEvaluationZone();
             this.enableNextQuestionButton.emit();
         } else {
@@ -104,6 +107,30 @@ export class EvaluationZoneComponent implements OnInit {
         this.gradeButtonState.isZeroPointsGiven = isZeroPointsGiven;
         this.gradeButtonState.isHalfPointsGiven = isHalfPointsGiven;
         this.gradeButtonState.isTotalPointsGiven = isTotalPointsGiven;
+    }
+
+    private savePointsStatistics() {
+        const chartData: QuestionChartData = {
+            playersChoices: ['0', '50', '100'],
+            interactionsCount: [0, 0, 0],
+            currentQuestionIndex: this.questionIndex,
+        };
+
+        this.playersPoints.forEach((playerPoints) => {
+            switch (playerPoints.grade) {
+                case GradeValues.WrongAnswer:
+                    chartData.interactionsCount[0]++;
+                    break;
+                case GradeValues.PartiallyGoodAnswer:
+                    chartData.interactionsCount[1]++;
+                    break;
+                case GradeValues.GoodAnswer:
+                    chartData.interactionsCount[2]++;
+                    break;
+            }
+        });
+
+        this.chartManagerService.saveChartData(chartData.playersChoices, chartData.interactionsCount, chartData.currentQuestionIndex);
     }
 
     private resetButtons() {

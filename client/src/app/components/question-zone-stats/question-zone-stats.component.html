@@ -13,6 +13,7 @@
         <app-evaluation-zone
             [ngClass]="{ hide: !isQRLBeingEvaluated }"
             [questionPoints]="question.points"
+            [questionIndex]="currentQuestionIndex"
             [roomId]="roomId"
             (enableNextQuestionButton)="enableNextQuestionButtonOnEvaluationEnd()"
         ></app-evaluation-zone>

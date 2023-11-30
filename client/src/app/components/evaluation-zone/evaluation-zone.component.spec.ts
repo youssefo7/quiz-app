@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { ChartDataManagerService } from '@app/services/chart-data-manager.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { PlayerSubmission } from '@common/player-submission';
 import { EvaluationZoneComponent } from './evaluation-zone.component';
@@ -24,6 +25,7 @@ describe('EvaluationZoneComponent', () => {
     let component: EvaluationZoneComponent;
     let fixture: ComponentFixture<EvaluationZoneComponent>;
     let clientSocketServiceMock: MockSocketClientService;
+    let chartDataManagerServiceMock: jasmine.SpyObj<ChartDataManagerService>;
     const mockedAnswers: PlayerSubmission[] = [
         { name: 'test1', answer: 'test1', hasSubmittedBeforeEnd: true },
         { name: 'test2', answer: 'test2', hasSubmittedBeforeEnd: true },
@@ -32,12 +34,16 @@ describe('EvaluationZoneComponent', () => {
 
     beforeEach(() => {
         clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on']);
+        chartDataManagerServiceMock = jasmine.createSpyObj('ChartDataManagerService', ['saveChartData']);
     });
 
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [EvaluationZoneComponent],
-            providers: [{ provide: SocketClientService, useValue: clientSocketServiceMock }],
+            providers: [
+                { provide: SocketClientService, useValue: clientSocketServiceMock },
+                { provide: ChartDataManagerService, useValue: chartDataManagerServiceMock },
+            ],
         });
         fixture = TestBed.createComponent(EvaluationZoneComponent);
         component = fixture.componentInstance;
