@@ -20,4 +20,6 @@ export enum GameEvents {
     SaveChartData = 'saveChartData',
     FieldInteraction = 'FieldInteraction',
     AllPlayersSubmitted = 'allPlayersSubmitted',
+    QRLAnswerUpdate = 'qrlAnswerUpdate',
+    UpdateChart = 'updateChart',
 }

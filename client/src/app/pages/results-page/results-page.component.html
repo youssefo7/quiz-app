@@ -4,11 +4,16 @@
         <div id="exit-button-grid">
             <mat-icon title="Quitter la Partie" inline="true" routerLink="/home">exit_to_app</mat-icon>
         </div>
-        <h1 id="title">Score des joueurs</h1>
-        <button id="toggle-button" (click)="toggleResultsDisplay()">
-            <mat-icon *ngIf="!shouldHideResults"> bar_chart</mat-icon>
-            <mat-icon *ngIf="shouldHideResults"> list_alt</mat-icon>
-        </button>
+        <div id="header">
+            <h1 id="title">
+                <span *ngIf="!shouldHideResults">Score des joueurs</span>
+                <span *ngIf="shouldHideResults">Statistiques de la partie</span>
+            </h1>
+            <button id="toggle-button" (click)="toggleResultsDisplay()">
+                <mat-icon *ngIf="!shouldHideResults"> bar_chart</mat-icon>
+                <mat-icon *ngIf="shouldHideResults"> list_alt</mat-icon>
+            </button>
+        </div>
         <app-result-chart
             [ngClass]="{ hide: !shouldHideResults }"
             class="player-list-and-chart-grid"

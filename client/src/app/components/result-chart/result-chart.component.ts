@@ -15,9 +15,9 @@ export class ResultChartComponent implements OnInit, OnDestroy {
     @Input() roomId: string;
     canGoToNextQuestion: boolean;
     canGoToPreviousQuestion: boolean;
+    currentQuestionIndex: number;
     private chartData: QuestionChartData[];
     private chartDataToLoad: QuestionChartData;
-    private currentQuestionIndex: number;
     private lastQuestionIndex: number;
 
     constructor(private chartDataManager: ChartDataManagerService) {

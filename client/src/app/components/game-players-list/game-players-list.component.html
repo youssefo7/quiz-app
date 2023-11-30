@@ -16,7 +16,7 @@
             </th>
             <th *ngIf="isResultsRoute">Score final</th>
             <th *ngIf="isResultsRoute">Bonus</th>
-            <th *ngIf="isHost">Droit de clavarder</th>
+            <th *ngIf="isHost && !isResultsRoute">Droit de clavarder</th>
         </tr>
         <tr *ngFor="let player of playerResults" class="player-entry">
             <td
@@ -33,7 +33,7 @@
             <td *ngIf="isResultsRoute" class="player-name-result-page">{{ player.name }}</td>
             <td class="player-score">{{ player.points }} points</td>
             <td *ngIf="isResultsRoute" class="player-bonus">{{ player.bonusCount }} fois</td>
-            <td *ngIf="isHost" class="chat-button">
+            <td *ngIf="isHost && !isResultsRoute" class="chat-button">
                 <mat-slide-toggle [checked]="true" [disabled]="player.hasAbandoned" (change)="toggleChattingRights(player.name)"></mat-slide-toggle>
             </td>
         </tr>

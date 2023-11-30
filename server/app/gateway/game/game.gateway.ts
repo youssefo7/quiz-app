@@ -89,15 +89,14 @@ export class GameGateway {
     }
 
     @SubscribeMessage(GameEvents.ToggleSelect)
-    handleToggleChoice(socket: Socket, data: { roomId: string; questionChoiceIndex: number; isSelect: boolean }) {
+    handleToggleChoice(_: Socket, data: { roomId: string; questionChoiceIndex: number; isSelect: boolean }) {
         const room = this.roomManager.findRoom(data.roomId);
-        const organizer = this.roomManager.findRoom(data.roomId).organizer.socketId;
-        const player = this.roomManager.findPlayer(socket.id, room);
-        this.server.to(organizer).emit(data.isSelect ? GameEvents.QuestionChoiceSelect : GameEvents.QuestionChoiceUnselect, data.questionChoiceIndex);
-
-        // TODO: à changer pour envoyer le nom dans un seul emit
-        // (Perso je pense qu'on peut enlever le commentaire et laissé ça comme ça (Bryan))
-        this.server.to(organizer).emit(GameEvents.FieldInteraction, player.name);
+        if (room) {
+            const organizer = room.organizer.socketId;
+            this.server
+                .to(organizer)
+                .emit(data.isSelect ? GameEvents.QuestionChoiceSelect : GameEvents.QuestionChoiceUnselect, data.questionChoiceIndex);
+        }
     }
 
     @SubscribeMessage(GameEvents.QuestionChoicesUnselect)
@@ -188,5 +187,33 @@ export class GameGateway {
     handleSaveChartData(_: Socket, roomId: string) {
         const room = this.roomManager.findRoom(roomId);
         this.server.to(room.organizer.socketId).emit(GameEvents.SaveChartData);
+    }
+
+    @SubscribeMessage(GameEvents.FieldInteraction)
+    handleFieldInteraction(socket: Socket, roomId: string) {
+        const room = this.roomManager.findRoom(roomId);
+        if (room) {
+            const organizer = room.organizer.socketId;
+            const player = this.roomManager.findPlayer(socket.id, room);
+            if (player) {
+                this.server.to(organizer).emit(GameEvents.FieldInteraction, player.name);
+            }
+        }
+    }
+
+    @SubscribeMessage(GameEvents.QRLAnswerUpdate)
+    handleQRLAnswerUpdate(_: Socket, data: { roomId: string; hasModifiedText: boolean }) {
+        const room = this.roomManager.findRoom(data.roomId);
+        if (room) {
+            room.qrlUpdates.push(data.hasModifiedText);
+
+            if (room.players.length === room.qrlUpdates.length) {
+                const organizer = room.organizer.socketId;
+                if (organizer) {
+                    this.server.to(organizer).emit(GameEvents.UpdateChart, room.qrlUpdates);
+                    room.qrlUpdates = [];
+                }
+            }
+        }
     }
 }

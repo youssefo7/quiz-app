@@ -30,6 +30,7 @@ export class RoomManagerService {
             questionsChartData: [],
             submissionCount: 0,
             qrlAnswers: [],
+            qrlUpdates: [],
         });
 
         return roomId;

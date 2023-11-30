@@ -85,16 +85,16 @@ describe('HistogramComponent', () => {
 
     it('should update chart information when getting a question', () => {
         const expectedPlayersChoices = ['Choix 1', 'Choix 2'];
-        const expectedChoicesSelectionCounts = [0, 0];
+        const expectedInteractionsCount = [0, 0];
         const expectedChartBorderColors = ['black', 'black'];
         const setBackgroundColorsSpy = spyOn<any>(component, 'setBackgroundColors');
         component['histogramInfo'].playersChoices = [];
-        component['histogramInfo'].choicesSelectionCounts = [];
+        component['histogramInfo'].interactionsCount = [];
         component['histogramInfo'].chartBorderColors = [];
         component['getQuestion'](0);
 
         expect(component['histogramInfo'].playersChoices).toEqual(expectedPlayersChoices);
-        expect(component['histogramInfo'].choicesSelectionCounts).toEqual(expectedChoicesSelectionCounts);
+        expect(component['histogramInfo'].interactionsCount).toEqual(expectedInteractionsCount);
         expect(component['histogramInfo'].chartBorderColors).toEqual(expectedChartBorderColors);
         expect(setBackgroundColorsSpy).toHaveBeenCalledTimes(2);
     });
@@ -130,30 +130,30 @@ describe('HistogramComponent', () => {
 
     it('should reset all arrays implicated in the question process', () => {
         component['histogramInfo'].playersChoices = ['Choix 1', 'Choix 2'];
-        component['histogramInfo'].choicesSelectionCounts = [2, 2];
+        component['histogramInfo'].interactionsCount = [2, 2];
         component['histogramInfo'].chartBorderColors = ['black', 'black'];
         component['histogramInfo'].chartBackgroundColors = ['red', 'green'];
         component['goodBadChoices'] = [false, true];
 
         component['resetArrays']();
         expect(component['histogramInfo'].playersChoices).toEqual([]);
-        expect(component['histogramInfo'].choicesSelectionCounts).toEqual([]);
+        expect(component['histogramInfo'].interactionsCount).toEqual([]);
         expect(component['histogramInfo'].chartBorderColors).toEqual([]);
         expect(component['histogramInfo'].chartBackgroundColors).toEqual([]);
         expect(component['goodBadChoices']).toEqual([]);
     });
 
     it('should update selections data based on QuestionChoiceUnselect and QuestionChoiceSelect events', () => {
-        component['histogramInfo'].choicesSelectionCounts = [0, 0];
+        component['histogramInfo'].interactionsCount = [0, 0];
         const updateSpy = spyOn(component.chart as Chart, 'update');
 
         socketHelper.peerSideEmit(GameEvents.QuestionChoiceSelect, 0);
         socketHelper.peerSideEmit(GameEvents.QuestionChoiceSelect, 0);
-        expect(component['histogramInfo'].choicesSelectionCounts[0]).toEqual(2);
+        expect(component['histogramInfo'].interactionsCount[0]).toEqual(2);
         expect(updateSpy).toHaveBeenCalled();
 
         socketHelper.peerSideEmit(GameEvents.QuestionChoiceUnselect, 0);
-        expect(component['histogramInfo'].choicesSelectionCounts[0]).toEqual(1);
+        expect(component['histogramInfo'].interactionsCount[0]).toEqual(1);
         expect(updateSpy).toHaveBeenCalled();
     });
 
@@ -167,25 +167,25 @@ describe('HistogramComponent', () => {
         const chartDataset = chartData.datasets[0];
 
         expect(chartData.labels).toEqual(component['histogramInfo'].playersChoices);
-        expect(chartDataset.data).toEqual(component['histogramInfo'].choicesSelectionCounts);
+        expect(chartDataset.data).toEqual(component['histogramInfo'].interactionsCount);
         expect(chartDataset.backgroundColor).toEqual(component['histogramInfo'].chartBackgroundColors);
         expect(chartDataset.borderColor).toEqual(component['histogramInfo'].chartBorderColors);
     });
 
     it('should update the chart configuration', () => {
         const playersChoices = ['Choix 1', 'Choix 2'];
-        const choicesSelectionCounts = [2, 2];
+        const interactionsCount = [2, 2];
         const chartBorderColors = ['black', 'black'];
         const chartBackgroundColors = ['red', 'green'];
         component['histogramInfo'].playersChoices = playersChoices;
-        component['histogramInfo'].choicesSelectionCounts = choicesSelectionCounts;
+        component['histogramInfo'].interactionsCount = interactionsCount;
         component['histogramInfo'].chartBorderColors = chartBorderColors;
         component['histogramInfo'].chartBackgroundColors = chartBackgroundColors;
 
         const chartDataset = (component.chart as Chart).data.datasets[0];
         component['updateChartConfig']();
         expect((component.chart as Chart).data.labels).toEqual(playersChoices);
-        expect(chartDataset.data).toEqual(choicesSelectionCounts);
+        expect(chartDataset.data).toEqual(interactionsCount);
         expect(chartDataset.backgroundColor).toEqual(chartBackgroundColors);
         expect(chartDataset.borderColor).toEqual(chartBorderColors);
     });
