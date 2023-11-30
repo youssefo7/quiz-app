@@ -459,4 +459,16 @@ describe('QuizQuestionInfoComponent', () => {
             missingChoices: true,
         });
     });
+
+    it('should return the button text as being "Modifier" when a question is being modified', () => {
+        component['isBeingModified'] = true;
+        const result = component.saveEditQuestionButtonText();
+        expect(result).toEqual('Modifier');
+    });
+
+    it('should return the button text as being "Ajouter" when a new question is being created', () => {
+        component['isBeingModified'] = false;
+        const result = component.saveEditQuestionButtonText();
+        expect(result).toEqual('Ajouter');
+    });
 });
