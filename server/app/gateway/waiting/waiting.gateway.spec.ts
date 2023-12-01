@@ -60,6 +60,7 @@ describe('WaitingGateway', () => {
         });
 
         gateway['server'] = server;
+        stub(socket, 'rooms').value(new Set([roomId]));
     });
 
     it('should be defined', () => {
@@ -69,14 +70,13 @@ describe('WaitingGateway', () => {
     it('handleLockRoom() should allow the organizer of a game to lock the room', () => {
         const room = roomManagerServiceMock.rooms[0];
 
-        stub(socket, 'rooms').value(new Set([roomId]));
         gateway.handleLockRoom(socket, roomId);
         expect(room.isLocked).toBe(true);
     });
 
     it('handleUnlockRoom() should allow the organizer of a game to unlock the room', () => {
         const room = roomManagerServiceMock.rooms[0];
-        stub(socket, 'rooms').value(new Set([roomId]));
+
         room.isLocked = true;
 
         gateway.handleUnlockRoom(socket, roomId);
@@ -87,7 +87,6 @@ describe('WaitingGateway', () => {
         const expectedPlayerNames = [];
         roomManagerServiceMock.rooms[0].players = [] as unknown as Player[];
 
-        stub(socket, 'rooms').value(new Set([roomId]));
         const result = gateway.handleGetPlayerNames(socket, roomId);
         expect(result).toEqual(expectedPlayerNames);
     });
@@ -95,7 +94,6 @@ describe('WaitingGateway', () => {
     it('handleGetPlayerNames() should return all player names in a given room', () => {
         const expectedPlayerNames = ['name1', 'name2'];
 
-        stub(socket, 'rooms').value(new Set([roomId]));
         const result = gateway.handleGetPlayerNames(socket, roomId);
         expect(result).toEqual(expectedPlayerNames);
     });
@@ -103,7 +101,6 @@ describe('WaitingGateway', () => {
     it('handleBanName() should ban a name in a given room and remove the player with that name', async () => {
         const room = roomManagerServiceMock.rooms[0];
         const playerNameToBan = 'bannedName';
-        stub(socket, 'rooms').value(new Set([roomId]));
 
         roomManagerServiceMock.rooms[0].players.push({
             socketId: socket.id,
@@ -142,5 +139,33 @@ describe('WaitingGateway', () => {
         expect(socket.leave.called).toBeFalsy();
         expect(socket.disconnect.called).toBeFalsy();
         expect(roomManagerServiceMock.rooms[0].bannedNames).not.toContain(playerNameToBan);
+    });
+
+    it('handleBanName() should emit ban notification, kick the player, and disconnect the socket if the player exists', async () => {
+        const room = roomManagerServiceMock.rooms[0];
+        const playerNameToBan = 'name1';
+        const playerToBan = room.players[0];
+        jest.spyOn(roomManagerServiceMock, 'addBannedNameToRoom').mockImplementation(() => {
+            // empty
+        });
+        jest.spyOn(roomManagerServiceMock, 'removePlayer').mockImplementation(() => {
+            // empty
+        });
+
+        gateway['server'].sockets.sockets.set(playerToBan.socketId, socket);
+
+        const socketEmitMock = jest.spyOn(socket, 'emit');
+        const socketLeaveMock = jest.spyOn(socket, 'leave');
+        const socketDisconnectMock = jest.spyOn(socket, 'disconnect');
+        const serverEmitMock = jest.spyOn(gateway['server'], 'emit');
+
+        gateway.handleBanName(socket, { roomId, name: playerNameToBan });
+
+        expect(socketEmitMock).toHaveBeenCalledWith(WaitingEvents.BanNotification);
+        expect(serverEmitMock).toHaveBeenCalledWith(WaitingEvents.BanName, playerNameToBan);
+        expect(roomManagerServiceMock.addBannedNameToRoom).toHaveBeenCalledWith(room, playerNameToBan);
+        expect(roomManagerServiceMock.removePlayer).toHaveBeenCalledWith(room, playerToBan.socketId);
+        expect(socketLeaveMock).toHaveBeenCalledWith(roomId);
+        expect(socketDisconnectMock).toHaveBeenCalled();
     });
 });

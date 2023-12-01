@@ -75,4 +75,10 @@ describe('JoinGateway', () => {
         } as BroadcastOperator<unknown, unknown>);
         gateway.handleSuccessfulJoin(socket, data);
     });
+
+    it('handleOrganizerJoinRoom() should let the organizer join the room', () => {
+        const roomId = 'testId';
+        gateway.handleOrganizerJoinRoom(socket, roomId);
+        expect(socket.join.calledWith(roomId)).toBeTruthy();
+    });
 });
