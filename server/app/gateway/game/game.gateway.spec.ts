@@ -4,6 +4,7 @@
 /* eslint-disable max-lines */
 import { Quiz } from '@app/model/database/quiz';
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
+import { Constants, QTypes } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { PlayerPoints } from '@common/player-points';
 import { PlayerSubmission } from '@common/player-submission';
@@ -67,6 +68,7 @@ describe('GameGateway', () => {
         ];
 
         gateway['server'] = server;
+        stub(socket, 'rooms').value(new Set([roomId]));
     });
 
     it('should be defined', () => {
@@ -74,7 +76,6 @@ describe('GameGateway', () => {
     });
 
     it('handleStartGame() should emit a message to the room when the game is about to begin', () => {
-        stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual(GameEvents.StartGame);
@@ -92,7 +93,7 @@ describe('GameGateway', () => {
         roomManagerServiceMock.rooms[0].answerTimes = [];
         const removePlayerSpy = jest.spyOn(roomManagerServiceMock, 'removePlayer');
         const deleteRoomSpy = jest.spyOn(roomManagerServiceMock, 'deleteRoom');
-        stub(socket, 'rooms').value(new Set([roomId]));
+
         server.to.returns({
             emit: (event: string, playerName: string) => {
                 if (event === GameEvents.PlayerAbandonedGame) {
@@ -113,9 +114,31 @@ describe('GameGateway', () => {
         expect(socket.disconnect.calledOnce).toBeTruthy();
     });
 
+    it('handlePlayerLeaveGame() should decrement submissionCount when a player who has submitted leaves the game', () => {
+        roomManagerServiceMock.rooms[0].players = [
+            { socketId: socket.id, name: 'testName', points: 0, bonusCount: 0, canChat: true, hasSubmitted: true },
+        ];
+        roomManagerServiceMock.rooms[0].submissionCount = 1;
+
+        server.to.returns({
+            emit: (event: string, playerName: string) => {
+                if (event === GameEvents.PlayerAbandonedGame) {
+                    expect(event).toEqual(GameEvents.PlayerAbandonedGame);
+                    expect(playerName).toEqual('testName');
+                }
+                if (event === GameEvents.AllPlayersSubmitted) {
+                    expect(event).toEqual(GameEvents.AllPlayersSubmitted);
+                }
+            },
+        } as BroadcastOperator<unknown, unknown>);
+
+        gateway.handlePlayerLeaveGame(socket, { roomId, isInGame: true });
+        expect(roomManagerServiceMock.rooms[0].submissionCount).toBe(0);
+    });
+
     it('handleGoodAnswer() should add the timestamp to answerTimes and emit GoodAnswer if timer is not finished', () => {
         const submission: PlayerSubmission = { roomId, hasSubmittedBeforeEnd: true };
-        stub(socket, 'rooms').value(new Set([roomId]));
+
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual(GameEvents.GoodAnswer);
@@ -129,7 +152,7 @@ describe('GameGateway', () => {
 
     it('handleGoodAnswer() should add null to answerTimes and emit GoodAnswer when timer is finished', () => {
         const submission: PlayerSubmission = { roomId, hasSubmittedBeforeEnd: false };
-        stub(socket, 'rooms').value(new Set([roomId]));
+
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual(GameEvents.GoodAnswer);
@@ -143,16 +166,16 @@ describe('GameGateway', () => {
 
     it('handleRemoveAnswerTime() should remove the timestamp from the list of answerTimes', () => {
         const userIdToRemove = 'playerId1';
-        stub(socket, 'rooms').value(new Set([roomId]));
+
         gateway.handleRemoveAnswerTime(socket, { roomId, userIdToRemove });
         expect(roomManagerServiceMock.rooms[0].answerTimes.length).toBe(2);
         expect(roomManagerServiceMock.rooms[0].answerTimes[0].userId).toBe('playerId2');
         expect(roomManagerServiceMock.rooms[0].answerTimes[1].userId).toBe(socket.id);
     });
 
-    /* it('handleChoiceToggle() should emit to the organizer the total answer choice count when selecting', () => {
+    it('handleChoiceToggle() should emit to the organizer that a choice was selected', () => {
         const questionChoiceIndex = 1;
-        stub(socket, 'rooms').value(new Set([roomId]));
+
         server.to.returns({
             emit: (event: string, index: number) => {
                 expect(event).toEqual(GameEvents.QuestionChoiceSelect);
@@ -163,13 +186,13 @@ describe('GameGateway', () => {
         expect(server.to.calledWith(roomManagerServiceMock.rooms[0].organizer.socketId)).toBeTruthy();
     });
 
-    it('handleToggleChoice() should emit to the organizer the total answer choice count when unselecting', () => {
+    it('handleToggleChoice() should emit to the organizer that a choice was unselected', () => {
         const questionChoiceIndex = 1;
-        stub(socket, 'rooms').value(new Set([roomId]));
+
         socket.join(roomId);
         server.to.returns({
             emit: (event: string, index: number) => {
-                // expect(event).toEqual(GameEvents.QuestionChoiceUnselect);
+                expect(event).toEqual(GameEvents.QuestionChoiceUnselect);
                 expect(index).toEqual(questionChoiceIndex);
             },
         } as BroadcastOperator<unknown, unknown>);
@@ -177,37 +200,8 @@ describe('GameGateway', () => {
         expect(server.to.calledWith(roomManagerServiceMock.rooms[0].organizer.socketId)).toBeTruthy();
     });
 
-    it('handleToggleChoice() should emit the selected choice index', () => {
-        const questionChoiceIndex = 2;
-        stub(socket, 'rooms').value(new Set([roomId]));
-
-        server.to.returns({
-            emit: (event: string, index: number) => {
-                // expect(event).toEqual(GameEvents.QuestionChoiceSelect);
-                expect(index).toEqual(questionChoiceIndex);
-            },
-        } as BroadcastOperator<unknown, unknown>);
-
-        gateway.handleToggleChoice(socket, { roomId, questionChoiceIndex, isSelect: true });
-    });
-
-    it('handleToggleChoice() should emit the unselected choice index', () => {
-        const questionChoiceIndex = 1;
-        stub(socket, 'rooms').value(new Set([roomId]));
-
-        server.to.returns({
-            emit: (event: string, index: number) => {
-                // expect(event).toEqual(GameEvents.QuestionChoiceUnselect);
-                expect(index).toEqual(questionChoiceIndex);
-            },
-        } as BroadcastOperator<unknown, unknown>);
-
-        gateway.handleToggleChoice(socket, { roomId, questionChoiceIndex, isSelect: false });
-    }); */
-
     it('handleChoiceArrayUnselect() should emit the unselected choice indexes', () => {
         const questionChoiceIndexes = [1, 2];
-        stub(socket, 'rooms').value(new Set([roomId]));
 
         const emittedEvents = [];
         server.to.returns({
@@ -227,7 +221,7 @@ describe('GameGateway', () => {
 
     it('handleSubmitAnswer() should emit to organizer when a question was submitted by player', () => {
         const submission: PlayerSubmission = { roomId, hasSubmittedBeforeEnd: true };
-        stub(socket, 'rooms').value(new Set([roomId]));
+
         roomManagerServiceMock.rooms[0].organizer.socketId = socket.id;
         const organizerId = roomManagerServiceMock.rooms[0].organizer.socketId;
         server.to.returns({
@@ -241,9 +235,76 @@ describe('GameGateway', () => {
         expect(server.to.calledWith(organizerId)).toBeTruthy();
     });
 
+    it('handleSubmitAnswer() should push QRL answer to room and emit events correctly', () => {
+        const submission: PlayerSubmission = { roomId, hasSubmittedBeforeEnd: true, answer: 'testAnswer', questionType: 'QRL' as QTypes };
+
+        roomManagerServiceMock.rooms[0].organizer.socketId = socket.id;
+        const organizerId = roomManagerServiceMock.rooms[0].organizer.socketId;
+        roomManagerServiceMock.rooms[0].submissionCount = 1;
+
+        const mockPlayer = { socketId: socket.id, name: 'name1', points: 50, bonusCount: 0, canChat: true, hasSubmitted: false };
+        roomManagerServiceMock.rooms[0].players = [mockPlayer];
+
+        stub(roomManagerServiceMock, 'findPlayer').callsFake((id, room) => {
+            return room.players.find((player) => player.socketId === id);
+        });
+
+        server.to.returns({
+            emit: (event: string, payload: PlayerSubmission | PlayerSubmission[]) => {
+                if (event === GameEvents.SubmitAnswer) {
+                    expect(event).toEqual(GameEvents.SubmitAnswer);
+                    expect(payload).toEqual(submission);
+                }
+                if (event === GameEvents.AllPlayersSubmitted) {
+                    expect(event).toEqual(GameEvents.AllPlayersSubmitted);
+                    expect(payload).toEqual(roomManagerServiceMock.rooms[0].qrlAnswers);
+                }
+            },
+        } as BroadcastOperator<unknown, unknown>);
+
+        gateway.handleSubmitAnswer(socket, submission);
+        expect(roomManagerServiceMock.rooms[0].qrlAnswers[0]).toEqual(submission);
+        expect(server.to.calledWith(organizerId)).toBeTruthy();
+    });
+
+    it('handleSubmitAnswer() empty QRL answers if submitted count equals players length', () => {
+        const submission: PlayerSubmission = { roomId, hasSubmittedBeforeEnd: true, answer: 'testAnswer', questionType: 'QRL' as QTypes };
+
+        roomManagerServiceMock.rooms[0].organizer.socketId = socket.id;
+        const organizerId = roomManagerServiceMock.rooms[0].organizer.socketId;
+        roomManagerServiceMock.rooms[0].submissionCount = 0;
+        const mockPlayers = roomManagerServiceMock.rooms[0].players;
+
+        stub(roomManagerServiceMock, 'findPlayer').callsFake((id, room) => {
+            return room.players.find((player) => player.socketId === id);
+        });
+
+        server.to.returns({
+            emit: (event: string, payload: PlayerSubmission | PlayerSubmission[]) => {
+                if (event === GameEvents.SubmitAnswer) {
+                    expect(event).toEqual(GameEvents.SubmitAnswer);
+                    expect(payload).toEqual(submission);
+                }
+                if (event === GameEvents.AllPlayersSubmitted) {
+                    expect(event).toEqual(GameEvents.AllPlayersSubmitted);
+                    expect(payload).toEqual(roomManagerServiceMock.rooms[0].qrlAnswers);
+                }
+            },
+        } as BroadcastOperator<unknown, unknown>);
+
+        mockPlayers.forEach((player) => {
+            const playerSocket = { id: player.socketId } as unknown as Socket;
+            gateway.handleSubmitAnswer(playerSocket, submission);
+        });
+
+        expect(roomManagerServiceMock.rooms[0].submissionCount).toEqual(mockPlayers.length);
+        expect(roomManagerServiceMock.rooms[0].qrlAnswers).toEqual([]);
+        expect(server.to.calledWith(organizerId)).toBeTruthy();
+    });
+
     it('handleGiveBonus() should assign the bonus to player with fastest time when all times are different', () => {
         const getQuickestTimeSpy = jest.spyOn(roomManagerServiceMock, 'getQuickestTime');
-        stub(socket, 'rooms').value(new Set([roomId]));
+
         roomManagerServiceMock.rooms[0].answerTimes.push({ userId: socket.id, timeStamp: 1698849004046 });
         const fastestPlayer = roomManagerServiceMock.getQuickestTime(roomManagerServiceMock.findRoom(roomId));
         const fastestPlayerName = 'testName';
@@ -273,7 +334,7 @@ describe('GameGateway', () => {
     it('handleGiveBonus() should not give the bonus if no player got the correct answer', () => {
         roomManagerServiceMock.rooms[0].answerTimes = [];
         const getQuickestTimeSpy = jest.spyOn(roomManagerServiceMock, 'getQuickestTime');
-        stub(socket, 'rooms').value(new Set([roomId]));
+
         socket.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual(GameEvents.GiveBonus);
@@ -293,7 +354,7 @@ describe('GameGateway', () => {
         const pointsToAdd: PlayerPoints = { roomId, pointsToAdd: goodAnswerPoints };
 
         roomManagerServiceMock['addPlayerToRoom'](room, socket.id, name);
-        stub(socket, 'rooms').value(new Set([roomId]));
+
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual(GameEvents.AddPointsToPlayer);
@@ -320,7 +381,7 @@ describe('GameGateway', () => {
     it('handleAddPointsToPlayer() should not add points to a player if the points for a given question are negative', () => {
         const addPointsToPlayerSpy = jest.spyOn(roomManagerServiceMock, 'addPointsToPlayer');
         const pointsToAdd: PlayerPoints = { roomId, pointsToAdd: -100 };
-        stub(socket, 'rooms').value(new Set([roomId]));
+
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual(GameEvents.AddPointsToPlayer);
@@ -336,7 +397,6 @@ describe('GameGateway', () => {
         const room = roomManagerServiceMock.findRoom(roomId);
         const resetAnswerTimesSpy = jest.spyOn(roomManagerServiceMock, 'resetAnswerTimes');
 
-        stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual(GameEvents.NextQuestion);
@@ -356,7 +416,6 @@ describe('GameGateway', () => {
         socket.join(roomId);
         roomManagerServiceMock['addPlayerToRoom'](room, socket.id, name);
 
-        stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual(GameEvents.PlayerAbandonedGame);
@@ -371,7 +430,6 @@ describe('GameGateway', () => {
     });
 
     it('handleShowResults() should emit the game results to the specified room when game has ended', () => {
-        stub(socket, 'rooms').value(new Set([roomId]));
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual(GameEvents.ShowResults);
@@ -382,7 +440,6 @@ describe('GameGateway', () => {
     });
 
     it('handleSendResults() should emit SendResults event to organizer when the game results are ready to be displayed', () => {
-        stub(socket, 'rooms').value(new Set([roomId]));
         roomManagerServiceMock.rooms[0].organizer.socketId = socket.id;
         const organizerId = roomManagerServiceMock.rooms[0].organizer.socketId;
         server.to.returns({
@@ -397,7 +454,6 @@ describe('GameGateway', () => {
     it('handleEndGame() should not disconnect players if room does not exist', async () => {
         const nonExistentId = 'nonExistentRoomId';
         const nbRooms = roomManagerServiceMock.rooms.length;
-        stub(socket, 'rooms').value(new Set([roomId]));
 
         server.to.returns({
             emit: (event: string) => {
@@ -409,9 +465,17 @@ describe('GameGateway', () => {
         expect(roomManagerServiceMock.rooms).toHaveLength(nbRooms);
     });
 
-    it('handleEndGame() should clear timer if game has been aborted', async () => {
-        stub(socket, 'rooms').value(new Set([roomId]));
+    it('handleEndGame() should delete the room if no players are left', async () => {
+        const mockRoom = roomManagerServiceMock.rooms[0];
+        mockRoom.players = [];
+        const deleteRoomSpy = jest.spyOn(roomManagerServiceMock, 'deleteRoom');
 
+        await gateway.handleEndGame(socket, { roomId, gameAborted: false });
+        expect(deleteRoomSpy).toHaveBeenCalledWith(mockRoom);
+        expect(roomManagerServiceMock.rooms).toHaveLength(0);
+    });
+
+    it('handleEndGame() should clear timer if game has been aborted', async () => {
         socket.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual(GameEvents.GameAborted);
@@ -421,5 +485,79 @@ describe('GameGateway', () => {
         await gateway.handleEndGame(socket, { roomId, gameAborted: false });
         expect(socket.to.withArgs(roomId).called).toBeFalsy();
         expect(roomManagerServiceMock.rooms).toHaveLength(1);
+    });
+
+    it('handleEndGame() should handle all actions if game is aborted', async () => {
+        const mockRoom = roomManagerServiceMock.rooms[0];
+        mockRoom.timer = setInterval(() => {
+            // empty
+        }, Constants.ONE_SECOND_INTERVAL);
+
+        const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
+        socket.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual(GameEvents.GameAborted);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+
+        const serverMock = {
+            socketsLeave: jest.fn(),
+            in: jest.fn().mockReturnThis(),
+            disconnectSockets: jest.fn(),
+        } as unknown as Server;
+
+        gateway['server'] = serverMock;
+
+        const deleteRoomSpy = jest.spyOn(roomManagerServiceMock, 'deleteRoom');
+
+        await gateway.handleEndGame(socket, { roomId, gameAborted: true });
+
+        expect(clearIntervalSpy).toHaveBeenCalledWith(mockRoom.timer);
+        expect(serverMock.socketsLeave).toHaveBeenCalledWith(roomId);
+        expect(serverMock.in).toHaveBeenCalledWith(roomId);
+        expect(serverMock.disconnectSockets).toHaveBeenCalledWith(true);
+        expect(deleteRoomSpy).toHaveBeenCalledWith(mockRoom);
+
+        clearInterval(mockRoom.timer);
+    });
+
+    it('handleSaveChartData() should emit event to organizer on saveChartData event', () => {
+        const organizerId = roomManagerServiceMock.rooms[0].organizer.socketId;
+
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual(GameEvents.SaveChartData);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.handleSaveChartData(socket, roomId);
+        expect(server.to.calledWith(organizerId)).toBeTruthy();
+    });
+
+    it('handleFieldInteraction() should emit event to organizer when there is a field interaction', () => {
+        const organizerId = roomManagerServiceMock.rooms[0].organizer.socketId;
+        const testPlayer = roomManagerServiceMock.rooms[0].players.find((player) => player.socketId === socket.id);
+
+        server.to.returns({
+            emit: (event: string, playerName: string) => {
+                expect(event).toEqual(GameEvents.FieldInteraction);
+                expect(playerName).toEqual(testPlayer.name);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.handleFieldInteraction(socket, roomId);
+        expect(server.to.calledWith(organizerId)).toBeTruthy();
+    });
+
+    it('handleQRLAnswerUpdate() should emit event to organizer when there is a QRL answer update and modify qrlUpdates', () => {
+        const organizerId = roomManagerServiceMock.rooms[0].organizer.socketId;
+        roomManagerServiceMock.rooms[0].players = [roomManagerServiceMock.rooms[0].players[0]];
+
+        server.to.returns({
+            emit: (event: string, hasModifiedText: boolean) => {
+                expect(event).toEqual(GameEvents.QRLAnswerUpdate);
+                expect(hasModifiedText).toEqual(true);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.handleQRLAnswerUpdate(socket, { roomId, hasModifiedText: true });
+        expect(server.to.calledWith(organizerId)).toBeTruthy();
     });
 });
