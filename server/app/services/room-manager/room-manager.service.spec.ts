@@ -2,6 +2,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Room } from '@app/interfaces/room';
 import { Quiz } from '@app/model/database/quiz';
+import { ChatMessage } from '@common/chat-message';
+import { Results } from '@common/player-info';
+import { QuestionChartData } from '@common/question-chart-data';
 import { Test, TestingModule } from '@nestjs/testing';
 import { RoomManagerService } from './room-manager.service';
 
@@ -19,6 +22,21 @@ describe('RoomManagerService', () => {
         visibility: true,
         questions: [],
     };
+
+    const roomResults: Results[] = [
+        { name: 'name1', points: 50, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: false, bonusCount: 0 },
+        { name: 'name2', points: 200, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: false, bonusCount: 1 },
+    ];
+
+    const roomChatMessages: ChatMessage[] = [
+        { authorName: 'name1', time: 'time', message: 'message', fromSystem: false },
+        { authorName: 'name2', time: 'time', message: 'message', fromSystem: false },
+    ];
+
+    const roomQuestionChartData: QuestionChartData[] = [
+        { playersChoices: ['1', '2'], interactionsCount: [1, 2] },
+        { playersChoices: ['1', '2'], interactionsCount: [1, 2] },
+    ];
 
     beforeEach(() => {
         roomId = 'testId';
@@ -162,6 +180,12 @@ describe('RoomManagerService', () => {
         expect(quickestTime).toEqual({ userId: 'playerId3', timeStamp: 80 });
     });
 
+    it('should return the only player in the list with a good answer when no one else has submitted', () => {
+        room.answerTimes = [{ userId: 'playerId1', timeStamp: null }];
+        const quickestTime = roomManagerServiceMock.getQuickestTime(room);
+        expect(quickestTime).toEqual({ userId: 'playerId1', timeStamp: null });
+    });
+
     it('should reset answer times after every question is completed', () => {
         roomManagerServiceMock.resetAnswerTimes(room);
         expect(room.answerTimes).toHaveLength(0);
@@ -272,5 +296,44 @@ describe('RoomManagerService', () => {
         const playerId = 'playerId1';
         const result = roomManagerServiceMock.getPlayerName(roomId, playerId);
         expect(result).toBe('name1');
+    });
+
+    it('should return quiz for a given room id', () => {
+        const quiz = roomManagerServiceMock.getRoomQuiz(roomId);
+        expect(quiz).toBeDefined();
+        expect(quiz).toEqual(room.quiz);
+    });
+
+    it('should return results for a given room id', () => {
+        const results = roomManagerServiceMock.getResults(roomId);
+        expect(results).toBeDefined();
+        expect(Array.isArray(results)).toBe(true);
+    });
+
+    it('should post results for a given room id', () => {
+        roomManagerServiceMock.postResults(roomId, roomResults);
+        expect(room.results).toEqual(roomResults);
+    });
+
+    it('should return chat messages for a given room id', () => {
+        const messages = roomManagerServiceMock.getChatMessages(roomId);
+        expect(messages).toBeDefined();
+        expect(Array.isArray(messages)).toBe(true);
+    });
+
+    it('should post chat messages for a given room id', () => {
+        roomManagerServiceMock.postChatMessages(roomId, roomChatMessages);
+        expect(room.chatMessage).toEqual(roomChatMessages);
+    });
+
+    it('should post questions chart data for a given room id', () => {
+        roomManagerServiceMock.postQuestionsChartData(roomId, roomQuestionChartData);
+        expect(room.questionsChartData).toEqual(roomQuestionChartData);
+    });
+
+    it('should return questions chart data for a given room id', () => {
+        const chartData = roomManagerServiceMock.getQuestionsChartData(roomId);
+        expect(chartData).toBeDefined();
+        expect(Array.isArray(chartData)).toBe(true);
     });
 });

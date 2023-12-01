@@ -5,7 +5,7 @@ import { RoomManagerService } from '@app/services/room-manager/room-manager.serv
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Response } from 'express';
-import { createStubInstance, SinonStubbedInstance } from 'sinon';
+import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { RoomController } from './room.controller';
 
 describe('RoomController', () => {
@@ -414,5 +414,76 @@ describe('RoomController', () => {
         };
 
         controller.handleSendMessages(roomId, body, res);
+    });
+
+    it('handleGetQuestionsChartData() should return questions chart data in room', async () => {
+        const roomId = 'roomId';
+        const questionsChartData = [{ playersChoices: ['1', '2'], interactionsCount: [1, 2], currentQuestionIndex: 0 }];
+        roomManagerService.getQuestionsChartData.returns(questionsChartData);
+
+        const res = {} as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.json = (data) => {
+            expect(data).toEqual(questionsChartData);
+            return res;
+        };
+
+        controller.handleGetQuestionsChartData(roomId, res);
+    });
+
+    it('handleGetQuestionsChartData() should return NOT_FOUND when service fails to get questions chart data', async () => {
+        const roomId = 'roomId';
+        roomManagerService.getQuestionsChartData.throws();
+
+        const res = {} as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.json = (quizzes) => {
+            expect(quizzes).toEqual('Erreur lors de la récupération des statistiques de la partie de la salle roomId');
+            return res;
+        };
+
+        controller.handleGetQuestionsChartData(roomId, res);
+    });
+
+    it('handleSendChartData() should return posted questions chart data in room', async () => {
+        const roomId = 'roomId';
+        const body = [{ playersChoices: ['1', '2'], interactionsCount: [1, 2], currentQuestionIndex: 0 }];
+        roomManagerService.postQuestionsChartData.returns();
+
+        const res = {} as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.CREATED);
+            return res;
+        };
+        res.json = (data) => {
+            expect(data).toEqual(body);
+            return res;
+        };
+
+        controller.handleSendChartData(roomId, body, res);
+    });
+
+    it('handleSendChartData() should return INTERNAL_SERVER_ERROR when service fails to post questions chart data', async () => {
+        const roomId = 'roomId';
+        const body = [{ playersChoices: ['1', '2'], interactionsCount: [1, 2], currentQuestionIndex: 0 }];
+        roomManagerService.postQuestionsChartData.throws();
+
+        const res = {} as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.INTERNAL_SERVER_ERROR);
+            return res;
+        };
+        res.json = (quizzes) => {
+            expect(quizzes).toEqual('Erreur lors de la sauvegarde des statistiques de la partie de la salle roomId');
+            return res;
+        };
+
+        controller.handleSendChartData(roomId, body, res);
     });
 });
