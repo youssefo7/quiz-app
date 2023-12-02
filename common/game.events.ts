@@ -21,5 +21,4 @@ export enum GameEvents {
     FieldInteraction = 'FieldInteraction',
     AllPlayersSubmitted = 'allPlayersSubmitted',
     QRLAnswerUpdate = 'qrlAnswerUpdate',
-    UpdateChart = 'updateChart',
 }

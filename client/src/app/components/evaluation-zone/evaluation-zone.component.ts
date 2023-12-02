@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { GradeButtonState } from '@app/interfaces/qrl-grades';
 import { ChartDataManagerService } from '@app/services/chart-data-manager.service';
 import { SocketClientService } from '@app/services/socket-client.service';
-import { GradeValues } from '@common/constants';
+import { GradeValues, QTypes } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { PlayerPoints } from '@common/player-points';
 import { PlayerSubmission } from '@common/player-submission';
@@ -14,8 +14,9 @@ import { QuestionChartData } from '@common/question-chart-data';
     styleUrls: ['./evaluation-zone.component.scss'],
 })
 export class EvaluationZoneComponent implements OnInit {
-    @Input() questionPoints: number;
+    @Input() questionType: string;
     @Input() questionIndex: number;
+    @Input() questionPoints: number;
     @Input() roomId: string;
     @Output() enableNextQuestionButton: EventEmitter<null>;
     currentAnswerIndex: number;
@@ -99,6 +100,10 @@ export class EvaluationZoneComponent implements OnInit {
                 this.resetButtons();
                 this.isEvaluationFinished = false;
                 this.answers = playerQRLAnswers.sort((player1, player2) => (player1.name as string).localeCompare(player2.name as string));
+            } else if (this.questionType === QTypes.QRL) {
+                this.resetEvaluationZone();
+                this.savePointsStatistics();
+                this.enableNextQuestionButton.emit();
             }
         });
     }

@@ -205,14 +205,9 @@ export class GameGateway {
     handleQRLAnswerUpdate(_: Socket, data: { roomId: string; hasModifiedText: boolean }) {
         const room = this.roomManager.findRoom(data.roomId);
         if (room) {
-            room.qrlUpdates.push(data.hasModifiedText);
-
-            if (room.players.length === room.qrlUpdates.length) {
-                const organizer = room.organizer.socketId;
-                if (organizer) {
-                    this.server.to(organizer).emit(GameEvents.UpdateChart, room.qrlUpdates);
-                    room.qrlUpdates = [];
-                }
+            const organizer = room.organizer.socketId;
+            if (organizer) {
+                this.server.to(organizer).emit(GameEvents.QRLAnswerUpdate, data.hasModifiedText);
             }
         }
     }

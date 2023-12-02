@@ -15,6 +15,7 @@ export class ChartDataManagerService {
 
     async sendChartData(roomId: string): Promise<void> {
         await firstValueFrom(this.roomCommunicationService.sendQuestionsChartData(roomId, this.chartData));
+        this.chartData = [];
     }
 
     async getQuestionsChartData(roomId: string): Promise<QuestionChartData[]> {

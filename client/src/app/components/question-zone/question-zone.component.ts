@@ -41,6 +41,8 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     private hasReceivedBonus: boolean;
     private hasModifiedText: boolean;
     private hasInteractedOnce: boolean;
+    private textDetectionTime: number;
+    private socketTime: number;
 
     // Raison: J'injecte les services nécessaire dans mon constructeur
     // eslint-disable-next-line max-params
@@ -64,6 +66,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.hasReceivedBonus = false;
         this.hasModifiedText = false;
         this.hasInteractedOnce = false;
+        this.textDetectionTime = 0;
     }
 
     @HostListener('keypress', ['$event'])
@@ -158,7 +161,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.characterCounterDisplay = `${this.userAnswer.length} / ${Constants.MAX_TEXTAREA_LENGTH}`;
         const hasTyped = this.userAnswer.trim().length > 0;
         this.setSubmitButtonToDisabled(!hasTyped);
-        this.hasModifiedText = true;
         this.handleFieldInteraction(this.hasInteractedOnce);
     }
 
@@ -166,6 +168,12 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         if (!hasInteractedOnce) {
             this.socketClientService.send(GameEvents.FieldInteraction, this.roomId);
             this.hasInteractedOnce = !this.hasInteractedOnce;
+        }
+
+        if (this.question.type === QTypes.QRL && !this.hasModifiedText) {
+            this.textDetectionTime = this.socketTime;
+            this.hasModifiedText = true;
+            this.socketClientService.send(GameEvents.QRLAnswerUpdate, { roomId: this.roomId, hasModifiedText: this.hasModifiedText });
         }
     }
 
@@ -198,10 +206,12 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             });
 
             this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
-                const isTimeToCheckUpdate = time !== Constants.MAX_DURATION && time % Constants.TEXT_CHANGE_PERIOD === 0;
+                this.socketTime = time;
+                const timeDifference = this.textDetectionTime - this.socketTime;
+                const isTimeToCheckUpdate = timeDifference === Constants.TEXT_CHANGE_PERIOD;
                 if (this.question.type === QTypes.QRL && isTimeToCheckUpdate) {
-                    this.socketClientService.send(GameEvents.QRLAnswerUpdate, { roomId: this.roomId, hasModifiedText: this.hasModifiedText });
                     this.hasModifiedText = false;
+                    this.socketClientService.send(GameEvents.QRLAnswerUpdate, { roomId: this.roomId, hasModifiedText: this.hasModifiedText });
                 }
             });
         }
@@ -218,6 +228,8 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
                     this.setButtonToInitState(buttonIndex);
                 });
             } else {
+                this.hasModifiedText = false;
+                this.textDetectionTime = 0;
                 this.isTextareaDisabled = false;
                 this.userAnswer = '';
                 this.characterCounterDisplay = `${this.userAnswer.length} / ${Constants.MAX_TEXTAREA_LENGTH}`;

@@ -115,10 +115,6 @@ export class CountdownComponent implements OnInit, OnDestroy {
             if (time <= this.panicTime && isValidPanicSettings) {
                 this.canTogglePanicMode = true;
             }
-            if (time === 0) {
-                this.canToggleTimer = false;
-                this.canTogglePanicMode = false;
-            }
             this.socketTime = time;
             this.setClockColorToRed(this.socketTime, Constants.SWITCH_COLOR_TIME_GAME);
         });
@@ -130,12 +126,17 @@ export class CountdownComponent implements OnInit, OnDestroy {
                 this.setPanicTime(this.currentQuestionIndex);
                 this.startQuestionClock();
             }
+            this.canToggleTimer = isTransitionTimer;
+            this.canTogglePanicMode = false;
+            this.isInPanicMode = false;
         });
 
         this.socketClientService.on(TimeEvents.TimerInterrupted, () => {
             this.socketTime = 0;
             this.canToggleTimer = false;
             this.canTogglePanicMode = false;
+            this.isPaused = false;
+            this.isInPanicMode = false;
             this.isTransitionTimerRunning = true;
         });
     }
@@ -197,7 +198,6 @@ export class CountdownComponent implements OnInit, OnDestroy {
         const isTransitionTimer = false;
         this.canToggleTimer = true;
         this.canTogglePanicMode = false;
-        this.isInPanicMode = false;
         this.message = 'Temps Restant';
         this.clockStyle = { backgroundColor: 'lightblue' };
         const isQCM = this.quiz.questions[this.currentQuestionIndex].type === QTypes.QCM;

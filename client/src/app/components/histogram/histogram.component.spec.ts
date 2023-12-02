@@ -47,6 +47,7 @@ describe('HistogramComponent', () => {
             ],
         },
     ];
+    const asynchronousDelay = 10;
 
     beforeEach(() => {
         socketClientServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'socketExists']);
@@ -72,15 +73,19 @@ describe('HistogramComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should load chart and listen to socket events when created', () => {
+    it('should load chart and listen to socket events when created', (done) => {
         const loadChartSpy = spyOn<any>(component, 'loadChart');
         const updateSelectionsSpy = spyOn<any>(component, 'updateSelections');
         const reactToTransitionClockFinishedEventSpy = spyOn<any>(component, 'reactToTimerEvents');
-
+        component.isResultsPage = false;
+        fixture.detectChanges();
         component.ngOnInit();
-        expect(loadChartSpy).toHaveBeenCalled();
-        expect(updateSelectionsSpy).toHaveBeenCalled();
-        expect(reactToTransitionClockFinishedEventSpy).toHaveBeenCalled();
+        setTimeout(() => {
+            expect(loadChartSpy).toHaveBeenCalled();
+            expect(updateSelectionsSpy).toHaveBeenCalled();
+            expect(reactToTransitionClockFinishedEventSpy).toHaveBeenCalled();
+            done();
+        }, asynchronousDelay);
     });
 
     it('should update chart information when getting a question', () => {
@@ -113,7 +118,7 @@ describe('HistogramComponent', () => {
         expect(component['goodBadChoices']).toEqual(expectedGoodBadChoices);
     });
 
-    it('should prepare next question when the transition timer is finished', () => {
+    it('should prepare next question when the transition timer is finished', (done) => {
         const questionIndex = 0;
         const isTransitionTimer = true;
         component['currentQuestionIndex'] = questionIndex;
@@ -122,10 +127,13 @@ describe('HistogramComponent', () => {
         const updateChartConfigSpy = spyOn<any>(component, 'updateChartConfig');
 
         socketHelper.peerSideEmit(TimeEvents.TimerFinished, isTransitionTimer);
-        expect(component['currentQuestionIndex']).toEqual(questionIndex + 1);
-        expect(resetArraysSpy).toHaveBeenCalled();
-        expect(getQuestionSpy).toHaveBeenCalledWith(questionIndex + 1);
-        expect(updateChartConfigSpy).toHaveBeenCalled();
+        setTimeout(() => {
+            expect(component['currentQuestionIndex']).toEqual(questionIndex + 1);
+            expect(resetArraysSpy).toHaveBeenCalled();
+            expect(getQuestionSpy).toHaveBeenCalledWith(questionIndex + 1);
+            expect(updateChartConfigSpy).toHaveBeenCalled();
+            done();
+        }, asynchronousDelay);
     });
 
     it('should reset all arrays implicated in the question process', () => {
@@ -157,19 +165,23 @@ describe('HistogramComponent', () => {
         expect(updateSpy).toHaveBeenCalled();
     });
 
-    it('should create player answers chart', () => {
+    it('should create player answers chart', (done) => {
         // On a besoin de détruire le chart pour lui en assigner un nouveau
         component.ngOnDestroy();
         component.currentQuestion = mockedQuestions[0];
         component['currentQuestionIndex'] = 0;
         component['loadChart']();
-        const chartData = (component.chart as Chart).data;
-        const chartDataset = chartData.datasets[0];
 
-        expect(chartData.labels).toEqual(component['histogramInfo'].playersChoices);
-        expect(chartDataset.data).toEqual(component['histogramInfo'].interactionsCount);
-        expect(chartDataset.backgroundColor).toEqual(component['histogramInfo'].chartBackgroundColors);
-        expect(chartDataset.borderColor).toEqual(component['histogramInfo'].chartBorderColors);
+        setTimeout(() => {
+            const chartData = (component.chart as Chart).data;
+            const chartDataset = chartData.datasets[0];
+
+            expect(chartData.labels).toEqual(component['histogramInfo'].playersChoices);
+            expect(chartDataset.data).toEqual(component['histogramInfo'].interactionsCount);
+            expect(chartDataset.backgroundColor).toEqual(component['histogramInfo'].chartBackgroundColors);
+            expect(chartDataset.borderColor).toEqual(component['histogramInfo'].chartBorderColors);
+            done();
+        }, asynchronousDelay);
     });
 
     it('should update the chart configuration', () => {

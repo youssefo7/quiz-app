@@ -12,6 +12,7 @@
         ></app-histogram>
         <app-evaluation-zone
             [ngClass]="{ hide: !isQRLBeingEvaluated }"
+            [questionType]="question.type"
             [questionPoints]="question.points"
             [questionIndex]="currentQuestionIndex"
             [roomId]="roomId"
