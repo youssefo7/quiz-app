@@ -241,32 +241,27 @@ describe('QuestionZoneComponent', () => {
         component.isSubmitDisabled = true;
         component['setSubmitButtonToDisabled'](false);
         expect(component.isSubmitDisabled).toBeFalse();
-        expect(component.submitButtonStyle).toEqual({ backgroundColor: 'green' });
 
         component['setSubmitButtonToDisabled'](true);
         expect(component.isSubmitDisabled).toBeTrue();
-        expect(component.submitButtonStyle).toEqual({ backgroundColor: '' });
     });
 
     it('should disable the submit button if no choice is selected', () => {
         component.chosenChoices = [false, false, false];
         component.setSubmitButtonStateOnChoices();
         expect(component.isSubmitDisabled).toBeTrue();
-        expect(component.submitButtonStyle).toEqual({ backgroundColor: '' });
     });
 
     it('should enable the submit button if at least one choice is selected', () => {
         component.chosenChoices = [false, false, true];
         component.setSubmitButtonStateOnChoices();
         expect(component.isSubmitDisabled).toBeFalse();
-        expect(component.submitButtonStyle).toEqual({ backgroundColor: 'green' });
     });
 
     it('should set the games button to their initial state when setButtonToInitState is called', () => {
         const buttonIndex = 0;
         component.choiceButtonStyle[buttonIndex] = { backgroundColor: 'red' };
         component.isChoiceButtonDisabled = true;
-        component.submitButtonStyle = { backgroundColor: 'green' };
         component['setButtonToInitState'](buttonIndex);
 
         expect(component.isChoiceButtonDisabled).toBeFalse();
@@ -283,7 +278,6 @@ describe('QuestionZoneComponent', () => {
         component['setButtonStateOnSubmit'](secondButtonIndex);
 
         expect(component.isChoiceButtonDisabled).toBeTrue();
-        expect(component.submitButtonStyle).toEqual({ backgroundColor: '' });
         expect(component.choiceButtonStyle[firstButtonIndex]).toEqual({ backgroundColor: 'rgb(97, 207, 72)' });
         expect(component.choiceButtonStyle[secondButtonIndex]).toEqual({ backgroundColor: 'red' });
     });
