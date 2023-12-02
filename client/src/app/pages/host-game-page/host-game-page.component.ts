@@ -6,6 +6,7 @@ import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { SocketDisconnectionService } from '@app/services/socket-disconnection.service';
 import { GameEvents } from '@common/game.events';
 import { firstValueFrom } from 'rxjs';
 
@@ -25,6 +26,7 @@ export class HostGamePageComponent implements OnInit, OnDestroy {
         private popup: MatDialog,
         private roomCommunicationService: RoomCommunicationService,
         private socketClientService: SocketClientService,
+        private readonly socketDisconnectService: SocketDisconnectionService,
         private readonly router: Router,
         private readonly route: ActivatedRoute,
     ) {
@@ -42,17 +44,14 @@ export class HostGamePageComponent implements OnInit, OnDestroy {
     }
 
     async ngOnInit() {
-        if (!this.socketClientService.socketExists()) {
-            this.socketClientService.connect();
-            if (this.socketClientService.socketExists()) {
-                this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: true });
-                this.socketClientService.disconnect();
-            }
-            this.router.navigateByUrl('home/');
-            return;
-        } else {
-            this.loadQuiz();
-        }
+        this.socketDisconnectService.handleDisconnectEvent({
+            roomId: this.roomId,
+            isHost: true,
+            gameAborted: true,
+            connectActions: async () => {
+                this.loadQuiz();
+            },
+        });
     }
 
     openQuitPopUp() {

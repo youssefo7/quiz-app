@@ -107,20 +107,6 @@ describe('HostGamePageComponent', () => {
         expect(handleNavigationSpy).toHaveBeenCalled();
     });
 
-    it('should handle socket connections, events and navigation correctly if user is a host on ngOnInit', async () => {
-        let socketExists = false;
-        clientSocketServiceMock.socketExists.and.callFake(() => socketExists);
-        clientSocketServiceMock.connect.and.callFake(() => {
-            socketExists = true;
-        });
-        // Redirection dans le ngOnInit nécessite de mettre l'appel dans Angular zone pour éviter un avertissement
-        await fixture.ngZone?.run(async () => component.ngOnInit());
-
-        expect(clientSocketServiceMock.connect).toHaveBeenCalled();
-        expect(clientSocketServiceMock.send).toHaveBeenCalled();
-        expect(clientSocketServiceMock.disconnect).toHaveBeenCalled();
-    });
-
     it('should redirect to "/game/new" page when clicking the exit icon', () => {
         const navigateSpy = spyOn(router, 'navigateByUrl');
         component['leaveGamePage']();

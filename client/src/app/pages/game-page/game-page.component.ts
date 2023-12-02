@@ -7,6 +7,7 @@ import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { SocketDisconnectionService } from '@app/services/socket-disconnection.service';
 import { Constants } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { PlayerPoints } from '@common/player-points';
@@ -34,6 +35,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         private readonly route: ActivatedRoute,
         private readonly router: Router,
         private readonly socketClientService: SocketClientService,
+        private readonly socketDisconnectService: SocketDisconnectionService,
         private readonly roomCommunicationService: RoomCommunicationService,
         private readonly communicationService: CommunicationService,
     ) {
@@ -58,22 +60,20 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     async ngOnInit() {
-        if (!this.socketClientService.socketExists() && !this.isTestGame) {
-            this.socketClientService.connect();
-            if (this.socketClientService.socketExists()) {
-                this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true }, () => {
-                    this.socketClientService.disconnect();
-                });
-            }
-            this.router.navigateByUrl('home/');
-        } else {
-            this.loadQuiz();
-            if (!this.isTestGame) {
-                this.playerName = await firstValueFrom(
-                    this.roomCommunicationService.getPlayerName(this.roomId as string, { socketId: this.socketClientService.socket.id }),
-                );
-            }
-        }
+        this.socketDisconnectService.handleDisconnectEvent({
+            roomId: this.roomId,
+            isHost: false,
+            isTestGame: this.isTestGame,
+            isInGame: true,
+            connectActions: async () => {
+                this.loadQuiz();
+                if (!this.isTestGame) {
+                    this.playerName = await firstValueFrom(
+                        this.roomCommunicationService.getPlayerName(this.roomId as string, { socketId: this.socketClientService.socket.id }),
+                    );
+                }
+            },
+        });
     }
 
     givePoints(points: number) {

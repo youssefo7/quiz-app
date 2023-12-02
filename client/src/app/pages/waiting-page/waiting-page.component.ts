@@ -5,6 +5,7 @@ import { PopupMessageComponent } from '@app/components/popup-message/popup-messa
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { SocketDisconnectionService } from '@app/services/socket-disconnection.service';
 import { GameEvents } from '@common/game.events';
 import { firstValueFrom } from 'rxjs';
 
@@ -26,6 +27,7 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
         private router: Router,
         private popUp: MatDialog,
         private socketClientService: SocketClientService,
+        private socketDisconnectionService: SocketDisconnectionService,
         private roomCommunicationService: RoomCommunicationService,
     ) {
         this.players = [];
@@ -43,26 +45,18 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
     }
 
     async ngOnInit() {
-        if (!this.socketClientService.socketExists()) {
-            if (this.isHost) {
-                this.socketClientService.connect();
-                if (this.socketClientService.socketExists()) {
-                    this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: true });
-                    this.socketClientService.disconnect();
-                }
-            } else {
-                this.socketClientService.connect();
-                if (this.socketClientService.socketExists()) {
-                    this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: true });
-                    this.socketClientService.disconnect();
-                }
-            }
-            this.router.navigateByUrl('home/');
-            return;
-        }
-        this.listenToSocketEvents();
-        this.players = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId));
-        this.getQuizTitle(this.roomId);
+        this.socketDisconnectionService.handleDisconnectEvent({
+            roomId: this.roomId,
+            isHost: this.isHost,
+            isTestGame: false,
+            gameAborted: true,
+            isInGame: true,
+            connectActions: async () => {
+                this.listenToSocketEvents();
+                this.players = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId));
+                this.getQuizTitle(this.roomId);
+            },
+        });
     }
 
     quitPopUp() {
