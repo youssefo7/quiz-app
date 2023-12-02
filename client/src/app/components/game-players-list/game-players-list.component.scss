@@ -51,10 +51,8 @@ td.player-name {
 }
 
 .player-name {
-    .mat-icon {
-        &:hover {
-            cursor: pointer;
-        }
+    .mat-icon:hover {
+        cursor: pointer;
     }
 }
 
@@ -78,6 +76,10 @@ td.player-name {
 .player-score {
     margin-left: 10px;
     min-width: 60px;
+
+    .mat-icon:hover {
+        cursor: pointer;
+    }
 }
 
 .player-bonus {
