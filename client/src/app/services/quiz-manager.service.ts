@@ -89,6 +89,12 @@ export class QuizManagerService {
             const tmp = quiz.questions[index - 1];
             quiz.questions[index - 1] = quiz.questions[index];
             quiz.questions[index] = tmp;
+
+            if (index === this.modifiedIndex) {
+                this.modifiedIndex--;
+            } else if (index - 1 === this.modifiedIndex) {
+                this.modifiedIndex++;
+            }
         }
     }
 
@@ -98,6 +104,12 @@ export class QuizManagerService {
             const tmp = quiz.questions[index + 1];
             quiz.questions[index + 1] = quiz.questions[index];
             quiz.questions[index] = tmp;
+
+            if (index === this.modifiedIndex) {
+                this.modifiedIndex++;
+            } else if (index + 1 === this.modifiedIndex) {
+                this.modifiedIndex--;
+            }
         }
     }
 
