@@ -86,7 +86,7 @@ describe('ChatComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should set playerName if the player is not a host', async () => {
+    it('should set playerName if the user is not a host', async () => {
         component['isOrganizer'] = false;
         roomCommunicationServiceMock.getPlayerName.and.returnValue(of('playerName'));
 
@@ -95,7 +95,7 @@ describe('ChatComponent', () => {
         expect(component.playerName).not.toBe('Organisateur');
     });
 
-    it("should set playerName to 'Organisateur' only if the player is the host", async () => {
+    it("should set playerName to 'Organisateur' only if the user is the host", async () => {
         component['isOrganizer'] = true;
         roomCommunicationServiceMock.getPlayerName.and.returnValue(of('playerName'));
 
@@ -161,7 +161,7 @@ describe('ChatComponent', () => {
         expect(component.characterCounterDisplay).toBe('4 / 200');
     });
 
-    it('should send a message to a specific room on the server and reset userMessage ', () => {
+    it('should send a message to a specific room on the server and reset userMessage when sendMessageToRomm() is called ', () => {
         const testRoomId = 'roomId';
         const message = 'Test Message';
         const sendSpy = spyOn(mockSocketClientService, 'send');
