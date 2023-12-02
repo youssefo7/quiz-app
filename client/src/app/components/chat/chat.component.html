@@ -7,7 +7,8 @@
                     sent: message.authorName === playerName && !message.fromSystem,
                     'system-sent': message.fromSystem && this.isOrganizer,
                     'lost-chat-perks': message.fromSystem && message.message === lostChatPermissionMessage,
-                    'granted-chat-perks': message.fromSystem && message.message === grantedChatPermissionMessage
+                    'granted-chat-perks': message.fromSystem && message.message === grantedChatPermissionMessage,
+                    'grant-all-chat-perks': message.fromSystem && message.message === giveChattingRightsToAll
                 }"
             >
                 <div class="message-info">
