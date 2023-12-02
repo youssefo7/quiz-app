@@ -56,7 +56,7 @@ export class HistogramComponent implements OnInit, OnDestroy {
             this.reactToChartEvents();
         } else {
             this.questionsChartData = await this.chartDataManager.getQuestionsChartData(this.roomId);
-            this.chartDataToLoad = this.chartDataManager.findChartDataToLoad(this.questionsChartData, this.currentQuestionIndex);
+            this.chartDataToLoad = this.questionsChartData[this.currentQuestionIndex];
             await this.loadChart();
         }
     }
@@ -70,10 +70,10 @@ export class HistogramComponent implements OnInit, OnDestroy {
         this.questionsChartData = [];
     }
 
-    async setChartDataToLoad(loadQuestionChartData: QuestionChartData) {
+    async setChartDataToLoad(loadQuestionChartData: QuestionChartData, currentQuestionIndex: number) {
         this.resetArrays();
         this.chartDataToLoad = loadQuestionChartData;
-        this.currentQuestionIndex = this.chartDataToLoad.currentQuestionIndex;
+        this.currentQuestionIndex = currentQuestionIndex;
         await this.getQuestion(this.currentQuestionIndex);
         this.updateChartConfig();
     }
@@ -96,18 +96,11 @@ export class HistogramComponent implements OnInit, OnDestroy {
                     this.setBackgroundColors(i);
                 }
             } else {
-                if (!this.isResultsPage) {
-                    const players = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId));
-                    this.histogramInfo.playersChoices = ["N'a pas modifié", 'A modifié'];
-                    this.histogramInfo.chartBorderColors = ['black', 'black'];
-                    this.histogramInfo.interactionsCount = [players.length, 0];
-                    this.histogramInfo.chartBackgroundColors = ['red', 'green'];
-                } else {
-                    this.histogramInfo.playersChoices = this.chartDataToLoad.playersChoices;
-                    this.histogramInfo.interactionsCount = this.chartDataToLoad.interactionsCount;
-                    this.histogramInfo.chartBorderColors = ['black', 'black', 'black'];
-                    this.histogramInfo.chartBackgroundColors = ['red', 'yellow', 'green'];
-                }
+                const players = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId));
+                this.histogramInfo.playersChoices = this.isResultsPage ? this.chartDataToLoad.playersChoices : ["N'a pas modifié", 'A modifié'];
+                this.histogramInfo.interactionsCount = this.isResultsPage ? this.chartDataToLoad.interactionsCount : [players.length, 0];
+                this.histogramInfo.chartBorderColors = this.isResultsPage ? ['black', 'black', 'black'] : ['black', 'black'];
+                this.histogramInfo.chartBackgroundColors = this.isResultsPage ? ['red', 'yellow', 'green'] : ['red', 'green'];
             }
         }
     }
@@ -125,7 +118,7 @@ export class HistogramComponent implements OnInit, OnDestroy {
 
     private reactToChartEvents() {
         this.socketClientService.on(GameEvents.SaveChartData, () => {
-            this.chartDataManager.saveChartData(this.histogramInfo.playersChoices, this.histogramInfo.interactionsCount, this.currentQuestionIndex);
+            this.chartDataManager.saveChartData(this.histogramInfo.playersChoices, this.histogramInfo.interactionsCount);
         });
 
         this.socketClientService.on(GameEvents.QRLAnswerUpdate, (hasModifiedText: boolean) => {
