@@ -7,9 +7,10 @@
     </div>
     <div id="buttons">
         <div id="grade-buttons">
-            <button [ngClass]="{ chosen: gradeButtonState.isZeroPointsGiven }" (click)="setGrade(0)">0</button>
-            <button [ngClass]="{ chosen: gradeButtonState.isHalfPointsGiven }" (click)="setGrade(0.5)">50</button>
-            <button [ngClass]="{ chosen: gradeButtonState.isTotalPointsGiven }" (click)="setGrade(1)">100</button>
+            <button [ngClass]="{ chosen: gradeButtonState.isZeroPointsGiven }" (click)="setGrade(0)">0%</button>
+            <button [ngClass]="{ chosen: gradeButtonState.isHalfPointsGiven }" (click)="setGrade(0.5)">50%</button>
+            <button [ngClass]="{ chosen: gradeButtonState.isTotalPointsGiven }" (click)="setGrade(1)">100%</button>
+            <p>Noter la réponse du joueur ci-dessus</p>
         </div>
         <button id="submit-button" (click)="givePoints()" [disabled]="isSubmitEvaluationDisabled">Envoyer l'évaluation</button>
     </div>

@@ -2,6 +2,11 @@
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
+    background-color: #c1ecff;
+    padding: 2% 0;
+    border: groove thin;
+    border-radius: 5px;
+    height: 90%;
 
     #choices-container {
         display: flex;

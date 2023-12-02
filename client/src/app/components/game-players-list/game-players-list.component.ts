@@ -32,10 +32,11 @@ export class GamePlayersListComponent implements OnInit {
     isResultsRoute: boolean;
     shouldSortPointsAscending: boolean;
     shouldSortNamesAscending: boolean;
+    shouldSortStatesAscending: boolean;
+    isSortedByPoints: boolean;
+    isSortedByState: boolean;
+    isSortedByName: boolean;
     private quizId: string;
-    private shouldSortStatesAscending: boolean;
-    private isSortedByPoints: boolean;
-    private isSortedByState: boolean;
     private currentDateTime: string;
 
     // Raison: Les quatres injections sont nécessaires pour ma composante
@@ -55,6 +56,9 @@ export class GamePlayersListComponent implements OnInit {
         this.shouldSortStatesAscending = true;
         this.isHost = this.route.snapshot.url.some((segment) => segment.path === 'host');
         this.currentDateTime = new Date().toISOString();
+        this.isSortedByName = false;
+        this.isSortedByPoints = false;
+        this.isSortedByState = false;
     }
 
     async ngOnInit() {
@@ -68,6 +72,8 @@ export class GamePlayersListComponent implements OnInit {
         if (this.isResultsRoute) {
             this.shouldSortPointsAscending = false;
             this.sortByPoints();
+        } else {
+            this.sortByName();
         }
     }
 
@@ -95,6 +101,7 @@ export class GamePlayersListComponent implements OnInit {
         this.shouldSortNamesAscending = !this.shouldSortNamesAscending;
         this.isSortedByPoints = false;
         this.isSortedByState = false;
+        this.isSortedByName = true;
     }
 
     sortByPoints() {
@@ -107,6 +114,7 @@ export class GamePlayersListComponent implements OnInit {
         this.shouldSortPointsAscending = !this.shouldSortPointsAscending;
         this.isSortedByPoints = true;
         this.isSortedByState = false;
+        this.isSortedByName = false;
     }
 
     sortByState() {
@@ -121,6 +129,7 @@ export class GamePlayersListComponent implements OnInit {
         this.shouldSortStatesAscending = !this.shouldSortStatesAscending;
         this.isSortedByPoints = false;
         this.isSortedByState = true;
+        this.isSortedByName = false;
     }
 
     toggleChattingRights(name: string) {

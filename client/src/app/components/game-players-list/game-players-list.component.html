@@ -1,22 +1,43 @@
 <div id="player-list" *ngIf="playerResults">
     <table>
         <tr>
-            <th id="name-title">
+            <th class="player-name">
                 Nom
-                <mat-icon *ngIf="!isResultsRoute" (click)="sortByName()">{{
-                    shouldSortNamesAscending ? 'arrow_drop_up' : 'arrow_drop_down'
-                }}</mat-icon>
-                <button *ngIf="!isResultsRoute" id="order-by-state" (click)="sortByState()">
-                    <mat-icon>swap_vert</mat-icon>
-                </button>
+                <span *ngIf="!isResultsRoute" (click)="sortByName()" title="Trier par le nom des joueurs">
+                    <i *ngIf="!isSortedByName" class="fa-solid fa-sort"></i>
+                    <i *ngIf="isSortedByName && !shouldSortNamesAscending" class="fa-solid fa-sort-up"></i>
+                    <i *ngIf="isSortedByName && shouldSortNamesAscending" class="fa-solid fa-sort-down"></i>
+                </span>
+                <span *ngIf="!isResultsRoute"> | État </span>
+                <span
+                    *ngIf="!isResultsRoute"
+                    title="Trier par l'état des joueurs
+                    Ordre Ascendant:
+                    - N'a pas intéragit (rouge)
+                    - À interagi (jaune)
+                    - À soumis (vert)
+                    - À abandonné (noir)                    
+                    "
+                    [ngClass]="{ ascending: shouldSortStatesAscending }"
+                    id="order-by-state"
+                    (click)="sortByState()"
+                >
+                    <i *ngIf="!isSortedByState" class="fa-solid fa-sort"></i>
+                    <i *ngIf="isSortedByState && !shouldSortStatesAscending" class="fa-solid fa-sort-up"></i>
+                    <i *ngIf="isSortedByState && shouldSortStatesAscending" class="fa-solid fa-sort-down"></i>
+                </span>
             </th>
-            <th *ngIf="!isResultsRoute" id="score-title">
+            <th *ngIf="!isResultsRoute" class="player-score">
                 Score
-                <mat-icon (click)="sortByPoints()">{{ shouldSortPointsAscending ? 'arrow_drop_up' : 'arrow_drop_down' }}</mat-icon>
+                <span (click)="sortByPoints()" title="Trier par le score des joueurs">
+                    <i *ngIf="!isSortedByPoints" class="fa-solid fa-sort"></i>
+                    <i *ngIf="isSortedByPoints && !shouldSortPointsAscending" class="fa-solid fa-sort-up"></i>
+                    <i *ngIf="isSortedByPoints && shouldSortPointsAscending" class="fa-solid fa-sort-down"></i
+                ></span>
             </th>
             <th *ngIf="isResultsRoute">Score final</th>
             <th *ngIf="isResultsRoute">Bonus</th>
-            <th *ngIf="isHost && !isResultsRoute">Droit de clavarder</th>
+            <th *ngIf="isHost && !isResultsRoute" class="chat-button">Droit de clavarder</th>
         </tr>
         <tr *ngFor="let player of playerResults" class="player-entry">
             <td

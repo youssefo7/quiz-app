@@ -179,7 +179,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
         const transitionTime = 3;
         const isTransitionTimer = true;
         this.message = 'Préparez-vous!';
-        this.clockStyle = { backgroundColor: '#E5E562' };
+        this.clockStyle = { backgroundColor: '#ffff36' };
 
         if (this.isTestGame) {
             await this.timeService.startTimer(transitionTime, isTransitionTimer);
@@ -199,7 +199,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
         this.canToggleTimer = true;
         this.canTogglePanicMode = false;
         this.message = 'Temps Restant';
-        this.clockStyle = { backgroundColor: 'lightblue' };
+        this.clockStyle = { backgroundColor: '' };
         const isQCM = this.quiz.questions[this.currentQuestionIndex].type === QTypes.QCM;
         const questionTime = isQCM ? this.quiz.duration : Constants.MAX_DURATION;
 

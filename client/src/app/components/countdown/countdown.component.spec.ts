@@ -136,7 +136,7 @@ describe('CountdownComponent', () => {
         component['startTransitionClock']();
 
         expect(component.message).toEqual('Préparez-vous!');
-        expect(component.clockStyle).toEqual({ backgroundColor: '#E5E562' });
+        expect(component.clockStyle).toEqual({ backgroundColor: '#ffff36' });
         expect(timeServiceMock.startTimer).toHaveBeenCalledWith(transitionTime, true);
     }));
 
@@ -144,7 +144,7 @@ describe('CountdownComponent', () => {
         component['isTestGame'] = true;
         component['startQuestionClock']();
         expect(component.message).toEqual('Temps Restant');
-        expect(component.clockStyle).toEqual({ backgroundColor: 'lightblue' });
+        expect(component.clockStyle).toEqual({ backgroundColor: '' });
         expect(timeServiceMock.startTimer).toHaveBeenCalledWith(mockQuiz.duration, false);
     }));
 

@@ -27,6 +27,7 @@ export class HistoryComponent implements OnInit {
     isDateAscending: boolean;
     isHistoryEmpty: boolean;
     isSortingByName: boolean;
+    isSortingByDate: boolean;
     private nameSortDirection: SortDirection;
     private dateSortDirection: SortDirection;
 
@@ -40,6 +41,7 @@ export class HistoryComponent implements OnInit {
         this.isDateAscending = true;
         this.isHistoryEmpty = true;
         this.isSortingByName = false;
+        this.isSortingByDate = true;
     }
 
     async ngOnInit() {
@@ -51,10 +53,12 @@ export class HistoryComponent implements OnInit {
             this.isNameAscending = this.nameSortDirection !== SortDirection.ASCENDING;
             this.nameSortDirection = this.isNameAscending ? SortDirection.ASCENDING : SortDirection.DESCENDING;
             this.isSortingByName = true;
+            this.isSortingByDate = false;
         } else if (type === SortType.DATE) {
             this.isDateAscending = this.dateSortDirection !== SortDirection.ASCENDING;
             this.dateSortDirection = this.isDateAscending ? SortDirection.ASCENDING : SortDirection.DESCENDING;
             this.isSortingByName = false;
+            this.isSortingByDate = true;
         }
 
         this.history.sort((a, b) => {

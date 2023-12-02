@@ -7,19 +7,15 @@
         <div class="grid-container">
             <p class="name" (click)="sortHistory('name')">
                 Nom du jeu
-                <span
-                    class="arrow"
-                    *ngIf="!isHistoryEmpty"
-                    [ngClass]="{ 'arrow-up': isNameAscending, 'arrow-down': !isNameAscending, 'disable-arrow': !isSortingByName }"
-                ></span>
+                <i *ngIf="!isSortingByName" class="fa-solid fa-sort"></i>
+                <i *ngIf="isSortingByName && isNameAscending" class="fa-solid fa-sort-up"></i>
+                <i *ngIf="isSortingByName && !isNameAscending" class="fa-solid fa-sort-down"></i>
             </p>
             <p class="date" (click)="sortHistory('date')">
                 Date
-                <span
-                    class="arrow"
-                    *ngIf="!isHistoryEmpty"
-                    [ngClass]="{ 'arrow-up': isDateAscending, 'arrow-down': !isDateAscending, 'disable-arrow': isSortingByName }"
-                ></span>
+                <i *ngIf="!isSortingByDate" class="fa-solid fa-sort"></i>
+                <i *ngIf="isSortingByDate && isDateAscending" class="fa-solid fa-sort-up"></i>
+                <i *ngIf="isSortingByDate && !isDateAscending" class="fa-solid fa-sort-down"></i>
             </p>
             <p class="players">Nombre de joueurs</p>
             <p class="score">Meilleur score</p>
