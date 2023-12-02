@@ -17,6 +17,8 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
     quiz: Quiz;
     title: string;
     shouldHideResults: boolean;
+    titleToggleButton: string;
+    pageTitle: string;
     private isHost: boolean;
 
     // Tous ces paramètres sont nécessaires pour que la composante fonctionne bien
@@ -32,6 +34,8 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
         this.title = 'Résultats';
         this.isHost = this.router.url.endsWith('/host');
         this.shouldHideResults = false;
+        this.titleToggleButton = 'Afficher les statistiques de la partie';
+        this.pageTitle = 'Score des joueurs';
     }
 
     @HostListener('window:beforeunload', ['$event'])
@@ -62,6 +66,8 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
 
     toggleResultsDisplay() {
         this.shouldHideResults = !this.shouldHideResults;
+        this.titleToggleButton = this.shouldHideResults ? 'Afficher le scores finales des joueurs' : 'Afficher les statistiques de la partie';
+        this.pageTitle = this.shouldHideResults ? 'Statistiques de la partie' : 'Score des joueurs';
     }
 
     private handleNavigation() {

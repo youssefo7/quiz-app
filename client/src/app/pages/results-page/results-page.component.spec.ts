@@ -132,4 +132,22 @@ describe('ResultsPageComponent', () => {
         await component.ngOnInit();
         expect(roomCommunicationServiceMock.getRoomQuiz).toHaveBeenCalledWith(roomIdMock);
     });
+
+    it('should change the title of the toggleButton depending of the value of shouldHideResults', () => {
+        component.shouldHideResults = false;
+        component.toggleResultsDisplay();
+        expect(component.titleToggleButton).toEqual('Afficher le scores finales des joueurs');
+        component.shouldHideResults = true;
+        component.toggleResultsDisplay();
+        expect(component.titleToggleButton).toEqual('Afficher les statistiques de la partie');
+    });
+
+    it('should change the title of the page depending of the value of shouldHideResults', () => {
+        component.shouldHideResults = false;
+        component.toggleResultsDisplay();
+        expect(component.pageTitle).toEqual('Statistiques de la partie');
+        component.shouldHideResults = true;
+        component.toggleResultsDisplay();
+        expect(component.pageTitle).toEqual('Score des joueurs');
+    });
 });
