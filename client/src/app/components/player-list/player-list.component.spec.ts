@@ -4,7 +4,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
-import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
@@ -19,12 +19,18 @@ import { PlayerListComponent } from './player-list.component';
 import SpyObj = jasmine.SpyObj;
 
 class MockSocketClientService extends SocketClientService {
+    private mockSocketExists = true;
+
     override connect() {
         // vide
     }
 
     override socketExists() {
-        return true;
+        return this.mockSocketExists;
+    }
+
+    setSocketExists(value: boolean) {
+        this.mockSocketExists = value;
     }
 }
 
@@ -73,6 +79,13 @@ describe('PlayerListComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should not call listenToSocketEvents() when socket does not exists on initialization', async () => {
+        const socketEventSpy = spyOn<any>(component, 'listenToSocketEvents');
+        mockSocketClientService.setSocketExists(false);
+        await component.ngOnInit();
+        expect(socketEventSpy).not.toHaveBeenCalled();
     });
 
     it('should add a player to the game players when PlayerHasJoined event is received', () => {
