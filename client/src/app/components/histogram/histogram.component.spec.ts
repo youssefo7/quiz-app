@@ -1,9 +1,10 @@
 // Nous avons besoin du any pour tester les méthodes privées
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { Question } from '@app/interfaces/quiz';
+import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { GameEvents } from '@common/game.events';
 import { TimeEvents } from '@common/time.events';
@@ -26,6 +27,8 @@ describe('HistogramComponent', () => {
     let fixture: ComponentFixture<HistogramComponent>;
     let socketClientServiceMock: MockSocketClientService;
     let socketHelper: SocketTestHelper;
+    let roomCommunicationServiceMock: jasmine.SpyObj<RoomCommunicationService>;
+
     const mockedQuestions: Question[] = [
         {
             type: 'QCM',
@@ -47,10 +50,10 @@ describe('HistogramComponent', () => {
             ],
         },
     ];
-    const asynchronousDelay = 10;
 
     beforeEach(() => {
         socketClientServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'socketExists']);
+        roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', ['getRoomPlayers']);
     });
 
     beforeEach(waitForAsync(() => {
@@ -61,7 +64,10 @@ describe('HistogramComponent', () => {
         TestBed.configureTestingModule({
             declarations: [HistogramComponent],
             imports: [NgChartsModule, HttpClientTestingModule],
-            providers: [{ provide: SocketClientService, useValue: socketClientServiceMock }],
+            providers: [
+                { provide: SocketClientService, useValue: socketClientServiceMock },
+                { provide: RoomCommunicationService, useValue: roomCommunicationServiceMock },
+            ],
         }).compileComponents();
         fixture = TestBed.createComponent(HistogramComponent);
         component = fixture.componentInstance;
@@ -73,20 +79,18 @@ describe('HistogramComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should load chart and listen to socket events when created', (done) => {
+    it('should load chart and listen to socket events when created', fakeAsync(() => {
         const loadChartSpy = spyOn<any>(component, 'loadChart');
         const updateSelectionsSpy = spyOn<any>(component, 'updateSelections');
         const reactToTransitionClockFinishedEventSpy = spyOn<any>(component, 'reactToTimerEvents');
         component.isResultsPage = false;
-        fixture.detectChanges();
         component.ngOnInit();
-        setTimeout(() => {
-            expect(loadChartSpy).toHaveBeenCalled();
-            expect(updateSelectionsSpy).toHaveBeenCalled();
-            expect(reactToTransitionClockFinishedEventSpy).toHaveBeenCalled();
-            done();
-        }, asynchronousDelay);
-    });
+        tick();
+
+        expect(loadChartSpy).toHaveBeenCalled();
+        expect(updateSelectionsSpy).toHaveBeenCalled();
+        expect(reactToTransitionClockFinishedEventSpy).toHaveBeenCalled();
+    }));
 
     it('should update chart information when getting a question', () => {
         const expectedPlayersChoices = ['Choix 1', 'Choix 2'];
@@ -118,7 +122,7 @@ describe('HistogramComponent', () => {
         expect(component['goodBadChoices']).toEqual(expectedGoodBadChoices);
     });
 
-    it('should prepare next question when the transition timer is finished', (done) => {
+    it('should prepare next question when the transition timer is finished', fakeAsync(() => {
         const questionIndex = 0;
         const isTransitionTimer = true;
         component['currentQuestionIndex'] = questionIndex;
@@ -127,14 +131,13 @@ describe('HistogramComponent', () => {
         const updateChartConfigSpy = spyOn<any>(component, 'updateChartConfig');
 
         socketHelper.peerSideEmit(TimeEvents.TimerFinished, isTransitionTimer);
-        setTimeout(() => {
-            expect(component['currentQuestionIndex']).toEqual(questionIndex + 1);
-            expect(resetArraysSpy).toHaveBeenCalled();
-            expect(getQuestionSpy).toHaveBeenCalledWith(questionIndex + 1);
-            expect(updateChartConfigSpy).toHaveBeenCalled();
-            done();
-        }, asynchronousDelay);
-    });
+        tick();
+
+        expect(component['currentQuestionIndex']).toEqual(questionIndex + 1);
+        expect(resetArraysSpy).toHaveBeenCalled();
+        expect(getQuestionSpy).toHaveBeenCalledWith(questionIndex + 1);
+        expect(updateChartConfigSpy).toHaveBeenCalled();
+    }));
 
     it('should reset all arrays implicated in the question process', () => {
         component['histogramInfo'].playersChoices = ['Choix 1', 'Choix 2'];
@@ -165,24 +168,22 @@ describe('HistogramComponent', () => {
         expect(updateSpy).toHaveBeenCalled();
     });
 
-    it('should create player answers chart', (done) => {
+    it('should create player answers chart', fakeAsync(() => {
         // On a besoin de détruire le chart pour lui en assigner un nouveau
         component.ngOnDestroy();
         component.currentQuestion = mockedQuestions[0];
         component['currentQuestionIndex'] = 0;
         component['loadChart']();
+        tick();
 
-        setTimeout(() => {
-            const chartData = (component.chart as Chart).data;
-            const chartDataset = chartData.datasets[0];
+        const chartData = (component.chart as Chart).data;
+        const chartDataset = chartData.datasets[0];
 
-            expect(chartData.labels).toEqual(component['histogramInfo'].playersChoices);
-            expect(chartDataset.data).toEqual(component['histogramInfo'].interactionsCount);
-            expect(chartDataset.backgroundColor).toEqual(component['histogramInfo'].chartBackgroundColors);
-            expect(chartDataset.borderColor).toEqual(component['histogramInfo'].chartBorderColors);
-            done();
-        }, asynchronousDelay);
-    });
+        expect(chartData.labels).toEqual(component['histogramInfo'].playersChoices);
+        expect(chartDataset.data).toEqual(component['histogramInfo'].interactionsCount);
+        expect(chartDataset.backgroundColor).toEqual(component['histogramInfo'].chartBackgroundColors);
+        expect(chartDataset.borderColor).toEqual(component['histogramInfo'].chartBorderColors);
+    }));
 
     it('should update the chart configuration', () => {
         const playersChoices = ['Choix 1', 'Choix 2'];

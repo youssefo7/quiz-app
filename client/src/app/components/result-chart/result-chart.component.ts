@@ -36,14 +36,14 @@ export class ResultChartComponent implements OnInit, OnDestroy {
         this.resetData();
     }
 
-    viewNextQuestion() {
+    async viewNextQuestion() {
         this.currentQuestionIndex++;
-        this.updateChartToLoad();
+        await this.updateChartToLoad();
     }
 
-    viewPreviousQuestion() {
+    async viewPreviousQuestion() {
         this.currentQuestionIndex--;
-        this.updateChartToLoad();
+        await this.updateChartToLoad();
     }
 
     private isViewNextQuestionPossible() {
@@ -56,9 +56,9 @@ export class ResultChartComponent implements OnInit, OnDestroy {
         return isPreviousQuestionPossible;
     }
 
-    private updateChartToLoad() {
+    private async updateChartToLoad() {
         this.chartDataToLoad = this.chartDataManager.findChartDataToLoad(this.chartData, this.currentQuestionIndex);
-        this.histogram.setChartDataToLoad(this.chartDataToLoad);
+        await this.histogram.setChartDataToLoad(this.chartDataToLoad);
         this.updateQuestionNavigation();
     }
 
