@@ -27,7 +27,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     question: Question;
     chosenChoices: boolean[];
     choiceButtonStyle: ButtonStyle[];
-    submitButtonStyle: ButtonStyle;
     isSubmitDisabled: boolean;
     isChoiceButtonDisabled: boolean;
     characterCounterDisplay: string;
@@ -54,7 +53,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.currentQuestionIndex = 0;
         this.pointsManager = { points: 0, pointsToDisplay: 0, pointsMessage: '', doesDisplayPoints: false };
         this.choiceButtonStyle = [{ backgroundColor: '' }];
-        this.submitButtonStyle = { backgroundColor: '' };
         this.isSubmitDisabled = true;
         this.isChoiceButtonDisabled = false;
         this.hasSentAnswer = false;
@@ -227,9 +225,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     }
 
     private setSubmitButtonToDisabled(isDisabled: boolean) {
-        const buttonStyle: ButtonStyle = { backgroundColor: isDisabled ? '' : 'green' };
         this.isSubmitDisabled = isDisabled;
-        this.submitButtonStyle = buttonStyle;
     }
 
     private setButtonToInitState(index: number) {
