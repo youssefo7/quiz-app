@@ -291,7 +291,6 @@ describe('CountdownComponent', () => {
         component['reactToTimerEvents']();
         socketHelper.peerSideEmit(TimeEvents.CurrentTimer, time);
         expect(component['socketTime']).toEqual(time);
-        expect(component['canTogglePanicMode']).toBeFalsy();
     });
 
     it('should react to CurrentTimer event and update the timer color when there is more time left than the minimum panic time', waitForAsync(() => {

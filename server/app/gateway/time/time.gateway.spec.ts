@@ -34,6 +34,8 @@ describe('TimeGateway', () => {
                         findRoom: jest.fn().mockReturnValue({
                             id: 'roomId',
                             timer: null,
+                            organizer: { socketId: 'organizerId', name: 'Organisateur' },
+                            players: [{ socketId: 'playerId1', name: 'name1', points: 50, bonusCount: 0, canChat: true, hasSubmitted: false }],
                         }),
                         rooms: [],
                     },
@@ -102,6 +104,7 @@ describe('TimeGateway', () => {
         roomManagerServiceMock.findRoom = jest.fn().mockReturnValue({
             id: data.roomId,
             timer: timerMock,
+            organizer: { socketId: 'organizerId', name: 'Organisateur' },
         });
 
         const emitMock = jest.fn();

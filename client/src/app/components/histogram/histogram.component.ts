@@ -2,11 +2,14 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { HistogramInfo } from '@app/interfaces/histogram-info';
 import { Question } from '@app/interfaces/quiz';
 import { ChartDataManagerService } from '@app/services/chart-data-manager.service';
+import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { QTypes } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { QuestionChartData } from '@common/question-chart-data';
 import { TimeEvents } from '@common/time.events';
 import { Chart } from 'chart.js';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-histogram',
@@ -28,6 +31,7 @@ export class HistogramComponent implements OnInit, OnDestroy {
     constructor(
         private readonly socketClientService: SocketClientService,
         private chartDataManager: ChartDataManagerService,
+        private roomCommunicationService: RoomCommunicationService,
     ) {
         this.questionsChartData = [];
         this.goodBadChoices = [];
@@ -46,14 +50,14 @@ export class HistogramComponent implements OnInit, OnDestroy {
             return;
         }
         if (!this.isResultsPage) {
-            this.loadChart();
+            await this.loadChart();
             this.updateSelections();
             this.reactToTimerEvents();
             this.reactToChartEvents();
         } else {
             this.questionsChartData = await this.chartDataManager.getQuestionsChartData(this.roomId);
             this.chartDataToLoad = this.chartDataManager.findChartDataToLoad(this.questionsChartData, this.currentQuestionIndex);
-            this.loadChart();
+            await this.loadChart();
         }
     }
 
@@ -66,20 +70,20 @@ export class HistogramComponent implements OnInit, OnDestroy {
         this.questionsChartData = [];
     }
 
-    setChartDataToLoad(loadQuestionChartData: QuestionChartData) {
+    async setChartDataToLoad(loadQuestionChartData: QuestionChartData) {
         this.resetArrays();
         this.chartDataToLoad = loadQuestionChartData;
         this.currentQuestionIndex = this.chartDataToLoad.currentQuestionIndex;
-        this.getQuestion(this.currentQuestionIndex);
+        await this.getQuestion(this.currentQuestionIndex);
         this.updateChartConfig();
     }
 
     private async loadChart() {
-        this.getQuestion(this.currentQuestionIndex);
+        await this.getQuestion(this.currentQuestionIndex);
         this.createPlayerAnswersChart();
     }
 
-    private getQuestion(index: number) {
+    private async getQuestion(index: number) {
         const isValidIndex = index >= 0 && index < this.questions.length;
         if (isValidIndex) {
             this.currentQuestion = this.questions[index];
@@ -93,9 +97,10 @@ export class HistogramComponent implements OnInit, OnDestroy {
                 }
             } else {
                 if (!this.isResultsPage) {
+                    const players = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId));
                     this.histogramInfo.playersChoices = ["N'a pas modifié", 'A modifié'];
                     this.histogramInfo.chartBorderColors = ['black', 'black'];
-                    this.histogramInfo.interactionsCount = [0, 0];
+                    this.histogramInfo.interactionsCount = [players.length, 0];
                     this.histogramInfo.chartBackgroundColors = ['red', 'green'];
                 } else {
                     this.histogramInfo.playersChoices = this.chartDataToLoad.playersChoices;
@@ -108,11 +113,11 @@ export class HistogramComponent implements OnInit, OnDestroy {
     }
 
     private reactToTimerEvents() {
-        this.socketClientService.on(TimeEvents.TimerFinished, (isTransitionTimer: boolean) => {
+        this.socketClientService.on(TimeEvents.TimerFinished, async (isTransitionTimer: boolean) => {
             if (isTransitionTimer) {
                 this.currentQuestionIndex++;
                 this.resetArrays();
-                this.getQuestion(this.currentQuestionIndex);
+                await this.getQuestion(this.currentQuestionIndex);
                 this.updateChartConfig();
             }
         });
@@ -123,13 +128,11 @@ export class HistogramComponent implements OnInit, OnDestroy {
             this.chartDataManager.saveChartData(this.histogramInfo.playersChoices, this.histogramInfo.interactionsCount, this.currentQuestionIndex);
         });
 
-        this.socketClientService.on(GameEvents.UpdateChart, (qrlUpdates: boolean[]) => {
+        this.socketClientService.on(GameEvents.QRLAnswerUpdate, (hasModifiedText: boolean) => {
             const hasModifiedIndex = 1;
             const hasNotModifiedIndex = 0;
-            this.histogramInfo.interactionsCount = [0, 0];
-            qrlUpdates.forEach((hasModifiedText) => {
-                this.histogramInfo.interactionsCount[hasModifiedText ? hasModifiedIndex : hasNotModifiedIndex]++;
-            });
+            this.histogramInfo.interactionsCount[hasModifiedText ? hasModifiedIndex : hasNotModifiedIndex]++;
+            this.histogramInfo.interactionsCount[hasModifiedText ? hasNotModifiedIndex : hasModifiedIndex]--;
             this.updateChartConfig();
         });
     }
@@ -192,7 +195,7 @@ export class HistogramComponent implements OnInit, OnDestroy {
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Réponses des joueurs',
+                        text: this.getChartTitle(),
                     },
                     legend: {
                         display: false,
@@ -208,7 +211,22 @@ export class HistogramComponent implements OnInit, OnDestroy {
             this.chart.data.datasets[0].data = this.histogramInfo.interactionsCount;
             this.chart.data.datasets[0].backgroundColor = this.histogramInfo.chartBackgroundColors;
             this.chart.data.datasets[0].borderColor = this.histogramInfo.chartBorderColors;
+            const chartPlugins = this.chart.options.plugins;
+            if (chartPlugins) {
+                const chartPluginsTitle = chartPlugins.title;
+                if (chartPluginsTitle) {
+                    chartPluginsTitle.text = this.getChartTitle();
+                }
+            }
             this.chart.update();
         }
+    }
+
+    private getChartTitle() {
+        let chartTitle = 'Réponses des joueurs';
+        if (this.currentQuestion.type === QTypes.QRL) {
+            chartTitle = this.isResultsPage ? 'Notes des joueurs' : 'État de réponse des joueurs';
+        }
+        return chartTitle;
     }
 }

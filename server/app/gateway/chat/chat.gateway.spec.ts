@@ -50,7 +50,6 @@ describe('ChatGateway', () => {
             questionsChartData: [],
             submissionCount: 0,
             qrlAnswers: [],
-            qrlUpdates: [],
         });
         gateway['server'] = server;
     });
