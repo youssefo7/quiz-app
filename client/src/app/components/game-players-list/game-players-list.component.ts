@@ -197,8 +197,6 @@ export class GamePlayersListComponent implements OnInit {
                 }
             }
         });
-
-        // TODO ajouter pour l'interaction avec la zone de réponse QRL
     }
 
     private markAsAbandoned(playerName: string) {
