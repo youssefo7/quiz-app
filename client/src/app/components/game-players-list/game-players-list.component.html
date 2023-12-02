@@ -1,22 +1,28 @@
 <div id="player-list" *ngIf="playerResults">
     <table>
         <tr>
-            <th id="name-title">
+            <th class="player-name">
                 Nom
                 <mat-icon *ngIf="!isResultsRoute" (click)="sortByName()">{{
-                    shouldSortNamesAscending ? 'arrow_drop_up' : 'arrow_drop_down'
+                    shouldSortNamesAscending ? 'arrow_drop_down' : 'arrow_drop_up'
                 }}</mat-icon>
-                <button *ngIf="!isResultsRoute" id="order-by-state" (click)="sortByState()">
+                <button
+                    *ngIf="!isResultsRoute"
+                    title="Trier par l'état des joueurs"
+                    [ngClass]="{ ascending: shouldSortStatesAscending }"
+                    id="order-by-state"
+                    (click)="sortByState()"
+                >
                     <mat-icon>swap_vert</mat-icon>
                 </button>
             </th>
-            <th *ngIf="!isResultsRoute" id="score-title">
+            <th *ngIf="!isResultsRoute" class="player-score">
                 Score
                 <mat-icon (click)="sortByPoints()">{{ shouldSortPointsAscending ? 'arrow_drop_up' : 'arrow_drop_down' }}</mat-icon>
             </th>
             <th *ngIf="isResultsRoute">Score final</th>
             <th *ngIf="isResultsRoute">Bonus</th>
-            <th *ngIf="isHost && !isResultsRoute">Droit de clavarder</th>
+            <th *ngIf="isHost && !isResultsRoute" class="chat-button">Droit de clavarder</th>
         </tr>
         <tr *ngFor="let player of playerResults" class="player-entry">
             <td

@@ -1,7 +1,7 @@
 <div id="flex-container">
     <div *ngIf="quiz" class="question-points-zone">
         <p id="question" *ngIf="question">{{ question.text }}</p>
-        <p id="points" *ngIf="question">({{ question.points }} Points)</p>
+        <p id="points" *ngIf="question">{{ question.points }} Points</p>
     </div>
     <div id="chart-container">
         <app-histogram
@@ -18,7 +18,7 @@
             (enableNextQuestionButton)="enableNextQuestionButtonOnEvaluationEnd()"
         ></app-evaluation-zone>
     </div>
-    <button id="submit-zone" (click)="goToNextQuestion()" [ngStyle]="nextQuestionButtonStyle" [disabled]="isNextQuestionButtonDisable">
+    <button id="submit-zone" (click)="goToNextQuestion()" [disabled]="isNextQuestionButtonDisable">
         {{ nextQuestionButtonText }}
     </button>
 </div>

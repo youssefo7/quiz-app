@@ -115,7 +115,6 @@ describe('QuestionZoneStatsComponent', () => {
     it('should prepare for next question on NextQuestion event', () => {
         socketHelper.peerSideEmit(GameEvents.NextQuestion);
         expect(component['isNextQuestionButtonDisable']).toBeTrue();
-        expect(component.nextQuestionButtonStyle).toEqual({ backgroundColor: '' });
     });
 
     it('should change button text if is at last question', () => {

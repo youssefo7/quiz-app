@@ -32,8 +32,8 @@ export class GamePlayersListComponent implements OnInit {
     isResultsRoute: boolean;
     shouldSortPointsAscending: boolean;
     shouldSortNamesAscending: boolean;
+    shouldSortStatesAscending: boolean;
     private quizId: string;
-    private shouldSortStatesAscending: boolean;
     private isSortedByPoints: boolean;
     private isSortedByState: boolean;
     private currentDateTime: string;
@@ -68,6 +68,8 @@ export class GamePlayersListComponent implements OnInit {
         if (this.isResultsRoute) {
             this.shouldSortPointsAscending = false;
             this.sortByPoints();
+        } else {
+            this.sortByName();
         }
     }
 
