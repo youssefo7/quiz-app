@@ -23,20 +23,12 @@ export class ChartDataManagerService {
         return this.chartData;
     }
 
-    saveChartData(playersChoices: string[], interactionsCount: number[], currentQuestionIndex: number) {
+    saveChartData(playersChoices: string[], interactionsCount: number[]) {
         const newChartData: QuestionChartData = {
             playersChoices,
             interactionsCount,
-            currentQuestionIndex,
         };
         this.chartData.push(newChartData);
-    }
-
-    findChartDataToLoad(questionsChartData: QuestionChartData[], currentQuestionIndex: number): QuestionChartData {
-        const questionChartDataFound = questionsChartData.find(
-            (questionChart) => questionChart.currentQuestionIndex === currentQuestionIndex,
-        ) as QuestionChartData;
-        return questionChartDataFound;
     }
 
     resetChartData() {

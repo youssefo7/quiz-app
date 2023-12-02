@@ -132,4 +132,13 @@ describe('ResultsPageComponent', () => {
         await component.ngOnInit();
         expect(roomCommunicationServiceMock.getRoomQuiz).toHaveBeenCalledWith(roomIdMock);
     });
+
+    it('should toggle the display results to either the player list or the chart data', () => {
+        component.shouldHideResults = false;
+        component['toggleResultsDisplay']();
+        expect(component.shouldHideResults).toBeTruthy();
+
+        component['toggleResultsDisplay']();
+        expect(component.shouldHideResults).toBeFalsy();
+    });
 });

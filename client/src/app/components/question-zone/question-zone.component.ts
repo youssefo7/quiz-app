@@ -161,7 +161,9 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
         this.characterCounterDisplay = `${this.userAnswer.length} / ${Constants.MAX_TEXTAREA_LENGTH}`;
         const hasTyped = this.userAnswer.trim().length > 0;
         this.setSubmitButtonToDisabled(!hasTyped);
-        this.handleFieldInteraction(this.hasInteractedOnce);
+        if (!this.isTestGame) {
+            this.handleFieldInteraction(this.hasInteractedOnce);
+        }
     }
 
     private handleFieldInteraction(hasInteractedOnce: boolean) {

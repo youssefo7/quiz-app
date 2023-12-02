@@ -57,8 +57,8 @@ export class ResultChartComponent implements OnInit, OnDestroy {
     }
 
     private async updateChartToLoad() {
-        this.chartDataToLoad = this.chartDataManager.findChartDataToLoad(this.chartData, this.currentQuestionIndex);
-        await this.histogram.setChartDataToLoad(this.chartDataToLoad);
+        this.chartDataToLoad = this.chartData[this.currentQuestionIndex];
+        await this.histogram.setChartDataToLoad(this.chartDataToLoad, this.currentQuestionIndex);
         this.updateQuestionNavigation();
     }
 
