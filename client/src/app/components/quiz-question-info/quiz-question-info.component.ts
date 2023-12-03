@@ -29,6 +29,7 @@ export class QuizQuestionInfoComponent implements OnInit {
         this.isTextValid = true;
         this.isPointsValid = true;
         this.isChoicesValid = true;
+        this.choicesCopy = [];
         this.isBeingModified = false;
     }
 
@@ -121,19 +122,8 @@ export class QuizQuestionInfoComponent implements OnInit {
     resetForm() {
         this.questionInfoForm.reset();
         this.isBeingModified = false;
-
-        this.questionInfoForm.controls.points.setValue(this.defaultPoints);
-
-        while (this.choices.length > Constants.MIN_CHOICES) {
-            this.choices.removeAt(this.choices.length - 1);
-        }
-
-        this.choices.controls.forEach((choiceControl: AbstractControl) => {
-            const choiceGroup = choiceControl as FormGroup;
-            choiceGroup.get('isCorrect')?.setValue(false);
-        });
-
         this.choicesCopy = [];
+        this.initializeForm();
     }
 
     onTypeChange() {
@@ -145,9 +135,10 @@ export class QuizQuestionInfoComponent implements OnInit {
         if (questionType.value === QTypes.QCM || questionType.value === undefined) {
             if (!choices.hasValidator(this.questionChoicesValidator())) {
                 choices.setValidators(this.questionChoicesValidator());
-                this.configureChoicesQCM(choices);
+                this.configureChoicesQCM();
                 this.patchQCM(questionText.value, questionType.value, questionPoints.value, this.choicesCopy as Choice[]);
                 choices.updateValueAndValidity();
+                this.questionInfoForm.updateValueAndValidity();
             }
         } else {
             choices.clear();
@@ -165,15 +156,17 @@ export class QuizQuestionInfoComponent implements OnInit {
 
     private initializeForm() {
         this.questionInfoForm = this.fb.group({
-            type: ['', Validators.required],
-            text: ['', [Validators.required, this.isQuestionTextValid()]],
+            type: ['QCM', Validators.required],
+            text: ['', this.isQuestionTextValid()],
             points: [this.defaultPoints, Validators.required],
-            choices: this.fb.array([], []),
+            choices: this.fb.array([], [this.questionChoicesValidator()]),
         });
 
         for (let i = 0; i < Constants.MIN_CHOICES; i++) {
             this.addChoice();
         }
+
+        this.questionInfoForm.updateValueAndValidity();
     }
 
     private manageQuestion() {
@@ -189,7 +182,7 @@ export class QuizQuestionInfoComponent implements OnInit {
 
         if (questionType === QTypes.QCM) {
             const choicesArray: Choice[] = this.choices.controls.map((control: AbstractControl) => {
-                const text: string = control.get('text')?.value;
+                const text: string = control.get('text')?.value.trim();
                 const isCorrect: boolean = control.get('isCorrect')?.value;
                 return { text, isCorrect };
             });
@@ -214,7 +207,7 @@ export class QuizQuestionInfoComponent implements OnInit {
                 return text.trim().length > 0 && typeof isCorrect !== undefined;
             });
 
-            if (validChoices.length < Constants.MIN_CHOICES) {
+            if (validChoices.length < choices.length) {
                 return { missingChoices: true };
             }
 
@@ -233,6 +226,7 @@ export class QuizQuestionInfoComponent implements OnInit {
                 }
                 differentChoices.add(text);
             }
+
             return null;
         };
     }
@@ -257,15 +251,14 @@ export class QuizQuestionInfoComponent implements OnInit {
         });
     }
 
-    private configureChoicesQCM(choices: FormArray) {
-        let index = 0;
-        let length = 0;
-        if (choices.length === 0) {
-            length = this.choicesCopy.length === 0 ? 2 : this.choicesCopy.length;
-            while (index < length) {
-                this.addChoice();
-                index++;
-            }
+    private configureChoicesQCM() {
+        if (!this.choicesCopy) {
+            this.choicesCopy = [];
+        }
+        const requiredChoicesLength = this.choicesCopy.length || Constants.MIN_CHOICES;
+
+        for (let i = 0; i < requiredChoicesLength; i++) {
+            this.addChoice();
         }
     }
 
