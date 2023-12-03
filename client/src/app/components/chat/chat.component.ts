@@ -139,7 +139,9 @@ export class ChatComponent implements OnInit, AfterViewChecked {
         });
 
         this.socketService.on(GameEvents.SendResults, async () => {
-            await firstValueFrom(this.roomCommunicationService.sendChatMessages(this.roomId as string, this.roomMessages));
+            if (this.isOrganizer) {
+                await firstValueFrom(this.roomCommunicationService.sendChatMessages(this.roomId as string, this.roomMessages));
+            }
         });
     }
 

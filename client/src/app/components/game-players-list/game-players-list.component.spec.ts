@@ -1,10 +1,10 @@
 // Raison: Tests necessaire dépassent la limite
 /* eslint-disable max-lines */
-// any est necessaire pour pourvoir test les méthodes privées
+// any est necessaire pour pourvoir tester les méthodes privées
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatIcon } from '@angular/material/icon';
-import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { Quiz } from '@app/interfaces/quiz';
 import { HistoryCommunicationService } from '@app/services/history-communication.service';
