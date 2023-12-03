@@ -14,6 +14,7 @@ import { ChartDataManagerService } from '@app/services/chart-data-manager.servic
 import { HistoryCommunicationService } from '@app/services/history-communication.service';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { SocketDisconnectionService } from '@app/services/socket-disconnection.service';
 import { GameEvents } from '@common/game.events';
 import { NgChartsModule } from 'ng2-charts';
 import { of } from 'rxjs';
@@ -23,6 +24,7 @@ describe('ResultsPageComponent', () => {
     let component: ResultsPageComponent;
     let fixture: ComponentFixture<ResultsPageComponent>;
     let clientSocketServiceMock: jasmine.SpyObj<SocketClientService>;
+    let socketDisconnectionService: jasmine.SpyObj<SocketDisconnectionService>;
     let roomCommunicationServiceMock: jasmine.SpyObj<RoomCommunicationService>;
     let historyCommunicationServiceMock: jasmine.SpyObj<HistoryCommunicationService>;
     let chartManagerServiceMock: jasmine.SpyObj<ChartDataManagerService>;
@@ -33,6 +35,7 @@ describe('ResultsPageComponent', () => {
     beforeEach(() => {
         clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'socketExists', 'connect', 'disconnect', 'send']);
         clientSocketServiceMock.socketExists.and.returnValue(true);
+        socketDisconnectionService = jasmine.createSpyObj('SocketDisconnectionService', ['handleDisconnectEvent']);
         roomCommunicationServiceMock = jasmine.createSpyObj('RoomCommunicationService', ['getRoomPlayers', 'getRoomQuiz']);
         roomCommunicationServiceMock.getRoomQuiz.and.returnValue(of({} as Quiz));
         chartManagerServiceMock = jasmine.createSpyObj('ChartDataManagerService', ['resetChartData']);
@@ -60,6 +63,7 @@ describe('ResultsPageComponent', () => {
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'results' }] } } },
                 { provide: ChartDataManagerService, useValue: chartManagerServiceMock },
                 { provide: Router, useValue: routerMock },
+                { provide: SocketDisconnectionService, useValue: socketDisconnectionService },
             ],
         });
 
@@ -71,6 +75,16 @@ describe('ResultsPageComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should call handleDisconnectEvent() on ngOnInit()', () => {
+        component.ngOnInit();
+        expect(socketDisconnectionService.handleDisconnectEvent).toHaveBeenCalledWith({
+            roomId: roomIdMock,
+            isHost: false,
+            gameAborted: false,
+            isInGame: false,
+        });
     });
 
     it('should call handleNavigation() on beforeUnloadHandler', () => {
@@ -93,38 +107,6 @@ describe('ResultsPageComponent', () => {
         expect(clientSocketServiceMock.send).toHaveBeenCalledWith(GameEvents.PlayerLeaveGame, { roomId: roomIdMock, isInGame: false });
         expect(clientSocketServiceMock.disconnect).toHaveBeenCalled();
         expect(chartManagerServiceMock.resetChartData).toHaveBeenCalled();
-    });
-
-    it('should connect user and send EndGame event if user is host and then disconnect', async () => {
-        let socketExists = false;
-        clientSocketServiceMock.socketExists.and.callFake(() => socketExists);
-        clientSocketServiceMock.connect.and.callFake(() => {
-            socketExists = true;
-        });
-
-        component['isHost'] = true;
-        await component.ngOnInit();
-
-        expect(clientSocketServiceMock.connect).toHaveBeenCalled();
-        expect(clientSocketServiceMock.send).toHaveBeenCalledWith(GameEvents.EndGame, { roomId: roomIdMock, gameAborted: false });
-        expect(clientSocketServiceMock.disconnect).toHaveBeenCalled();
-        expect(routerMock.navigateByUrl).toHaveBeenCalledWith('home/');
-    });
-
-    it('should connect user and send PlayerLeaveGame event if user is not host and then disconnect', async () => {
-        let socketExists = false;
-        clientSocketServiceMock.socketExists.and.callFake(() => socketExists);
-        clientSocketServiceMock.connect.and.callFake(() => {
-            socketExists = true;
-        });
-
-        component['isHost'] = false;
-        await component.ngOnInit();
-
-        expect(clientSocketServiceMock.connect).toHaveBeenCalled();
-        expect(clientSocketServiceMock.send).toHaveBeenCalledWith(GameEvents.PlayerLeaveGame, { roomId: roomIdMock, isInGame: false });
-        expect(clientSocketServiceMock.disconnect).toHaveBeenCalled();
-        expect(routerMock.navigateByUrl).toHaveBeenCalledWith('home/');
     });
 
     it('should get room quiz', async () => {

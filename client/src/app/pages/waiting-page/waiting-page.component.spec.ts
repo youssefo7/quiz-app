@@ -116,39 +116,6 @@ describe('WaitingPageComponent', () => {
         expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
     }));
 
-    it('should handle socket connections, events and navigation correctly if user is a host on ngOnInit', async () => {
-        let socketExists = false;
-        clientSocketServiceMock.socketExists.and.callFake(() => socketExists);
-        clientSocketServiceMock.connect.and.callFake(() => {
-            socketExists = true;
-        });
-
-        component.isHost = true;
-        component.roomId = '456';
-        await component.ngOnInit();
-
-        expect(clientSocketServiceMock.connect).toHaveBeenCalled();
-        expect(clientSocketServiceMock.send).toHaveBeenCalledWith(GameEvents.EndGame, { roomId: '456', gameAborted: true });
-        expect(clientSocketServiceMock.disconnect).toHaveBeenCalled();
-        expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('home/');
-    });
-
-    it('should handle socket connections, events and navigation correctly if user is not a host on ngOnInit', async () => {
-        let socketExists = false;
-        clientSocketServiceMock.socketExists.and.callFake(() => socketExists);
-        clientSocketServiceMock.connect.and.callFake(() => {
-            socketExists = true;
-        });
-
-        component.isHost = false;
-        component.roomId = '456';
-        await component.ngOnInit();
-
-        expect(clientSocketServiceMock.connect).toHaveBeenCalled();
-        expect(clientSocketServiceMock.send).toHaveBeenCalledWith(GameEvents.PlayerLeaveGame, { roomId: '456', isInGame: true });
-        expect(clientSocketServiceMock.disconnect).toHaveBeenCalled();
-    });
-
     it('should show the hostQuitPopup with the correct configuration to the player of a given room when host quits', () => {
         const mockConfig: PopupMessageConfig = {
             message: 'Êtes-vous sûr de vouloir quitter? Tous les joueurs seront exclus de la partie.',

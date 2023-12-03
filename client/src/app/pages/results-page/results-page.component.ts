@@ -4,6 +4,7 @@ import { Quiz } from '@app/interfaces/quiz';
 import { ChartDataManagerService } from '@app/services/chart-data-manager.service';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { SocketDisconnectionService } from '@app/services/socket-disconnection.service';
 import { GameEvents } from '@common/game.events';
 import { firstValueFrom } from 'rxjs';
 
@@ -25,6 +26,7 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
         private route: ActivatedRoute,
         private router: Router,
         private socketClientService: SocketClientService,
+        private readonly socketDisconnectService: SocketDisconnectionService,
         private roomCommunicationService: RoomCommunicationService,
         private chartManagerService: ChartDataManagerService,
     ) {
@@ -44,19 +46,12 @@ export class ResultsPageComponent implements OnInit, OnDestroy {
     }
 
     async ngOnInit() {
-        if (!this.socketClientService.socketExists()) {
-            this.socketClientService.connect();
-            if (this.socketClientService.socketExists()) {
-                if (this.isHost) {
-                    this.socketClientService.send(GameEvents.EndGame, { roomId: this.roomId, gameAborted: false });
-                } else {
-                    this.socketClientService.send(GameEvents.PlayerLeaveGame, { roomId: this.roomId, isInGame: false });
-                }
-                this.socketClientService.disconnect();
-            }
-            this.router.navigateByUrl('home/');
-            return;
-        }
+        this.socketDisconnectService.handleDisconnectEvent({
+            roomId: this.roomId,
+            isHost: this.isHost,
+            gameAborted: false,
+            isInGame: false,
+        });
         this.quiz = await firstValueFrom(this.roomCommunicationService.getRoomQuiz(this.roomId));
     }
 
