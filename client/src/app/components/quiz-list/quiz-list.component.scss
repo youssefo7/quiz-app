@@ -2,7 +2,7 @@
 
 #container {
     height: 100%;
-    width: 100%;
+    width: 90%;
 }
 
 .title-container {
@@ -65,8 +65,7 @@
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
     width: 100%;
-    max-width: 1200px;
-    max-height: 500px;
+    max-height: 70vh;
     overflow: auto;
 }
 

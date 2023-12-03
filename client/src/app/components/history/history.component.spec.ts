@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
@@ -67,15 +67,21 @@ describe('HistoryComponent', () => {
     it('should sort history by name', () => {
         component.sortHistory('name');
         expect(component.history[0].name).toEqual('test');
+        expect(component['isSortingByName']).toBeTruthy();
+
         component.sortHistory('name');
         expect(component.history[0].name).toEqual('abc');
+        expect(component['isSortingByName']).toBeTruthy();
     });
 
     it('should sort history by date', () => {
         component.sortHistory('date');
         expect(component.history[0].date).toEqual('2021-10-11 01:02:03');
+        expect(component['isSortingByName']).toBeFalsy();
+
         component.sortHistory('date');
         expect(component.history[0].date).toEqual('2021-10-10 01:02:03');
+        expect(component['isSortingByName']).toBeFalsy();
     });
 
     it('should display delete history popup with the correct configuration', () => {
@@ -91,4 +97,21 @@ describe('HistoryComponent', () => {
         expect(config.hasCancelButton).toEqual(mockConfig.hasCancelButton);
         expect(config.okButtonFunction).toBeDefined();
     });
+
+    it('should sort the history from the most recent date when history list is not empty', fakeAsync(() => {
+        spyOn(component, 'sortHistory');
+        component.ngOnInit();
+        tick();
+        expect(component.sortHistory).toHaveBeenCalledWith('date');
+    }));
+
+    it('should not sort the history from the most recent date when history list is empty', fakeAsync(() => {
+        historyCommunicationServiceMock.getAllHistory.and.returnValue(of([]));
+        spyOn(component, 'sortHistory');
+
+        component.ngOnInit();
+        tick();
+
+        expect(component.sortHistory).not.toHaveBeenCalledWith('date');
+    }));
 });

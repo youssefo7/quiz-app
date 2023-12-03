@@ -2,23 +2,12 @@
 
 #container {
     height: 100%;
-    width: 100%;
+    width: 90%;
 }
 
 #history-title {
     display: flex;
-    justify-content: space-between;
-}
-
-.fa-solid.fa-trash {
-    margin-top: 30px;
-    margin-right: 20px;
-}
-
-
-.fa-solid.fa-trash:hover {
-    cursor: pointer;
-    color: blue;
+    justify-content: flex-start;
 }
 
 #history-list {
@@ -27,56 +16,89 @@
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
     width: 100%;
-    height: 100%;
-    max-height: 500px;
+    max-height: 70vh;
     overflow: auto;
 }
 
-#game-header {
-    display: flex;
-    justify-content: space-between;
-    font-weight: bold;
-    border-bottom: 1px solid #ccc;
-    p {
-        flex: 1;
-        padding: 0 10px;
-    }
-}
-
-.header-game:hover {
-    cursor: pointer;
-}
-
-.history-game {
-    display: flex;
-    justify-content: space-between;
+.grid-container {
+    display: grid;
+    grid-template-columns: 30% 35% 20% 15%;
     align-items: center;
-    padding: 25px 10px;
     border-bottom: 1px solid #ccc;
-    transition: background-color 0.3s;
-    overflow: hidden;
-    span {
-        flex: 1;
-        padding: 0 10px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
+
+    &.items-container {
+        transition: background-color 0.3s;
+        &:hover {
+            background-color: #f0f0f0;
+        }
     }
-}
 
-#history-game:hover {
-    background-color: #f0f0f0;
-}
+    p {
+        font-weight: bold;
+    }
 
-.arrow {
-    display: inline-block;
-    margin-left: 5px;
+    span.items {
+        overflow: hidden;
+        text-wrap: nowrap;
+        text-overflow: ellipsis;
+        padding: 25px 10px;
+    }
+
+    p.name {
+        cursor: pointer;
+    }
+
+    .name {
+        grid-column: 1 / 2;
+    }
+
+    p.date {
+        cursor: pointer;
+    }
+
+    .date {
+        grid-column: 2 / 3;
+    }
+
+    .players {
+        grid-column: 3 / 4;
+    }
+
+    .score {
+        grid-column: 4 / 5;
+    }
 }
 
 .arrow-up::after {
+    color: #007bff;
     content: '▲';
 }
 
 .arrow-down::after {
+    color: #007bff;
     content: '▼';
+}
+
+.disable-arrow::after {
+    color: gray;
+}
+
+.fa,
+.fas,
+.fa-solid {
+    margin-top: 30px;
+    margin-right: 20px;
+    color: #007bff;
+    font-weight: bold;
+    text-shadow: rgba(69, 68, 66, 0.387) 1px 0 5px;
+    font-size: larger;
+    margin-left: 10px;
+}
+
+.fa:hover,
+.fas:hover,
+.fa-solid:hover {
+    color: #060688;
+    font-weight: bold;
+    cursor: pointer;
 }
