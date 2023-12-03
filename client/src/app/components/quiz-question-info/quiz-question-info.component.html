@@ -104,5 +104,7 @@
             Les choix doivent être distincts, et il doit y avoir au moins 2 choix de réponse, dont un bon et un mauvais
         </p>
     </div>
-    <div id="save-button"><button (click)="onSubmit()" [disabled]="questionInfoForm.invalid">Ajouter</button></div>
+    <div id="save-edit-button">
+        <button (click)="onSubmit()" [disabled]="questionInfoForm.invalid">{{ saveEditQuestionButtonText() }}</button>
+    </div>
 </form>
