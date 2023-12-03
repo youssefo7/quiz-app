@@ -19,12 +19,18 @@ import { PlayerListComponent } from './player-list.component';
 import SpyObj = jasmine.SpyObj;
 
 class MockSocketClientService extends SocketClientService {
+    private mockSocketExists = true;
+
     override connect() {
         // vide
     }
 
     override socketExists() {
-        return true;
+        return this.mockSocketExists;
+    }
+
+    setSocketExists(value: boolean) {
+        this.mockSocketExists = value;
     }
 }
 
@@ -68,11 +74,19 @@ describe('PlayerListComponent', () => {
         mockDialog.open.and.returnValue(mockDialogRef);
         fixture = TestBed.createComponent(PlayerListComponent);
         component = fixture.componentInstance;
+        mockSocketClientService.setSocketExists(true);
         fixture.detectChanges();
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should not call methods when socket does not exist', async () => {
+        const socketEventsSpy = spyOn<any>(component, 'listenToSocketEvents');
+        mockSocketClientService.setSocketExists(false);
+        await component.ngOnInit();
+        expect(socketEventsSpy).not.toHaveBeenCalled();
     });
 
     it('should add a player to the game players when PlayerHasJoined event is received', () => {
