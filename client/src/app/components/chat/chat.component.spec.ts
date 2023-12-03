@@ -175,10 +175,8 @@ describe('ChatComponent', () => {
     });
 
     it('detectCharacterLengthOnInput should set currentInputLength to length of input value', () => {
-        const event = { target: { value: 'test' } };
-        const inputLength = 4;
-        component.detectCharacterLengthOnInput(event as unknown as Event);
-        expect(component['currentInputLength']).toEqual(inputLength);
+        component.userMessage = 'test';
+        component.detectCharacterLengthOnInput();
         expect(component.characterCounterDisplay).toBe('4 / 200');
     });
 

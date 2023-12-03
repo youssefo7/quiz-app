@@ -25,6 +25,7 @@ export class JoinGamePopupComponent {
     roomCodeErrorMessage: string;
     showUsernameField: boolean;
     isCodeValidated: boolean;
+    characterCounterDisplay: string;
     private quizId: string;
 
     // Raison: J'injecte les services nécessaires dans mon constructeur
@@ -40,6 +41,7 @@ export class JoinGamePopupComponent {
         this.givenUsername = '';
         this.showUsernameField = false;
         this.isCodeValidated = false;
+        this.characterCounterDisplay = `${this.givenUsername.length} / ${Constants.MAX_NAME_LENGTH}`;
     }
 
     @HostListener('keyup', ['$event'])
@@ -120,6 +122,10 @@ export class JoinGamePopupComponent {
         if (!allowedInput) {
             event.preventDefault();
         }
+    }
+
+    detectCharacterLengthOnInput() {
+        this.characterCounterDisplay = `${this.givenUsername.length} / ${Constants.MAX_NAME_LENGTH}`;
     }
 
     private async isUsernameValid(): Promise<boolean> {
