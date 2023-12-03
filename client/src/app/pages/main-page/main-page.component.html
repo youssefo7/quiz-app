@@ -1,8 +1,10 @@
 <div class="container justified background">
     <img src="./assets/images/transparent_quizzard_logo.png" alt="Logo Projet" length="200px" width="200px" />
-    <button id="join-game-button" class="home-page-button" (click)="openJoinGamePopup()">Joindre une partie</button>
-    <button id="create-game-button" class="home-page-button" routerLink="/game/new">Créer une partie</button>
-    <button id="admin-button" class="home-page-button" (click)="openAdminPopup()">Administrer les jeux</button>
+    <button class="button-64" id="join-game-button" role="button" (click)="openJoinGamePopup()"><span class="text">Joindre une partie</span></button>
+    <button class="button-64" id="create-game-button" role="button" routerLink="/game/new"><span class="text">Créer une partie</span></button>
+    <button class="button-64" id="admin-button" role="button" (click)="openAdminPopup()">
+        <span class="text">Administrer les jeux</span>
+    </button>
     <footer class="footer-item">
         <h4 class="team-name">Équipe Poly 207</h4>
         <p id="name-list">

@@ -5,6 +5,7 @@
 
 img {
     filter: drop-shadow(10px 10px 5px rgb(253, 231, 255));
+    margin-top: 2%;
 }
 
 .justified {
@@ -12,32 +13,6 @@ img {
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-}
-
-@media screen and (min-width: 751px) {
-    .home-page-button {
-        width: 15%;
-    }
-}
-
-@media screen and (max-width: 750px) {
-    .home-page-button {
-        width: 30%;
-    }
-}
-
-.home-page-button {
-    padding: 18px 30px;
-    margin-top: 5px;
-    font-size: 15px;
-    text-align: center;
-    border-radius: 10px;
-    box-shadow: 0 3px #606060;
-    cursor: pointer;
-}
-
-.home-page-button:hover {
-    background-color: #bbdaf7;
 }
 
 .team-name {
@@ -52,4 +27,56 @@ img {
 
 .footer-item p {
     color: #7c93a7;
+}
+
+// Ce css provient du site suivant: https://getcssscan.com/css-buttons-examples (Bouton 64) par Greenlight
+/* CSS */
+.button-64 {
+    align-items: center;
+    background-image: linear-gradient(144deg, #af40ff, #5b42f3 50%, #00ddeb);
+    border: 0;
+    border-radius: 8px;
+    box-shadow: rgba(151, 65, 252, 0.2) 0 15px 30px -5px;
+    box-sizing: border-box;
+    color: #ffffff;
+    display: flex;
+    font-family: Phantomsans, sans-serif;
+    font-size: medium;
+    justify-content: center;
+    line-height: 1em;
+    width: 20%;
+    max-width: 100%;
+    min-width: 140px;
+    padding: 0.5%;
+    text-decoration: none;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.button-64:active,
+.button-64:hover {
+    outline: 0;
+}
+
+.button-64 span {
+    background-color: rgb(5, 6, 45);
+    padding: 16px 24px;
+    border-radius: 6px;
+    width: 100%;
+    font-weight: bold;
+    transition: 300ms;
+}
+
+.button-64:hover span {
+    background: none;
+}
+
+@media (min-width: 768px) {
+    .button-64 {
+        font-size: large;
+        min-width: 196px;
+    }
 }
