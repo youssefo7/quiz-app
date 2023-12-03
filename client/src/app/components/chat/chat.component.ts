@@ -29,7 +29,6 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     grantedChatPermissionMessage: string;
     giveChattingRightsToAll: string;
     private isResultsRoute: boolean;
-    private currentInputLength: number;
     private enableScroll: boolean;
 
     // Raison: Les 4 injections sont nécessaires  dans le constructeur
@@ -40,10 +39,9 @@ export class ChatComponent implements OnInit, AfterViewChecked {
         private roomCommunicationService: RoomCommunicationService,
         private changeDetector: ChangeDetectorRef,
     ) {
-        this.currentInputLength = 0;
-        this.characterCounterDisplay = `${this.currentInputLength} / ${Constants.MAX_TEXTAREA_LENGTH}`;
         this.roomMessages = [];
         this.userMessage = '';
+        this.characterCounterDisplay = `${this.userMessage.length} / ${Constants.MAX_TEXTAREA_LENGTH}`;
         this.isResultsRoute = this.router.url.includes('results');
         this.isOrganizer = this.router.url.endsWith('/host');
         this.canChat = true;
@@ -91,10 +89,8 @@ export class ChatComponent implements OnInit, AfterViewChecked {
         textarea.style.height = Math.min(textarea.scrollHeight, heightLimit) + 'px';
     }
 
-    detectCharacterLengthOnInput(event: Event) {
-        const inputValue = (event.target as HTMLInputElement).value;
-        this.currentInputLength = inputValue.length;
-        this.characterCounterDisplay = `${this.currentInputLength} / ${Constants.MAX_TEXTAREA_LENGTH}`;
+    detectCharacterLengthOnInput() {
+        this.characterCounterDisplay = `${this.userMessage.length} / ${Constants.MAX_TEXTAREA_LENGTH}`;
     }
 
     getPlaceholder() {
