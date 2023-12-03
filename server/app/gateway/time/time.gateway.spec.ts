@@ -2,6 +2,7 @@
  des méthode privées */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
+import { GameEvents } from '@common/game.events';
 import { TimeEvents } from '@common/time.events';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -77,7 +78,14 @@ describe('TimeGateway', () => {
     it('handleStartTimer() should handle the timer finishing and emit TimerFinished event to the users in the room', async () => {
         jest.useFakeTimers();
 
-        const data = { initialTime: 60, tickRate: 1000, roomId };
+        roomManagerServiceMock.findRoom = jest.fn().mockReturnValue({
+            id: 'roomId',
+            timer: null,
+            organizer: { socketId: 'organizerId', name: 'Organisateur' },
+            players: [],
+        });
+
+        const data = { initialTime: 60, tickRate: 1000, roomId, isTransitionTimer: false };
         const stopTimerSpy = jest.spyOn(gateway, 'handleStopTimer');
 
         server.to.returns({
@@ -85,6 +93,9 @@ describe('TimeGateway', () => {
                 if (event === TimeEvents.TimerFinished) {
                     expect(event).toEqual(TimeEvents.TimerFinished);
                     expect(gateway['counter']).toBeUndefined();
+                }
+                if (event === GameEvents.AllPlayersSubmitted) {
+                    expect(event).toEqual(GameEvents.AllPlayersSubmitted);
                 }
             },
         } as BroadcastOperator<unknown, unknown>);
@@ -126,5 +137,36 @@ describe('TimeGateway', () => {
         } as BroadcastOperator<unknown, unknown>);
         gateway.handleTimerInterrupted(socket, roomId);
         expect(stopTimerSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('handleToggleTimer() should start the timer if isPaused is false', () => {
+        const timer = { isPaused: false, roomId, initialTime: 60, tickRate: 1000 };
+        const startTimerSpy = jest.spyOn(gateway, 'handleStartTimer');
+        const emitMock = jest.fn();
+        gateway['server'].to = jest.fn().mockReturnValue({ emit: emitMock });
+
+        gateway.handleToggleTimer(socket, timer);
+        expect(startTimerSpy).toHaveBeenCalledWith(socket, timer);
+    });
+
+    it('handleToggleTimer() should stop the timer if isPaused is true', () => {
+        const timer = { isPaused: true, roomId: 'roomId', initialTime: 60, tickRate: 1000 };
+        const stopTimerSpy = jest.spyOn(gateway, 'handleStopTimer');
+
+        gateway.handleToggleTimer(socket, timer);
+        expect(stopTimerSpy).toHaveBeenCalledWith(socket, timer.roomId);
+    });
+
+    it('handlePanicTimer() should restart timer and emit PanicMode event', () => {
+        const timer = { roomId: 'roomId', initialTime: 60, tickRate: 1000 };
+        const stopTimerSpy = jest.spyOn(gateway, 'handleStopTimer');
+        const startTimerSpy = jest.spyOn(gateway, 'handleStartTimer');
+        const emitMock = jest.fn();
+        gateway['server'].to = jest.fn().mockReturnValue({ emit: emitMock });
+
+        gateway.handlePanicTimer(socket, timer);
+        expect(stopTimerSpy).toHaveBeenCalledWith(socket, timer.roomId);
+        expect(startTimerSpy).toHaveBeenCalledWith(socket, timer);
+        expect(emitMock).toHaveBeenCalledWith(TimeEvents.PanicMode);
     });
 });
