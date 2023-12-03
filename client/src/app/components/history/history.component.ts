@@ -23,19 +23,23 @@ enum SortType {
 })
 export class HistoryComponent implements OnInit {
     history: History[];
-    isNameAscending;
-    isDateAscending;
-    isHistoryEmpty;
-    private sortDirection;
+    isNameAscending: boolean;
+    isDateAscending: boolean;
+    isHistoryEmpty: boolean;
+    isSortingByName: boolean;
+    private nameSortDirection: SortDirection;
+    private dateSortDirection: SortDirection;
 
     constructor(
         private readonly historyCommunicationService: HistoryCommunicationService,
         private popUp: MatDialog,
     ) {
-        this.sortDirection = SortDirection.ASCENDING;
+        this.nameSortDirection = SortDirection.ASCENDING;
+        this.dateSortDirection = SortDirection.ASCENDING;
         this.isNameAscending = true;
         this.isDateAscending = true;
         this.isHistoryEmpty = true;
+        this.isSortingByName = false;
     }
 
     async ngOnInit() {
@@ -44,18 +48,20 @@ export class HistoryComponent implements OnInit {
 
     sortHistory(type: string) {
         if (type === SortType.NAME) {
-            this.isNameAscending = this.sortDirection !== SortDirection.ASCENDING;
-            this.sortDirection = this.isNameAscending ? SortDirection.ASCENDING : SortDirection.DESCENDING;
+            this.isNameAscending = this.nameSortDirection !== SortDirection.ASCENDING;
+            this.nameSortDirection = this.isNameAscending ? SortDirection.ASCENDING : SortDirection.DESCENDING;
+            this.isSortingByName = true;
         } else if (type === SortType.DATE) {
-            this.isDateAscending = this.sortDirection !== SortDirection.ASCENDING;
-            this.sortDirection = this.isDateAscending ? SortDirection.ASCENDING : SortDirection.DESCENDING;
+            this.isDateAscending = this.dateSortDirection !== SortDirection.ASCENDING;
+            this.dateSortDirection = this.isDateAscending ? SortDirection.ASCENDING : SortDirection.DESCENDING;
+            this.isSortingByName = false;
         }
 
         this.history.sort((a, b) => {
             if (type === SortType.NAME) {
-                return this.sortDirection === SortDirection.ASCENDING ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+                return this.nameSortDirection === SortDirection.ASCENDING ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
             } else {
-                return this.sortDirection === SortDirection.ASCENDING ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date);
+                return this.dateSortDirection === SortDirection.ASCENDING ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date);
             }
         });
     }
@@ -77,5 +83,8 @@ export class HistoryComponent implements OnInit {
     private async loadHistory() {
         this.history = await firstValueFrom(this.historyCommunicationService.getAllHistory());
         this.isHistoryEmpty = this.history.length === 0;
+        if (!this.isHistoryEmpty) {
+            this.sortHistory(SortType.DATE);
+        }
     }
 }
