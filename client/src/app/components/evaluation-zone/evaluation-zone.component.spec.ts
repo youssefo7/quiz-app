@@ -190,7 +190,7 @@ describe('EvaluationZoneComponent', () => {
 
         component['savePointsStatistics']();
 
-        expect(chartDataManagerServiceMock.saveChartData).toHaveBeenCalledWith(['0', '50', '100'], [1, 1, 1], 1);
+        expect(chartDataManagerServiceMock.saveChartData).toHaveBeenCalledWith(['0', '50', '100'], [1, 1, 1]);
     });
 
     it('should reset buttons with the correct configurations', () => {
