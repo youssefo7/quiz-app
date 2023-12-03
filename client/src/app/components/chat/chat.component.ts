@@ -27,6 +27,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     playerName: string;
     lostChatPermissionMessage: string;
     grantedChatPermissionMessage: string;
+    giveChattingRightsToAll: string;
     private isResultsRoute: boolean;
     private currentInputLength: number;
     private enableScroll: boolean;
@@ -48,6 +49,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
         this.canChat = true;
         this.lostChatPermissionMessage = "L'oganisateur a limité vos droits de clavardage";
         this.grantedChatPermissionMessage = "L'oganisateur a rétabli vos droits de clavardage";
+        this.giveChattingRightsToAll = "L'organisateur a rétabli les droits de clavardage à tout le monde";
         this.enableScroll = false;
     }
 
@@ -58,8 +60,14 @@ export class ChatComponent implements OnInit, AfterViewChecked {
         if (!this.isTestGame) {
             this.configureChatSocketFeatures();
         }
+
         if (this.isResultsRoute) {
             this.roomMessages = await firstValueFrom(this.roomCommunicationService.getChatMessages(this.roomId as string));
+
+            if (!this.isOrganizer) {
+                this.roomMessages = this.roomMessages.filter((message) => !message.fromSystem);
+            }
+            this.addSystemMessage(this.giveChattingRightsToAll);
         }
 
         const player = await firstValueFrom(
@@ -119,33 +127,31 @@ export class ChatComponent implements OnInit, AfterViewChecked {
 
         this.socketService.on(GameEvents.PlayerAbandonedGame, (playerName: string) => {
             if (this.isOrganizer) {
-                const messageTime = new Date();
-                const playerLeftMessage: ChatMessage = {
-                    authorName: 'Système',
-                    time: messageTime.getHours() + ':' + messageTime.getMinutes() + ':' + messageTime.getSeconds(),
-                    message: playerName + ' a quitté la partie.',
-                    fromSystem: true,
-                };
-                this.roomMessages.push(playerLeftMessage);
-                this.enableScroll = true;
+                const newMessage = playerName + ' a quitté la partie.';
+                this.addSystemMessage(newMessage);
             }
         });
 
         this.socketService.on(ChatEvents.ToggleChattingRights, async (canWrite: boolean) => {
             this.canChat = canWrite;
-            const messageTime = new Date();
-            const chatPermissionMessage: ChatMessage = {
-                authorName: 'Système',
-                time: messageTime.getHours() + ':' + messageTime.getMinutes() + ':' + messageTime.getSeconds(),
-                message: !this.canChat ? this.lostChatPermissionMessage : this.grantedChatPermissionMessage,
-                fromSystem: true,
-            };
-            this.roomMessages.push(chatPermissionMessage);
-            this.enableScroll = true;
+            const newMessage = !this.canChat ? this.lostChatPermissionMessage : this.grantedChatPermissionMessage;
+            this.addSystemMessage(newMessage);
         });
 
         this.socketService.on(GameEvents.SendResults, async () => {
             await firstValueFrom(this.roomCommunicationService.sendChatMessages(this.roomId as string, this.roomMessages));
         });
+    }
+
+    private addSystemMessage(message: string) {
+        const messageTime = new Date();
+        const systemMessage: ChatMessage = {
+            authorName: 'Système',
+            time: messageTime.getHours() + ':' + messageTime.getMinutes() + ':' + messageTime.getSeconds(),
+            message,
+            fromSystem: true,
+        };
+        this.roomMessages.push(systemMessage);
+        this.enableScroll = true;
     }
 }
