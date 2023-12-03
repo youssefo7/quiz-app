@@ -6,7 +6,6 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
-import { GameService } from '@app/services/game.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
 import { Constants, QTypes } from '@common/constants';
@@ -38,7 +37,6 @@ describe('CountdownComponent', () => {
     let fixture: ComponentFixture<CountdownComponent>;
     let timeServiceMock: SpyObj<TimeService>;
     let routerMock: SpyObj<Router>;
-    let gameServiceMock: SpyObj<GameService>;
     let socketClientServiceMock: MockSocketClientService;
     let socketHelper: SocketTestHelper;
 
@@ -67,11 +65,10 @@ describe('CountdownComponent', () => {
     const roomId = '123';
 
     beforeEach(() => {
-        timeServiceMock = jasmine.createSpyObj('TimeService', ['startTimer', 'stopTimer', 'getTime', 'isTimerFinished']);
+        timeServiceMock = jasmine.createSpyObj('TimeService', ['startTimer', 'getTime', 'isTimerFinished']);
         timeServiceMock.getTime.and.returnValue(of(0));
         timeServiceMock.isTimerFinished.and.returnValue(of(true));
         routerMock = jasmine.createSpyObj('Router', ['navigateByUrl']);
-        gameServiceMock = jasmine.createSpyObj('GameService', ['setGameEndState', 'getQuizById']);
         socketClientServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'socketExists', 'send']);
     });
 
@@ -86,7 +83,6 @@ describe('CountdownComponent', () => {
                 { provide: TimeService, useValue: timeServiceMock },
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: [{ path: 'test' }] } } },
                 { provide: Router, useValue: routerMock },
-                { provide: GameService, useValue: gameServiceMock },
                 { provide: SocketClientService, useValue: socketClientServiceMock },
             ],
         }).compileComponents();
@@ -165,7 +161,9 @@ describe('CountdownComponent', () => {
 
     it('should return the correct panic time for QCM questions', () => {
         component['currentQuestionIndex'] = 0;
+        component['setPanicTime'](component['currentQuestionIndex']);
         const questionTypeQCM = component['quiz'].questions[0].type;
+
         expect(component['panicTime']).toBe(Constants.MIN_TIME_TO_PANIC_QCM);
         expect(questionTypeQCM).toBe(QTypes.QCM);
     });
@@ -173,10 +171,11 @@ describe('CountdownComponent', () => {
     it('should return the correct panic time for QRL questions', () => {
         component['quiz'] = mockQuiz;
         component['currentQuestionIndex'] = 1;
+        component['setPanicTime'](component['currentQuestionIndex']);
         const questionTypeQRL = component['quiz'].questions[1].type;
-        expect(questionTypeQRL).toBe(QTypes.QRL);
 
-        // expect(component['panicTime']).toBe(Constants.MIN_TIME_TO_PANIC_QRL);
+        expect(questionTypeQRL).toBe(QTypes.QRL);
+        expect(component['panicTime']).toBe(Constants.MIN_TIME_TO_PANIC_QRL);
     });
 
     it('should switch the clock color to red when three seconds left on the timer', waitForAsync(() => {
