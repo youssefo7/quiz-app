@@ -1,5 +1,5 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { TestBed, discardPeriodicTasks, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { discardPeriodicTasks, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { GameService } from './game.service';
 import { TimeService } from './time.service';
 
@@ -19,6 +19,29 @@ describe('TimeService', () => {
 
     it('should be created', () => {
         expect(service).toBeTruthy();
+    });
+
+    it('should return the counter value when get time() is called', () => {
+        const counterTime = 10;
+        service['time'] = counterTime;
+        expect(service.time).toBe(counterTime);
+    });
+
+    it('should return true if the timer is done and isTimerFinished() is called', fakeAsync(() => {
+        service.isTimerFinished().subscribe((isFinished) => {
+            expect(isFinished).toBeTruthy();
+        });
+        service['isTransitionTimerDone'].next(true);
+    }));
+
+    it('should return time updates', () => {
+        const startTime = service['time'];
+        const initialTime = 5;
+        service['time'] = initialTime;
+        service.getTime().subscribe((time) => {
+            expect(time).toBe(initialTime);
+        });
+        expect(startTime).not.toBe(service['time']);
     });
 
     it('startTimer should start an interval', fakeAsync(() => {
