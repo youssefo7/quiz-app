@@ -21,6 +21,7 @@ export const Constants = {
     SWITCH_COLOR_TIME_GAME: 3,
     SWITCH_COLOR_TIME_TEST_GAME: 4,
     TEXT_CHANGE_PERIOD: 5,
+    MAX_NAME_LENGTH: 30,
 } as const;
 
 export const enum QTypes {

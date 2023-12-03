@@ -25,7 +25,7 @@
             [placeholder]="getPlaceholder()"
             maxlength="200"
             (input)="expandTextArea($event)"
-            (input)="detectCharacterLengthOnInput($event)"
+            (input)="detectCharacterLengthOnInput()"
             (keyup)="keyUpEvent($event)"
             [(ngModel)]="userMessage"
             [disabled]="!canChat"

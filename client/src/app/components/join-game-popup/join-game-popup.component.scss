@@ -28,10 +28,16 @@ button {
 }
 
 #code-input {
-    font-size: 24px; 
+    font-size: 24px;
     width: 55px;
 }
 
 .error-message {
     color: red;
+}
+
+mat-dialog-content#name-length.mat-mdc-dialog-content.mdc-dialog__content {
+    padding: unset;
+    font-size: small;
+    margin-left: 10px;
 }
