@@ -165,14 +165,16 @@ describe('PlayerListComponent', () => {
 
     it('should lock the game and set isLocked to true', () => {
         const sendSpy = spyOn(mockSocketClientService, 'send');
-        component.lockGame();
+        component.isLocked = false;
+        component.toggleGameLock();
         expect(sendSpy).toHaveBeenCalledWith(WaitingEvents.LockRoom, '456');
         expect(component.isLocked).toBeTrue();
     });
 
     it('should unlock the game and set isLocked to false', () => {
         const sendSpy = spyOn(mockSocketClientService, 'send');
-        component.unlockGame();
+        component.isLocked = true;
+        component.toggleGameLock();
         expect(sendSpy).toHaveBeenCalledWith(WaitingEvents.UnlockRoom, '456');
         expect(component.isLocked).toBeFalse();
     });

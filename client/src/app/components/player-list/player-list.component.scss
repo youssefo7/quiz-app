@@ -21,7 +21,6 @@
     #roomId {
         text-align: center;
         width: 50%;
-        padding-right: 11%;
         display: flex;
         justify-content: flex-end;
     }
@@ -37,7 +36,7 @@
 
 #lists {
     display: flex;
-    height: 70vh;
+    height: 65vh;
     overflow: hidden;
     justify-content: center;
 }
@@ -45,20 +44,23 @@
 #listComponent {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-end;
     width: 75%;
     margin-left: 3%;
 }
 
 #playersList {
     border-radius: 7px;
-    width: 85%;
+    width: 75%;
     background: rgb(131, 193, 255);
     padding: 2%;
     list-style-position: inside;
     overflow-y: auto;
     margin: 0%;
-    
+    height: 65vh;
+    box-sizing: border-box;
+    margin-right: 5%;
+
     li {
         border-radius: 9px;
         margin: 2%;
@@ -67,13 +69,15 @@
     }
 }
 
-#bannedPlayersList{
+#bannedPlayersList {
     border-radius: 7px;
     background: rgb(184, 62, 62);
     list-style-position: inside;
     width: 25%;
     overflow-y: auto;
     margin-right: 2%;
+    height: 95%;
+    height: 65vh;
 
     ol {
         padding-left: 0%;
@@ -89,31 +93,60 @@
 
 #hostRoomOptions {
     color: lightgray;
-    width: 72%;
-    padding-left: 2%;
+    width: 100%;
     display: flex;
     justify-content: center;
 
     #locksButtons {
         width: 100%;
         display: flex;
-        justify-content: center;
         pointer-events: auto;
-    }
+        gap: 10px;
+        justify-content: center;
+        margin-right: 7%;
+        margin-top: 1%;
 
-    #unlockButton:disabled, #lockButton:disabled {
-        pointer-events: none;
+        .button {
+            margin: unset;
+            background-color: forestgreen;
+            padding: 10px 20px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s;
+
+            &:not(:disabled):hover {
+                background-color: rgb(7, 68, 7);
+            }
+
+            &:disabled {
+                background-color: gray;
+                cursor: no-drop;
+            }
+
+            &.lock {
+                background-color: rgb(85, 164, 242);
+
+                &:hover {
+                    background-color: rgb(21, 53, 86);
+                }
+            }
+        }
     }
 }
 
 .player span {
     padding: 1%;
-    align-items: center; 
+    align-items: center;
 }
 
 .account {
-   vertical-align: middle;
-   padding: 2px;
+    vertical-align: middle;
+    padding: 2px;
 }
 
 .banButton {
@@ -121,7 +154,7 @@
     border: none;
     cursor: pointer;
     float: right;
-   
+
     .banIcon {
         color: red;
     }
@@ -134,7 +167,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); 
+    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;

@@ -1,6 +1,6 @@
 <div id="lists">
     <div id="countdown-container" *ngIf="showCountdown">
-        <div id="countdown">La partie commence dans:  {{ transitionCounter }}</div>
+        <div id="countdown">La partie commence dans: {{ transitionCounter }}</div>
     </div>
     <div id="listComponent">
         <ol id="playersList">
@@ -22,13 +22,12 @@
 </div>
 <div *ngIf="isHost" id="hostRoomOptions">
     <div id="locksButtons">
-        <button id="unlockButton" (click)="unlockGame()" title="Déverrouiller la partie" [disabled]="!isLocked">
-            <mat-icon>lock_open</mat-icon>
+        <button id="lockButton" class="button lock" (click)="toggleGameLock()">
+            <mat-icon title="Verrouiller la partie" *ngIf="!isLocked">lock_open</mat-icon>
+            <mat-icon title="Deverrouiller la partie" *ngIf="isLocked">lock</mat-icon>
         </button>
-        <button id="lockButton" (click)="lockGame()" title="Verrouiller la partie" [disabled]="isLocked">
-            <mat-icon>lock</mat-icon>
+        <button class="button" title="Verrouiller la partie pour commencer" (click)="startGame()" [disabled]="!isLocked || players.length === 0">
+            Commencer
         </button>
     </div>
-    <button title="Verrouiller la partie pour commencer" (click)="startGame()" [disabled]="!isLocked || players.length === 0">Commencer</button>
 </div>
-

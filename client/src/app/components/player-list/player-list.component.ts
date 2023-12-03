@@ -51,14 +51,9 @@ export class PlayerListComponent implements OnInit {
         this.players = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string));
     }
 
-    lockGame() {
-        this.socketClientService.send(WaitingEvents.LockRoom, this.roomId);
-        this.isLocked = true;
-    }
-
-    unlockGame() {
-        this.socketClientService.send(WaitingEvents.UnlockRoom, this.roomId);
-        this.isLocked = false;
+    toggleGameLock() {
+        this.isLocked = !this.isLocked;
+        this.socketClientService.send(this.isLocked ? WaitingEvents.LockRoom : WaitingEvents.UnlockRoom, this.roomId);
     }
 
     banPlayer(name: string) {
