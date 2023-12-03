@@ -9,11 +9,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AbstractControl, FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { QuizQuestionInfoComponent } from '@app/components/quiz-question-info/quiz-question-info.component';
 import { RangeValidatorDirective } from '@app/directives/range-validator.directive';
-import { Question } from '@app/interfaces/quiz';
+import { Choice, Question } from '@app/interfaces/quiz';
 import { QuizManagerService } from '@app/services/quiz-manager.service';
 import { Constants } from '@common/constants';
-import { QuizQuestionInfoComponent } from './quiz-question-info.component';
 import SpyObj = jasmine.SpyObj;
 
 describe('QuizQuestionInfoComponent', () => {
@@ -52,11 +52,12 @@ describe('QuizQuestionInfoComponent', () => {
         component.onSubmit();
         expect(component['manageQuestion']).toHaveBeenCalled();
         expect(component.resetForm).toHaveBeenCalled();
+        expect(component.choices.length).toEqual(Constants.MIN_CHOICES);
     });
 
     it('should initialize the form and add choices when page is loaded', () => {
         component['initializeForm']();
-        expect(component.questionInfoForm.get('type')?.value).toEqual('');
+        expect(component.questionInfoForm.get('type')?.value).toEqual('QCM');
         expect(component.questionInfoForm.get('text')?.value).toEqual('');
         expect(component.questionInfoForm.get('points')?.value).toEqual(Constants.MIN_POINTS);
         expect(component.choices.length).toEqual(Constants.MIN_CHOICES);
@@ -135,24 +136,17 @@ describe('QuizQuestionInfoComponent', () => {
     });
 
     it('should reset the form and choices', () => {
+        spyOn(component, 'addChoice');
+        spyOn<any>(component, 'initializeForm');
+
+        component['initializeForm']();
         component.choices.at(0).get('text')?.setValue('First Choice');
         component.choices.at(0).get('isCorrect')?.setValue(true);
         component.choices.at(1).get('text')?.setValue('Second Choice');
 
-        component.addChoice();
-        component.choices.at(2).get('text')?.setValue('Third Choice');
-
         component.resetForm();
-        component['initializeForm']();
-
-        expect(component.questionInfoForm.get('type')?.value).toEqual('');
-        expect(component.questionInfoForm.get('text')?.value).toEqual('');
-        expect(component.questionInfoForm.get('points')?.value).toEqual(Constants.MIN_POINTS);
-        expect(component.choices.length).toEqual(Constants.MIN_CHOICES);
-        expect(component.choices.at(0).get('text')?.value).toEqual('');
-        expect(component.choices.at(0).get('isCorrect')?.value).toEqual(false);
-        expect(component.choices.at(1).get('text')?.value).toEqual('');
-        expect(component.choices.at(1).get('isCorrect')?.value).toEqual(false);
+        expect(component['choicesCopy'].length).toBe(0);
+        expect(component['initializeForm']).toHaveBeenCalled();
     });
 
     it('should correctly add a new question to the quiz', () => {
@@ -242,18 +236,15 @@ describe('QuizQuestionInfoComponent', () => {
         const validator = component['questionChoicesValidator']();
 
         const invalidChoicesArray = component.choices;
-        invalidChoicesArray.push(
-            new FormGroup({
-                text: new FormControl('Choice 1'),
-                isCorrect: new FormControl(true),
-            }),
-        );
-        invalidChoicesArray.push(
-            new FormGroup({
-                text: new FormControl('Choice 2'),
-                isCorrect: new FormControl(true),
-            }),
-        );
+
+        const choice1 = invalidChoicesArray.at(0);
+        choice1.get('text')?.setValue('Choice 1');
+        choice1.get('isCorrect')?.setValue(true);
+
+        const choice2 = invalidChoicesArray.at(1);
+        choice2.get('text')?.setValue('Choice 2');
+        choice2.get('isCorrect')?.setValue(true);
+
         const invalidResult = validator(invalidChoicesArray);
         expect(invalidResult).toEqual({
             missingCorrectOrIncorrectChoice: true,
@@ -265,18 +256,13 @@ describe('QuizQuestionInfoComponent', () => {
         const validator = component['questionChoicesValidator']();
 
         const invalidChoicesArray = component.choices;
-        invalidChoicesArray.push(
-            new FormGroup({
-                text: new FormControl('Choice 1'),
-                isCorrect: new FormControl(true),
-            }),
-        );
-        invalidChoicesArray.push(
-            new FormGroup({
-                text: new FormControl('Choice 1'),
-                isCorrect: new FormControl(false),
-            }),
-        );
+        const choice1 = invalidChoicesArray.at(0);
+        choice1.get('text')?.setValue('Choice 1');
+        choice1.get('isCorrect')?.setValue(true);
+
+        const choice2 = invalidChoicesArray.at(1);
+        choice2.get('text')?.setValue('Choice 1');
+        choice2.get('isCorrect')?.setValue(false);
 
         const invalidResult = validator(invalidChoicesArray);
         expect(invalidResult).toEqual({
@@ -289,18 +275,13 @@ describe('QuizQuestionInfoComponent', () => {
         const validator = component['questionChoicesValidator']();
 
         const validChoicesArray = component.choices;
-        validChoicesArray.push(
-            new FormGroup({
-                text: new FormControl('Choice 1'),
-                isCorrect: new FormControl(true),
-            }),
-        );
-        validChoicesArray.push(
-            new FormGroup({
-                text: new FormControl('Choice 2'),
-                isCorrect: new FormControl(false),
-            }),
-        );
+        const choice1 = validChoicesArray.at(0);
+        choice1.get('text')?.setValue('Choice 1');
+        choice1.get('isCorrect')?.setValue(true);
+
+        const choice2 = validChoicesArray.at(1);
+        choice2.get('text')?.setValue('Choice 2');
+        choice2.get('isCorrect')?.setValue(false);
         validChoicesArray.push(
             new FormGroup({
                 text: new FormControl('Choice 3'),
@@ -379,13 +360,13 @@ describe('QuizQuestionInfoComponent', () => {
 
     it('should update choices validators and configure choices for question of QCM type', () => {
         component.questionInfoForm.get('type')?.setValue('QCM');
-        spyOn(component as any, 'configureChoicesQCM');
-        spyOn(component as any, 'patchQCM');
+        spyOn<any>(component, 'configureChoicesQCM');
+        spyOn<any>(component, 'patchQCM');
         spyOn(component.choices, 'updateValueAndValidity');
 
         component.onTypeChange();
 
-        expect(component['configureChoicesQCM']).toHaveBeenCalledWith(component.choices);
+        expect(component['configureChoicesQCM']).toHaveBeenCalled();
         expect(component['patchQCM']).toHaveBeenCalled();
         expect(component.choices.updateValueAndValidity).toHaveBeenCalled();
     });
@@ -395,7 +376,7 @@ describe('QuizQuestionInfoComponent', () => {
         spyOn(component.choices, 'clear');
         spyOn(component.choices, 'clearValidators');
         spyOn(component.choices, 'reset');
-        spyOn(component as any, 'patchQRL');
+        spyOn<any>(component, 'patchQRL');
         spyOn(component.questionInfoForm, 'updateValueAndValidity');
 
         component.onTypeChange();
@@ -414,26 +395,35 @@ describe('QuizQuestionInfoComponent', () => {
             { text: 'Choice 3', isCorrect: true },
         ];
         spyOn(component, 'addChoice');
-        spyOn(component as any, 'configureChoicesQCM').and.callThrough();
+        spyOn<any>(component, 'configureChoicesQCM').and.callThrough();
 
         component.questionInfoForm.get('type')?.setValue('QCM');
         const choicesArray1 = component.questionInfoForm.get('choices') as FormArray;
         choicesArray1.clear();
 
-        component['configureChoicesQCM'](choicesArray1);
+        component['configureChoicesQCM']();
         expect(component.addChoice).toHaveBeenCalledTimes(component['choicesCopy'].length);
+    });
+
+    it('should set requiredChoicesLength to Constants.MIN_CHOICES if choicesCopy is empty', () => {
+        component['choicesCopy'] = [];
+        spyOn(component, 'addChoice').and.callThrough();
+        spyOn<any>(component, 'configureChoicesQCM').and.callThrough();
+
+        component['configureChoicesQCM']();
+        expect(component.addChoice).toHaveBeenCalledTimes(Constants.MIN_CHOICES);
     });
 
     it('should configure choices for QCM type with the default amount of choices if choicesCopy is empty', () => {
         const defaultAddChoiceCalls = 2;
         component['choicesCopy'] = [];
         spyOn(component, 'addChoice');
-        spyOn(component as any, 'configureChoicesQCM').and.callThrough();
+        spyOn<any>(component, 'configureChoicesQCM').and.callThrough();
 
         const choicesArray2 = component.questionInfoForm.get('choices') as FormArray;
         choicesArray2.clear();
 
-        component['configureChoicesQCM'](choicesArray2);
+        component['configureChoicesQCM']();
         expect(component.addChoice).toHaveBeenCalledTimes(defaultAddChoiceCalls);
     });
 
@@ -458,6 +448,14 @@ describe('QuizQuestionInfoComponent', () => {
         expect(invalidResult).toEqual({
             missingChoices: true,
         });
+    });
+
+    it('should initialize choicesCopy as an array and set requiredChoicesLength to a default value', () => {
+        component['choicesCopy'] = undefined as unknown as Choice[];
+        spyOn(component, 'addChoice');
+        component['configureChoicesQCM']();
+        expect(component['choicesCopy']).toEqual([]);
+        expect(component.addChoice).toHaveBeenCalledTimes(2);
     });
 
     it('should return the button text as being "Modifier" when a question is being modified', () => {
