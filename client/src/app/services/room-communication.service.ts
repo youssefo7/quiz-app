@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { JoinRoomResponse } from '@app/interfaces/join-room-response';
+import { JoinRoomResponse, NewRoomResponse } from '@app/interfaces/join-room-response';
 import { Quiz } from '@app/interfaces/quiz';
 import { ChatMessage } from '@common/chat-message';
 import { Results } from '@common/player-info';
@@ -25,8 +25,8 @@ export class RoomCommunicationService {
         return this.http.post<JoinRoomResponse>(`${this.baseUrl}/rooms/${roomId}/join`, data).pipe(catchError(this.receiveError<JoinRoomResponse>()));
     }
 
-    createRoom(data: { quiz: Quiz; socketId: string }): Observable<string> {
-        return this.http.post<string>(`${this.baseUrl}/rooms/new`, data).pipe(catchError(this.receiveError<string>()));
+    createRoom(data: { quiz: Quiz; socketId: string }): Observable<NewRoomResponse> {
+        return this.http.post<NewRoomResponse>(`${this.baseUrl}/rooms/new`, data).pipe(catchError(this.receiveError<NewRoomResponse>()));
     }
 
     getRoomPlayers(roomId: string): Observable<string[]> {

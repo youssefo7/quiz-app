@@ -184,7 +184,7 @@ describe('CreateGameListComponent', () => {
 
         quizCommunicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
         quizCommunicationServiceSpy.checkQuizVisibility.and.returnValue(of(true));
-        mockRoomCommunicationService.createRoom.and.returnValue(of(mockRoomId));
+        mockRoomCommunicationService.createRoom.and.returnValue(of({ roomId: mockRoomId }));
 
         spyOn(mockSocketClientService, 'socketExists').and.returnValue(true);
         Object.defineProperty(mockSocketClientService, 'socket', {
@@ -205,7 +205,7 @@ describe('CreateGameListComponent', () => {
 
         quizCommunicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
         quizCommunicationServiceSpy.checkQuizVisibility.and.returnValue(of(true));
-        mockRoomCommunicationService.createRoom.and.returnValue(of(mockRoomId));
+        mockRoomCommunicationService.createRoom.and.returnValue(of({ roomId: mockRoomId }));
 
         spyOn(mockSocketClientService, 'socketExists').and.returnValue(false);
         const joinRoomSpy = spyOn(mockSocketClientService, 'send');
