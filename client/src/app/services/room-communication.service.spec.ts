@@ -1,7 +1,10 @@
+// Nous avons besoin d'assigner des arrays avec plusieurs valeurs pour les informations d'un chart
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { JoinRoomResponse } from '@app/interfaces/join-room-response';
 import { Quiz } from '@app/interfaces/quiz';
+import { QuestionChartData } from '@common/question-chart-data';
 import { RoomCommunicationService } from './room-communication.service';
 
 describe('RoomCommunicationService', () => {
@@ -14,6 +17,11 @@ describe('RoomCommunicationService', () => {
         { name: 'p1', points: 10, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: true, bonusCount: 2 },
         { name: 'p2', points: 10, hasAbandoned: false, hasClickedOnAnswerField: false, hasConfirmedAnswer: true, bonusCount: 2 },
     ];
+    const mockQuestionsChartData: QuestionChartData[] = [
+        { playersChoices: ['C1', 'C2'], interactionsCount: [10, 20] },
+        { playersChoices: ['C3', 'C4'], interactionsCount: [5, 8] },
+    ];
+
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
@@ -206,5 +214,32 @@ describe('RoomCommunicationService', () => {
         expect(req.request.method).toBe('GET');
 
         req.flush('Room nonExistentId not found', { status: 404, statusText: 'Not Found' });
+    });
+
+    it('should get questions chart data in a room when sending GET request with /rooms/:roomId/chart param (HTTPClient called once)', () => {
+        service.getQuestionsChartData(roomId).subscribe({
+            next: (response) => {
+                expect(response).toEqual(mockQuestionsChartData);
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/rooms/${roomId}/chart`);
+        expect(req.request.method).toBe('GET');
+        req.flush(mockQuestionsChartData);
+    });
+
+    it('should send questions chart data successfully when sending POST request with /rooms/:roomId/chart param (HTTPClient called once)', () => {
+        service.sendQuestionsChartData(roomId, mockQuestionsChartData).subscribe({
+            next: (response) => {
+                expect(response).toEqual(mockQuestionsChartData);
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/rooms/${roomId}/chart`);
+        expect(req.request.method).toBe('POST');
+        expect(req.request.body).toEqual(mockQuestionsChartData);
+        req.flush(mockQuestionsChartData);
     });
 });

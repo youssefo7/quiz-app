@@ -265,4 +265,19 @@ describe('ChatComponent', () => {
         expect(component.roomMessages[0].fromSystem).toBeTruthy();
         expect(component['enableScroll']).toBeTruthy();
     });
+
+    it('should scroll to the bottom of the chat container', () => {
+        const scrollHeightValue = 100;
+        const elementRefSpy = jasmine.createSpyObj('ElementRef', ['nativeElement']);
+        const nativeElementMock = {
+            scrollTop: 0,
+            scrollHeight: scrollHeightValue,
+        };
+        elementRefSpy.nativeElement = nativeElementMock;
+        component['myScrollContainer'] = elementRefSpy;
+
+        component['scrollToBottom']();
+
+        expect(elementRefSpy.nativeElement.scrollTop).toBe(scrollHeightValue);
+    });
 });
