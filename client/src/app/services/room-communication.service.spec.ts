@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { JoinRoomResponse } from '@app/interfaces/join-room-response';
+import { JoinRoomResponse, NewRoomResponse } from '@app/interfaces/join-room-response';
 import { Quiz } from '@app/interfaces/quiz';
 import { QuestionChartData } from '@common/question-chart-data';
 import { RoomCommunicationService } from './room-communication.service';
@@ -76,18 +76,19 @@ describe('RoomCommunicationService', () => {
     });
 
     it('should create a room when sending POST request with quiz and socket id in body (HttpClient called once)', () => {
-        const createData = { quiz: {} as Quiz, socketId: 'mockSocketId' };
+        const postRequestData = { quiz: {} as Quiz, socketId: 'mockSocketId' };
+        const mockNewRoomResponse: NewRoomResponse = { roomId };
 
-        service.createRoom(createData).subscribe({
+        service.createRoom(postRequestData).subscribe({
             next: (response) => {
-                expect(response).toBe(roomId);
+                expect(response).toBe(mockNewRoomResponse);
             },
             error: fail,
         });
 
         const req = httpMock.expectOne(`${baseUrl}/rooms/new`);
         expect(req.request.method).toBe('POST');
-        req.flush(roomId);
+        req.flush(mockNewRoomResponse);
     });
 
     it('should get a list of players in a room when sending GET request with /rooms/:roomId/players param (HTTPClient called once)', () => {

@@ -47,8 +47,8 @@ export class RoomController {
     }
 
     @ApiOkResponse({
-        description: 'Returns room id',
-        type: String,
+        description: 'Returns object containing new room id',
+        type: Object,
     })
     @ApiInternalServerErrorResponse({
         description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
@@ -57,7 +57,7 @@ export class RoomController {
     handleCreateRoom(@Body() data: { quiz: Quiz; socketId: string }, @Res() response: Response) {
         try {
             const roomId = this.roomManagerService.createNewRoom(data.quiz, data.socketId);
-            response.status(HttpStatus.OK).send(roomId);
+            response.status(HttpStatus.OK).json({ roomId });
         } catch (error) {
             response.status(HttpStatus.INTERNAL_SERVER_ERROR).json('Erreur lors de la création de la salle');
         }

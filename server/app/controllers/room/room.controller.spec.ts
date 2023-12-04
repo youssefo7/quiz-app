@@ -116,8 +116,8 @@ describe('RoomController', () => {
             expect(code).toEqual(HttpStatus.OK);
             return res;
         };
-        res.send = (roomId) => {
-            expect(roomId).toEqual('roomId');
+        res.json = (newRoomResponse) => {
+            expect(newRoomResponse).toEqual({ roomId: 'roomId' });
             return res;
         };
 
