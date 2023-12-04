@@ -19,6 +19,7 @@ import { firstValueFrom } from 'rxjs';
 export class PlayerListComponent implements OnInit {
     players: string[];
     bannedPlayers: string[];
+    startGameMessage: string;
     isHost: boolean;
     isLocked: boolean;
     transitionCounter: number;
@@ -49,11 +50,13 @@ export class PlayerListComponent implements OnInit {
         }
         this.listenToSocketEvents();
         this.players = await firstValueFrom(this.roomCommunicationService.getRoomPlayers(this.roomId as string));
+        this.updateStartGameMessage();
     }
 
     toggleGameLock() {
         this.isLocked = !this.isLocked;
         this.socketClientService.send(this.isLocked ? WaitingEvents.LockRoom : WaitingEvents.UnlockRoom, this.roomId);
+        this.updateStartGameMessage();
     }
 
     banPlayer(name: string) {
@@ -62,6 +65,15 @@ export class PlayerListComponent implements OnInit {
 
     startGame() {
         this.socketClientService.send(TimeEvents.StartTimer, { initialTime: 5, tickRate: 1000, roomId: this.roomId });
+    }
+
+    private updateStartGameMessage() {
+        this.startGameMessage =
+            this.players.length === 0
+                ? 'Il doit y avoir au moins un joueur dans la salle pour commencer une partie.'
+                : !this.isLocked
+                ? 'La salle doit être verrouillée avant de commencer la partie.'
+                : '';
     }
 
     private removePlayer(name: string) {
@@ -99,15 +111,18 @@ export class PlayerListComponent implements OnInit {
     private listenToSocketEvents() {
         this.socketClientService.on(JoinEvents.PlayerHasJoined, (name: string) => {
             this.players.push(name);
+            this.updateStartGameMessage();
         });
 
         this.socketClientService.on(WaitingEvents.BanName, (name: string) => {
             this.bannedPlayers.push(name);
             this.removePlayer(name);
+            this.updateStartGameMessage();
         });
 
         this.socketClientService.on(GameEvents.PlayerAbandonedGame, (name: string) => {
             this.removePlayer(name);
+            this.updateStartGameMessage();
         });
 
         this.socketClientService.on(WaitingEvents.BanNotification, () => {
