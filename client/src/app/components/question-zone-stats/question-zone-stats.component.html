@@ -16,7 +16,7 @@
             [questionPoints]="question.points"
             [questionIndex]="currentQuestionIndex"
             [roomId]="roomId"
-            (enableNextQuestionButton)="enableNextQuestionButtonOnEvaluationEnd()"
+            (enableNextQuestionButton)="enableNextQuestionButton()"
         ></app-evaluation-zone>
     </div>
     <button id="submit-zone" (click)="goToNextQuestion()" [disabled]="isNextQuestionButtonDisable">
