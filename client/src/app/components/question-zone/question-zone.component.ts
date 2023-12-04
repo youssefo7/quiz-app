@@ -1,4 +1,4 @@
-// TODO: Revoir si on peut diminuer le nombre de ligne
+// Contient l'affichage et les événements liés à la zone de question
 /* eslint-disable max-lines */
 import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { ButtonStyle } from '@app/interfaces/button-style';

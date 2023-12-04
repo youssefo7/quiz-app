@@ -1,3 +1,5 @@
+@import '~@fortawesome/fontawesome-free/css/all.css';
+
 h2 {
     padding-top: 15px;
     margin: unset;
@@ -16,7 +18,7 @@ form {
     .actions {
         display: flex;
         flex-direction: row;
-        gap: 5px;
+        gap: 10px;
         height: 50%;
         margin-left: 10px;
     }
@@ -35,7 +37,6 @@ form {
     .choice {
         display: flex;
         flex-direction: row;
-        justify-content: space-between;
     }
 
     .choice-def {
@@ -81,6 +82,49 @@ form {
 
     #save-edit-button {
         grid-row: 4/5;
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-align: center;
+            transition: background-color 0.3s;
+            padding: 10px;
+
+            &:disabled {
+                background-color: grey;
+            }
+
+            &:not(:disabled):hover {
+                cursor: pointer;
+                background-color: #0056b3;
+            }
+        }
+    }
+
+    .icons {
+        background: none;
+        border: none;
+        color: #007bff;
+        font-weight: bold;
+        text-shadow: rgba(69, 68, 66, 0.387) 1px 0 5px;
+        padding: unset;
+        margin-right: 10px;
+
+        .mat-icon {
+            font-size: medium;
+            font-weight: bold;
+        }
+
+        &:disabled {
+            color: grey;
+        }
+
+        &:hover:not(:disabled) {
+            cursor: pointer;
+            color: #060688;
+        }
     }
 
     /* Ces attributs ont été trouvés dans l'inspecteur du navigateur quand le slide toggle était sélectionné,
