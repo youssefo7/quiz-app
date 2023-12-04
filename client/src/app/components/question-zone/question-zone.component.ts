@@ -183,10 +183,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
                 this.handleEndOfTimer(isTransitionTimer);
             });
         } else {
-            this.socketClientService.on(TimeEvents.TimerFinished, (isTransitionTimer: boolean) => {
-                this.handleEndOfTimer(isTransitionTimer);
-            });
-
             this.socketClientService.on(TimeEvents.TimerInterrupted, () => {
                 if (this.question.type === QTypes.QCM) {
                     const isTransitionTimer = false;
@@ -195,6 +191,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             });
 
             this.socketClientService.on(TimeEvents.TimerFinished, (isTransitionTimer: boolean) => {
+                this.handleEndOfTimer(isTransitionTimer);
                 if (isTransitionTimer) {
                     this.hasReceivedBonus = false;
                     this.hasInteractedOnce = false;
