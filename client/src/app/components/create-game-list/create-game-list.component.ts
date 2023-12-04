@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
-import { CommunicationService } from '@app/services/communication.service';
+import { QuizCommunicationService } from '@app/services/quiz-communication.service';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { JoinEvents } from '@common/join.events';
@@ -23,7 +23,7 @@ export class CreateGameListComponent implements OnInit, OnDestroy {
     // Raison: J'injecte les services nécessaires dans mon constructeur
     // eslint-disable-next-line max-params
     constructor(
-        private readonly communicationService: CommunicationService,
+        private readonly quizCommunicationService: QuizCommunicationService,
         private readonly roomCommunicationService: RoomCommunicationService,
         private socketClientService: SocketClientService,
         private router: Router,
@@ -55,10 +55,10 @@ export class CreateGameListComponent implements OnInit, OnDestroy {
     }
 
     async checkAndCreateRoom(quiz: Quiz, toTest: boolean = false) {
-        const isQuizAvailable = await firstValueFrom(this.communicationService.checkQuizAvailability(quiz.id));
+        const isQuizAvailable = await firstValueFrom(this.quizCommunicationService.checkQuizAvailability(quiz.id));
 
         if (isQuizAvailable) {
-            const isQuizVisible = await firstValueFrom(this.communicationService.checkQuizVisibility(quiz.id));
+            const isQuizVisible = await firstValueFrom(this.quizCommunicationService.checkQuizVisibility(quiz.id));
 
             if (isQuizVisible) {
                 if (toTest) {
@@ -123,7 +123,7 @@ export class CreateGameListComponent implements OnInit, OnDestroy {
     }
 
     private async getVisibleQuizListFromServer(): Promise<void> {
-        const quizzes = await firstValueFrom(this.communicationService.getQuizzes());
+        const quizzes = await firstValueFrom(this.quizCommunicationService.getQuizzes());
         this.visibleQuizList = quizzes.filter((quiz) => quiz.visibility);
     }
 

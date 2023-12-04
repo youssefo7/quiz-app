@@ -8,7 +8,7 @@ import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
-import { CommunicationService } from '@app/services/communication.service';
+import { QuizCommunicationService } from '@app/services/quiz-communication.service';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { JoinEvents } from '@common/join.events';
@@ -27,7 +27,7 @@ describe('CreateGameListComponent', () => {
     let component: CreateGameListComponent;
     let fixture: ComponentFixture<CreateGameListComponent>;
     let routerSpy: SpyObj<Router>;
-    let communicationServiceSpy: SpyObj<CommunicationService>;
+    let quizCommunicationServiceSpy: SpyObj<QuizCommunicationService>;
     let mockDialog: SpyObj<MatDialog>;
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
     let mockSocketClientService: MockSocketClientService;
@@ -70,8 +70,12 @@ describe('CreateGameListComponent', () => {
         Object.defineProperty(routerSpy, 'url', { value: 'waiting' });
         mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
         mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['componentInstance']);
-        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getQuizzes', 'checkQuizAvailability', 'checkQuizVisibility']);
-        communicationServiceSpy.getQuizzes.and.returnValue(of([]));
+        quizCommunicationServiceSpy = jasmine.createSpyObj('QuizCommunicationService', [
+            'getQuizzes',
+            'checkQuizAvailability',
+            'checkQuizVisibility',
+        ]);
+        quizCommunicationServiceSpy.getQuizzes.and.returnValue(of([]));
         mockRoomCommunicationService = jasmine.createSpyObj('RoomCommunicationService', ['createRoom']);
         mockSocketClientService = jasmine.createSpyObj('SocketClientService', ['connect', 'disconnect', 'socketExists', 'send']);
     });
@@ -86,7 +90,7 @@ describe('CreateGameListComponent', () => {
             imports: [HttpClientTestingModule],
             providers: [
                 { provide: Router, useValue: routerSpy },
-                { provide: CommunicationService, useValue: communicationServiceSpy },
+                { provide: QuizCommunicationService, useValue: quizCommunicationServiceSpy },
                 { provide: MatDialog, useValue: mockDialog },
                 { provide: SocketClientService, useValue: mockSocketClientService },
                 { provide: RoomCommunicationService, useValue: mockRoomCommunicationService },
@@ -112,7 +116,7 @@ describe('CreateGameListComponent', () => {
     });
 
     it('should not display a message if 1 or more games are available', async () => {
-        communicationServiceSpy.getQuizzes.and.returnValue(of(visibleQuizMock));
+        quizCommunicationServiceSpy.getQuizzes.and.returnValue(of(visibleQuizMock));
         await component['getVisibleQuizListFromServer']();
         fixture.detectChanges();
 
@@ -123,7 +127,7 @@ describe('CreateGameListComponent', () => {
     });
 
     it('should show visible games', async () => {
-        communicationServiceSpy.getQuizzes.and.returnValue(of(hiddenQuizMock));
+        quizCommunicationServiceSpy.getQuizzes.and.returnValue(of(hiddenQuizMock));
         await component['getVisibleQuizListFromServer']();
 
         expect(component.visibleQuizList).toEqual([]);
@@ -138,7 +142,7 @@ describe('CreateGameListComponent', () => {
     });
 
     it('should show toggle button when the quiz is visible', async () => {
-        communicationServiceSpy.getQuizzes.and.returnValue(of(visibleQuizMock));
+        quizCommunicationServiceSpy.getQuizzes.and.returnValue(of(visibleQuizMock));
         await component['getVisibleQuizListFromServer']();
         fixture.detectChanges();
 
@@ -159,7 +163,7 @@ describe('CreateGameListComponent', () => {
     });
 
     it('should toggle the quiz details when the toggle button is clicked', async () => {
-        communicationServiceSpy.getQuizzes.and.returnValue(of(visibleQuizMock));
+        quizCommunicationServiceSpy.getQuizzes.and.returnValue(of(visibleQuizMock));
         await component['getVisibleQuizListFromServer']();
         fixture.detectChanges();
 
@@ -178,8 +182,8 @@ describe('CreateGameListComponent', () => {
         const mockRoomId = '1234';
         const joinRoomSpy = spyOn(mockSocketClientService, 'send');
 
-        communicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
-        communicationServiceSpy.checkQuizVisibility.and.returnValue(of(true));
+        quizCommunicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
+        quizCommunicationServiceSpy.checkQuizVisibility.and.returnValue(of(true));
         mockRoomCommunicationService.createRoom.and.returnValue(of(mockRoomId));
 
         spyOn(mockSocketClientService, 'socketExists').and.returnValue(true);
@@ -199,8 +203,8 @@ describe('CreateGameListComponent', () => {
         const mockRoomId = '1234';
         const openConnectionPopUpSpy = spyOn<any>(component, 'openConnectionPopUp');
 
-        communicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
-        communicationServiceSpy.checkQuizVisibility.and.returnValue(of(true));
+        quizCommunicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
+        quizCommunicationServiceSpy.checkQuizVisibility.and.returnValue(of(true));
         mockRoomCommunicationService.createRoom.and.returnValue(of(mockRoomId));
 
         spyOn(mockSocketClientService, 'socketExists').and.returnValue(false);
@@ -217,34 +221,34 @@ describe('CreateGameListComponent', () => {
     });
 
     it('should navigate to test game page if quiz is available and visible', async () => {
-        communicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
-        communicationServiceSpy.checkQuizVisibility.and.returnValue(of(true));
+        quizCommunicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
+        quizCommunicationServiceSpy.checkQuizVisibility.and.returnValue(of(true));
         await component.checkAndCreateRoom(visibleQuizMock[0], true);
 
-        expect(communicationServiceSpy.checkQuizAvailability).toHaveBeenCalled();
-        expect(communicationServiceSpy.checkQuizVisibility).toHaveBeenCalled();
+        expect(quizCommunicationServiceSpy.checkQuizAvailability).toHaveBeenCalled();
+        expect(quizCommunicationServiceSpy.checkQuizVisibility).toHaveBeenCalled();
         expect(routerSpy.navigateByUrl).toHaveBeenCalledOnceWith(`game/${visibleQuizMock[0].id}/test`);
     });
 
     it('should display popup if quiz is hidden', async () => {
-        communicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
-        communicationServiceSpy.checkQuizVisibility.and.returnValue(of(false));
+        quizCommunicationServiceSpy.checkQuizAvailability.and.returnValue(of(true));
+        quizCommunicationServiceSpy.checkQuizVisibility.and.returnValue(of(false));
         const hiddenPopUpSpy = spyOn<any>(component, 'openHiddenPopUp').and.callThrough();
         await component.checkAndCreateRoom(hiddenQuizMock[0]);
 
-        expect(communicationServiceSpy.checkQuizAvailability).toHaveBeenCalled();
-        expect(communicationServiceSpy.checkQuizVisibility).toHaveBeenCalled();
+        expect(quizCommunicationServiceSpy.checkQuizAvailability).toHaveBeenCalled();
+        expect(quizCommunicationServiceSpy.checkQuizVisibility).toHaveBeenCalled();
         expect(hiddenPopUpSpy).toHaveBeenCalled();
     });
 
     it('should display popup if quiz is deleted', async () => {
-        communicationServiceSpy.checkQuizAvailability.and.returnValue(of(false));
-        communicationServiceSpy.checkQuizVisibility.and.returnValue(of(false));
+        quizCommunicationServiceSpy.checkQuizAvailability.and.returnValue(of(false));
+        quizCommunicationServiceSpy.checkQuizVisibility.and.returnValue(of(false));
         const isUnavailableSpy = spyOn(component, 'openUnavailablePopUp').and.callThrough();
         await component.checkAndCreateRoom(hiddenQuizMock[0]);
 
-        expect(communicationServiceSpy.checkQuizAvailability).toHaveBeenCalled();
-        expect(communicationServiceSpy.checkQuizVisibility).not.toHaveBeenCalled();
+        expect(quizCommunicationServiceSpy.checkQuizAvailability).toHaveBeenCalled();
+        expect(quizCommunicationServiceSpy.checkQuizVisibility).not.toHaveBeenCalled();
         expect(isUnavailableSpy).toHaveBeenCalled();
     });
 

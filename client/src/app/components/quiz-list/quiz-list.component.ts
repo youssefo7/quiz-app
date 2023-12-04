@@ -9,8 +9,8 @@ import { ImportPopupComponent } from '@app/components/import-popup/import-popup.
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
-import { CommunicationService } from '@app/services/communication.service';
 import { ImportService } from '@app/services/import.service';
+import { QuizCommunicationService } from '@app/services/quiz-communication.service';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -26,7 +26,7 @@ export class QuizListComponent implements OnInit {
     // Ces services injectés sont nécessaires
     // eslint-disable-next-line max-params
     constructor(
-        private communicationService: CommunicationService,
+        private quizCommunicationService: QuizCommunicationService,
         private popup: MatDialog,
         private importService: ImportService,
         private router: Router,
@@ -67,7 +67,7 @@ export class QuizListComponent implements OnInit {
 
     async toggleVisibility(quiz: Quiz): Promise<void> {
         quiz.visibility = !quiz.visibility;
-        await firstValueFrom(this.communicationService.updateQuiz(quiz.id, quiz));
+        await firstValueFrom(this.quizCommunicationService.updateQuiz(quiz.id, quiz));
     }
 
     openPopupDelete(quiz: Quiz) {
@@ -112,7 +112,7 @@ export class QuizListComponent implements OnInit {
     }
 
     async editQuiz(quiz: Quiz): Promise<void> {
-        const isQuizAvailable = await firstValueFrom(this.communicationService.checkQuizAvailability(quiz.id));
+        const isQuizAvailable = await firstValueFrom(this.quizCommunicationService.checkQuizAvailability(quiz.id));
 
         if (isQuizAvailable) {
             this.router.navigate([`/quiz/${quiz.id}`]);
@@ -123,12 +123,12 @@ export class QuizListComponent implements OnInit {
     }
 
     private async fetchQuizzes(): Promise<void> {
-        this.quizzes = await firstValueFrom(this.communicationService.getQuizzes());
+        this.quizzes = await firstValueFrom(this.quizCommunicationService.getQuizzes());
     }
 
     private async deleteQuiz(quiz: Quiz): Promise<void> {
         try {
-            await firstValueFrom(this.communicationService.deleteQuiz(quiz.id));
+            await firstValueFrom(this.quizCommunicationService.deleteQuiz(quiz.id));
             await this.fetchQuizzes();
         } catch (error) {
             this.message = 'Ce quiz a déjà été supprimé par un autre administrateur.';

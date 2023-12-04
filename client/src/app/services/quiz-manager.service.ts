@@ -6,7 +6,7 @@ import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Choice, Question, Quiz } from '@app/interfaces/quiz';
 import { firstValueFrom } from 'rxjs';
-import { CommunicationService } from './communication.service';
+import { QuizCommunicationService } from './quiz-communication.service';
 
 @Injectable({
     providedIn: 'root',
@@ -18,7 +18,7 @@ export class QuizManagerService {
     quizToModify: Quiz;
 
     constructor(
-        private readonly communicationService: CommunicationService,
+        private readonly quizCommunicationService: QuizCommunicationService,
         private router: Router,
     ) {
         this.getQuizListFromServer();
@@ -28,7 +28,7 @@ export class QuizManagerService {
     // On garde l'utilisation du subscribe (au lieu d'un firstValueFrom) étant donné
     // que le constructeur ne peut pas être async
     getQuizListFromServer() {
-        this.communicationService.getQuizzes().subscribe({
+        this.quizCommunicationService.getQuizzes().subscribe({
             next: (quizzes) => {
                 this.quizzes = quizzes;
             },
@@ -36,13 +36,13 @@ export class QuizManagerService {
     }
 
     async addQuizToServer(newQuiz: Quiz): Promise<void> {
-        await firstValueFrom(this.communicationService.addQuiz(newQuiz));
+        await firstValueFrom(this.quizCommunicationService.addQuiz(newQuiz));
         this.router.navigateByUrl('admin');
     }
 
     async updateQuizOnServer(id: string, updatedQuiz: Quiz): Promise<void> {
         try {
-            await firstValueFrom(this.communicationService.updateQuiz(id, updatedQuiz));
+            await firstValueFrom(this.quizCommunicationService.updateQuiz(id, updatedQuiz));
             this.router.navigateByUrl('admin');
         } catch (error) {
             await this.addQuizToServer(updatedQuiz);
@@ -51,7 +51,7 @@ export class QuizManagerService {
 
     async fetchQuiz(id: string | null): Promise<Quiz | undefined> {
         if (id) {
-            const quiz = await firstValueFrom(this.communicationService.getQuiz(id));
+            const quiz = await firstValueFrom(this.quizCommunicationService.getQuiz(id));
             this.quizToModify = JSON.parse(JSON.stringify(quiz));
             return quiz;
         }

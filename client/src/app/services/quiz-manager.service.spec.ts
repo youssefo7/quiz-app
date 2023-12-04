@@ -9,13 +9,13 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Choice, Question, Quiz } from '@app/interfaces/quiz';
 import { of, throwError } from 'rxjs';
-import { CommunicationService } from './communication.service';
+import { QuizCommunicationService } from './quiz-communication.service';
 import { QuizManagerService } from './quiz-manager.service';
 import SpyObj = jasmine.SpyObj;
 
 describe('QuizManagerService', () => {
     let service: QuizManagerService;
-    let communicationServiceSpy: SpyObj<CommunicationService>;
+    let quizCommunicationServiceSpy: SpyObj<QuizCommunicationService>;
     let routerSpy: SpyObj<Router>;
     let quizToEditMock: Quiz;
     const newQuestion: Question = {
@@ -68,15 +68,15 @@ describe('QuizManagerService', () => {
         },
     ];
     beforeEach(() => {
-        communicationServiceSpy = jasmine.createSpyObj(CommunicationService, ['getQuizzes', 'addQuiz', 'updateQuiz', 'getQuiz']);
-        communicationServiceSpy.getQuizzes.and.returnValue(of([]));
+        quizCommunicationServiceSpy = jasmine.createSpyObj(QuizCommunicationService, ['getQuizzes', 'addQuiz', 'updateQuiz', 'getQuiz']);
+        quizCommunicationServiceSpy.getQuizzes.and.returnValue(of([]));
         routerSpy = jasmine.createSpyObj(Router, ['navigateByUrl']);
     });
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
             providers: [
-                { provide: CommunicationService, useValue: communicationServiceSpy },
+                { provide: QuizCommunicationService, useValue: quizCommunicationServiceSpy },
                 { provide: Router, useValue: routerSpy },
             ],
         }).compileComponents();
@@ -110,29 +110,29 @@ describe('QuizManagerService', () => {
     });
 
     it('should fetch quizzes', () => {
-        communicationServiceSpy.getQuizzes.and.returnValue(of(quizListMock));
+        quizCommunicationServiceSpy.getQuizzes.and.returnValue(of(quizListMock));
         service.getQuizListFromServer();
         expect(service.quizzes).toEqual(quizListMock);
     });
 
     it('should redirect to the admin page when a new quiz is added', async () => {
-        communicationServiceSpy.addQuiz.and.returnValue(of(quizToEditMock));
+        quizCommunicationServiceSpy.addQuiz.and.returnValue(of(quizToEditMock));
 
         await service.addQuizToServer(quizToEditMock);
-        expect(communicationServiceSpy.addQuiz).toHaveBeenCalledWith(quizToEditMock);
+        expect(quizCommunicationServiceSpy.addQuiz).toHaveBeenCalledWith(quizToEditMock);
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('admin');
     });
 
     it('should redirect to admin page when a quiz is updated', async () => {
-        communicationServiceSpy.updateQuiz.and.returnValue(of(quizToEditMock));
+        quizCommunicationServiceSpy.updateQuiz.and.returnValue(of(quizToEditMock));
 
         await service.updateQuizOnServer(quizToEditMock.id, quizToEditMock);
-        expect(communicationServiceSpy.updateQuiz).toHaveBeenCalledWith(quizToEditMock.id, quizToEditMock);
+        expect(quizCommunicationServiceSpy.updateQuiz).toHaveBeenCalledWith(quizToEditMock.id, quizToEditMock);
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('admin');
     });
 
     it('should create a new quiz when updating a deleted quiz', async () => {
-        communicationServiceSpy.updateQuiz.and.returnValue(throwError(() => new Error(`Quiz ${quizToEditMock.id} not found`)));
+        quizCommunicationServiceSpy.updateQuiz.and.returnValue(throwError(() => new Error(`Quiz ${quizToEditMock.id} not found`)));
         const addQuizToServerSpy = spyOn(service, 'addQuizToServer');
 
         await service.updateQuizOnServer(quizToEditMock.id, quizToEditMock);
@@ -140,7 +140,7 @@ describe('QuizManagerService', () => {
     });
 
     it('should return fetched quiz', async () => {
-        communicationServiceSpy.getQuiz.and.returnValue(of(quizToEditMock));
+        quizCommunicationServiceSpy.getQuiz.and.returnValue(of(quizToEditMock));
         const fetchedQuiz = await service.fetchQuiz(quizToEditMock.id);
         expect(fetchedQuiz).toBe(quizToEditMock);
     });
