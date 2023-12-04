@@ -41,15 +41,23 @@
     justify-content: center;
 }
 
-#listComponent {
+#list-component {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
     width: 75%;
-    margin-left: 3%;
+
+    &.player-center {
+        align-items: center;
+        margin-left: 5%;
+    }
+
+    &.host-center {
+        align-items: flex-end;
+        margin-left: 3%;
+    }
 }
 
-#playersList {
+#players-list {
     border-radius: 7px;
     width: 75%;
     background: rgb(131, 193, 255);
@@ -69,7 +77,7 @@
     }
 }
 
-#bannedPlayersList {
+#banned-players-list {
     border-radius: 7px;
     background: rgb(184, 62, 62);
     list-style-position: inside;
@@ -91,13 +99,13 @@
     }
 }
 
-#hostRoomOptions {
+#host-room-options {
     color: lightgray;
     width: 100%;
     display: flex;
     justify-content: center;
 
-    #locksButtons {
+    #locks-buttons {
         width: 100%;
         display: flex;
         pointer-events: auto;
@@ -149,7 +157,7 @@
     padding: 2px;
 }
 
-.banButton {
+.ban-button {
     background-color: transparent;
     border: none;
     cursor: pointer;

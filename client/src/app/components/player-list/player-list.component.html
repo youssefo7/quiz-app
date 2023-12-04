@@ -2,17 +2,17 @@
     <div id="countdown-container" *ngIf="showCountdown">
         <div id="countdown">La partie commence dans: {{ transitionCounter }}</div>
     </div>
-    <div id="listComponent">
-        <ol id="playersList">
+    <div id="list-component" [ngClass]="{ 'player-center': !isHost, 'host-center': isHost }">
+        <ol id="players-list">
             <li class="player" *ngFor="let player of players">
                 <mat-icon class="account">account_circle</mat-icon> <span>{{ player }}</span>
-                <button *ngIf="isHost" class="banButton" (click)="banPlayer(player)">
+                <button *ngIf="isHost" class="ban-button" (click)="banPlayer(player)">
                     <mat-icon class="banIcon">block</mat-icon>
                 </button>
             </li>
         </ol>
     </div>
-    <div *ngIf="isHost" id="bannedPlayersList">
+    <div *ngIf="isHost" id="banned-players-list">
         <ol>
             <li class="player" *ngFor="let player of bannedPlayers">
                 <mat-icon class="account">account_circle</mat-icon> <span>{{ player }}</span>
@@ -20,9 +20,9 @@
         </ol>
     </div>
 </div>
-<div *ngIf="isHost" id="hostRoomOptions">
-    <div id="locksButtons">
-        <button id="lockButton" class="button lock" (click)="toggleGameLock()">
+<div *ngIf="isHost" id="host-room-options">
+    <div id="locks-buttons">
+        <button id="lock-button" class="button lock" (click)="toggleGameLock()">
             <mat-icon title="Verrouiller la partie" *ngIf="!isLocked">lock_open</mat-icon>
             <mat-icon title="Deverrouiller la partie" *ngIf="isLocked">lock</mat-icon>
         </button>
