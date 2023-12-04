@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
+import { NewRoomResponse } from '@app/interfaces/join-room-response';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
 import { CommunicationService } from '@app/services/communication.service';
@@ -65,13 +66,13 @@ export class CreateGameListComponent implements OnInit, OnDestroy {
                     this.router.navigateByUrl(`game/${quiz.id}/test`);
                 } else {
                     if (this.socketClientService.socketExists()) {
-                        let roomId = await firstValueFrom(
+                        const newRoomResponse: NewRoomResponse = await firstValueFrom(
                             this.roomCommunicationService.createRoom({
                                 quiz: this.findSelectedQuizInVisibleList() as Quiz,
                                 socketId: this.socketClientService.socket.id,
                             }),
                         );
-                        roomId = '' + roomId;
+                        const roomId = '' + newRoomResponse.roomId;
                         this.socketClientService.send(JoinEvents.OrganizerJoined, roomId);
                         this.router.navigateByUrl(`/waiting/game/${this.selectedQuizId}/room/${roomId}/host`);
                     } else {
