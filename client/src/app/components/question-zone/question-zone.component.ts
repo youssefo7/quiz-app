@@ -35,7 +35,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
     pointsManager: PointsManager;
     private currentQuestionIndex: number;
     private isTimerFinishedSubscription: Subscription;
-    private gameServiceSubscription: Subscription;
     private hasSentAnswer: boolean;
     private hasReceivedBonus: boolean;
     private hasModifiedText: boolean;
@@ -105,9 +104,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             this.timeService.stopTimer();
             if (this.isTimerFinishedSubscription) {
                 this.isTimerFinishedSubscription.unsubscribe();
-            }
-            if (this.gameServiceSubscription) {
-                this.gameServiceSubscription.unsubscribe();
             }
         }
     }
@@ -183,10 +179,6 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
                 this.handleEndOfTimer(isTransitionTimer);
             });
         } else {
-            this.socketClientService.on(TimeEvents.TimerFinished, (isTransitionTimer: boolean) => {
-                this.handleEndOfTimer(isTransitionTimer);
-            });
-
             this.socketClientService.on(TimeEvents.TimerInterrupted, () => {
                 if (this.question.type === QTypes.QCM) {
                     const isTransitionTimer = false;
@@ -195,14 +187,7 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
             });
 
             this.socketClientService.on(TimeEvents.TimerFinished, (isTransitionTimer: boolean) => {
-                if (isTransitionTimer) {
-                    this.hasReceivedBonus = false;
-                    this.hasInteractedOnce = false;
-                    this.pointsManager = this.gameService.resetPointsManager(this.pointsManager);
-                    ++this.currentQuestionIndex;
-                    this.getQuestion(this.currentQuestionIndex);
-                    this.hasSentAnswer = false;
-                }
+                this.handleEndOfTimer(isTransitionTimer);
             });
 
             this.socketClientService.on(TimeEvents.CurrentTimer, (time: number) => {
@@ -321,6 +306,13 @@ export class QuestionZoneComponent implements OnInit, OnDestroy {
                 if (this.question.type === QTypes.QCM) {
                     this.givePointsRealGame();
                 }
+            } else {
+                this.hasReceivedBonus = false;
+                this.hasInteractedOnce = false;
+                this.pointsManager = this.gameService.resetPointsManager(this.pointsManager);
+                ++this.currentQuestionIndex;
+                this.getQuestion(this.currentQuestionIndex);
+                this.hasSentAnswer = false;
             }
         }
     }
