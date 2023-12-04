@@ -63,7 +63,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         }
     }
 
-    enableNextQuestionButtonOnEvaluationEnd() {
+    enableNextQuestionButton() {
         this.isNextQuestionButtonDisable = false;
     }
 
@@ -108,7 +108,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     private handleEndOfQuestion() {
         this.socketClientService.send(GameEvents.SaveChartData, this.roomId);
         if (this.shouldEnableNextQuestionButtonAtEndOfTimer) {
-            this.isNextQuestionButtonDisable = false;
+            this.enableNextQuestionButton();
         }
     }
 

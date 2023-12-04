@@ -1,7 +1,7 @@
 // Nous avons besoin du any pour spy sur les méthodes privées
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { EvaluationZoneComponent } from '@app/components/evaluation-zone/evaluation-zone.component';
@@ -9,10 +9,11 @@ import { GamePlayersListComponent } from '@app/components/game-players-list/game
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
+import { QTypes } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { TimeEvents } from '@common/time.events';
 import { NgChartsModule } from 'ng2-charts';
-import { of } from 'rxjs';
+import { Subscription, of } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import { QuestionZoneStatsComponent } from './question-zone-stats.component';
 
@@ -91,8 +92,20 @@ describe('QuestionZoneStatsComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    // TODO: Fix ce test
-    it('should send NextQuestion or SendResults event when clicking next question button', () => {
+    it('should check if socket exists on init', () => {
+        const socketExistsSpy = spyOn(clientSocketServiceMock, 'socketExists');
+        component.ngOnInit();
+        expect(socketExistsSpy).toHaveBeenCalled();
+    });
+
+    it('should unsubscribe from time service on destroy', () => {
+        component['timeServiceSubscription'] = new Subscription();
+        const unsubscribeSpy = spyOn(component['timeServiceSubscription'], 'unsubscribe');
+        component.ngOnDestroy();
+        expect(unsubscribeSpy).toHaveBeenCalled();
+    });
+
+    it('should send NextQuestion event when clicking next question button', fakeAsync(() => {
         const roomId = '123';
         const sendSpy = spyOn(clientSocketServiceMock, 'send');
         component.roomId = roomId;
@@ -101,10 +114,24 @@ describe('QuestionZoneStatsComponent', () => {
 
         component.goToNextQuestion();
         expect(sendSpy).toHaveBeenCalledWith(GameEvents.NextQuestion, roomId);
+    }));
 
+    it('should send SendResults event when clicking next question button and lastQuestionIndex equals currentQuestionIndex', fakeAsync(() => {
+        const roomId = '123';
+        const sendSpy = spyOn(clientSocketServiceMock, 'send');
+        spyOn(component['chartDataManager'], 'sendChartData').and.returnValue(Promise.resolve());
+        component.roomId = roomId;
         component['currentQuestionIndex'] = 1;
+        component['lastQuestionIndex'] = 1;
+
         component.goToNextQuestion();
-        //  expect(sendSpy).toHaveBeenCalledWith(GameEvents.SendResults, roomId);
+        tick();
+        expect(sendSpy).toHaveBeenCalledWith(GameEvents.SendResults, roomId);
+    }));
+
+    it('should enable next question button and set its style on evaluation end', () => {
+        component.enableNextQuestionButton();
+        expect(component.isNextQuestionButtonDisable).toBeFalse();
     });
 
     it('should prepare for next question on NextQuestion event', () => {
@@ -133,6 +160,14 @@ describe('QuestionZoneStatsComponent', () => {
         expect(handleEndOfQuestionSpy).toHaveBeenCalled();
     });
 
+    it('should enable next question button and handle end of question on TimerFinished event', () => {
+        const handleEndOfQuestionSpy = spyOn<any>(component, 'handleEndOfQuestion');
+        const isTransitionTimer = false;
+        socketHelper.peerSideEmit(TimeEvents.TimerFinished, isTransitionTimer);
+        expect(component['shouldEnableNextQuestionButtonAtEndOfTimer']).toBeTruthy();
+        expect(handleEndOfQuestionSpy).toHaveBeenCalled();
+    });
+
     it('should show next question on TransitionClockFinished event', () => {
         const showNextQuestionSpy = spyOn<any>(component, 'showNextQuestion');
         const isTransitionTimer = true;
@@ -149,5 +184,31 @@ describe('QuestionZoneStatsComponent', () => {
         component['showNextQuestion']();
         expect(component['currentQuestionIndex']).toEqual(currentQuestionIndex + 1);
         expect(getQuestionSpy).toHaveBeenCalledWith(currentQuestionIndex + 1);
+    });
+
+    it('should handle end of question', () => {
+        component['shouldEnableNextQuestionButtonAtEndOfTimer'] = true;
+        const sendSpy = spyOn(clientSocketServiceMock, 'send');
+
+        component['handleEndOfQuestion']();
+        expect(sendSpy).toHaveBeenCalledWith(GameEvents.SaveChartData, component.roomId);
+        expect(component['isNextQuestionButtonDisable']).toBeFalsy();
+    });
+
+    it('should send TimerInterrupted event if timer is not finished', () => {
+        const sendSpy = spyOn(clientSocketServiceMock, 'send');
+        component['socketTime'] = 1;
+
+        socketHelper.peerSideEmit(GameEvents.AllPlayersSubmitted);
+        expect(sendSpy).toHaveBeenCalledWith(TimeEvents.TimerInterrupted, component.roomId);
+    });
+
+    it('should send GiveBonus if question type is QCM', () => {
+        const sendSpy = spyOn(clientSocketServiceMock, 'send');
+        component['question'] = { type: QTypes.QCM, text: 'test question', points: 10, choices: [] };
+        component['socketTime'] = 0;
+
+        socketHelper.peerSideEmit(GameEvents.AllPlayersSubmitted);
+        expect(sendSpy).toHaveBeenCalledWith(GameEvents.GiveBonus, component.roomId);
     });
 });
