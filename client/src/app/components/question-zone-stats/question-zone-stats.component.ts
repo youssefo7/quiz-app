@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { ChartDataManagerService } from '@app/services/chart-data-manager.service';
 import { SocketClientService } from '@app/services/socket-client.service';
@@ -6,14 +6,13 @@ import { QTypes } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { PlayerSubmission } from '@common/player-submission';
 import { TimeEvents } from '@common/time.events';
-import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-question-zone-stats',
     templateUrl: './question-zone-stats.component.html',
     styleUrls: ['./question-zone-stats.component.scss'],
 })
-export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
+export class QuestionZoneStatsComponent implements OnInit {
     @Input() quiz: Quiz;
     @Input() roomId: string;
     question: Question;
@@ -23,7 +22,6 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     isQRLBeingEvaluated: boolean;
     currentQuestionIndex: number;
     private lastQuestionIndex: number;
-    private timeServiceSubscription: Subscription;
     private socketTime: number;
     private shouldEnableNextQuestionButtonAtEndOfTimer: boolean;
 
@@ -48,12 +46,6 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         this.setEvents();
     }
 
-    ngOnDestroy() {
-        if (this.timeServiceSubscription) {
-            this.timeServiceSubscription.unsubscribe();
-        }
-    }
-
     async goToNextQuestion() {
         if (this.currentQuestionIndex !== this.lastQuestionIndex) {
             this.socketClientService.send(GameEvents.NextQuestion, this.roomId);
@@ -63,7 +55,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         }
     }
 
-    enableNextQuestionButtonOnEvaluationEnd() {
+    enableNextQuestionButton() {
         this.isNextQuestionButtonDisable = false;
     }
 
@@ -108,7 +100,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     private handleEndOfQuestion() {
         this.socketClientService.send(GameEvents.SaveChartData, this.roomId);
         if (this.shouldEnableNextQuestionButtonAtEndOfTimer) {
-            this.isNextQuestionButtonDisable = false;
+            this.enableNextQuestionButton();
         }
     }
 
