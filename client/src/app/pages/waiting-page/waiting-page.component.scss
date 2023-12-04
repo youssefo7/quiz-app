@@ -19,15 +19,23 @@
         cursor: pointer;
     }
 
-    #roomId {
+    #room-id {
         text-align: center;
-        width: 50%;
         display: flex;
-        justify-content: flex-end;
-        margin-right: 3.5%;
+        justify-content: center;
+
+        &.player-center {
+            width: 100%;
+            margin-right: 7%;
+        }
+
+        &.host-center {
+            width: 50%;
+            margin-left: 20%;
+        }
     }
 
-    #bannedList {
+    #banned-list {
         text-align: center;
         width: 50%;
         display: flex;
