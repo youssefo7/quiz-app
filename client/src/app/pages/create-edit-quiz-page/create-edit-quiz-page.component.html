@@ -7,7 +7,7 @@
         </form>
         <div id="save-button">
             <p *ngIf="newQuiz.questions.length === 0" style="color: brown">Veuillez ajouter au moins une question pour sauvegarder...</p>
-            <button (click)="openQuizConfirmation()" [disabled]="!isQuizFormValid()">Sauvegarder le questionnaire</button>
+            <button class="button" (click)="openQuizConfirmation()" [disabled]="!isQuizFormValid()">Sauvegarder le questionnaire</button>
         </div>
     </div>
     <div id="questions-container">
@@ -20,18 +20,22 @@
             >
                 <div class="question-content">
                     <div class="question-actions">
-                        <button type="button" (click)="moveQuestionUp(i)" [disabled]="i === 0">
-                            <mat-icon [inline]="true">arrow_upward</mat-icon>
-                        </button>
-                        <button type="button" (click)="moveQuestionDown(i)" [disabled]="i === newQuiz.questions.length - 1">
-                            <mat-icon [inline]="true">arrow_downward</mat-icon>
-                        </button>
-                        <button (click)="modifyQuestion(question, i)">
-                            <mat-icon [inline]="true">edit</mat-icon>
-                        </button>
-                        <button (click)="deleteQuestion(i)">
-                            <mat-icon [inline]="true">delete</mat-icon>
-                        </button>
+                        <div>
+                            <button class="icons" type="button" (click)="moveQuestionUp(i)" [disabled]="i === 0">
+                                <mat-icon [inline]="true">arrow_upward</mat-icon>
+                            </button>
+                            <button class="icons" type="button" (click)="moveQuestionDown(i)" [disabled]="i === newQuiz.questions.length - 1">
+                                <mat-icon [inline]="true">arrow_downward</mat-icon>
+                            </button>
+                        </div>
+                        <div>
+                            <button class="icons" (click)="modifyQuestion(question, i)">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="icons" (click)="deleteQuestion(i)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="question-info">
                         <p>Question : {{ question.text }}</p>

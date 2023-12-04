@@ -1,4 +1,4 @@
-// TODO: Revoir si on peut réduire la taille de ce fichier
+// Ce fichier contient tous les évévements du compte à rebours de la partie
 /* eslint-disable max-lines */
 // On a besoin du any pour espionner sur les méthodes privées
 /* eslint-disable @typescript-eslint/no-explicit-any */

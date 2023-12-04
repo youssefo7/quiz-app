@@ -58,8 +58,8 @@
 
     <div id="add-choice" *ngIf="questionInfoForm.get('type')?.value === 'QCM'">
         <label>Choix : </label>
-        <button type="button" (click)="addChoice()" [disabled]="choices.length >= maxChoices">
-            <mat-icon [inline]="true">add</mat-icon>
+        <button type="button" class="icons" (click)="addChoice()" [disabled]="choices.length >= maxChoices">
+            <i class="fa-solid fa-plus iconClick" title="Ajouter un choix"></i>
         </button>
 
         <ol formArrayName="choices" [ngClass]="{ infoPadding: isChoicesValid }">
@@ -82,14 +82,14 @@
                     </div>
 
                     <div class="actions">
-                        <button type="button" (click)="moveChoiceUp(i)" [disabled]="i === 0">
+                        <button type="button" class="icons" (click)="moveChoiceUp(i)" [disabled]="i === 0">
                             <mat-icon [inline]="true">arrow_upward</mat-icon>
                         </button>
-                        <button type="button" (click)="moveChoiceDown(i)" [disabled]="i === choices.length - 1">
+                        <button type="button" class="icons" (click)="moveChoiceDown(i)" [disabled]="i === choices.length - 1">
                             <mat-icon [inline]="true">arrow_downward</mat-icon>
                         </button>
-                        <button type="button" (click)="removeChoice(i)">
-                            <mat-icon [inline]="true">delete</mat-icon>
+                        <button type="button" class="icons" (click)="removeChoice(i)">
+                            <i class="fas fa-trash"></i>
                         </button>
                     </div>
                 </div>

@@ -1,3 +1,5 @@
+@import '~@fortawesome/fontawesome-free/css/all.css';
+
 h2 {
     margin: unset;
 }
@@ -8,10 +10,6 @@ h2 {
     margin-top: 15px;
     align-items: center;
     gap: 6%;
-
-    button {
-        padding: 5px;
-    }
 }
 
 #container {
@@ -46,6 +44,9 @@ h2 {
             padding: 5px 10px;
 
             .question-actions {
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
                 grid-row: 1/2;
                 justify-self: flex-end;
             }
@@ -71,6 +72,65 @@ h2 {
 
 .qcm {
     border: 4px solid #bf9aff;
+}
+
+.button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+    transition: background-color 0.3s;
+    padding: 10px;
+
+    &:disabled {
+        background-color: grey;
+    }
+
+    &:not(:disabled):hover {
+        cursor: pointer;
+        background-color: #0056b3;
+    }
+}
+
+.icons {
+    background: none;
+    border: none;
+    color: #007bff;
+    font-weight: bold;
+    text-shadow: rgba(69, 68, 66, 0.387) 1px 0 5px;
+    padding: unset;
+    margin-right: 10px;
+
+    .mat-icon {
+        font-size: medium;
+        font-weight: bold;
+    }
+
+    &:disabled {
+        color: grey;
+    }
+
+    &:hover:not(:disabled) {
+        cursor: pointer;
+        color: #060688;
+    }
+}
+
+.fa,
+.fas,
+.fa-solid {
+    color: #007bff;
+    font-weight: bold;
+    text-shadow: rgba(69, 68, 66, 0.387) 1px 0 5px;
+}
+
+.fa:hover,
+.fas:hover,
+.fa-solid:hover {
+    color: #060688;
+    font-weight: bold;
+    cursor: pointer;
 }
 
 // Code tiré de https://www.w3schools.com/howto/howto_css_custom_scrollbar.asp
