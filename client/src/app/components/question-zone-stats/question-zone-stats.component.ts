@@ -1,5 +1,4 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { ButtonStyle } from '@app/interfaces/button-style';
 import { Question, Quiz } from '@app/interfaces/quiz';
 import { ChartDataManagerService } from '@app/services/chart-data-manager.service';
 import { SocketClientService } from '@app/services/socket-client.service';
@@ -20,7 +19,6 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     question: Question;
     isNextQuestionButtonDisable: boolean;
     nextQuestionButtonText: string;
-    nextQuestionButtonStyle: ButtonStyle;
     playersQRLAnswers: PlayerSubmission[];
     isQRLBeingEvaluated: boolean;
     currentQuestionIndex: number;
@@ -36,7 +34,6 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
         this.currentQuestionIndex = 0;
         this.isNextQuestionButtonDisable = true;
         this.nextQuestionButtonText = 'Prochaine Question';
-        this.nextQuestionButtonStyle = { backgroundColor: '' };
         this.socketTime = 0;
         this.isQRLBeingEvaluated = false;
         this.playersQRLAnswers = [];
@@ -67,9 +64,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     }
 
     enableNextQuestionButtonOnEvaluationEnd() {
-        const buttonStyle: ButtonStyle = { backgroundColor: 'rgb(18, 18, 217)' };
         this.isNextQuestionButtonDisable = false;
-        this.nextQuestionButtonStyle = buttonStyle;
     }
 
     private setEvents() {
@@ -113,9 +108,7 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     private handleEndOfQuestion() {
         this.socketClientService.send(GameEvents.SaveChartData, this.roomId);
         if (this.shouldEnableNextQuestionButtonAtEndOfTimer) {
-            const buttonStyle: ButtonStyle = { backgroundColor: 'rgb(18, 18, 217)' };
             this.isNextQuestionButtonDisable = false;
-            this.nextQuestionButtonStyle = buttonStyle;
         }
     }
 
@@ -126,12 +119,10 @@ export class QuestionZoneStatsComponent implements OnInit, OnDestroy {
     }
 
     private handleNextQuestion() {
-        const buttonStyle: ButtonStyle = { backgroundColor: '' };
         this.socketClientService.on(GameEvents.NextQuestion, () => {
             this.shouldEnableNextQuestionButtonAtEndOfTimer = false;
             this.playersQRLAnswers = [];
             this.isNextQuestionButtonDisable = true;
-            this.nextQuestionButtonStyle = buttonStyle;
         });
     }
 

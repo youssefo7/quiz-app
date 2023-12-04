@@ -68,20 +68,24 @@ describe('HistoryComponent', () => {
         component.sortHistory('name');
         expect(component.history[0].name).toEqual('test');
         expect(component['isSortingByName']).toBeTruthy();
+        expect(component['isSortingByDate']).toBeFalsy();
 
         component.sortHistory('name');
         expect(component.history[0].name).toEqual('abc');
         expect(component['isSortingByName']).toBeTruthy();
+        expect(component['isSortingByDate']).toBeFalsy();
     });
 
     it('should sort history by date', () => {
         component.sortHistory('date');
         expect(component.history[0].date).toEqual('2021-10-11 01:02:03');
         expect(component['isSortingByName']).toBeFalsy();
+        expect(component['isSortingByDate']).toBeTruthy();
 
         component.sortHistory('date');
         expect(component.history[0].date).toEqual('2021-10-10 01:02:03');
         expect(component['isSortingByName']).toBeFalsy();
+        expect(component['isSortingByDate']).toBeTruthy();
     });
 
     it('should display delete history popup with the correct configuration', () => {

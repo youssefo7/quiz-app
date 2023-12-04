@@ -1,3 +1,5 @@
+@import '~@fortawesome/fontawesome-free/css/all.css';
+
 #player-list {
     box-sizing: border-box;
     flex-direction: column;
@@ -13,31 +15,52 @@ table {
     table-layout: fixed;
 }
 
-th, td {
-    text-align: center;
-    vertical-align: bottom;
+th,
+td {
+    text-align: left;
+    vertical-align: middle;
     padding: 7px;
     text-overflow: ellipsis;
     overflow: hidden;
 }
 
-.player-score, .player-bonus {
+.player-score {
+    width: 30%;
+}
+
+.player-score,
+.player-bonus {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
     padding: 10px;
 }
 
-.player-name.abandoned {
-    text-decoration: line-through;
-    color: black;
+th.player-name {
+    width: 45%;
 }
 
-.player-name {
+td.player-name {
+    width: 45%;
     color: red;
     font-weight: bold;
     text-overflow: ellipsis;
     overflow: hidden;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.player-name {
+    .mat-icon {
+        &:hover {
+            cursor: pointer;
+        }
+    }
+}
+
+.player-name.abandoned {
+    text-decoration: line-through;
+    color: black;
 }
 
 .player-name.interacted {
@@ -61,13 +84,12 @@ th, td {
     margin-left: 10px;
 }
 
-#order-by-state {
-    background: linear-gradient(to bottom, rgb(249, 73, 73), rgb(227, 227, 89), rgb(71, 208, 71), rgb(47, 46, 46));
-}
-
 /* Ces attributs ont été trouvés dans l'inspecteur du navigateur quand le slide toggle était sélectionné,
     les valeurs de couleur ont été changées pour correspondre avec l'apparence voulue */
-.chat-button{
+.chat-button {
+    text-align: center;
+    width: 25%;
+
     .mat-mdc-slide-toggle.mat-accent {
         --mdc-switch-selected-focus-state-layer-color: #2f8832;
         --mdc-switch-selected-handle-color: #2f8832;
@@ -93,4 +115,22 @@ th, td {
         --mdc-switch-unselected-pressed-handle-color: #b71c1c;
         --mdc-switch-unselected-handle-color: #c62828;
     }
+}
+
+.fa,
+.fas,
+.fa-solid {
+    color: #007bff;
+    font-weight: bold;
+    text-shadow: rgba(69, 68, 66, 0.387) 1px 0 5px;
+    font-size: larger;
+    margin-left: 5px;
+}
+
+.fa:hover,
+.fas:hover,
+.fa-solid:hover {
+    color: #060688;
+    font-weight: bold;
+    cursor: pointer;
 }

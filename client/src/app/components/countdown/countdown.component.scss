@@ -2,14 +2,13 @@ p {
     font-size: small;
     text-align: center;
     margin: unset;
+    font-weight: bold;
 }
 
 #countdown-background {
-    background-color: lightblue;
-    border-style: solid;
+    background-color: skyblue;
+    border: 3px solid black;
     border-radius: 50%;
-    border-color: black;
-    border-width: 3px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -22,16 +21,48 @@ p {
         font-weight: bold;
         max-width: 100%;
         max-height: 90%;
+        background: none;
     }
 }
 
 #countdown-options {
     display: flex;
-    flex-direction: row;
     width: 100%;
     justify-content: space-evenly;
 
     button {
+        border: none;
+        border-radius: 5px;
         font-size: large;
+        transition: box-shadow 0.3s;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        color: white;
+
+        &:disabled {
+            background-color: grey;
+            opacity: 0.5;
+        }
+
+        &#pause {
+            &:not(:disabled) {
+                background-color: #007bff;
+
+                &:hover {
+                    cursor: pointer;
+                    background-color: #0069d9;
+                }
+            }
+        }
+
+        &#panic {
+            &:not(:disabled) {
+                background-color: #de3647;
+
+                &:hover {
+                    cursor: pointer;
+                    background-color: #921723;
+                }
+            }
+        }
     }
 }
