@@ -1,3 +1,6 @@
+/* Raison : on n'a besoin de beaucoup de lignes pour set le formulaire
+dans le bon état initial dépendamment du test */
+/* eslint-disable max-lines */
 // any est nécessaire pour espionner les méthodes privées
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -339,5 +342,53 @@ describe('QuizManagerService', () => {
 
         const resultQuiz = service.hasQuizBeenModified(quiz as unknown as Quiz);
         expect(resultQuiz).toBe(true);
+    });
+
+    it('should adjust the modifiedIndex of a question when it is moved up', () => {
+        const previousFirstQuestion = quizToEditMock.questions[0];
+        service.addNewQuestion(newQuestion, quizToEditMock);
+        service.modifiedIndex = 1;
+
+        service.moveQuestionUp(1, quizToEditMock);
+        expect(quizToEditMock.questions.length).toEqual(2);
+        expect(quizToEditMock.questions[0]).toEqual(newQuestion);
+        expect(quizToEditMock.questions[1]).toEqual(previousFirstQuestion);
+        expect(service.modifiedIndex).toBe(0);
+    });
+
+    it('should adjust the modifiedIndex of a question when it is moved down', () => {
+        const previousFirstQuestion = quizToEditMock.questions[0];
+        service.addNewQuestion(newQuestion, quizToEditMock);
+        service.modifiedIndex = 0;
+
+        service.moveQuestionDown(0, quizToEditMock);
+        expect(quizToEditMock.questions.length).toEqual(2);
+        expect(quizToEditMock.questions[1]).toEqual(previousFirstQuestion);
+        expect(quizToEditMock.questions[0]).toEqual(newQuestion);
+        expect(service.modifiedIndex).toBe(1);
+    });
+
+    it('should adjust the modifiedIndex of the swapped question when a question is moved down', () => {
+        const previousFirstQuestion = quizToEditMock.questions[0];
+        service.addNewQuestion(newQuestion, quizToEditMock);
+        service.modifiedIndex = 1;
+
+        service.moveQuestionDown(0, quizToEditMock);
+        expect(quizToEditMock.questions.length).toEqual(2);
+        expect(quizToEditMock.questions[1]).toEqual(previousFirstQuestion);
+        expect(quizToEditMock.questions[0]).toEqual(newQuestion);
+        expect(service.modifiedIndex).toBe(0);
+    });
+
+    it('should adjust the modifiedIndex of the swapped question when a question is moved up', () => {
+        const previousFirstQuestion = quizToEditMock.questions[0];
+        service.addNewQuestion(newQuestion, quizToEditMock);
+        service.modifiedIndex = 0;
+
+        service.moveQuestionUp(1, quizToEditMock);
+        expect(quizToEditMock.questions.length).toEqual(2);
+        expect(quizToEditMock.questions[0]).toEqual(newQuestion);
+        expect(quizToEditMock.questions[1]).toEqual(previousFirstQuestion);
+        expect(service.modifiedIndex).toBe(1);
     });
 });
