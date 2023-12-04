@@ -115,12 +115,21 @@ describe('ResultsPageComponent', () => {
         expect(roomCommunicationServiceMock.getRoomQuiz).toHaveBeenCalledWith(roomIdMock);
     });
 
-    it('should toggle the display results to either the player list or the chart data', () => {
+    it('should change the title of the toggleButton depending of the value of shouldHideResults', () => {
         component.shouldHideResults = false;
-        component['toggleResultsDisplay']();
-        expect(component.shouldHideResults).toBeTruthy();
+        component.toggleResultsDisplay();
+        expect(component.titleToggleButton).toEqual('Afficher les scores finaux des joueurs');
+        component.shouldHideResults = true;
+        component.toggleResultsDisplay();
+        expect(component.titleToggleButton).toEqual('Afficher les statistiques de la partie');
+    });
 
-        component['toggleResultsDisplay']();
-        expect(component.shouldHideResults).toBeFalsy();
+    it('should change the title of the page depending of the value of shouldHideResults', () => {
+        component.shouldHideResults = false;
+        component.toggleResultsDisplay();
+        expect(component.pageTitle).toEqual('Statistiques de la partie');
+        component.shouldHideResults = true;
+        component.toggleResultsDisplay();
+        expect(component.pageTitle).toEqual('Scores des joueurs');
     });
 });
