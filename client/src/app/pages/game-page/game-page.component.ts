@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
-import { CommunicationService } from '@app/services/communication.service';
+import { QuizCommunicationService } from '@app/services/quiz-communication.service';
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { SocketDisconnectionService } from '@app/services/socket-disconnection.service';
@@ -37,7 +37,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         private readonly socketClientService: SocketClientService,
         private readonly socketDisconnectService: SocketDisconnectionService,
         private readonly roomCommunicationService: RoomCommunicationService,
-        private readonly communicationService: CommunicationService,
+        private readonly quizCommunicationService: QuizCommunicationService,
     ) {
         this.title = 'Partie: ';
         this.playerPoints = 0;
@@ -109,7 +109,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     private async getQuiz() {
         if (this.isTestGame) {
             const quizId = this.route.snapshot.paramMap.get('quizId') as string;
-            this.quiz = await firstValueFrom(this.communicationService.getQuiz(quizId));
+            this.quiz = await firstValueFrom(this.quizCommunicationService.getQuiz(quizId));
         } else {
             const roomId = this.route.snapshot.paramMap.get('roomId') as string;
             this.quiz = await firstValueFrom(this.roomCommunicationService.getRoomQuiz(roomId));

@@ -10,8 +10,8 @@ import { ImportPopupComponent } from '@app/components/import-popup/import-popup.
 import { PopupMessageComponent } from '@app/components/popup-message/popup-message.component';
 import { PopupMessageConfig } from '@app/interfaces/popup-message-config';
 import { Quiz } from '@app/interfaces/quiz';
-import { CommunicationService } from '@app/services/communication.service';
 import { ImportService } from '@app/services/import.service';
+import { QuizCommunicationService } from '@app/services/quiz-communication.service';
 import { of, throwError } from 'rxjs';
 import { QuizListComponent } from './quiz-list.component';
 import SpyObj = jasmine.SpyObj;
@@ -19,7 +19,7 @@ import SpyObj = jasmine.SpyObj;
 describe('QuizListComponent', () => {
     let component: QuizListComponent;
     let fixture: ComponentFixture<QuizListComponent>;
-    let communicationService: CommunicationService;
+    let quizCommunicationService: QuizCommunicationService;
     let mockImportService: SpyObj<ImportService>;
     let mockDialog: SpyObj<MatDialog>;
     let mockDialogRef: SpyObj<MatDialogRef<PopupMessageComponent>>;
@@ -74,7 +74,7 @@ describe('QuizListComponent', () => {
     });
 
     beforeEach(() => {
-        communicationService = TestBed.inject(CommunicationService);
+        quizCommunicationService = TestBed.inject(QuizCommunicationService);
         mockDialog.open.and.returnValue(mockDialogRef);
         fixture = TestBed.createComponent(QuizListComponent);
         component = fixture.componentInstance;
@@ -87,7 +87,7 @@ describe('QuizListComponent', () => {
 
     it('should successfully import quiz', async () => {
         const mockEvent = new Event('change');
-        spyOn(communicationService, 'getQuizzes').and.returnValue(of(mockQuizList));
+        spyOn(quizCommunicationService, 'getQuizzes').and.returnValue(of(mockQuizList));
         spyOn(component, 'importSuccessPopup').and.callThrough();
 
         await component.handleImport(mockEvent);
@@ -111,7 +111,7 @@ describe('QuizListComponent', () => {
 
     it('should catch error from selectQuiz', async () => {
         const error = new Error('test');
-        spyOn(communicationService, 'getQuizzes').and.returnValue(of(mockQuizList));
+        spyOn(quizCommunicationService, 'getQuizzes').and.returnValue(of(mockQuizList));
         mockImportService.selectQuiz.and.throwError(error);
 
         const mockEvent = new Event('change');
@@ -124,7 +124,7 @@ describe('QuizListComponent', () => {
 
     it('should catch error from importQuiz', async () => {
         const error = new Error('test');
-        spyOn(communicationService, 'getQuizzes').and.returnValue(of(mockQuizList));
+        spyOn(quizCommunicationService, 'getQuizzes').and.returnValue(of(mockQuizList));
         mockImportService.importQuiz.and.throwError(error);
 
         const mockEvent = new Event('change');
@@ -136,30 +136,30 @@ describe('QuizListComponent', () => {
     });
 
     it('should fetch quiz list on window load', fakeAsync(() => {
-        spyOn(communicationService, 'getQuizzes').and.returnValue(of(mockQuizList));
+        spyOn(quizCommunicationService, 'getQuizzes').and.returnValue(of(mockQuizList));
 
         component.ngOnInit();
         tick();
 
         expect(component.quizzes).toEqual(mockQuizList);
-        expect(communicationService.getQuizzes).toHaveBeenCalled();
+        expect(quizCommunicationService.getQuizzes).toHaveBeenCalled();
     }));
 
     it('should call delete quiz service with the correct quiz', async () => {
-        spyOn(communicationService, 'getQuizzes').and.returnValue(of(mockQuizList));
-        spyOn(communicationService, 'deleteQuiz').and.returnValue(of(propQuiz.id));
+        spyOn(quizCommunicationService, 'getQuizzes').and.returnValue(of(mockQuizList));
+        spyOn(quizCommunicationService, 'deleteQuiz').and.returnValue(of(propQuiz.id));
 
         await component['deleteQuiz'](propQuiz);
 
-        expect(communicationService.deleteQuiz).toHaveBeenCalledWith(propQuiz.id);
+        expect(quizCommunicationService.deleteQuiz).toHaveBeenCalledWith(propQuiz.id);
     });
 
     it('should call update quiz service with the correct quiz', async () => {
-        spyOn(communicationService, 'updateQuiz').and.returnValue(of(propQuiz));
+        spyOn(quizCommunicationService, 'updateQuiz').and.returnValue(of(propQuiz));
 
         await component.toggleVisibility(propQuiz);
 
-        expect(communicationService.updateQuiz).toHaveBeenCalledWith(propQuiz.id, propQuiz);
+        expect(quizCommunicationService.updateQuiz).toHaveBeenCalledWith(propQuiz.id, propQuiz);
     });
 
     it('should export the quiz', () => {
@@ -212,14 +212,14 @@ describe('QuizListComponent', () => {
 
     it('should popup a warning message when the user tries to delete a quiz that is already deleted', async () => {
         spyOn<any>(component, 'openPopupWarning');
-        spyOn(communicationService, 'deleteQuiz').and.returnValue(throwError(() => HttpStatusCode.NotFound));
+        spyOn(quizCommunicationService, 'deleteQuiz').and.returnValue(throwError(() => HttpStatusCode.NotFound));
         await component['deleteQuiz'](propQuiz);
 
         expect(component['openPopupWarning']).toHaveBeenCalled();
     });
 
     it('should navigate to edit page when editing a quiz that is available', async () => {
-        spyOn(communicationService, 'checkQuizAvailability').and.returnValue(of(true));
+        spyOn(quizCommunicationService, 'checkQuizAvailability').and.returnValue(of(true));
         await component.editQuiz(propQuiz);
         expect(router.navigate).toHaveBeenCalledWith([`/quiz/${propQuiz.id}`]);
     });
@@ -230,7 +230,7 @@ describe('QuizListComponent', () => {
             hasCancelButton: false,
         };
 
-        spyOn(communicationService, 'checkQuizAvailability').and.returnValue(of(false));
+        spyOn(quizCommunicationService, 'checkQuizAvailability').and.returnValue(of(false));
         spyOn<any>(component, 'openPopupWarning').and.callThrough();
         await component.editQuiz(propQuiz);
         expect(component['openPopupWarning']).toHaveBeenCalledWith(mockConfig.message);

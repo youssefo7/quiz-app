@@ -1,18 +1,18 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Quiz } from '@app/interfaces/quiz';
-import { CommunicationService } from '@app/services/communication.service';
+import { QuizCommunicationService } from '@app/services/quiz-communication.service';
 
 describe('CommunicationService', () => {
     let httpMock: HttpTestingController;
-    let service: CommunicationService;
+    let service: QuizCommunicationService;
     let baseUrl: string;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
         });
-        service = TestBed.inject(CommunicationService);
+        service = TestBed.inject(QuizCommunicationService);
         httpMock = TestBed.inject(HttpTestingController);
         baseUrl = service['baseUrl'];
     });

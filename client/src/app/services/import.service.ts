@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Quiz } from '@app/interfaces/quiz';
-import { CommunicationService } from '@app/services/communication.service';
+import { QuizCommunicationService } from '@app/services/quiz-communication.service';
 import { lastValueFrom } from 'rxjs';
 
 @Injectable({
@@ -8,7 +8,7 @@ import { lastValueFrom } from 'rxjs';
 })
 export class ImportService {
     quizToImport: File;
-    constructor(private communicationService: CommunicationService) {}
+    constructor(private quizCommunicationService: QuizCommunicationService) {}
 
     selectQuiz(event: Event) {
         const input = event.target as HTMLInputElement;
@@ -40,7 +40,7 @@ export class ImportService {
             }
             quiz.visibility = false;
 
-            await lastValueFrom(this.communicationService.importQuiz(quiz));
+            await lastValueFrom(this.quizCommunicationService.importQuiz(quiz));
         } catch (error) {
             if (error instanceof Error) {
                 throw new Error(error.message);

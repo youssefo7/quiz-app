@@ -7,8 +7,8 @@ import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
-import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
+import { QuizCommunicationService } from '@app/services/quiz-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { TimeService } from '@app/services/time.service';
 import { QTypes } from '@common/constants';
@@ -37,14 +37,14 @@ describe('QuestionZoneComponent', () => {
     let debugElement: DebugElement;
     let setButtonSpy: jasmine.Spy;
     let clientSocketServiceMock: MockSocketClientService;
-    let communicationServiceMock: jasmine.SpyObj<CommunicationService>;
+    let quizCommunicationServiceMock: jasmine.SpyObj<QuizCommunicationService>;
     let timeServiceMock: jasmine.SpyObj<TimeService>;
     let socketHelper: SocketTestHelper;
 
     beforeEach(() => {
         clientSocketServiceMock = jasmine.createSpyObj('SocketClientService', ['on', 'send', 'socketExists']);
-        communicationServiceMock = jasmine.createSpyObj('CommunicationService', ['getQuiz']);
-        communicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
+        quizCommunicationServiceMock = jasmine.createSpyObj('QuizCommunicationService', ['getQuiz']);
+        quizCommunicationServiceMock.getQuiz.and.returnValue(of(mockedQuiz));
         timeServiceMock = jasmine.createSpyObj('TimeService', ['getTime', 'stopTimer', 'isTimerFinished']);
         timeServiceMock.getTime.and.returnValue(of(0));
         timeServiceMock.isTimerFinished.and.returnValue(of(false));
@@ -60,7 +60,7 @@ describe('QuestionZoneComponent', () => {
             providers: [
                 { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '123' }, url: ['test'] } } },
                 { provide: SocketClientService, useValue: clientSocketServiceMock },
-                { provide: CommunicationService, useValue: communicationServiceMock },
+                { provide: QuizCommunicationService, useValue: quizCommunicationServiceMock },
                 { provide: TimeService, useValue: timeServiceMock },
             ],
         }).compileComponents();

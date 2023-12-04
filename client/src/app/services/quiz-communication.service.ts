@@ -8,7 +8,7 @@ import { environment } from 'src/environments/environment';
 @Injectable({
     providedIn: 'root',
 })
-export class CommunicationService {
+export class QuizCommunicationService {
     private readonly baseUrl: string = environment.serverUrl;
 
     constructor(private http: HttpClient) {}
