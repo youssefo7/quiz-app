@@ -1,8 +1,9 @@
-// La raison du disable est puisque dans la méthode verifyQuestion, il y a beaucoup de vérifications imbriquées qui doivent être fait
-// et la complexité de celui-ci est élevée.
+// La raison du disable est puisque dans la méthode verifyQuestion, il y a beaucoup de vérifications imbriquées qui doivent être faites
+// et la complexité de celle-ci est élevée.
 /* eslint-disable complexity */
 import { ChoiceType, QuestionType, Quiz, QuizDocument } from '@app/model/database/quiz';
 import { Constants, QTypes } from '@common/constants';
+import { getDateTimeString } from '@common/time-format';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -30,7 +31,7 @@ export class QuizzesService {
 
     async addQuiz(quiz: Quiz): Promise<Quiz> {
         quiz.id = '';
-        quiz.lastModification = new Date().toISOString();
+        quiz.lastModification = getDateTimeString(new Date());
         const addedQuiz = await this.quizModel.create(quiz);
         // Mongo a la propriété _id
         // eslint-disable-next-line no-underscore-dangle
@@ -40,7 +41,7 @@ export class QuizzesService {
     }
 
     async updateQuiz(id: string, updatedQuiz: Quiz): Promise<Quiz> {
-        updatedQuiz.lastModification = new Date().toISOString();
+        updatedQuiz.lastModification = getDateTimeString(new Date());
         const quiz = await this.quizModel.findOneAndUpdate({ id }, updatedQuiz, { new: true });
         if (!quiz) {
             throw new Error(`Quiz ${id} not found`);

@@ -1,5 +1,4 @@
 export enum GameEvents {
-    StartGame = 'startGame',
     PlayerLeaveGame = 'playerLeaveGame',
     EndGame = 'endGame',
     GoodAnswer = 'goodAnswer',

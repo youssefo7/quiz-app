@@ -5,11 +5,11 @@ import { HistoryCommunicationService } from '@app/services/history-communication
 import { RoomCommunicationService } from '@app/services/room-communication.service';
 import { SocketClientService } from '@app/services/socket-client.service';
 import { ChatEvents } from '@common/chat.events';
-import { Constants } from '@common/constants';
 import { GameEvents } from '@common/game.events';
 import { Results } from '@common/player-info';
 import { PlayerPoints } from '@common/player-points';
 import { PlayerSubmission } from '@common/player-submission';
+import { getDateTimeString } from '@common/time-format';
 import { TimeEvents } from '@common/time.events';
 import { firstValueFrom } from 'rxjs';
 
@@ -37,9 +37,9 @@ export class GamePlayersListComponent implements OnInit {
     isSortedByState: boolean;
     isSortedByName: boolean;
     private quizId: string;
-    private currentDateTime: string;
+    private currentDateTime: Date;
 
-    // Raison: Les quatres injections sont nécessaires pour ma composante
+    // Raison: Toutes les injections sont nécessaires pour ma composante
     // eslint-disable-next-line max-params
     constructor(
         private socketService: SocketClientService,
@@ -55,7 +55,7 @@ export class GamePlayersListComponent implements OnInit {
         this.shouldSortPointsAscending = true;
         this.shouldSortStatesAscending = true;
         this.isHost = this.route.snapshot.url.some((segment) => segment.path === 'host');
-        this.currentDateTime = new Date().toISOString();
+        this.currentDateTime = new Date();
         this.isSortedByName = false;
         this.isSortedByPoints = false;
         this.isSortedByState = false;
@@ -244,15 +244,14 @@ export class GamePlayersListComponent implements OnInit {
 
     private async addGameToHistory() {
         const quiz = await firstValueFrom(this.roomCommunicationService.getRoomQuiz(this.roomId as string));
-        const date = this.currentDateTime.split('T')[0];
-        const time = this.currentDateTime.split('T')[1].substring(0, Constants.TIME_LENGTH);
+        const timeString: string = getDateTimeString(this.currentDateTime);
 
         const playersSortedByPoints = [...this.playerResults];
         playersSortedByPoints.sort((a, b) => b.points - a.points);
 
         const game: History = {
             name: quiz.title,
-            date: `${date} ${time}`,
+            date: timeString,
             numberOfPlayers: playersSortedByPoints.length,
             maxScore: playersSortedByPoints[0].points,
         };

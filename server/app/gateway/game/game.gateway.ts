@@ -14,11 +14,6 @@ export class GameGateway {
 
     constructor(private roomManager: RoomManagerService) {}
 
-    @SubscribeMessage(GameEvents.StartGame)
-    handleStartGame(_: Socket, roomId: string) {
-        this.server.to(roomId).emit(GameEvents.StartGame);
-    }
-
     @SubscribeMessage(GameEvents.PlayerLeaveGame)
     handlePlayerLeaveGame(socket: Socket, data: { roomId: string; isInGame: boolean }) {
         const room = this.roomManager.findRoom(data.roomId);

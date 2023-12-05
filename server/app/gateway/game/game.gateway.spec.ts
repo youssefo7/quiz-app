@@ -75,16 +75,6 @@ describe('GameGateway', () => {
         expect(gateway).toBeDefined();
     });
 
-    it('handleStartGame() should emit a message to the room when the game is about to begin', () => {
-        server.to.returns({
-            emit: (event: string) => {
-                expect(event).toEqual(GameEvents.StartGame);
-            },
-        } as BroadcastOperator<unknown, unknown>);
-        gateway.handleStartGame(socket, roomId);
-        expect(server.to.calledWith(roomId)).toBeTruthy();
-    });
-
     it('handlePlayerLeaveGame() should delete the room if there are no more players in an active game', () => {
         roomManagerServiceMock.rooms[0].players = [
             { socketId: socket.id, name: 'testName', points: 0, bonusCount: 0, canChat: true, hasSubmitted: false },

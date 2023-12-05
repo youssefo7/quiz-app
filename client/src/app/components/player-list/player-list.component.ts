@@ -85,7 +85,6 @@ export class PlayerListComponent implements OnInit {
         if (!this.isHost) {
             this.router.navigateByUrl(`game/${quizId}/room/${this.roomId}`);
         } else {
-            this.socketClientService.send(GameEvents.StartGame, this.roomId);
             this.router.navigateByUrl(`game/${quizId}/room/${this.roomId}/host`);
         }
     }

@@ -1,6 +1,7 @@
 import { RoomManagerService } from '@app/services/room-manager/room-manager.service';
 import { ChatMessage } from '@common/chat-message';
 import { ChatEvents } from '@common/chat.events';
+import { getTimeString } from '@common/time-format';
 import { Injectable } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
@@ -15,8 +16,8 @@ export class ChatGateway {
     handleRoomMessage(socket: Socket, data: { roomId: string; message: string }) {
         const room = this.roomManager.findRoom(data.roomId);
         const user = this.roomManager.findUser(socket.id, room);
-        const time = new Date();
-        const timeString = time.getHours() + ':' + time.getMinutes() + ':' + time.getSeconds();
+        const date = new Date();
+        const timeString = getTimeString(date);
         const newChatMessage: ChatMessage = {
             authorName: user.name,
             time: timeString,

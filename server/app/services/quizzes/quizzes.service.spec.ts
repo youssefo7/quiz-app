@@ -119,7 +119,6 @@ describe('QuizzesService', () => {
 
     it('should add a Quiz', async () => {
         const createdId = 'createdId';
-        const dateModificationSpy = jest.spyOn(Date.prototype, 'toISOString');
 
         const newQuiz: Quiz = {
             ...mockQuizzes[0],
@@ -134,10 +133,8 @@ describe('QuizzesService', () => {
         });
 
         const addedQuiz = await service.addQuiz(newQuiz);
-        expect(dateModificationSpy).toHaveBeenCalled();
         expect(quizModel.create).toHaveBeenCalledWith(newQuiz);
         expect(addedQuiz.id).toEqual(createdId);
-        dateModificationSpy.mockRestore();
     });
 
     it('should update a Quiz', async () => {

@@ -4,7 +4,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatIcon } from '@angular/material/icon';
-import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { Quiz } from '@app/interfaces/quiz';
 import { HistoryCommunicationService } from '@app/services/history-communication.service';
@@ -358,7 +358,9 @@ describe('GamePlayersListComponent', () => {
         component.playerResults = [...playersListMock];
         component.playerResults[3].points = 100;
         component.roomId = '123';
-        component['currentDateTime'] = '2011-10-05T14:48:00.000Z';
+        // Raison : alléger la création de la date suivante
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        component['currentDateTime'] = new Date(2011, 10, 5, 14, 48, 0);
         const mockQuiz = { title: 'Test Quiz' };
         const expectedHistory = {
             name: mockQuiz.title,

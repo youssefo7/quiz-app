@@ -191,14 +191,14 @@ describe('PlayerListComponent', () => {
         expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('game/123/room/456');
     });
 
-    it('should send startGame event when Host starts the game', () => {
+    it('should send StartTimer event when Host starts the game', () => {
         spyOn(mockSocketClientService, 'send');
         component.isHost = true;
         component.startGame();
         expect(mockSocketClientService.send).toHaveBeenCalledWith(TimeEvents.StartTimer, { initialTime: 5, tickRate: 1000, roomId: '456' });
     });
 
-    it('should navigate to the host game room and send StartGame event when the user is the Host', () => {
+    it('should navigate to the host game room when the user is the Host', () => {
         spyOn(mockSocketClientService, 'send');
         component.isHost = true;
         component['gameBeginsRedirection']();
