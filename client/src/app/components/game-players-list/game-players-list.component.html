@@ -1,42 +1,43 @@
 <div id="player-list" *ngIf="playerResults">
     <table>
         <tr>
-            <th class="player-name">
-                Nom
+            <th [ngClass]="{ 'results-center': isResultsRoute }" class="player-name">
+                <span *ngIf="isResultsRoute">Nom</span>
+                <span class="hover" *ngIf="!isResultsRoute" (click)="sortByName()">Nom</span>
                 <span *ngIf="!isResultsRoute" (click)="sortByName()" title="Trier par le nom des joueurs">
                     <i *ngIf="!isSortedByName" class="fa-solid fa-sort"></i>
                     <i *ngIf="isSortedByName && !shouldSortNamesAscending" class="fa-solid fa-sort-up"></i>
                     <i *ngIf="isSortedByName && shouldSortNamesAscending" class="fa-solid fa-sort-down"></i>
                 </span>
-                <span *ngIf="!isResultsRoute"> | État </span>
                 <span
                     *ngIf="!isResultsRoute"
                     title="Trier par l'état des joueurs
                     Ordre Ascendant:
-                    - N'a pas intéragit (rouge)
-                    - À interagi (jaune)
-                    - À soumis (vert)
-                    - À abandonné (noir)                    
+                    - N'a pas interagi (rouge)
+                    - A interagi (jaune)
+                    - A soumis (vert)
+                    - A abandonné (noir)                    
                     "
                     [ngClass]="{ ascending: shouldSortStatesAscending }"
-                    id="order-by-state"
+                    class="hover"
                     (click)="sortByState()"
                 >
+                    | État
                     <i *ngIf="!isSortedByState" class="fa-solid fa-sort"></i>
                     <i *ngIf="isSortedByState && !shouldSortStatesAscending" class="fa-solid fa-sort-up"></i>
                     <i *ngIf="isSortedByState && shouldSortStatesAscending" class="fa-solid fa-sort-down"></i>
                 </span>
             </th>
-            <th *ngIf="!isResultsRoute" class="player-score">
-                Score
-                <span (click)="sortByPoints()" title="Trier par le score des joueurs">
+            <th [ngClass]="{ 'results-center': isResultsRoute }" *ngIf="!isResultsRoute" class="player-score">
+                <span class="hover" (click)="sortByPoints()">Score</span>
+                <span class="hover" (click)="sortByPoints()" title="Trier par le score des joueurs">
                     <i *ngIf="!isSortedByPoints" class="fa-solid fa-sort"></i>
                     <i *ngIf="isSortedByPoints && !shouldSortPointsAscending" class="fa-solid fa-sort-up"></i>
                     <i *ngIf="isSortedByPoints && shouldSortPointsAscending" class="fa-solid fa-sort-down"></i
                 ></span>
             </th>
-            <th *ngIf="isResultsRoute">Score final</th>
-            <th *ngIf="isResultsRoute">Bonus</th>
+            <th [ngClass]="{ 'results-center': isResultsRoute }" *ngIf="isResultsRoute">Score final</th>
+            <th [ngClass]="{ 'results-center': isResultsRoute }" *ngIf="isResultsRoute">Bonus</th>
             <th *ngIf="isHost && !isResultsRoute" class="chat-button">Droit de clavarder</th>
         </tr>
         <tr *ngFor="let player of playerResults" class="player-entry">
@@ -46,14 +47,15 @@
                 [class]="{
                     abandoned: player.hasAbandoned,
                     interacted: player.hasClickedOnAnswerField,
-                    'confirmed-answer': player.hasConfirmedAnswer
+                    'confirmed-answer': player.hasConfirmedAnswer,
+                    'results-center': isResultsRoute
                 }"
             >
                 {{ player.name }}
             </td>
-            <td *ngIf="isResultsRoute" class="player-name-result-page">{{ player.name }}</td>
-            <td class="player-score">{{ player.points }} points</td>
-            <td *ngIf="isResultsRoute" class="player-bonus">{{ player.bonusCount }} fois</td>
+            <td [ngClass]="{ 'results-center': isResultsRoute }" *ngIf="isResultsRoute" class="player-name-result-page">{{ player.name }}</td>
+            <td [ngClass]="{ 'results-center': isResultsRoute }" class="player-score">{{ player.points }} points</td>
+            <td [ngClass]="{ 'results-center': isResultsRoute }" *ngIf="isResultsRoute" class="player-bonus">{{ player.bonusCount }} fois</td>
             <td *ngIf="isHost && !isResultsRoute" class="chat-button">
                 <mat-slide-toggle [checked]="true" [disabled]="player.hasAbandoned" (change)="toggleChattingRights(player.name)"></mat-slide-toggle>
             </td>

@@ -47,7 +47,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
         this.canChat = true;
         this.lostChatPermissionMessage = "L'oganisateur a limité vos droits de clavardage";
         this.grantedChatPermissionMessage = "L'oganisateur a rétabli vos droits de clavardage";
-        this.giveChattingRightsToAll = "L'organisateur a rétabli les droits de clavardage à tout le monde";
+        this.giveChattingRightsToAll = "L'organisateur a rétabli les droits de clavardage à tous les joueurs";
         this.enableScroll = false;
     }
 

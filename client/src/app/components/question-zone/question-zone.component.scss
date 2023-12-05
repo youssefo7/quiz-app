@@ -98,6 +98,10 @@
             border: solid medium;
             border-radius: 5px;
             background-color: azure;
+
+            &:disabled {
+                background-color: #dedede;
+            }
         }
 
         #counter {
