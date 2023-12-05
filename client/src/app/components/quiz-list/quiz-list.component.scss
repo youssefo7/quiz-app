@@ -33,23 +33,6 @@
     cursor: pointer;
 }
 
-#nom {
-    display: flex;
-    justify-content: flex-start;
-}
-
-#date-created {
-    display: flex;
-    justify-content: center;
-    margin-left: 3%;
-}
-
-#actions {
-    display: flex;
-    justify-content: center;
-    margin-left: 4%;
-}
-
 #list-title {
     display: flex;
     justify-content: space-between;
@@ -76,7 +59,18 @@
     border-bottom: 1px solid #ccc;
     p {
         flex: 1;
-        padding: 0 10px;
+    }
+
+    #name {
+        margin-left: 3%;
+    }
+
+    #date-created {
+        margin-left: 3%;
+    }
+
+    #actions {
+        text-align: center;
     }
 }
 

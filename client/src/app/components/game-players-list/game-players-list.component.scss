@@ -2,17 +2,25 @@
 
 #player-list {
     box-sizing: border-box;
-    flex-direction: column;
     width: 100%;
     height: 100%;
     background-color: #ffffff;
     border-radius: 5px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    padding: 2%;
 }
 
 table {
     width: 100%;
     table-layout: fixed;
+}
+
+.player-entry {
+    transition: background-color 0.3s;
+
+    &:hover {
+        background-color: #f0f0f0;
+    }
 }
 
 th,
@@ -22,6 +30,7 @@ td {
     padding: 7px;
     text-overflow: ellipsis;
     overflow: hidden;
+    border-bottom: 1px solid #ccc;
 }
 
 .player-score {
@@ -86,6 +95,12 @@ td.player-name {
     margin-left: 10px;
 }
 
+.hover {
+    &:hover {
+        cursor: pointer;
+    }
+}
+
 /* Ces attributs ont été trouvés dans l'inspecteur du navigateur quand le slide toggle était sélectionné,
     les valeurs de couleur ont été changées pour correspondre avec l'apparence voulue */
 .chat-button {
@@ -135,4 +150,8 @@ td.player-name {
     color: #060688;
     font-weight: bold;
     cursor: pointer;
+}
+
+.results-center {
+    text-align: center;
 }

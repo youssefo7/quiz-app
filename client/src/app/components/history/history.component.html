@@ -2,29 +2,34 @@
     <div id="history-list">
         <div id="history-title">
             <h1>Historique</h1>
-            <i *ngIf="!isHistoryEmpty" class="fas fa-trash" title="Supprimer l'historique de partie" (click)="openDeleteHistoryPopUp()"></i>
+            <i
+                *ngIf="!isHistoryEmpty"
+                class="fas fa-trash"
+                title="Supprimer toutes les parties de l'historique"
+                (click)="openDeleteHistoryPopUp()"
+            ></i>
         </div>
         <div class="grid-container">
-            <p class="name" (click)="sortHistory('name')">
+            <p class="name fit-content" (click)="sortHistory('name')">
                 Nom du jeu
                 <i *ngIf="!isSortingByName" class="fa-solid fa-sort"></i>
                 <i *ngIf="isSortingByName && isNameAscending" class="fa-solid fa-sort-up"></i>
                 <i *ngIf="isSortingByName && !isNameAscending" class="fa-solid fa-sort-down"></i>
             </p>
-            <p class="date" (click)="sortHistory('date')">
+            <p class="date fit-content" (click)="sortHistory('date')">
                 Date
                 <i *ngIf="!isSortingByDate" class="fa-solid fa-sort"></i>
                 <i *ngIf="isSortingByDate && isDateAscending" class="fa-solid fa-sort-up"></i>
                 <i *ngIf="isSortingByDate && !isDateAscending" class="fa-solid fa-sort-down"></i>
             </p>
-            <p class="players">Nombre de joueurs</p>
-            <p class="score">Meilleur score</p>
+            <p class="players center-flex">Nombre de joueurs</p>
+            <p class="score center-flex">Meilleur score</p>
         </div>
         <div *ngFor="let game of history" class="grid-container items-container">
-            <span class="name" class="items" [title]="game.name">{{ game.name }}</span>
-            <span class="date" class="items" [title]="game.date">{{ game.date }}</span>
-            <span class="players" class="items">{{ game.numberOfPlayers }}</span>
-            <span class="score" class="items">{{ game.maxScore }}</span>
+            <span class="items" [title]="game.name">{{ game.name }}</span>
+            <span class="items" [title]="game.date">{{ game.date }}</span>
+            <span class="items center">{{ game.numberOfPlayers }}</span>
+            <span class="items center">{{ game.maxScore }}</span>
         </div>
     </div>
 </div>

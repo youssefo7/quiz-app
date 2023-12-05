@@ -17,7 +17,7 @@
         </div>
         <div *ngFor="let quiz of quizzes">
             <div id="quiz-item">
-                <span>{{ quiz.title }}</span>
+                <span [title]="quiz.title">{{ quiz.title }}</span>
                 <span>{{ quiz.lastModification }}</span>
                 <div>
                     <span

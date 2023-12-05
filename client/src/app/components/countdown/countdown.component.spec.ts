@@ -191,7 +191,7 @@ describe('CountdownComponent', () => {
         component['isTestGame'] = true;
         component['leaveGameClock']();
 
-        expect(component.message).toEqual('Redirection vers «Créer une Partie»');
+        expect(component.message).toEqual('Redirection vers <br> «Créer une Partie»');
         expect(component.clockStyle).toEqual({ backgroundColor: 'white' });
         expect(timeServiceMock.startTimer).toHaveBeenCalledWith(exitTime, true);
     }));

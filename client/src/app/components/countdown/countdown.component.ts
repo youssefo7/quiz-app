@@ -219,7 +219,7 @@ export class CountdownComponent implements OnInit, OnDestroy {
     private async leaveGameClock() {
         const exitTransitionTime = 3;
         const isTransitionTimer = true;
-        this.message = 'Redirection vers «Créer une Partie»';
+        this.message = 'Redirection vers <br> «Créer une Partie»';
         this.clockStyle = { backgroundColor: 'white' };
 
         if (this.isTestGame) {
