@@ -126,7 +126,7 @@ export class QuizzesService {
 
     private verifyQuestion(question: QuestionType, index: number, errors: string[]) {
         const isDefinedQuestionType = question.type && typeof question.type === 'string';
-        const isValidQuestionType = question.type === 'QCM' || question.type === 'QRL';
+        const isValidQuestionType = question.type === QTypes.QCM || question.type === QTypes.QRL;
         if (!isDefinedQuestionType || !isValidQuestionType) {
             errors.push(`Type de la question ${index + 1} invalide ou manquant ('QCM' ou 'QRL'))`);
         }

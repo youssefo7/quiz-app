@@ -211,8 +211,8 @@ export class QuizQuestionInfoComponent implements OnInit {
                 return { missingChoices: true };
             }
 
-            const hasCorrectChoice = validChoices.some((choice: AbstractControl) => choice.get('isCorrect')?.value === true);
-            const hasIncorrectChoice = validChoices.some((choice: AbstractControl) => choice.get('isCorrect')?.value === false);
+            const hasCorrectChoice = validChoices.some((choice: AbstractControl) => choice.get('isCorrect')?.value);
+            const hasIncorrectChoice = validChoices.some((choice: AbstractControl) => !choice.get('isCorrect')?.value);
 
             if (!hasCorrectChoice || !hasIncorrectChoice) {
                 return { missingCorrectOrIncorrectChoice: true };
