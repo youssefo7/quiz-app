@@ -1,8 +1,5 @@
 # QUIZZ APP SETUP
 
--   client : le site Web fait avec le cadriciel(_framework_) **Angular**.
--   serveur : le serveur dynamique bâti avec la librairie **Express** ou **NestJs** ([selon votre choix](#choix-du-serveur)).
-
 # Commandes npm
 
 Les commandes commençant par `npm` devront être exécutées dans les dossiers `client` et `server`. Les scripts non standard doivent être lancés en lançant `npm run myScript`.
